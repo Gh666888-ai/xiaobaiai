@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baby Elf</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #f0e8ff; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c" width="520" height="680"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const cx = 260, cy = 340;
+
+const C = {
+  skin: '#FFF0E8', skinD: '#F0D0C8',
+  hair: '#FAFAFA', hairD: '#E8E0F0',
+  eyeBlue: '#4A9FFF', eyeBlueD: '#1A60E0',
+  eyeWhite: '#FFFFFF',
+  pink: '#FFB8D8', pinkL: '#FFD8F0',
+  lavender: '#D8C0FF', blue: '#B8D8FF',
+  gold: '#FFE8A0', goldL: '#FFF4D0',
+  cloud: '#FFFBF8', cloudS: '#FFE8F8',
+  magic: '#E8D0FF', sparkW: '#FFFFFF',
+  tutu1: '#FFD0E8', tutu2: '#E0D0FF', tutu3: '#D0E8FF',
+  arm: '#FFE0EC'
+};
+
+function rr(ctx) { ctx.restore(); }
+
+// ── Sky gradient ──
+const sky = ctx.createLinearGradient(0, 0, 0, 680);
+sky.addColorStop(0, '#E8D8FF');
+sky.addColorStop(0.3, '#FFE0F0');
+sky.addColorStop(0.65, '#FFE8D8');
+sky.addColorStop(1, '#D8F0FF');
+ctx.fillStyle = sky;
+ctx.fillRect(0, 0, 520, 680);
+
+// ── Background clouds ──
+function drawCloud(x, y, rx, ry, alpha, color) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+  // bumps
+  ctx.beginPath(); ctx.ellipse(x-rx*0.5, y-ry*0.4, rx*0.5, ry*0.6, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x+rx*0.5, y-ry*0.3, rx*0.55, ry*0.65, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x-rx*0.2, y+ry*0.1, rx*0.6, ry*0.5, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x+rx*0.3, y+ry*0.2, rx*0.45, ry*0.45, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+}
+
+// Pink cloud top-right
+drawCloud(400, 80, 80, 40, 0.45, C.pinkL);
+// Golden cloud top-left
+drawCloud(80, 60, 90, 38, 0.35, C.goldL);
+// Lavender cloud top-center
+drawCloud(200, 40, 70, 32, 0.3, C.lavender);
+// Pink cloud bottom-right
+drawCloud(430, 580, 100, 45, 0.5, '#FFE0F4');
+// Blue cloud bottom-left
+drawCloud(60, 540, 80, 36, 0.4, '#D8EEFF');
+// Soft cloud center-right
+drawCloud(460, 300, 55, 28, 0.3, C.cloudS);
+
+// ── Sparkles ──
+function sparkle(x, y, r, alpha) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = C.sparkW;
+  ctx.lineWidth = 1.2;
+  // 4-point star
+  ctx.beginPath();
+  ctx.moveTo(x-r, y); ctx.lineTo(x+r, y);
+  ctx.moveTo(x, y-r); ctx.lineTo(x, y+r);
+  ctx.moveTo(x-r*0.5, y-r*0.5); ctx.lineTo(x+r*0.5, y+r*0.5);
+  ctx.moveTo(x+r*0.5, y-r*0.5); ctx.lineTo(x-r*0.5, y+r*0.5);
+  ctx.stroke();
+  // small center dot
+  ctx.beginPath(); ctx.arc(x, y, r*0.25, 0, Math.PI*2);
+  ctx.fillStyle = C.gold; ctx.fill();
+  ctx.restore();
+}
+
+// 16 sparkles scattered around
+const sparks = [
+  [80,100,8,0.7],[430,60,10,0.6],[350,140,6,0.5],[160,80,7,0.65],
+  [60,200,5,0.4],[450,180,8,0.55],[50,350,6,0.45],[470,380,7,0.5],
+  [100,480,5,0.35],[420,450,6,0.4],[30,500,5,0.3],[490,520,8,0.45],
+  [180,30,6,0.5],[310,50,5,0.4],[390,550,6,0.35],[120,550,5,0.3],
+  [240,60,7,0.55],[380,100,5,0.4],[280,30,6,0.45]
+];
+sparks.forEach(([x,y,r,a]) => sparkle(x,y,r,a));
+
+// ── Main platform cloud ──
+function cloudBase(x, y, w, h) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(x, y, w, h*0.4, 0, 0, Math.PI*2);
+  const g = ctx.createRadialGradient(x-w*0.3, y-h*0.3, 0, x, y, w);
+  g.addColorStop(0, '#FFFFFF');
+  g.addColorStop(0.6, '#FFF0F8');
+  g.addColorStop(1, '#FFE8F0');
+  ctx.fillStyle = g;
+  ctx.fill();
+  // top bumps
+  ctx.beginPath(); ctx.ellipse(x-w*0.4, y-h*0.2, w*0.35, h*0.5, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x+w*0.3, y-h*0.15, w*0.38, h*0.55, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x+w*0.1, y-h*0.25, w*0.3, h*0.45, 0, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+cloudBase(cx, 570, 160, 70);
+
+// ── Tutu (iridescent layers) ──
+function tutuRing(y, r, color, alpha) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.beginPath();
+  ctx.ellipse(cx, y, r, r*0.38, 0, 0, Math.PI*2);
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.restore();
+}
+tutuRing(455, 100, C.tutu1, 0.55);
+tutuRing(460, 108, C.tutu2, 0.45);
+tutuRing(458, 115, C.tutu3, 0.35);
+tutuRing(456, 105, '#F8E0FF', 0.4);
+tutuRing(462, 112, '#E0F0FF', 0.3);
+
+// ── Legs ──
+function elfLeg(side) {
+  const dx = side === 'l' ? -22 : 22;
+  ctx.beginPath();
+  ctx.ellipse(cx+dx, 510, 16, 38, dx>0?0.15:-0.15, 0, Math.PI*2);
+  ctx.fillStyle = C.skin; ctx.fill();
+  ctx.strokeStyle = C.skinD; ctx.lineWidth = 1.5; ctx.stroke();
+  // tiny shoe
+  ctx.beginPath();
+  ctx.ellipse(cx+dx+dx*0.1, 544, 18, 10, 0, 0, Math.PI*2);
+  ctx.fillStyle = C.pink; ctx.fill();
+  ctx.strokeStyle = '#E090B8'; ctx.lineWidth = 1.2; ctx.stroke();
+}
+elfLeg('l'); elfLeg('r');
+
+// ── Body ──
+ctx.beginPath();
+ctx.ellipse(cx, 440, 55, 68, 0, 0, Math.PI*2);
+ctx.fillStyle = C.skin; ctx.fill();
+ctx.strokeStyle = C.skinD; ctx.lineWidth = 1.5; ctx.stroke();
+
+// ── Belly highlight ──
+ctx.beginPath();
+ctx.ellipse(cx, 455, 32, 40, 0, 0, Math.PI*2);
+ctx.fillStyle = '#FFF8F8'; ctx.fill();
+
+// ── Tutu top edge ──
+ctx.beginPath();
+ctx.ellipse(cx, 448, 70, 18, 0, 0, Math.PI);
+ctx.fillStyle = C.pinkL; ctx.fill();
+
+// ── Arms ──
+function elfArm(side) {
+  const dx = side === 'l' ? -55 : 55;
+  ctx.save();
+  ctx.translate(cx+dx, 410);
+  ctx.rotate(side==='l'?-0.6:0.6);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 14, 36, 0, 0, Math.PI*2);
+  ctx.fillStyle = C.skin; ctx.fill();
+  ctx.strokeStyle = C.skinD; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.restore();
+}
+elfArm('l'); elfArm('r');
+
+// ── Head ──
+ctx.beginPath();
+ctx.ellipse(cx, 310, 88, 84, 0, 0, Math.PI*2);
+ctx.fillStyle = C.skin; ctx.fill();
+ctx.strokeStyle = C.skinD; ctx.lineWidth = 1.5; ctx.stroke();
+
+// ── Pointed Ears ──
+function elfEar(side) {
+  const dx = side === 'l' ? -88 : 88;
+  const tipX = cx + dx + (side==='l'?-24:24);
+  const tipY = cy - 20 + (side==='l'?-15:15);
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(cx+dx, cy-8);
+  ctx.quadraticCurveTo(cx+dx+(side==='l'?-50:50), cy+(side==='l'?-35:35), tipX, tipY);
+  ctx.quadraticCurveTo(cx+dx+(side==='l'?-20:20), cy+(side==='l'?-5:5), cx+dx, cy+8);
+  ctx.fillStyle = C.skin; ctx.fill();
+  ctx.strokeStyle = C.skinD; ctx.lineWidth = 1.2; ctx.stroke();
+  // Inner ear
+  ctx.beginPath();
+  ctx.moveTo(cx+dx+(side==='l'?8:-8), cy-2);
+  ctx.quadraticCurveTo(cx+dx+(side==='l'?-30:30), cy+(side==='l'?-20:20), tipX+(side==='l'?10:-10), tipY+(side==='l'?8:-8));
+  ctx.quadraticCurveTo(cx+dx+(side==='l'?-10:10), cy+(side==='l'?2:-2), cx+dx+(side==='l'?8:-8), cy+2);
+  ctx.fillStyle = C.pinkL; ctx.fill();
+  ctx.restore();
+}
+elfEar('l'); elfEar('r');
+
+// ── Hair ──
+function drawHair() {
+  ctx.save();
+  // Back hair mass
+  ctx.beginPath();
+  ctx.ellipse(cx, 275, 90, 72, 0, 0, Math.PI*2);
+  ctx.fillStyle = C.hair; ctx.fill();
+  ctx.strokeStyle = C.hairD; ctx.lineWidth = 1; ctx.stroke();
+
+  // Hair strands
+  const strands = [
+    [-60,280,-0.3,50,22], [30,265,0.1,45,18], [65,285,0.5,42,16],
+    [-80,295,-0.6,38,14], [80,295,0.7,40,15], [-40,260,-0.15,55,20],
+    [10,252,0.05,48,19], [-10,248,0,52,21], [50,258,0.2,44,17],
+    [-55,295,-0.5,46,18]
+  ];
+  strands.forEach(([sx,sy,angle,len,wid]) => {
+    ctx.save();
+    ctx.translate(cx+sx, cy+sy);
+    ctx.rotate(angle);
+    ctx.beginPath();
+    ctx.ellipse(0, len*0.4, wid, len, 0, 0, Math.PI*2);
+    ctx.fillStyle = C.hair; ctx.fill();
+    ctx.restore();
+  });
+
+  // Hair highlight
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(cx-20, 265, 35, 25, -0.3, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fill();
+  ctx.restore();
+  ctx.restore();
+}
+drawHair();
+
+// ── Eyes ──
+const eyeX = cx - 30;
+const eyeY = cy + 10;
+
+function elfEye(ex) {
+  // White
+  ctx.beginPath();
+  ctx.ellipse(ex, eyeY, 22, 26, 0, 0, Math.PI*2);
+  ctx.fillStyle = C.eyeWhite; ctx.fill();
+  ctx.strokeStyle = '#CCE0FF'; ctx.lineWidth = 1; ctx.stroke();
+
+  // Iris
+  ctx.beginPath();
+  ctx.ellipse(ex+1, eyeY+3, 15, 19, 0, 0, Math.PI*2);
+  const iris = ctx.createRadialGradient(ex-3, eyeY-2, 1, ex+1, eyeY+3, 16);
+  iris.addColorStop(0, '#8AD0FF');
+  iris.addColorStop(0.5, '#4A9FFF');
+  iris.addColorStop(1, '#1A60E0');
+  ctx.fillStyle = iris; ctx.fill();
+
+  // Pupil
+  ctx.beginPath();
+  ctx.ellipse(ex+1, eyeY+4, 9, 11, 0, 0, Math.PI*2);
+  ctx.fillStyle = '#0A1880'; ctx.fill();
+
+  // Big sparkle shine
+  ctx.beginPath();
+  ctx.ellipse(ex+7, eyeY-5, 7, 7, 0, 0, Math.PI*2);
+  ctx.fillStyle = C.sparkW; ctx.fill();
+
+  // Small sparkle
+  ctx.beginPath();
+  ctx.ellipse(ex-5, eyeY+10, 3, 3, 0, 0, Math.PI*2);
+  ctx.fillStyle = C.sparkW; ctx.fill();
+
+  // Eyelash
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(ex, eyeY-26, 20, 8, 0, Math.PI, Math.PI*2);
+  ctx.fillStyle = C.hairD; ctx.fill();
+  // upper lash flick
+  ctx.beginPath(); ctx.ellipse(ex-15, eyeY-22, 5, 8, -0.5, 0, Math.PI*2); ctx.fillStyle=C.hairD; ctx.fill();
+  ctx.beginPath(); ctx.ellipse(ex+15, eyeY-22, 5, 8, 0.5, 0, Math.PI*2); ctx.fillStyle=C.hairD; ctx.fill();
+  ctx.restore();
+}
+elfEye(eyeX);
+elfEye(eyeX+60);
+
+// ── Nose ──
+ctx.beginPath();
+ctx.ellipse(cx, cy+30, 4, 3, 0, 0, Math.PI*2);
+ctx.fillStyle = '#F8D0D8'; ctx.fill();
+
+// ── Mouth ──
+ctx.beginPath();
+ctx.arc(cx, cy+44, 8, 0.1, Math.PI-0.1);
+ctx.strokeStyle = '#D08098'; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.stroke();
+
+// ── Cheek blush ──
+ctx.save();
+ctx.globalAlpha = 0.35;
+ctx.beginPath(); ctx.ellipse(eyeX-28, cy+36, 18, 11, 0, 0, Math.PI*2);
+ctx.fillStyle = '#FFB8CC'; ctx.fill();
+ctx.beginPath(); ctx.ellipse(eyeX+88, cy+36, 18, 11, 0, 0, Math.PI*2);
+ctx.fillStyle = '#FFB8CC'; ctx.fill();
+ctx.restore();
+
+// ── Magic particles floating ──
+function magicParticle(x, y, r, color) {
+  ctx.save();
+  ctx.globalAlpha = 0.5 + Math.random() * 0.4;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI*2);
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 8;
+  ctx.fill();
+  ctx.restore();
+}
+const particles = [
+  [cx-80,400,3,'#FFD0F0'],[cx+90,390,2.5,'#D0C0FF'],
+  [cx-60,350,2,'#FFE0D0'],[cx+70,340,3,'#D0E8FF'],
+  [cx-90,430,2,'#FFD8E8'],[cx+100,420,2.5,'#E0D0FF'],
+  [cx-40,470,2,'#FFE8F0'],[cx+50,460,2,'#D8EEFF'],
+  [cx,380,3,'#F8D8FF'],[cx-30,320,2,'#E8F0FF'],
+  [cx+40,310,2.5,'#FFE0F8'],[cx-100,360,2,'#D0FFE8'],
+  [cx+110,370,2,'#FFE8D0']
+];
+particles.forEach(([x,y,r,col]) => magicParticle(x,y,r,col));
+
+// ── Extra glow under elf ──
+const glow = ctx.createRadialGradient(cx, 500, 0, cx, 500, 180);
+glow.addColorStop(0, 'rgba(255,200,240,0.25)');
+glow.addColorStop(1, 'rgba(255,200,240,0)');
+ctx.fillStyle = glow;
+ctx.fillRect(0, 0, 520, 680);
+
+// ── Tutu shimmer lines ──
+ctx.save();
+for (let i = 0; i < 8; i++) {
+  const angle = (i / 8) * Math.PI;
+  const x1 = cx + Math.cos(angle) * 70;
+  const y1 = 455 + Math.sin(angle) * 20;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(cx + Math.cos(angle) * 115, 455 + Math.sin(angle) * 40);
+  ctx.strokeStyle = `rgba(255,255,255,${0.2 + Math.random()*0.15})`;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+}
+ctx.restore();
+
+// ── Foreground cloud wisps ──
+function wisp(x, y, w, h, alpha, color) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.beginPath();
+  ctx.ellipse(x, y, w, h, 0, 0, Math.PI*2);
+  ctx.fillStyle = color; ctx.fill();
+  ctx.restore();
+}
+wisp(cx-100, 610, 120, 30, 0.6, '#FFFBFF');
+wisp(cx+80, 620, 100, 28, 0.55, '#FFFBFF');
+wisp(cx, 635, 80, 22, 0.5, '#FFF0F8');
+</script>
+</body>
+</html>
