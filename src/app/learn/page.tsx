@@ -15,7 +15,7 @@ export default function LearnPage() {
       <div style={{maxWidth:900,margin:'0 auto',padding:'60px 60px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.85)'}} className="max-sm:px-4">
         <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.4em',color:'#7a6230',textTransform:'uppercase',marginBottom:10,fontWeight:700}}>Curriculum</p>
         <h1 style={{fontSize:36,fontWeight:900,color:'#fff',letterSpacing:'0.02em',marginBottom:8}}>学习路径</h1>
-        <p style={{fontSize:14,fontWeight:400,color:'#ccc',marginBottom:40}}>4个板块 · 从零到本地部署 · 每一步都有截图级教程</p>
+        <p style={{fontSize:14,fontWeight:400,color:'#ccc',marginBottom:40}}>5个板块 · 从零到全自动工作流 · 每一步都有截图级教程</p>
 
         <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:48}}>
           {[

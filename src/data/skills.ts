@@ -5,7 +5,7 @@ export interface Skill {
   downloads: string; url: string; tags: string[]
 }
 
-export type SkillCategory = "自动化"|"内容创作"|"数据分析"|"开发工具"|"通讯社交"|"办公效率"|"学习教育"|"生活娱乐"|"企业应用"|"安全隐私"
+export type SkillCategory = "自动化"|"内容创作"|"数据分析"|"开发工具"|"通讯社交"|"办公效率"|"学习教育"|"生活娱乐"|"企业应用"|"安全隐私"|"AI音频"|"AI视频"|"AI设计"
 
 export const skillCategories:{key:SkillCategory;label:string;icon:string}[]=[
   {key:"自动化",label:"自动化",icon:"🤖"},{key:"内容创作",label:"内容创作",icon:"🎨"},
