@@ -69,14 +69,12 @@ function ToolsContent() {
             style={{flex:1,background:'transparent',border:'none',outline:'none',padding:'11px 14px',fontSize:13,color:'#fff',fontFamily:"'Noto Sans SC', sans-serif"}} />
         </div>
 
-        {/* Region + Category 筛选居中 */}
-        <div style={{display:'flex',justifyContent:'center',gap:28,marginBottom:40,flexWrap:'wrap'}}>
-          <div style={{textAlign:'center'}}>
-            <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:9,letterSpacing:'0.15em',color:'#ccc',fontWeight:700,marginBottom:8}}>REGION</p>
-            <div style={{display:'flex',gap:6}}>
-              {["全部","国内","国外"].map(r=>(<button key={r} onClick={()=>setRegion(r as any)} style={region===r?btnSel:btnBase}>{r}</button>))}
-            </div>
-          </div>
+        {/* 说明条 */}
+        <div style={{textAlign:'center',marginBottom:24,padding:'8px 16px',background:'rgba(255,255,255,0.02)',border:'1px solid #1a1a1a',borderRadius:8,display:'inline-block',margin:'0 auto',maxWidth:500}}>
+          <p style={{fontSize:11,color:'#aaa',lineHeight:1.6}}>
+            🇨🇳 = 可直接连接的国内工具 &nbsp;&nbsp; 🌍 = 需要特殊网络环境的国外工具<br/>
+            <span style={{color:'#7a6230'}}>点击分类排行卡片进入筛选，自动分栏展示</span>
+          </p>
         </div>
 
         {/* 各分类排行 */}
@@ -87,7 +85,8 @@ function ToolsContent() {
               const top5 = tools.filter(t=>t.category===cat.key).sort((a,b)=>b.rank-a.rank).slice(0,5)
               if(top5.length===0) return null
               return (
-                <div key={cat.key} onClick={()=>{setCat(cat.key);window.scrollTo({top:0,behavior:'smooth'})}}
+                <div key={cat.key} onClick={()=>window.location.href=`/tools?category=${cat.key}`}
+                  style={{cursor:'pointer'}}
                   style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:12,padding:'16px 20px',cursor:'pointer',transition:'all 0.3s'}}
                   onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.06)';e.currentTarget.style.borderColor='#7a6230'}}
                   onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor='#1a1a1a'}}>
