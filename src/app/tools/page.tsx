@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { Suspense, useState, useMemo, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { tools, categories, stageLabels, ToolCategory } from "@/data/tools"
 import { MathRain } from "@/components/MathRain"
@@ -14,7 +14,7 @@ function avColor(n:string){const c=["#c9a84c","#e8c96a","#7a6230","#5a8a5a"];let
 const btnBase:React.CSSProperties = {fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:700,padding:'5px 14px',border:'1px solid #1a1a1a',color:'#888',background:'transparent',cursor:'pointer',transition:'0.2s',borderRadius:6}
 const btnSel:React.CSSProperties = {...btnBase,borderColor:'#7a6230',color:'#e8c96a',background:'rgba(201,168,76,0.08)'}
 
-export default function ToolsPage() {
+function ToolsContent() {
   const sp = useSearchParams()
   const [search, setSearch] = useState("")
   const [cat, setCat] = useState<ToolCategory|null>(null)
@@ -95,4 +95,8 @@ export default function ToolsPage() {
       </div>
     </div>
   )
+}
+
+export default function ToolsPage() {
+  return <Suspense><ToolsContent /></Suspense>
 }
