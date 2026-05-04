@@ -16,6 +16,9 @@ export default function SkillsPage() {
     if (platform !== "全部" && s.platform !== platform) return false
     if (search.trim() && !s.name.includes(search) && !s.description.includes(search) && !s.tags.some(t=>t.includes(search))) return false
     return true
+  }).sort((a,b)=>{
+    const parse = (s:string)=>s.endsWith("K")?parseFloat(s)*1000:parseInt(s)
+    return parse(b.downloads)-parse(a.downloads)
   })
 
   return (
@@ -57,13 +60,14 @@ export default function SkillsPage() {
           <div style={{textAlign:'center',padding:80,color:'#aaa'}}>No results</div>
         ):(
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(300px, 1fr))',gap:10}}>
-            {filtered.map(s=>{
+            {filtered.map((s,i)=>{
               const isEasy = s.difficulty==="简单"
               const isAdv = s.difficulty==="进阶"
               return (
-                <div key={s.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:14,padding:'24px',transition:'all 0.3s',display:'flex',flexDirection:'column',justifyContent:'space-between'}}
+                <div key={s.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:14,padding:'24px',transition:'all 0.3s',display:'flex',flexDirection:'column',justifyContent:'space-between',position:'relative'}}
                   onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.04)';e.currentTarget.style.borderColor='#7a6230'}}
                   onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor='#1a1a1a'}}>
+                  <span style={{position:'absolute',top:12,right:16,fontFamily:"'JetBrains Mono',monospace",fontSize:20,fontWeight:900,color:i<3?'#c9a84c':'#222'}}>#{i+1}</span>
                   <div>
                     <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10,flexWrap:'wrap'}}>
                       <span className={`tag ${isEasy?"tag-green":isAdv?"tag-red":"tag-gold"}`} style={{fontWeight:700,fontSize:10}}>{s.difficulty}</span>

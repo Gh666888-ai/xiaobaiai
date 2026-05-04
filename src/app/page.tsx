@@ -51,7 +51,7 @@ export default function HomePage() {
         <span style={{fontSize:13,fontWeight:700,letterSpacing:'0.2em',color:'#c9a84c',textTransform:'uppercase',fontFamily:"'JetBrains Mono', monospace"}}>小白AI</span>
         <div style={{display:'flex',gap:40}} className="max-sm:hidden">
           {[
-            {l:'工具导航',h:'/tools'},{l:'学习路径',h:'/learn'},{l:'AI资讯',h:'/news'},{l:'社区',h:'/community'},{l:'登录',h:'/login'}
+            {l:'工具导航',h:'/tools'},{l:'学习路径',h:'/learn'},{l:'技能库',h:'/skills'},{l:'AI资讯',h:'/news'},{l:'社区',h:'/community'}
           ].map(x=>(
             <Link key={x.l} href={x.h} style={{fontFamily:"'JetBrains Mono', monospace",fontSize:11,letterSpacing:'0.12em',color:'rgba(255,255,255,0.45)',textDecoration:'none',transition:'color 0.2s'}}>{x.l}</Link>
           ))}
@@ -71,12 +71,12 @@ export default function HomePage() {
           <div style={{width:0,height:1,background:'linear-gradient(90deg, transparent, #c9a84c, transparent)',margin:'0 auto 32px',animation:'expandWidth 1s ease forwards 0.8s'}} />
           <p style={{fontSize:'clamp(15px, 2vw, 18px)',fontWeight:300,lineHeight:2,color:'rgba(255,255,255,0.5)',letterSpacing:'0.05em',maxWidth:560,margin:'0 auto 16px',opacity:0,animation:'fadeUp 0.8s ease forwards 1s'}}>从零到 Agent，每一步都算数</p>
           <p style={{fontSize:'clamp(13px, 1.5vw, 15px)',fontWeight:300,lineHeight:2,color:'rgba(255,255,255,0.3)',letterSpacing:'0.05em',maxWidth:560,margin:'0 auto 48px',opacity:0,animation:'fadeUp 0.8s ease forwards 1.1s'}}>工具导航 + 学习平台 + 新闻聚合 · Agent 维护 + 社区共建</p>
-          <div style={{display:'flex',gap:12,flexWrap:'wrap',opacity:0,animation:'fadeUp 0.8s ease forwards 1.3s'}}>
+          <div style={{display:'flex',gap:12,flexWrap:'wrap',justifyContent:'center',opacity:0,animation:'fadeUp 0.8s ease forwards 1.3s'}}>
             <Link href="/learn" style={{display:'inline-flex',alignItems:'center',gap:12,padding:'14px 36px',border:'1px solid #7a6230',color:'#e8c96a',fontFamily:"'JetBrains Mono', monospace",fontSize:12,letterSpacing:'0.15em',textDecoration:'none',background:'rgba(201,168,76,0.06)',transition:'all 0.3s'}}>
               🐣 小白入门
             </Link>
             <Link href="/tools" style={{display:'inline-flex',alignItems:'center',gap:12,padding:'14px 36px',border:'1px solid #333',color:'#888',fontFamily:"'JetBrains Mono', monospace",fontSize:12,letterSpacing:'0.15em',textDecoration:'none',transition:'all 0.3s'}}>
-              ⚡ 找工具
+              ⚡ 资深老手
             </Link>
           </div>
         </div>
