@@ -19,14 +19,19 @@ function ToolsContent() {
   const [search, setSearch] = useState("")
   const [cat, setCat] = useState<ToolCategory|null>(null)
   const [stage, setStage] = useState<number|null>(null)
+  const [region, setRegion] = useState<"全部"|"国内"|"国外">("全部")
   useEffect(()=>{const c=sp.get("category")as ToolCategory|null;if(c)setCat(c)},[sp])
 
   const filtered = useMemo(()=>{
     let r=tools
     if(search.trim()){const q=search.toLowerCase();r=r.filter(t=>t.name.toLowerCase().includes(q)||t.description.toLowerCase().includes(q)||t.tags.some(t=>t.toLowerCase().includes(q)))}
     if(cat)r=r.filter(t=>t.category===cat);if(stage!==null)r=r.filter(t=>t.stage===stage)
+    // 国内外判断：国内=包含国产/中文/国内等标签
+    const cnKeywords = ["国产","中文","腾讯","阿里","百度","字节","快手","智谱","月之暗面","MiniMax","Kimi","DeepSeek","通义","文心","豆包","即梦","可灵","Coze","QClaw","ArkClaw"]
+    if(region==="国内") r=r.filter(t=>cnKeywords.some(kw=>t.name.includes(kw)||t.tags.some(tg=>tg.includes(kw))||t.description.includes(kw)))
+    if(region==="国外") r=r.filter(t=>!cnKeywords.some(kw=>t.name.includes(kw)||t.tags.some(tg=>tg.includes(kw))))
     return r.sort((a,b)=>b.rank-a.rank)
-  },[search,cat,stage])
+  },[search,cat,stage,region])
 
   return (
     <div style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
@@ -77,6 +82,12 @@ function ToolsContent() {
         </div>
 
         <div style={{display:'flex',flexWrap:'wrap',gap:28,marginBottom:40}}>
+          <div>
+            <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.2em',color:'#ccc',fontWeight:700,marginBottom:10}}>REGION</p>
+            <div style={{display:'flex',gap:6}}>
+              {["全部","国内","国外"].map(r=><button key={r} onClick={()=>setRegion(r as any)} style={region===r?btnSel:btnBase}>{r}</button>)}
+            </div>
+          </div>
           <div>
             <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.2em',color:'#ccc',fontWeight:700,marginBottom:10}}>CATEGORY</p>
             <div style={{display:'flex',flexWrap:'wrap',gap:6}}>

@@ -161,4 +161,40 @@ export const posts: Post[] = [
     comments: 98,
     publishedAt: "2026-05-01",
   },
+  {
+    id: "post-13",
+    author: "小白站长",
+    title: "OpenClaw 接入 DeepSeek 完整教程（本地部署+国产模型）",
+    content:
+      "OpenClaw 默认用 Claude/GPT，对国内用户不友好。但可以完全切换到国产免费模型。\n\n📋 前提：已安装 OpenClaw（安装教程见学习路径阶段3）\n\n🔑 第一步：获取 DeepSeek API Key（免费）\n① 打开 platform.deepseek.com → 注册\n② 控制台 → API Keys → 创建 Key → 复制\n③ 新用户送500万token\n\n⚙️ 第二步：配置 OpenClaw\n① 打开配置文件：Windows: C:\\Users\\你的用户名\\.openclaw\\config.yaml\n② 替换为以下内容：\n\nmodels:\n  default: deepseek-chat\n  providers:\n    deepseek:\n      api_key: sk-你的key\n      base_url: https://api.deepseek.com\n      models: [deepseek-chat, deepseek-reasoner]\n\n③ 保存 → 重启 OpenClaw\n\n🧪 第三步：验证\nopenclaw test deepseek-chat\n→ 看到 ✅ 即成功\n\n💰 成本：deepseek-chat约¥1/百万token，日常使用月均不到10元。比GPT便宜15倍。\n\n🔧 进阶：同时接入多个国产模型\nmodels:\n  default: deepseek-chat\n  providers:\n    deepseek:\n      api_key: sk-xxx\n      base_url: https://api.deepseek.com\n      models: [deepseek-chat, deepseek-reasoner]\n    qwen:\n      api_key: sk-xxx\n      base_url: https://dashscope.aliyuncs.com/compatible-mode/v1\n      models: [qwen-plus, qwen-max]\n    glm:\n      api_key: xxx\n      base_url: https://open.bigmodel.cn/api/paas/v4\n      models: [glm-5]\n\n设置路由自动选择最合适的模型。",
+    category: "经验分享",
+    tags: ["OpenClaw", "DeepSeek", "本地部署", "国产模型"],
+    likes: 589,
+    comments: 87,
+    publishedAt: "2026-05-04",
+  },
+  {
+    id: "post-14",
+    author: "小白站长",
+    title: "Hermes Agent 接入国产大模型完整指南（Windows/Mac）",
+    content:
+      "Hermes 官方默认用 OpenAI API，但完全可以接国产模型。\n\n📋 Windows 前置：需要 WSL2（一行命令装）\n管理员 PowerShell 输入：wsl --install → 重启 → 开始菜单打开 Ubuntu\n\n🔑 获取 API Key：\nDeepSeek：platform.deepseek.com → API Keys\n通义千问：dashscope.aliyun.com → 管理中心\n智谱GLM：open.bigmodel.cn → API Keys\n\n⚙️ Hermes 配置（安装完成后执行）：\nhermes setup → 选 custom provider\n→ Provider name: deepseek\n→ API Base URL: https://api.deepseek.com\n→ API Key: sk-你的key\n→ Model name: deepseek-chat\n\n或者直接编辑配置文件 ~/.hermes/config.yaml：\n\nmodel:\n  default: deepseek-chat\n  provider: custom\n  base_url: https://api.deepseek.com\n  api_key: sk-你的key\n\n🧪 验证：\nhermes doctor → 看到 ✅ 即成功\n\n💡 Hermes + DeepSeek 组合优势：\n• Hermes自我进化能力 + DeepSeek便宜推理 = 会学习的免费助手\n• 中文任务特别适合用通义千问+DeepSeek混搭",
+    category: "经验分享",
+    tags: ["Hermes", "DeepSeek", "本地部署"],
+    likes: 467,
+    comments: 63,
+    publishedAt: "2026-05-04",
+  },
+  {
+    id: "post-15",
+    author: "小白站长",
+    title: "Claude Code 替代方案：用国产模型+本地工具搭建免费AI编程环境",
+    content:
+      "Claude Code 很强但要付费$20/月且国内网络不友好。以下是完全免费的替代方案。\n\n💻 方案一：Continue + DeepSeek（VS Code用户）\n① 安装 Continue 插件（VS Code扩展商店搜Continue）\n② 配置 config.json：\n{\"models\":[{\"title\":\"DeepSeek\",\"provider\":\"deepseek\",\"model\":\"deepseek-chat\",\"apiKey\":\"sk-xxx\"}]}\n③ 成本：¥1/百万token，约等于免费\n\n💻 方案二：Cline + DeepSeek（最强开源替代）\n① 安装 Cline 插件\n② 设置 → API Provider → DeepSeek → 输入API Key\n③ 直接对话编程，体验接近 Claude Code\n④ 完全免费！Cline开源 + DeepSeek超低价\n\n💻 方案三：Aider + 本地模型（完全离线）\n① 装Ollama：ollama.com → 安装\n② 终端：ollama run qwen3:32b（下载模型）\n③ 终端：pip install aider-chat → aider --model ollama/qwen3:32b\n④ 完全免费+完全离线，数据不出电脑\n\n💻 方案四：Trae（字节出品，免费IDE）\n① trae.ai 下载安装\n② 内置Claude和GPT免费使用\n③ 跟Cursor差不多但完全免费\n\n📊 对比：\nClaude Code：$20/月，终端最强，国内不便\nContinue：免费，VS Code集成，需API Key\nCline：免费，功能最接近Claude Code\nAider：免费，终端使用，可本地模型\nTrae：免费，中文IDE，零配置",
+    category: "经验分享",
+    tags: ["Claude Code", "编程", "免费", "替代"],
+    likes: 723,
+    comments: 134,
+    publishedAt: "2026-05-04",
+  },
 ]
