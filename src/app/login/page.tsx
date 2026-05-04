@@ -17,7 +17,7 @@ export default function LoginPage() {
   const [countdown, setCountdown] = useState(0)
   const [sending, setSending] = useState(false)
 
-  useEffect(() => { setMounted(true); getCurrentUser().then(u => { setUser(u); setLoading(false) }) }, [])
+  useEffect(() => { setMounted(true); getCurrentUser().then(u => { setUser(u); setLoading(false) }).catch(()=>setLoading(false)) }, [])
   useEffect(() => { if(countdown<=0)return; const t=setTimeout(()=>setCountdown(countdown-1),1000); return ()=>clearTimeout(t) }, [countdown])
   const refresh = async () => { const u = await getCurrentUser(); setUser(u) }
 

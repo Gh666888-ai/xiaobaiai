@@ -34,10 +34,13 @@ export default function CommunityPage() {
         <p style={{fontSize:15,fontWeight:500,color:'#ccc',marginBottom:40}}>Agent 实战经验 · 踩坑记录 · AI 可行性分析</p>
 
         {/* 搜索 */}
-        <div style={{display:'flex',alignItems:'center',background:'rgba(255,255,255,0.04)',border:'1px solid #222',borderRadius:10,maxWidth:400,marginBottom:32}}>
-          <Search size={14} style={{marginLeft:14,color:'#777'}} />
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="搜索帖子..."
-            style={{flex:1,background:'transparent',border:'none',outline:'none',padding:'11px 14px',fontSize:13,color:'#fff',fontFamily:"'Noto Sans SC', sans-serif"}} />
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:32}}>
+          <div style={{display:'flex',alignItems:'center',background:'rgba(255,255,255,0.04)',border:'1px solid #222',borderRadius:10,maxWidth:400,flex:1}}>
+            <Search size={14} style={{marginLeft:14,color:'#777'}} />
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="搜索帖子..."
+              style={{flex:1,background:'transparent',border:'none',outline:'none',padding:'11px 14px',fontSize:13,color:'#fff',fontFamily:"'Noto Sans SC', sans-serif"}} />
+          </div>
+          <Link href="/community/new" className="btn-primary" style={{whiteSpace:'nowrap',textDecoration:'none'}}>+ 发帖子</Link>
         </div>
 
         {/* 分类 */}
