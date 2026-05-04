@@ -36,7 +36,38 @@ function ToolsContent() {
       <div style={{maxWidth:1100,margin:'0 auto',padding:'60px 60px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.85)'}} className="max-sm:px-4">
         <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.4em',color:'#7a6230',textTransform:'uppercase',marginBottom:10,fontWeight:700}}>Directory</p>
         <h1 style={{fontSize:36,fontWeight:900,color:'#fff',letterSpacing:'0.02em',marginBottom:8}}>工具导航</h1>
-        <p style={{fontSize:14,fontWeight:400,color:'#ccc',marginBottom:40}}>{tools.length} tools indexed</p>
+        <p style={{fontSize:14,fontWeight:400,color:'#ccc',marginBottom:32}}>{tools.length} tools indexed</p>
+
+        {/* 各分类排行 */}
+        <div style={{marginBottom:40}}>
+          <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.2em',color:'#e8c96a',fontWeight:700,marginBottom:16}}>🏆 分类排行 TOP 5</p>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(320px, 1fr))',gap:10}}>
+            {categories.map(cat=>{
+              const top5 = tools.filter(t=>t.category===cat.key).sort((a,b)=>b.rank-a.rank).slice(0,5)
+              if(top5.length===0) return null
+              return (
+                <div key={cat.key} style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:12,padding:'16px 20px'}}>
+                  <h3 style={{fontSize:13,fontWeight:700,color:'#ccc',marginBottom:10,display:'flex',alignItems:'center',gap:6}}>
+                    <span>{cat.icon}</span> {cat.label}
+                    <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:9,color:'#555',marginLeft:'auto'}}>{tools.filter(t=>t.category===cat.key).length}个</span>
+                  </h3>
+                  {top5.map((t,i)=>{
+                    const avColors=["#c9a84c","silver","#CD7F32","#555","#555"]
+                    return (
+                      <a key={t.id} href={t.url} target="_blank" rel="noopener noreferrer"
+                        style={{display:'flex',alignItems:'center',gap:8,padding:'6px 0',textDecoration:'none',borderBottom:i<4?'1px solid #111':'none'}}>
+                        <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:700,color:avColors[i],width:20}}>#{i+1}</span>
+                        <span style={{width:22,height:22,borderRadius:4,display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:800,color:'#fff',background:avColors[i],flexShrink:0,fontFamily:"'JetBrains Mono',monospace"}}>{t.name[0].toUpperCase()}</span>
+                        <span style={{fontSize:12,fontWeight:600,color:'#ccc',flex:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{t.name}</span>
+                        <span style={{fontSize:10,color:'#555'}}>{t.pricing}</span>
+                      </a>
+                    )
+                  })}
+                </div>
+              )
+            })}
+          </div>
+        </div>
 
         <div style={{display:'flex',alignItems:'center',background:'rgba(255,255,255,0.04)',border:'1px solid #222',borderRadius:10,maxWidth:420,marginBottom:32,transition:'border-color 0.3s'}}
           onFocus={e=>e.currentTarget.style.borderColor='#7a6230'} onBlur={e=>e.currentTarget.style.borderColor='#222'}>
