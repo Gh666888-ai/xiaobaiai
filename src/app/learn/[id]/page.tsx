@@ -14,7 +14,7 @@ export default function StageDetailPage() {
   const router = useRouter()
   const stageId = Number(params.id)
   const stage = stages.find(s=>s.id===stageId)
-  const stageTools = tools.filter(t=>t.stage===stageId)
+  const stageTools = tools.filter(t=>t.stage===stageId).slice(0,3)
 
   if(!stage) return (
     <div style={{background:'#000',minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#aaa'}}>
