@@ -86,7 +86,7 @@ export default function ModelsPage() {
               onMouseLeave={e=>e.currentTarget.style.background='rgba(255,255,255,0.02)'}>
               <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:14,fontWeight:900,color:m.rank<=3?'#c9a84c':'#555',width:28}}>#{m.rank}</span>
               <div style={{flex:1,minWidth:0}}>
-                <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:4}}>
+                <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:4,flexWrap:'wrap'}}>
                   <h3 style={{fontSize:15,fontWeight:700,color:'#fff'}}>{m.name}</h3>
                   <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#888'}}>{m.provider}</span>
                   <span className="tag tag-blue" style={{fontWeight:600,fontSize:9}}>{m.type}</span>
