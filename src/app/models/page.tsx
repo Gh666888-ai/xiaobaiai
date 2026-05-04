@@ -94,9 +94,10 @@ export default function ModelsPage() {
                   <span className="tag tag-green" style={{fontWeight:600,fontSize:9}}>{m.speed}</span>
                 </div>
                 <p style={{fontSize:12,color:'#aaa',lineHeight:1.6}}>{m.description}</p>
-                <div style={{display:'flex',gap:16,marginTop:6,fontFamily:"'JetBrains Mono',monospace",fontSize:9,color:'#666'}}>
+                <div style={{display:'flex',gap:16,marginTop:6,fontFamily:"'JetBrains Mono',monospace",fontSize:9,color:'#666',alignItems:'center'}}>
                   <span>{m.pricing}</span>
                   <span>上下文: {m.contextWindow}</span>
+                  <a href={m.url} target="_blank" rel="noopener noreferrer" style={{color:'#c9a84c',textDecoration:'none',fontWeight:700,marginLeft:'auto'}}>下载/访问 →</a>
                 </div>
               </div>
             </div>
