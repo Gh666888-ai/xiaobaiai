@@ -54,24 +54,25 @@ export async function loginWithPhone(phone: string, name: string): Promise<User 
 
   try {
     // 先尝试登录
-    let { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data: loginData, error } = await supabase.auth.signInWithPassword({ email, password })
+    let userId = loginData.user?.id
 
     // 不存在就注册
-    if (error) {
+    if (error || !userId) {
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password })
       if (signUpError) throw signUpError
-      data = signUpData
+      userId = signUpData.user?.id
     }
 
-    if (!data.user) return null
+    if (!userId) return null
 
     // 检查 profiles 表是否有记录
-    const { data: profile } = await supabase.from("profiles").select("*").eq("id", data.user.id).single()
+    const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).single()
 
     if (!profile) {
       // 新建 profile
       await supabase.from("profiles").insert({
-        id: data.user.id,
+        id: userId,
         phone,
         name,
         xp: 0,
@@ -79,7 +80,7 @@ export async function loginWithPhone(phone: string, name: string): Promise<User 
       })
     }
 
-    return { userId: data.user.id, phone, name, xp: profile?.xp || 0, joinedAt: profile?.joined_at || "" }
+    return { userId, phone, name, xp: profile?.xp || 0, joinedAt: profile?.joined_at || "" }
   } catch (err) {
     console.error("登录失败", err)
     return null
