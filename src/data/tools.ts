@@ -2,7 +2,7 @@
 export interface Tool {
   id: string; name: string; url: string; description: string; logo: string
   category: ToolCategory; stage: number; pricing: "免费"|"免费+付费"|"付费"|"有免费额度"
-  tags: string[]; featured: boolean; rank: number; region: "国内"|"国外"; addedAt: string
+  tags: string[]; featured: boolean; rank: number; addedAt: string
 }
 
 // Simple Icons CDN: https://cdn.simpleicons.org/[slug]
