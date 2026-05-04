@@ -4,7 +4,7 @@
 -- 用户资料表
 CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  phone TEXT,
+  email TEXT,
   name TEXT NOT NULL DEFAULT '',
   xp INTEGER NOT NULL DEFAULT 0,
   joined_at TEXT,
