@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getCurrentUser, getUserLevel } from "@/data/user"
+import { getCurrentUser, getUserLevel, User } from "@/data/user"
+import { supabase } from "@/lib/supabase"
 import Link from "next/link"
 
 const links = [
@@ -12,14 +13,15 @@ const links = [
 ]
 
 export function NavBar() {
-  const [user, setUser] = useState<ReturnType<typeof getCurrentUser>>(null)
+  const [user, setUser] = useState<User|null>(null)
 
   useEffect(() => {
-    setUser(getCurrentUser())
-    const h = () => setUser(getCurrentUser())
-    window.addEventListener("focus", h)
-    window.addEventListener("storage", h)
-    return () => { window.removeEventListener("focus", h); window.removeEventListener("storage", h) }
+    getCurrentUser().then(setUser)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async () => {
+      const u = await getCurrentUser()
+      setUser(u)
+    })
+    return () => subscription.unsubscribe()
   }, [])
 
   const level = user ? getUserLevel(user.xp) : null

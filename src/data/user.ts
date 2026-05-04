@@ -1,15 +1,17 @@
-// 用户系统 · 小白AI
+// 用户系统 · 小白AI · Supabase
 
-const STORAGE_KEY = "xiaobaiai_user"
+import { supabase } from "@/lib/supabase"
+import type { User as SupabaseUser } from "@supabase/supabase-js"
 
 export interface User {
-  phone: string     // 手机号（唯一标识）
-  name: string      // 昵称（展示用）
+  phone: string
+  name: string
   xp: number
   joinedAt: string
+  userId: string
 }
 
-// ====== 等级系统（6级） ======
+// ====== 等级系统 ======
 export const LEVELS = [
   { level: 0, name: "游客",      minXP: 0,     badge: "🆕",   color: "#999",    desc: "刚开始探索AI世界" },
   { level: 1, name: "铜星",      minXP: 100,   badge: "⭐",   color: "#CD7F32", desc: "铜色小星星" },
@@ -33,64 +35,89 @@ export function getNextLevel(xp: number) {
   return next ? { level: next, need: next.minXP - xp } : null
 }
 
-// ====== 用户存储（localStorage MVP） ======
-export function getCurrentUser(): User | null {
-  if (typeof window === "undefined") return null
-  const raw = localStorage.getItem(STORAGE_KEY)
-  if (!raw) return null
-  try { return JSON.parse(raw) } catch { return null }
+// ====== Supabase Auth ======
+
+// 发送验证码（演示阶段：Supabase 不支持中国手机，用邮箱替代，或继续弹窗模拟）
+export async function sendSMSCode(phone: string): Promise<string> {
+  // 真实短信接入需要阿里云/腾讯云短信服务
+  // 现阶段用演示模式
+  const code = String(Math.floor(100000 + Math.random() * 900000))
+  alert(`📱 演示模式\n验证码：${code}\n\n上线后替换为阿里云短信`) // 临时
+  return code
 }
 
-export function saveUser(user: User) {
-  if (typeof window === "undefined") return
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(user))
-}
+// 注册或登录
+export async function loginWithPhone(phone: string, name: string): Promise<User | null> {
+  // 用 phone 作为邮箱的一部分做 Supabase 认证（Supabase 免费版不支持国际短信）
+  const email = `user_${phone}@xiaobaiai.local`
+  const password = `xiaobai_${phone}`
 
-export function login(phone: string, name: string): User {
-  const phoneTrimmed = phone.trim()
-  const nameTrimmed = name.trim()
-  if (!phoneTrimmed) throw new Error("手机号不能为空")
-  if (!/^1[3-9]\d{9}$/.test(phoneTrimmed)) throw new Error("请输入正确的11位手机号")
-  if (!nameTrimmed) throw new Error("昵称不能为空")
-  // 按手机号查老用户
-  const raw = localStorage.getItem(`xiaobaiai_user_${phoneTrimmed}`)
-  let user: User
-  if (raw) {
-    user = JSON.parse(raw)
-    user.name = nameTrimmed // 允许改名
-  } else {
-    user = { phone: phoneTrimmed, name: nameTrimmed, xp: 0, joinedAt: new Date().toISOString().slice(0, 10) }
+  try {
+    // 先尝试登录
+    let { data, error } = await supabase.auth.signInWithPassword({ email, password })
+
+    // 不存在就注册
+    if (error) {
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password })
+      if (signUpError) throw signUpError
+      data = signUpData
+    }
+
+    if (!data.user) return null
+
+    // 检查 profiles 表是否有记录
+    const { data: profile } = await supabase.from("profiles").select("*").eq("id", data.user.id).single()
+
+    if (!profile) {
+      // 新建 profile
+      await supabase.from("profiles").insert({
+        id: data.user.id,
+        phone,
+        name,
+        xp: 0,
+        joined_at: new Date().toISOString().slice(0, 10),
+      })
+    }
+
+    return { userId: data.user.id, phone, name, xp: profile?.xp || 0, joinedAt: profile?.joined_at || "" }
+  } catch (err) {
+    console.error("登录失败", err)
+    return null
   }
-  saveUser(user)
-  localStorage.setItem(`xiaobaiai_user_${phoneTrimmed}`, JSON.stringify(user))
-  return user
 }
 
-export function logout() {
-  if (typeof window === "undefined") return
-  localStorage.removeItem(STORAGE_KEY)
+// 获取当前用户
+export async function getCurrentUser(): Promise<User | null> {
+  const { data } = await supabase.auth.getSession()
+  if (!data.session) return null
+  const { data: profile } = await supabase.from("profiles").select("*").eq("id", data.session.user.id).single()
+  if (!profile) return null
+  return { userId: profile.id, phone: profile.phone, name: profile.name, xp: profile.xp, joinedAt: profile.joined_at }
 }
 
-// ====== 经验值 ======
-export function addXP(amount: number) {
-  const user = getCurrentUser()
-  if (!user) return
-  user.xp += amount
-  const oldLevel = getUserLevel(user.xp - amount)
-  const newLevel = getUserLevel(user.xp)
-  saveUser(user)
-  localStorage.setItem(`xiaobaiai_user_${user.phone}`, JSON.stringify(user))
-  // 升级提示
+// 退出
+export async function logout() {
+  await supabase.auth.signOut()
+}
+
+// 加经验
+export async function addXP(amount: number) {
+  const { data } = await supabase.auth.getSession()
+  if (!data.session) return
+  const { data: profile } = await supabase.from("profiles").select("xp").eq("id", data.session.user.id).single()
+  if (!profile) return
+  const newXP = profile.xp + amount
+  await supabase.from("profiles").update({ xp: newXP }).eq("id", data.session.user.id)
+  const oldLevel = getUserLevel(profile.xp)
+  const newLevel = getUserLevel(newXP)
   if (newLevel.level > oldLevel.level) {
-    alert(`🎉 升级了！${oldLevel.badge} → ${newLevel.badge}\n你现在是「${newLevel.name}」${newLevel.desc}`)
+    alert(`🎉 升级了！${oldLevel.badge} → ${newLevel.badge}\n你现在是「${newLevel.name}」`)
   }
-  return user
 }
 
-// ====== XP 获取规则 ======
 export const XP_RULES = {
-  read_article: 5,        // 浏览一篇资讯
-  submit_content: 10,     // 提交工具或资讯
-  submission_approved: 50, // 投稿通过审核
-  daily_login: 3,         // 每日登录
+  read_article: 5,
+  submit_content: 10,
+  submission_approved: 50,
+  daily_login: 3,
 }
