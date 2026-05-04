@@ -495,7 +495,6 @@ export const tools:Tool[]=[
   {id:"crm-ai",name:"Salesforce AI",url:"https://www.salesforce.com/ai",description:"全球最大CRM的AI能力，智能预测+自动化工单。企业级AI营销。",logo:"",category:"AI营销",stage:4,pricing:paid,tags:["CRM","企业","预测"],featured:false,rank:0,addedAt:"2026-05-05"},
   {id:"clari",name:"Clari AI",url:"https://www.clari.com",description:"AI收入预测和销售分析。自动预测成交概率和营收。",logo:"",category:"AI营销",stage:4,pricing:paid,tags:["收入","预测","分析"],featured:false,rank:0,addedAt:"2026-05-05"},
   {id:"zoominfo",name:"ZoomInfo AI",url:"https://www.zoominfo.com",description:"AI B2B数据平台，企业信息和联系人智能搜索。",logo:"",category:"AI营销",stage:4,pricing:paid,tags:["B2B","数据","搜索"],featured:false,rank:0,addedAt:"2026-05-05"},
-]
   {id:"cowagent",name:"CowAgent",url:"https://github.com/zhayujie/CowAgent",description:"开源AI助理，比OpenClaw更轻量。支持微信/飞书/钉钉/QQ/企微+DeepSeek等全部模型。文本语音图片文件全能。",logo:"",category:"Agent平台",stage:5,pricing:free,tags:["开源","微信","多平台","轻量"],featured:true,rank:1,addedAt:"2026-05-04"},
   {id:"aionui",name:"AionUi",url:"https://github.com/iOfficeAI/AionUi",description:"免费开源OpenClaw桌面UI。支持Claude Code/Codex/Gemini CLI/OpenCode等多引擎。24/7离线运行。",logo:"",category:"Agent平台",stage:5,pricing:free,tags:["开源","桌面","UI","多引擎"],featured:false,rank:0,addedAt:"2026-05-04"},
   {id:"nocobase",name:"NocoBase",url:"https://github.com/nocobase/nocobase",description:"开源AI+无代码平台，快速搭建业务系统。AI+WYSIWYG界面，速度+可靠性兼得。",logo:"",category:"Agent平台",stage:5,pricing:free,tags:["开源","无代码","业务","AI"],featured:false,rank:0,addedAt:"2026-05-04"},
