@@ -16,7 +16,7 @@ export const stages: Stage[] = [
       content:"AI = 一个读过很多书、可以跟你聊天、帮你干活的电脑程序。\n\n现在的 AI 能做：写文案、翻译、做PPT、画图、写代码、分析数据、搜索信息...几乎什么都能帮。\n\n你只需要学会怎么跟它「说话」——后面会教。\n\nAI 不是万能的，它会犯错（叫「幻觉」），所以当成一个很能干但需要你检查的实习生就行。",
       tools:[],tips:"最好的理解方式：打开 Kimi（kimi.moonshot.cn），输入「你好」，感受一下。"},
     {title:"Agent 是什么？跟普通AI聊天有什么区别？",
-      content:"普通AI：你问它答，像打电话咨询。\nAgent：你有事交代它，它自己去办完，像请了个助理。\n\n举个实际的例子：\n普通AI → 你问"今天天气怎么样"，它回复你。\nAgent → 你设好规则，它每天早上自动查天气，根据天气告诉你穿什么，下雨提醒你带伞——你什么都不用做。\n\nAgent = AI大脑 + 能操作电脑/网络 + 能定时自动执行。\n\n2026年最火的开源Agent：QClaw（腾讯，最简单）、OpenClaw（功能最强）、Hermes（自我进化）。",
+      content:"普通AI：你问它答，像打电话咨询。\nAgent：你有事交代它，它自己去办完，像请了个助理。\n\n举个实际的例子：\n普通AI → 你问「今天天气怎么样」，它回复你。\nAgent → 你设好规则，它每天早上自动查天气，根据天气告诉你穿什么，下雨提醒你带伞——你什么都不用做。\n\nAgent = AI大脑 + 能操作电脑/网络 + 能定时自动执行。\n\n2026年最火的开源Agent：QClaw（腾讯，最简单）、OpenClaw（功能最强）、Hermes（自我进化）。",
       tools:[],tips:"最简单理解：普通AI是你问路它指路，Agent是你告诉它去哪，它自己开车带你到。"},
     {title:"AI 工具生态全景：一张图看懂",
       content:"现在市面上的AI工具分这几大类：\n\n💬 对话AI：ChatGPT / Kimi / DeepSeek / 豆包 / 通义千问\n   → 聊天、问答、写作、翻译、代码，最基础的入门工具\n\n🤖 Agent平台：QClaw / Dify / Coze / OpenClaw / Hermes\n   → 搭建自动化的智能助手，能做客服、日报、监控\n\n🧠 模型平台：HuggingFace / Ollama / 硅基流动\n   → 下载和运行开源模型，本地免费使用\n\n🎨 创作工具：Midjourney / 即梦 / Suno / Sora\n   → AI绘图、视频、音乐\n\n这个学习路径会从对话AI开始，一步步带你到Agent和本地部署。",
