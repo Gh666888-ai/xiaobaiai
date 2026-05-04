@@ -58,7 +58,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "短信发送失败" }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true })
+    // Demo 模式返回验证码供弹窗显示
+    return NextResponse.json({ success: true, code })
   } catch {
     return NextResponse.json({ error: "发送失败" }, { status: 500 })
   }

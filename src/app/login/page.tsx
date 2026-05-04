@@ -56,6 +56,7 @@ export default function LoginPage() {
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error); return }
+      alert(`📱 验证码：${data.code}`)
       setCountdown(60); setStep("code")
     } catch { setError("网络错误，请重试") }
     finally { setSending(false) }
