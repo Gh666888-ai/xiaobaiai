@@ -125,7 +125,7 @@ export function updateSubmission(id: string, updates: Partial<Submission>) {
   const subs = loadSubmissions()
   const idx = subs.findIndex(s => s.id === id)
   if (idx >= 0) {
-    subs[idx] = { ...subs[idx], ...updates }
+    subs[idx] = { ...subs[idx], ...updates } as Submission
     saveSubmissions(subs)
   }
   return subs[idx]
