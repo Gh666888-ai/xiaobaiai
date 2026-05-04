@@ -64,7 +64,7 @@ export default function PostDetailPage() {
 
         {/* 评论框 */}
         {showCommentBox && (
-          <div style={{marginTop:20,padding:'0 0 0',background:'rgba(255,255,255,0.02)',border:'1px solid #1a1a1a',borderRadius:12,padding:'20px 24px'}}>
+          <div style={{marginTop:20,background:'rgba(255,255,255,0.02)',border:'1px solid #1a1a1a',borderRadius:12,padding:'20px 24px'}}>
             <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:700,color:'#ccc',marginBottom:12}}>评论 ({post.comments})</p>
             <div style={{display:'flex',gap:10,marginBottom:12}}>
               <input placeholder="写评论..." className="form-input" style={{flex:1}} />
