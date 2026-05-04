@@ -207,6 +207,20 @@ export const stages: Stage[] = [
         tools: ["deepseek", "chatgpt", "claude"],
         tips: "API Key = 你的数字密码，绝对不要上传到 GitHub 或发给别人！建议用环境变量（.env文件）存储，不要写在代码里。",
       },
+      {
+        title: "本地部署 AI 模型：完全免费、数据不出电脑",
+        content:
+          "很多 AI 工具是本地运行的，不需要联网，数据完全在你电脑上。以下是最高效的本地部署方案。\n\n🖥 Ollama（最推荐新手）：\n① 打开 ollama.com → 下载 Windows/Mac 版 → 安装\n② 终端输入：ollama run deepseek-r1 → 自动下载并运行 DeepSeek\n③ 终端输入：ollama run qwen3 → 自动下载并运行通义千问\n\n一条命令搞定！下载的模型在本地，完全免费，无需联网也能用。\n\n🖥 LM Studio（图形界面，零命令行）：\n① 打开 lmstudio.ai → 下载 → 安装\n② 搜索想用的模型 → 点下载 → 点运行\n③ 全程鼠标操作，适合完全不想碰命令行的人\n\n🖥 Jan AI（开源，颜值高）：\n① jan.ai 下载 → 安装 → 内置模型市场\n② 下载模型 → 聊天 → 数据全本地\n\n🖥 ComfyUI（AI 绘画本地部署）：\n① GitHub 搜 ComfyUI → 下载 → 解压 → 双击运行\n② 下载 SD 模型放到 models 文件夹 → 刷新网页\n③ 节点式工作流，灵活性极强\n\n📊 本地 vs 云端对比：\n本地：免费 + 隐私 + 不需要网络 + 速度看电脑配置\n云端：方便 + 速度快 + 需要网络 + 按量付费\n\n💡 建议：日常问答用云端 Kimi/DeepSeek（免费），大量处理用本地模型（不花钱）。",
+        tools: ["ollama"],
+        tips: "Ollama 最低配置：8GB 内存可跑 7B 模型。16GB 内存可跑 13B 模型。32GB+ 可跑 70B 模型。模型越大越聪明，但也越吃配置。",
+      },
+      {
+        title: "用 AI Agent 做程序开发：工具选择和推荐",
+        content:
+          "不同类型项目适合不同的 AI 编程工具。以下是最实用的组合方案：\n\n🖥 做网站/前端项目：\n→ Bolt.new / v0.dev / Lovable\n输入描述直接生成完整网站，适合非程序员做 MVP\n推荐：Bolt.new（全栈能力最强）、v0.dev（前端 UI 最精致）\n\n🖥 做 Python 脚本/爬虫/自动化：\n→ Claude Code / Cursor / Aider\n终端或编辑器内写代码，速度快，支持多文件编辑\n推荐：Claude Code（最强 CLI）、Cursor（新手友好的界面）\n\n🖥 做微信小程序：\n→ Cursor + 微信开发者工具\nCursor 写代码，微信工具预览调试\n推荐：Cursor（小程序项目支持好）\n\n🖥 做数据分析：\n→ Julius AI / ChatGPT + Code Interpreter\n上传数据文件，用自然语言分析，自动生成图表\n推荐：Julius AI（专为数据分析设计）\n\n🖥 做 API/后端服务：\n→ Windsurf / Claude Code / GitHub Copilot\n多文件、跨模块的复杂项目更适合\n推荐：Windsurf（Agent 自主编程模式）、Claude Code（终端全控制）\n\n🖥 做游戏开发：\n→ Cursor + Unity/Godot + AI辅助\n用 AI 生成脚本和资产，在引擎里组装\n推荐：Cursor（游戏脚本生成）、Midjourney（游戏资产）\n\n🖥 零基础想做个完整应用：\n→ Replit Agent / Bolt.new\n描述你的想法，AI 帮你搭完整项目\n推荐：Replit（最易上手，在线 IDE）\n\n📊 总结：\n• 不会代码做产品 → Bolt.new\n• 会一点代码 → Cursor\n• 完全自由控制 → Claude Code\n• 团队协作 → GitHub Copilot + VSCode\n• 数据分析 → Julius AI\n• 自动化脚本 → Claude Code / QClaw 说句话就行",
+        tools: ["cursor", "claude-code", "bolt", "v0", "replit-agent", "windsurf", "github-copilot"],
+        tips: "学习路径：先 Bolt.new 体验 AI 编程的快感 → 再 Cursor 学基础 → 最后 Claude Code 获得最大自由。不要一开始就上 Claude Code，终端界面会劝退新手。",
+      },
     ],
   },
 

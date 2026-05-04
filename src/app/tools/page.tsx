@@ -25,7 +25,7 @@ function ToolsContent() {
     let r=tools
     if(search.trim()){const q=search.toLowerCase();r=r.filter(t=>t.name.toLowerCase().includes(q)||t.description.toLowerCase().includes(q)||t.tags.some(t=>t.toLowerCase().includes(q)))}
     if(cat)r=r.filter(t=>t.category===cat);if(stage!==null)r=r.filter(t=>t.stage===stage)
-    return r
+    return r.sort((a,b)=>b.rank-a.rank)
   },[search,cat,stage])
 
   return (

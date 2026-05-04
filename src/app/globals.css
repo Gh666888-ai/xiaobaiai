@@ -84,8 +84,8 @@ body {
 @media (max-width: 768px) {
   /* 导航 */
   nav { padding: 10px 16px !important; }
-  nav > div:last-child { gap: 12px !important; }
-  nav a { font-size: 11px !important; }
+  nav > div:last-child { gap: 14px !important; }
+  nav a { font-size: 13px !important; }
 
   /* 页面内边距 */
   [style*="padding:"] section, [style*="padding:"] main > div {

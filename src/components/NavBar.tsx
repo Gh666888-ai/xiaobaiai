@@ -7,6 +7,8 @@ import Link from "next/link"
 
 const links = [
   { l: "工具导航", h: "/tools" },
+  { l: "模型排行", h: "/models" },
+  { l: "技能库", h: "/skills" },
   { l: "学习路径", h: "/learn" },
   { l: "AI 资讯", h: "/news" },
   { l: "社区", h: "/community" },
