@@ -103,6 +103,7 @@ function ToolsContent() {
                         <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:700,color:avColors[i],width:20}}>#{i+1}</span>
                         <span style={{width:22,height:22,borderRadius:4,display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:800,color:'#fff',background:avColors[i],flexShrink:0,fontFamily:"'JetBrains Mono',monospace"}}>{t.name[0].toUpperCase()}</span>
                         <span style={{fontSize:12,fontWeight:600,color:'#ccc',flex:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{t.name}</span>
+                        <span style={{fontSize:9,fontWeight:700,color:isCN(t)?'#e8c96a':'#c9a84c',marginLeft:'auto'}}>{isCN(t)?'🇨🇳':'🌍'}</span>
                         <span style={{fontSize:10,color:'#555'}}>{t.pricing}</span>
                       </a>
                     )
