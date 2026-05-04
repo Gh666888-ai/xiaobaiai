@@ -113,13 +113,6 @@ function ToolsContent() {
           </div>
         </div>
 
-        <div style={{display:'flex',flexWrap:'wrap',gap:28,marginBottom:40,justifyContent:'flex-start'}}>
-              <button onClick={()=>setStage(null)} style={stage===null?btnSel:btnBase}>ALL</button>
-              {Object.entries(stageLabels).map(([k,v])=><button key={k} onClick={()=>setStage(stage===Number(k)?null:Number(k))} style={stage===Number(k)?btnSel:btnBase}>{v}</button>)}
-            </div>
-          </div>
-        </div>
-
         <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:700,color:'#ccc',marginBottom:24}}>{filtered.length} results</p>
 
         {filtered.length===0?(
