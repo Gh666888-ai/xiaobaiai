@@ -86,7 +86,6 @@ function ToolsContent() {
               if(top5.length===0) return null
               return (
                 <div key={cat.key} onClick={()=>window.location.href=`/tools?category=${cat.key}`}
-                  style={{cursor:'pointer'}}
                   style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:12,padding:'16px 20px',cursor:'pointer',transition:'all 0.3s'}}
                   onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.06)';e.currentTarget.style.borderColor='#7a6230'}}
                   onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor='#1a1a1a'}}>
