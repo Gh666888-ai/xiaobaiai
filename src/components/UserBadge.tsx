@@ -1,36 +1,36 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getCurrentUser, getUserLevel } from "@/data/user"
+import { getCurrentUser, getUserLevel, User } from "@/data/user"
+import { supabase } from "@/lib/supabase"
+import Link from "next/link"
 
 export function UserBadge() {
-  const [user, setUser] = useState<ReturnType<typeof getCurrentUser>>(null)
+  const [user, setUser] = useState<User|null>(null)
 
   useEffect(() => {
-    setUser(getCurrentUser())
-    const handler = () => setUser(getCurrentUser())
-    window.addEventListener("storage", handler)
-    window.addEventListener("focus", handler)
-    return () => {
-      window.removeEventListener("storage", handler)
-      window.removeEventListener("focus", handler)
-    }
+    getCurrentUser().then(setUser)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async () => {
+      const u = await getCurrentUser()
+      setUser(u)
+    })
+    return () => subscription.unsubscribe()
   }, [])
 
   if (!user) {
     return (
-      <a href="/login" className="btn-outline h-8 text-xs px-3 no-underline whitespace-nowrap">
+      <Link href="/login" className="btn-outline h-8 text-xs px-3 no-underline whitespace-nowrap">
         登录
-      </a>
+      </Link>
     )
   }
 
   const level = getUserLevel(user.xp)
 
   return (
-    <a href="/login" className="flex items-center gap-1.5 no-underline px-2 py-1 rounded-lg hover:bg-gray-50 transition-colors">
+    <Link href="/login" className="flex items-center gap-1.5 no-underline px-2 py-1 rounded-lg hover:bg-gray-50 transition-colors">
       <span title={`${level.name} · ${user.xp} XP`}>{level.badge}</span>
       <span className="text-xs font-medium text-gray-700 hidden sm:inline">{user.name}</span>
-    </a>
+    </Link>
   )
 }

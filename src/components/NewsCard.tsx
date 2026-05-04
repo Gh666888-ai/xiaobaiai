@@ -19,8 +19,8 @@ function formatDate(dateStr: string): string {
 }
 
 export function NewsCard({ item }: { item: NewsItem }) {
-  const handleClick = () => {
-    const user = getCurrentUser()
+  const handleClick = async () => {
+    const user = await getCurrentUser()
     if (!user) return
     const key = `${user.phone || user.name}-${item.id}-${new Date().toISOString().slice(0, 10)}`
     if (readToday.has(key)) return
