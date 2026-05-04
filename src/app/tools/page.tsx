@@ -60,17 +60,37 @@ function ToolsContent() {
       <div style={{maxWidth:1100,margin:'0 auto',padding:'60px 60px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.85)',textAlign:'left'}} className="max-sm:px-4">
         <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.4em',color:'#7a6230',textTransform:'uppercase',marginBottom:10,fontWeight:700}}>Directory</p>
         <h1 style={{fontSize:36,fontWeight:900,color:'#fff',letterSpacing:'0.02em',marginBottom:8}}>工具导航</h1>
-        <p style={{fontSize:14,fontWeight:400,color:'#ccc',marginBottom:32}}>{tools.length} tools indexed</p>
+        <p style={{fontSize:14,fontWeight:400,color:'#ccc',marginBottom:32,textAlign:'left'}}>{tools.length} tools indexed</p>
+
+        {/* 搜索 + 筛选居中 */}
+        <div style={{display:'flex',alignItems:'center',background:'rgba(255,255,255,0.04)',border:'1px solid #222',borderRadius:10,maxWidth:400,margin:'0 auto',marginBottom:24}}>
+          <Search size={14} style={{marginLeft:14,color:'#777'}} />
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="搜索工具..."
+            style={{flex:1,background:'transparent',border:'none',outline:'none',padding:'11px 14px',fontSize:13,color:'#fff',fontFamily:"'Noto Sans SC', sans-serif"}} />
+        </div>
+
+        {/* Region + Category 筛选居中 */}
+        <div style={{display:'flex',justifyContent:'center',gap:28,marginBottom:40,flexWrap:'wrap'}}>
+          <div style={{textAlign:'center'}}>
+            <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:9,letterSpacing:'0.15em',color:'#ccc',fontWeight:700,marginBottom:8}}>REGION</p>
+            <div style={{display:'flex',gap:6}}>
+              {["全部","国内","国外"].map(r=>(<button key={r} onClick={()=>setRegion(r as any)} style={region===r?btnSel:btnBase}>{r}</button>))}
+            </div>
+          </div>
+        </div>
 
         {/* 各分类排行 */}
         <div style={{marginBottom:40}}>
-          <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.2em',color:'#e8c96a',fontWeight:700,marginBottom:16}}>🏆 分类排行 TOP 5</p>
+          <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.2em',color:'#e8c96a',fontWeight:700,marginBottom:16}}>🏆 分类排行（点击进入筛选）</p>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(320px, 1fr))',gap:10}}>
             {categories.map(cat=>{
               const top5 = tools.filter(t=>t.category===cat.key).sort((a,b)=>b.rank-a.rank).slice(0,5)
               if(top5.length===0) return null
               return (
-                <div key={cat.key} style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:12,padding:'16px 20px'}}>
+                <div key={cat.key} onClick={()=>{setCat(cat.key);window.scrollTo({top:0,behavior:'smooth'})}}
+                  style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:12,padding:'16px 20px',cursor:'pointer',transition:'all 0.3s'}}
+                  onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.06)';e.currentTarget.style.borderColor='#7a6230'}}
+                  onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor='#1a1a1a'}}>
                   <h3 style={{fontSize:13,fontWeight:700,color:'#ccc',marginBottom:10,display:'flex',alignItems:'center',gap:6}}>
                     <span>{cat.icon}</span> {cat.label}
                     <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:9,color:'#555',marginLeft:'auto'}}>{tools.filter(t=>t.category===cat.key).length}个</span>
@@ -93,30 +113,7 @@ function ToolsContent() {
           </div>
         </div>
 
-        <div style={{display:'flex',alignItems:'center',background:'rgba(255,255,255,0.04)',border:'1px solid #222',borderRadius:10,maxWidth:420,marginBottom:32,transition:'border-color 0.3s'}}
-          onFocus={e=>e.currentTarget.style.borderColor='#7a6230'} onBlur={e=>e.currentTarget.style.borderColor='#222'}>
-          <Search size={14} style={{marginLeft:16,color:'#777',flexShrink:0}} />
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="搜索工具..."
-            style={{flex:1,background:'transparent',border:'none',outline:'none',padding:'12px 14px',fontSize:13,fontWeight:500,color:'#fff',fontFamily:"'Noto Sans SC', sans-serif"}} />
-        </div>
-
         <div style={{display:'flex',flexWrap:'wrap',gap:28,marginBottom:40,justifyContent:'flex-start'}}>
-          <div>
-            <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.2em',color:'#ccc',fontWeight:700,marginBottom:10,textAlign:'left'}}>REGION</p>
-            <div style={{display:'flex',gap:6}}>
-              {["全部","国内","国外"].map(r=><button key={r} onClick={()=>setRegion(r as any)} style={region===r?btnSel:btnBase}>{r}</button>)}
-            </div>
-          </div>
-          <div>
-            <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.2em',color:'#ccc',fontWeight:700,marginBottom:10,textAlign:'left'}}>CATEGORY</p>
-            <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
-              <button onClick={()=>setCat(null)} style={cat===null?btnSel:btnBase}>ALL</button>
-              {categories.map(c=><button key={c.key} onClick={()=>setCat(cat===c.key?null:c.key)} style={cat===c.key?btnSel:btnBase}>{c.label}</button>)}
-            </div>
-          </div>
-          <div>
-            <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.2em',color:'#ccc',fontWeight:700,marginBottom:10}}>STAGE</p>
-            <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
               <button onClick={()=>setStage(null)} style={stage===null?btnSel:btnBase}>ALL</button>
               {Object.entries(stageLabels).map(([k,v])=><button key={k} onClick={()=>setStage(stage===Number(k)?null:Number(k))} style={stage===Number(k)?btnSel:btnBase}>{v}</button>)}
             </div>
