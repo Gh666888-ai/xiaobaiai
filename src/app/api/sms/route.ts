@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { sendSMS } from "@/lib/sms"
 
 // IP 限流存储
 const rateLimit = new Map<string, { count: number; resetAt: number }>()
@@ -49,11 +50,13 @@ export async function POST(req: NextRequest) {
 
     // 生成验证码
     const code = String(Math.floor(100000 + Math.random() * 900000))
-    codes.set(phone, { code, expiresAt: Date.now() + 300000 }) // 5 分钟过期
+    codes.set(phone, { code, expiresAt: Date.now() + 300000 })
 
-    // TODO: 阿里云短信审核通过后替换这里
-    // await sendAliyunSMS(phone, code)
-    console.log(`📱 SMS to ${phone}: ${code}`)
+    // 发送短信
+    const sent = await sendSMS(phone, code)
+    if (!sent) {
+      return NextResponse.json({ error: "短信发送失败" }, { status: 500 })
+    }
 
     return NextResponse.json({ success: true })
   } catch {
