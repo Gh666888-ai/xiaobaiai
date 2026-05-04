@@ -5,6 +5,7 @@
 CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT,
+  phone TEXT,
   name TEXT NOT NULL DEFAULT '',
   xp INTEGER NOT NULL DEFAULT 0,
   joined_at TEXT,
