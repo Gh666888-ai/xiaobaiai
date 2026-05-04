@@ -115,8 +115,7 @@ body {
   [style*="fontSize:32"] { font-size: 22px !important; }
   [style*="fontSize:clamp(56"] { font-size: 36px !important; }
 
-  /* 隐藏 Hero 大 Canvas */
-  canvas[style*="inset:0"] { display: none !important; }
+  /* 手机端背景Canvas保留 */
 
   /* 卡片全宽 */
   .card, [style*="borderRadius:16"] { margin-left: 0 !important; margin-right: 0 !important; }
