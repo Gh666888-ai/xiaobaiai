@@ -11,6 +11,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="zh-CN">
       <head>
         <meta name="baidu-site-verification" content="codeva-RTXCqCLk3P" />
+        <meta name="baidu-site-verification" content="codeva-ZUKoSdLniD" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet" />
         <script src="https://cdn.tailwindcss.com"></script>
