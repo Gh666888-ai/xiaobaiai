@@ -58,6 +58,8 @@ async function main() {
       if (!html || html.length < 100) { console.log(`  ❌ ${src.name} 无响应`); continue }
       const items = extractTitles(html)
       for (const item of items) {
+        // 仅保留中文标题（含中文字符）
+        if (!/[一-鿿]/.test(item.title)) continue
         const link = item.link.startsWith("http") ? item.link : `https://${src.host}${item.link}`
         allNews.push({
           id:`auto-${Date.now()}-${Math.random().toString(36).slice(2,6)}`,
