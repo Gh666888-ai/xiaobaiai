@@ -31,7 +31,7 @@ export default function NewsDetailPage() {
         <div style={{fontSize:16,color:'#ccc',lineHeight:2.2,whiteSpace:'pre-wrap'}}>
           <p style={{marginBottom:16}}>{item.summary}</p>
           {item.content && item.content !== item.summary && <p>{item.content}</p>}
-          <p style={{color:'#888',fontSize:13,textAlign:'center',padding:24,border:'1px dashed #333',borderRadius:8,marginTop:24}}>📡 完整内容与图片由Agent每日自动抓取更新</p>
+          {item.url && item.url !== "#" && <a href={item.url} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{marginTop:24}}>查看原文 →</a>}
         </div>
         {item.url&&item.url!=="#"&&<a href={item.url} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{marginTop:32}}>查看原文 →</a>}
       </div>
