@@ -77,9 +77,14 @@ export async function getCurrentUser(): Promise<User | null> {
   if (!data.session) return null
   const { data: profile } = await supabase.from("profiles").select("*")
     .eq("id", data.session.user.id).single()
-  if (!profile) return null
-  return { userId: profile.id, email: profile.email, name: profile.name,
-    xp: profile.xp, joinedAt: profile.joined_at }
+  // profile 不存在时用 session 数据兜底
+  return {
+    userId: data.session.user.id,
+    email: data.session.user.email || "",
+    name: profile?.name || data.session.user.user_metadata?.name || data.session.user.email?.split("@")[0] || "",
+    xp: profile?.xp || 0,
+    joinedAt: profile?.joined_at || ""
+  }
 }
 
 // 退出
