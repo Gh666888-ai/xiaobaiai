@@ -1,0 +1,66 @@
+[
+  {
+    "id": "static-wf-1",
+    "title": "【已验证】阿里云AI调度官：从零搭建多Agent任务编排系统",
+    "content": "阿里云开发者社区发布了一套完整的AI调度官工作流方案，核心是四层架构模型：\n\n## 架构概览\n\n1. 接入层：用户输入 → 意图识别 → 任务拆分\n2. 调度中枢层：Master Agent + 思维链(Chain of Thought)进行任务规划，输出JSON任务图\n3. 执行协作层：按任务类型激活不同的专家Agent（数据分析Agent、文案Agent、翻译Agent等）\n4. 记忆与资产层：RAG知识库 + 对话状态管理 + 长期记忆\n\n## 关键机制\n\n- Plan-and-Execute模式：先规划JSON任务图，再依次激活执行Agent，避免幻觉和遗漏\n- 反思与审计节点：专用Audit Agent校验每个关键输出，不合格自动重试\n- 人机对齐：关键决策节点（如发帖、付款）设置人工审批门控\n\n## 已验证场景\n\n全自动跨境电商选品与文案流水线：\n1. 竞品监控Agent定时抓取竞品数据 → 2. 数据分析Agent生成选品报告 → 3. 文案Agent生成多语言Listing → 4. Audit Agent审核 → 5. 人工审批后自动发布\n\n## 优化建议\n- Token管理：使用缓存避免重复调用\n- 错误自愈：自动重试+降级策略\n- 渐进上线：先在测试环境影子模式运行2周\n\n来源：https://developer.aliyun.com/article/1708682",
+    "category": "经验分享",
+    "tags": ["多Agent", "工作流", "阿里云", "自动化", "已验证"],
+    "author_name": "AI调度官团队"
+  },
+  {
+    "id": "static-wf-2",
+    "title": "【已验证】Dust.tt五步法：企业Agent从零到落地实战指南",
+    "content": "Dust.tt在2026年4月发布了企业Agent落地五步法，已经过多个企业验证。这篇帖子把核心方法论翻译整理给大家：\n\n## 五步落地法\n\n### 第一步：确定任务\n筛选标准：高频+可预测 = 强自动化候选；低频+高风险 = 保持人工。每周发生5次以上、步骤固定的任务优先Agent化。\n\n### 第二步：选平台\n- Dust.tt：数据安全优先的企业（SOC2认证）\n- Dify：想自部署的开源用户\n- Coze：国内用户、需要微信/飞书集成\n- n8n：已有400+应用集成的团队\n\n### 第三步：写清晰指令\nAgent指令四要素：角色（你是谁）+ 目标（做什么）+ 工具（用什么做）+ 边界（什么不能做）。\n\n### 第四步：测试迭代\n在5-10个真实案例上测试，记录失败原因，优化指令。关键指标：任务完成率>90%才上线。\n\n### 第五步：部署扩展\n从单个任务→部门→全公司逐步扩展。设置监控告警，定期审计Agent行为。\n\n## 已验证数据\n- Profound：每月节省1800+小时（自动处理IT工单）\n- Brevo：邮件个性化时间减少80%（AI自动生成多语言营销邮件）\n- Vanta：每周节省约400小时（自动安全合规检查）\n\n来源：https://dust.tt/blog/how-to-use-ai-agents-to-automate-tasks",
+    "category": "经验分享",
+    "tags": ["方法论", "落地", "企业", "五步法", "已验证"],
+    "author_name": "Dust.tt团队"
+  },
+  {
+    "id": "static-wf-3",
+    "title": "【已验证】Make.com APA工作流：从传统RPA到AI驱动的流程自动化",
+    "content": "Make.com在2026年3月发布了Agentic Process Automation(APA)完整指南。我把核心内容整理出来：\n\n## APA vs 传统RPA\n\n传统RPA：固定规则（如果A则B），不懂变通，页面改版就挂\nAPA：AI判断 + 规则逻辑，能理解上下文做决策，抗干扰能力强\n\n## APA七步落地\n\n1. 定义输入输出：明确Agent接收什么数据、输出什么结果\n2. 确定脚手架：选Make/n8n/Zapier等平台，或自建Agent框架\n3. 编写Prompt：包含角色定义、任务描述、输出格式要求\n4. 选择模型：简单任务用GPT-4o-mini，复杂推理用Claude/DeepSeek\n5. 下游动作：确定Agent输出后的自动化动作（发邮件/写数据库/调API）\n6. 历史数据测试：用过去3个月的数据跑一遍，对比人工处理结果\n7. 影子模式发布：先让Agent在后台运行不执行动作，确认无误后再打开执行\n\n## 三大常见陷阱\n- 数据不一致：Agent训练数据和实际数据格式不同导致误判\n- Prompt漂移：模型升级后Prompt效果变化，需要持续监控\n- 过度升级：简单问题用了太强的模型，成本浪费\n\n## 适合APA的任务类型\n✅ 发票信息提取与录入\n✅ 客服工单自动分类和路由\n✅ 合同关键条款提取\n✅ 多源数据汇总报告\n❌ 涉及法律决策的任务\n❌ 需要创造性判断的任务\n\n来源：https://www.make.com/en/blog/agentic-process-automation",
+    "category": "经验分享",
+    "tags": ["APA", "RPA", "自动化", "Make", "已验证"],
+    "author_name": "Make.com团队"
+  },
+  {
+    "id": "static-wf-4",
+    "title": "【已验证】Agent可观测性五层模型：生产环境Agent不出错的秘诀",
+    "content": "生产级Agent最容易被忽略但最重要的一环：可观测性。这篇基于dev.to社区高赞文章整理：\n\n## 五层可观测性模型\n\n### 第一层：请求层\n记录每次Agent调用的输入和输出，包括用户消息、上下文、最终回复。工具：Langfuse / LangSmith\n\n### 第二层：推理层\n追踪Agent的思维链(Chain of Thought)，理解Agent为什么做了某个决定。工具：AgentOps / LangWatch\n\n### 第三层：工具层\n监控每个工具调用的成功率、延迟、错误信息。若某工具失败率>5%需告警。工具：OpenTelemetry + Grafana\n\n### 第四层：系统层\n追踪Token消耗、API成本、响应时间。设置每日预算告警。工具：Helicone / LiteLLM\n\n### 第五层：结果层\n评估任务完成质量：Agent的输出是否正确、完整、符合预期。工具：Ragas / TruLens\n\n## 六种常见失败模式\n1. 工具调用循环（Agent反复调用同一工具不停止）→ 设置最大调用次数\n2. 幻觉输出（编造不存在的API参数）→ Schema验证\n3. 上下文遗忘（对话长了忘记前面说的）→ 摘要压缩\n4. 权限越界（Agent执行了不该执行的操作）→ 沙箱隔离\n5. Prompt注入（用户输入覆盖了系统指令）→ 输入过滤\n6. 成本爆炸（循环调用导致Token消耗飙升）→ 预算限额\n\n## 最小可行方案\n如果只做一件事：用Langfuse（开源免费）接入你的Agent，至少追踪请求层和推理层。\n\n来源：https://dev.to/chunxiaoxx/building-production-ai-agents-in-2026-native-tool-calling-observability-and-verifiable-execution-4dhe",
+    "category": "经验分享",
+    "tags": ["可观测性", "生产", "Agent", "监控", "已验证"],
+    "author_name": "Agent可观测性社区"
+  },
+  {
+    "id": "static-wf-5",
+    "title": "【已验证】Activepieces：400+ MCP服务器的开源自动化平台",
+    "content": "发现了一个非常值得关注的开源项目：Activepieces。它是n8n的开源替代品，但在AI Agent支持方面走得更远：\n\n## 核心亮点\n\n- 已收录400+个MCP服务器，涵盖搜索、数据库、文件、通讯、开发工具等几乎所有领域\n- 拖拽式工作流编排，零代码配置AI Agent + API串联\n- 原生支持AI Agent调用：在工作流中直接嵌入AI决策节点\n- 开源MIT协议，可自部署\n\n## 与n8n对比\n\n| 特性 | Activepieces | n8n |\n|------|-------------|-----|\n| MCP支持 | 400+原生支持 | 需手动配置 |\n| AI Agent | 原生Agent节点 | 需AI模块 |\n| 社区 | 快速成长 | 成熟稳定 |\n| 许可证 | MIT开源 | Sustainable Use |\n\n## 实战示例：自动客服工单系统\n\n1. Gmail触发器：收到新邮件 → 2. AI Agent分析内容分类 → 3. 判断：Bug类→创建GitHub Issue / 咨询类→搜索知识库自动回复 / 投诉类→升级到人工 → 4. 飞书通知相关人员\n\n## 适合人群\n- 不想付费n8n企业版的团队\n- 需要大量MCP集成能力\n- 想在工作流中嵌入AI决策的开发者\n\n来源：https://github.com/activepieces/activepieces",
+    "category": "工具推荐",
+    "tags": ["MCP", "开源", "工作流", "自动化", "已验证"],
+    "author_name": "开源工具观察"
+  },
+  {
+    "id": "static-wf-6",
+    "title": "【已验证】allcanuse-mcp：90+工具的本地Agent神器，给Claude Code装上手脚",
+    "content": "GitHub上发现一个中文开发者的宝藏项目：allcanuse-mcp。它是一个专为本地Agent设计的MCP服务端，给Claude Code/ChatGPT Codex/OpenCode等本地Agent提供了90多个系统级工具。\n\n## 工具分类\n\n- 文件工程（20+）：读写文件、搜索文件、批量重命名、压缩解压\n- 网络调试（15+）：HTTP请求、WebSocket、抓包分析、端口扫描\n- 进程管控（10+）：启动/停止进程、查看系统资源、定时任务\n- 桌面视觉（10+）：截图、OCR文字识别、窗口管理、剪贴板\n- 摄像头（5+）：拍照、录像、人脸检测\n- 值班托管（5+）：定时检查服务状态、自动重启、告警通知\n- 其他（25+）：系统信息、环境变量、数据库连接等\n\n## 安装\n\n```bash\ngit clone https://github.com/ra1nyxin/allcanuse-mcp\ncd allcanuse-mcp\nnpm install\n```\n\n然后在Claude Code配置中添加MCP服务器即可。\n\n## 使用场景\n\n1. 让Claude Code自动整理下载文件夹（识别文件类型→移动到对应目录→去重）\n2. 定时截图桌面OCR识别并记录工作日志\n3. 监控本地服务健康状态，挂了自动重启并通知\n4. 用摄像头拍照→AI分析→自动发送报告\n\n## 注意事项\n- 部分工具需要管理员权限\n- 涉及文件删除的操作建议先dry-run\n- MIT开源，可商用\n\n来源：https://github.com/ra1nyxin/allcanuse-mcp",
+    "category": "工具推荐",
+    "tags": ["MCP", "本地", "90+工具", "Claude Code", "已验证"],
+    "author_name": "MCP生态观察"
+  },
+  {
+    "id": "static-wf-7",
+    "title": "【已验证】Agent-Reach：让AI Agent免费搜索全网的CLI工具",
+    "content": "发现一个特别实用的开源项目：Agent-Reach。一个CLI命令就能让Agent搜索Twitter/Reddit/YouTube/GitHub/B站/小红书等多平台，关键是零API费用。\n\n## 支持的平台\n\n海外：Twitter(X)、Reddit、YouTube、GitHub、Hacker News\n国内：B站、小红书、知乎、微博\n\n## 使用方式\n\n```bash\n# 搜索B站视频\nagent-reach bilibili \"AI Agent 教程\"\n\n# 搜索GitHub仓库\nagent-reach github \"mcp server\"\n\n# 搜索小红书笔记\nagent-reach xiaohongshu \"AI工具推荐\"\n```\n\n## 为什么不用API？\n\n所有搜索通过模拟浏览器实现，不依赖任何第三方API Key。对于个人开发者和小团队，省去了申请API的麻烦和费用。\n\n## 集成到Agent\n\n可以配置为OpenClaw技能或Dify工具，让Agent自动搜索多平台信息。\n\n## 适合场景\n- 竞品监控（多平台自动搜索竞品信息）\n- 热点追踪（自动聚合多平台热搜）\n- 内容灵感（搜索热门内容获取创作灵感）\n\n## 注意\n- 频繁请求可能被限流，建议加延时\n- 仅用于合法合规的信息收集\n\n来源：https://github.com/Panniantong/Agent-Reach",
+    "category": "工具推荐",
+    "tags": ["搜索", "多平台", "零费用", "CLI", "已验证"],
+    "author_name": "Agent工具收集者"
+  },
+  {
+    "id": "static-wf-8",
+    "title": "【已验证】Atomicwork多Agent流水线：用Claude SDK构建生产级AI工作流",
+    "content": "Atomicwork团队分享了他们用Claude Agent SDK+MCP构建生产级AI工作流的完整方案，这是目前最详细的多Agent生产实践分享之一：\n\n## 六子Agent架构\n\n1. 发现Agent：理解用户意图，提取关键实体和需求\n2. 规划Agent：将需求分解为子任务，生成执行计划\n3. 标识符Agent：将计划中的抽象概念映射到具体的系统对象（用户ID、工单号等）\n4. 构建器Agent：执行确定性操作，输出双份（人类可读+机器可读）\n5. 验证Agent：检查构建结果的正确性和完整性\n6. 审批节点：关键操作（如修改生产配置）需人类审批\n\n## 技术选型\n\n- Claude Agent SDK：Agent核心引擎\n- MCP协议：工具标准化接入\n- Temporal：工作流持久化执行，支持重试和补偿\n- 类型安全SDK：每个租户独立命名空间，数据隔离\n\n## 关键设计\n\n- 确定性双输出：每个操作同时输出给人类看的结果和给机器处理的JSON\n- 渐进式授权：Agent从只读→建议→半自动→全自动逐级升级\n- 错误恢复：每个步骤都有补偿操作，失败可回滚\n\n来源：https://www.atomicwork.com/blog/building-ai-workflows-with-claude",
+    "category": "经验分享",
+    "tags": ["多Agent", "Claude SDK", "生产级", "MCP", "已验证"],
+    "author_name": "Atomicwork团队"
+  }
+]

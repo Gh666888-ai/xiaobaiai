@@ -14,7 +14,15 @@ export default function CommunityPage() {
   const [search, setSearch] = useState("")
   const [posts, setPosts] = useState<any[]>([])
   useEffect(()=>{
-    fetch("/api/posts?status=approved").then(r=>r.json()).then(d=>{if(Array.isArray(d))setPosts(d)}).catch(()=>{})
+    Promise.all([
+      fetch("/api/posts?status=approved").then(r=>r.json()).catch(()=>[]),
+      fetch("/community-posts.json").then(r=>r.json()).catch(()=>[])
+    ]).then(([apiPosts,staticPosts])=>{
+      const api=Array.isArray(apiPosts)?apiPosts:[]
+      const st=Array.isArray(staticPosts)?staticPosts:[]
+      const ids=new Set(api.map((p:any)=>p.id))
+      setPosts([...api,...st.filter((p:any)=>!ids.has(p.id))])
+    }).catch(()=>{})
   },[])
 
   const filtered = posts.filter((p:any) => {
