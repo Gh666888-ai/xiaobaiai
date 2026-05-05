@@ -77,9 +77,9 @@ function ToolsContent() {
           </p>
         </div>
 
-        {/* 各分类排行 */}
-        <div style={{marginBottom:40}}>
-          <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.2em',color:'#e8c96a',fontWeight:700,marginBottom:16}}>🏆 分类排行（点击进入筛选）</p>
+        {/* 各分类排行 —— 仅在无筛选时显示 */}
+        {!cat && <div style={{marginBottom:40}}>
+          <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.2em',color:'#e8c96a',fontWeight:700,marginBottom:16}}>🏆 分类排行（点击进入分类）</p>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(320px, 1fr))',gap:10}}>
             {categories.map(cat=>{
               const top5 = tools.filter(t=>t.category===cat.key).sort((a,b)=>b.rank-a.rank).slice(0,5)
@@ -110,7 +110,14 @@ function ToolsContent() {
               )
             })}
           </div>
-        </div>
+        </div>}
+
+        {/* 选中分类后的专属页面 */}
+        {cat && <div style={{marginBottom:32}}>
+          <button onClick={()=>{setCat(null);window.history.pushState({},"","/tools")}} style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#aaa',background:'none',border:'1px solid #333',padding:'4px 12px',borderRadius:6,cursor:'pointer',marginBottom:12}}>← 返回全部</button>
+          <h2 style={{fontSize:22,fontWeight:900,color:'#fff'}}>{categories.find(c=>c.key===cat)?.icon} {cat}</h2>
+          <p style={{fontSize:13,color:'#888',marginTop:4}}>{tools.filter(t=>t.category===cat).length} 个工具</p>
+        </div>}
 
         <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:700,color:'#ccc',marginBottom:24}}>{filtered.length} results</p>
 
