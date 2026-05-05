@@ -19,18 +19,23 @@ export function NavBar() {
   const [user, setUser] = useState<User|null>(null)
 
   const syncUser = async () => {
-    const u = await getCurrentUser()
-    setUser(u)
+    const {data:{session}} = await supabase.auth.getSession()
+    if(session){
+      const u = await getCurrentUser()
+      setUser(u)
+    }else{
+      setUser(null)
+    }
   }
   useEffect(() => {
     syncUser()
     const { data: { subscription } } = supabase.auth.onAuthStateChange(syncUser)
+    const interval = setInterval(syncUser, 3000)
     window.addEventListener("focus", syncUser)
-    window.addEventListener("storage", syncUser)
     return () => {
       subscription.unsubscribe()
+      clearInterval(interval)
       window.removeEventListener("focus", syncUser)
-      window.removeEventListener("storage", syncUser)
     }
   }, [])
 
