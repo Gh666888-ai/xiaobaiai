@@ -76,7 +76,7 @@ async function main() {
 
   if (allNews.length === 0) { console.log("⚠️ 无新资讯"); return }
 
-  const outPath = path.join(__dirname,"..","fetched-news.json")
+  const outPath = path.join(__dirname,"..","public","fetched-news.json")
   fs.writeFileSync(outPath, JSON.stringify(allNews,null,2))
   console.log(`✅ 抓到 ${allNews.length} 条 → ${outPath}`)
 
