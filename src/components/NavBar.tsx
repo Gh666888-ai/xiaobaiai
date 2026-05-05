@@ -20,9 +20,14 @@ export function NavBar() {
 
   const syncUser = async () => {
     const {data:{session}} = await supabase.auth.getSession()
-    if(session){
-      const u = await getCurrentUser()
-      setUser(u)
+    if(session?.user){
+      // 直接用 session 数据，不依赖 profiles 表
+      setUser({
+        userId: session.user.id,
+        email: session.user.email || "",
+        name: session.user.user_metadata?.name || session.user.email?.split("@")[0] || "用户",
+        xp: 0, joinedAt: ""
+      })
     }else{
       setUser(null)
     }
