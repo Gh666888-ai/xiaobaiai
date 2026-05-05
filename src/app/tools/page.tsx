@@ -6,6 +6,8 @@ import { tools, categories, stageLabels, ToolCategory } from "@/data/tools"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import Link from "next/link"
+
+// next/link already imported
 import { Search } from "lucide-react"
 
 function letter(n:string){return /^[a-zA-Z]/.test(n)?n[0].toUpperCase():n[0]}
@@ -86,8 +88,8 @@ function ToolsContent() {
               const top5 = tools.filter(t=>t.category===cat.key).sort((a,b)=>b.rank-a.rank).slice(0,5)
               if(top5.length===0) return null
               return (
-                <div key={cat.key} onClick={()=>{setCat(cat.key);router.push(`/tools?category=${cat.key}`)}}
-                  style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:12,padding:'16px 20px',cursor:'pointer',transition:'all 0.3s'}}
+                <Link key={cat.key} href={`/tools?category=${cat.key}`}
+                  style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:12,padding:'16px 20px',display:'block',textDecoration:'none',transition:'all 0.3s'}}
                   onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.06)';e.currentTarget.style.borderColor='#7a6230'}}
                   onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor='#1a1a1a'}}>
                   <h3 style={{fontSize:13,fontWeight:700,color:'#ccc',marginBottom:10,display:'flex',alignItems:'center',gap:6}}>
@@ -107,7 +109,7 @@ function ToolsContent() {
                       </a>
                     )
                   })}
-                </div>
+                </Link>
               )
             })}
           </div>
