@@ -1,8 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { supabase } from "@/lib/supabase"
 import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabase"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import Link from "next/link"
