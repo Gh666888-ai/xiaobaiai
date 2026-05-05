@@ -92,9 +92,9 @@ export default function HomePage() {
           </div>
 
           <div style={{textAlign:'center',marginTop:28,opacity:0,animation:'fadeUp 0.8s ease forwards 1.7s'}}>
-            <Link href="/learn" style={{textDecoration:'none'}}>
+            <Link href="/learn" style={{textDecoration:'none',display:'inline-block',padding:'24px 48px',border:'1px solid #7a6230',borderRadius:12,background:'rgba(201,168,76,0.06)',transition:'all 0.3s',cursor:'pointer'}}>
               <p style={{fontSize:'clamp(24px,4vw,36px)',fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.1em',marginBottom:8}}>小白入门</p>
-              <p style={{fontSize:14,fontWeight:400,color:'#888',fontFamily:"'Noto Sans SC',sans-serif"}}>手把手教你从下载到应用</p>
+              <p style={{fontSize:14,fontWeight:400,color:'#aaa',fontFamily:"'Noto Sans SC',sans-serif",margin:0}}>手把手教你从下载到应用</p>
             </Link>
           </div>
         </div>
