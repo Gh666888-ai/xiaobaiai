@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { news, newsCategories, NewsCategory } from "@/data/news"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
