@@ -64,7 +64,9 @@ export default function SkillsPage() {
               const isEasy = s.difficulty==="简单"
               const isAdv = s.difficulty==="进阶"
               return (
-                <div key={s.id}
+                <a key={s.id} href={s.url&&s.url!=="#"?"https://"+s.url.replace(/^https?:\/\//,""):"#"} target={s.url&&s.url!=="#"?"_blank":undefined} style={{textDecoration:'none'}}
+                  onClick={s.url==="#"||!s.url?(e=>e.preventDefault()):undefined}>
+                <div
                   style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:14,padding:'24px',transition:'all 0.3s',display:'flex',flexDirection:'column',justifyContent:'space-between',position:'relative'}}
                   onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.04)';e.currentTarget.style.borderColor='#7a6230'}}
                   onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor='#1a1a1a'}}>
@@ -86,6 +88,7 @@ export default function SkillsPage() {
                     <span style={{marginLeft:'auto',fontSize:10,color:'#888'}}>{s.platform==="QClaw"?"技能市场搜•一键安装":s.platform==="OpenClaw"?"openclaw skill install":"自带/Dify工作流添加"}</span>
                   </div>
                 </div>
+                </a>
               )
             })}
           </div>

@@ -18,14 +18,16 @@ export default function NewPostPage() {
     if(!title.trim()){setErr("请输入标题");setBusy(false);return}
     if(!content.trim()){setErr("请输入内容");setBusy(false);return}
     try{
-      const session = (await supabase.auth.getSession()).data.session
+      const {data:{session}} = await supabase.auth.getSession()
       if(!session){setErr("请先登录后再发帖");setBusy(false);return}
-      const r = await fetch("/api/posts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
-        title,content,category:cat,tags:tags.split(",").map(t=>t.trim()).filter(Boolean),author_name:author
-      })})
-      if(!r.ok){setErr("发布失败");setBusy(false);return}
+      const {error} = await supabase.from("community_posts").insert({
+        title,content,category:cat,tags:tags.split(",").map(t=>t.trim()).filter(Boolean),
+        author_name:author,author_id:session.user.id,
+        published_at:new Date().toISOString().slice(0,10)
+      }).single()
+      if(error)throw error
       setDone(true)
-    }catch(e:any){setErr("发布失败，请重试")}
+    }catch(e:any){setErr(e.message||"发布失败")}
     setBusy(false)
   }
 
