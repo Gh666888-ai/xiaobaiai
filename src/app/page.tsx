@@ -91,12 +91,10 @@ export default function HomePage() {
             <div style={{textAlign:'center'}}><p style={{fontSize:24,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>120+</p><p style={{fontSize:10,color:'#888'}}>Agent技能</p></div>
           </div>
 
-          <div style={{display:'flex',gap:12,flexWrap:'wrap',justifyContent:'center',marginTop:32,opacity:0,animation:'fadeUp 0.8s ease forwards 1.7s'}}>
-            <Link href="/learn" style={{display:'inline-flex',alignItems:'center',gap:12,padding:'14px 36px',border:'1px solid #7a6230',color:'#e8c96a',fontFamily:"'JetBrains Mono', monospace",fontSize:12,letterSpacing:'0.15em',textDecoration:'none',background:'rgba(201,168,76,0.06)',transition:'all 0.3s'}}>
-              🐣 小白入门
-            </Link>
-            <Link href="/tools" style={{display:'inline-flex',alignItems:'center',gap:12,padding:'14px 36px',border:'1px solid #333',color:'#888',fontFamily:"'JetBrains Mono', monospace",fontSize:12,letterSpacing:'0.15em',textDecoration:'none',transition:'all 0.3s'}}>
-              ⚡ 找工具
+          <div style={{textAlign:'center',marginTop:28,opacity:0,animation:'fadeUp 0.8s ease forwards 1.7s'}}>
+            <Link href="/learn" style={{textDecoration:'none'}}>
+              <p style={{fontSize:'clamp(24px,4vw,36px)',fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.1em',marginBottom:8}}>小白入门</p>
+              <p style={{fontSize:14,fontWeight:400,color:'#888',fontFamily:"'Noto Sans SC',sans-serif"}}>手把手教你从下载到应用</p>
             </Link>
           </div>
         </div>
