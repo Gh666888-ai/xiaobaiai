@@ -80,8 +80,9 @@ export default function SkillsPage() {
                       {s.tags.map(t=><span key={t} style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#888',border:'1px solid #222',padding:'2px 8px',borderRadius:4,fontWeight:500}}>{t}</span>)}
                     </div>
                   </div>
-                  <div style={{display:'flex',alignItems:'center',gap:8,fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#aaa'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:8,fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#aaa',marginTop:8,paddingTop:8,borderTop:'1px solid #1a1a1a'}}>
                     <Download size={12} /> {s.downloads} 安装
+                    <span style={{marginLeft:'auto',fontSize:10,color:'#888'}}>{s.platform==="QClaw"?"技能市场搜•一键安装":s.platform==="OpenClaw"?"openclaw skill install":"自带/Dify工作流添加"}</span>
                   </div>
                 </div>
               )

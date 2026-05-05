@@ -24,7 +24,7 @@ function ToolCard2({tool:t,rank,letter,avColor}:{tool:typeof tools[0];rank:numbe
     <span style={{width:36,height:36,borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:900,color:'#fff',background:avColor(t.name),fontFamily:"'JetBrains Mono',monospace",flexShrink:0}}>{letter(t.name)}</span>
     <div style={{flex:1,minWidth:0}}>
       <h3 style={{fontSize:15,fontWeight:700,color:'#fff',marginBottom:2}}>{t.name}</h3>
-      <p style={{fontSize:12,color:'#aaa',lineHeight:1.5,marginBottom:4}}>{t.description}</p>
+      <p style={{fontSize:12,color:'#ccc',lineHeight:1.5,marginBottom:4}}><span style={{color:'#c9a84c',fontWeight:600}}>能做什么：</span>{t.description}</p>
       <div style={{display:'flex',gap:4,flexWrap:'wrap',alignItems:'center'}}>
         <span style={{fontSize:11,color:'#888'}}>{t.pricing}</span>
         {t.featured&&<span style={{fontSize:11,color:'#c9a84c'}}>✦</span>}
