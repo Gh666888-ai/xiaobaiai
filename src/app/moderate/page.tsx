@@ -7,9 +7,11 @@ import Link from "next/link"
 
 export default function ModeratePage() {
   const [subs, setSubs] = useState<Submission[]>([])
+  const [posts,setPosts]=useState<any[]>([]);const [loadingPosts,setLoadingPosts]=useState(false)
   const [filter, setFilter] = useState<"all"|"pending"|"auto_rejected"|"approved"|"rejected">("pending")
   const refresh=()=>setSubs(loadSubmissions())
-  useEffect(()=>{refresh()},[])
+  const loadPosts=()=>{setLoadingPosts(true);fetch("/api/posts?status=pending").then(r=>r.json()).then(d=>{if(Array.isArray(d))setPosts(d)}).finally(()=>setLoadingPosts(false))}
+  useEffect(()=>{refresh();loadPosts()},[])
 
   const filtered = subs.filter(s=>filter==="all"||s.status===filter)
   const counts = {pending:subs.filter(s=>s.status==="pending").length,auto_rejected:subs.filter(s=>s.status==="auto_rejected").length,approved:subs.filter(s=>s.status==="approved").length}
@@ -73,6 +75,26 @@ export default function ModeratePage() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* 社区帖子审核 */}
+      <div style={{marginTop:48,paddingTop:32,borderTop:'1px solid #1a1a1a'}}>
+        <h2 style={{fontSize:20,fontWeight:900,color:'#fff',marginBottom:16}}>📝 社区帖子审核</h2>
+        <button onClick={loadPosts} className="btn-outline" style={{marginBottom:16}}>刷新 ({loadingPosts?"加载中...":posts.length+"条待审"})</button>
+        {posts.length===0&&<p style={{color:'#555'}}>暂无待审核帖子</p>}
+        <div style={{display:'flex',flexDirection:'column',gap:2,background:'#1a1a1a',border:'1px solid #1a1a1a'}}>
+          {posts.map((p:any)=>(
+            <div key={p.id} style={{background:'rgba(255,255,255,0.02)',padding:'16px 20px'}}>
+              <p style={{fontSize:14,fontWeight:700,color:'#fff',marginBottom:4}}>{p.title}</p>
+              <p style={{fontSize:12,color:'#888',marginBottom:8}}>{p.author_name} · {p.category} · {p.published_at}</p>
+              <p style={{fontSize:13,color:'#ccc',lineHeight:1.6,whiteSpace:'pre-wrap'}}>{p.content?.slice(0,200)}{(p.content?.length>200)?'...':''}</p>
+              <div style={{display:'flex',gap:8,marginTop:12}}>
+                <button onClick={async()=>{await fetch("/api/posts",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:p.id,status:"approved"})});loadPosts()}} className="btn-primary" style={{fontSize:11,padding:'6px 16px'}}>✓ 通过</button>
+                <button onClick={async()=>{await fetch("/api/posts",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:p.id,status:"rejected"})});loadPosts()}} className="btn-outline" style={{fontSize:11,padding:'6px 16px',color:'#D94841',borderColor:'#3a1a1a'}}>✗ 拒绝</button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
