@@ -12,8 +12,15 @@ const cats = ["全部","经验分享","踩坑记录","全自动实战","AI分析
 export default function CommunityPage() {
   const [cat, setCat] = useState<string>("全部")
   const [search, setSearch] = useState("")
+  const [posts, setPosts] = useState<any[]>([])
+  useEffect(()=>{
+    supabase.from("community_posts").select("*").eq("status","approved").order("created_at",{ascending:false})
+    .then(({data})=>{if(data)setPosts(data)})
+    // 同时加载静态帖子
+    import("@/data/community").then(m=>setPosts(p=>[...p,...m.posts]))
+  },[])
 
-  const filtered = posts.filter(p => {
+  const filtered = posts.filter((p:any) => {
     if (cat !== "全部" && p.category !== cat) return false
     if (search.trim() && !p.title.includes(search) && !p.content.includes(search) && !p.tags.some(t=>t.includes(search))) return false
     return true
