@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
+  const router = useRouter()
   const [ready,setReady]=useState(false)
   const [email,setEmail]=useState("");const [pwd,setPwd]=useState("");const [name,setName]=useState("")
   const [err,setErr]=useState("");const [busy,setBusy]=useState(false)
@@ -44,9 +46,10 @@ export default function LoginPage() {
       }
     }catch{setErr("网络错误")}
     setBusy(false)
+    setTimeout(()=>router.push("/"),500)
   }
 
-  const doLogout=async()=>{await supabase.auth.signOut();setLoggedIn(false);setName("");setPwd("")}
+  const doLogout=async()=>{await supabase.auth.signOut();setLoggedIn(false);setName("");setPwd("");router.push("/")}
 
   if(!ready)return<div style={{background:'#000',minHeight:'100vh'}}/>
 
