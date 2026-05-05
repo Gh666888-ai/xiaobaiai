@@ -1,8 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { getCurrentUser, getUserLevel, User } from "@/data/user"
-import { supabase } from "@/lib/supabase"
+import { useAuth } from "@/lib/AuthContext"
+import { getUserLevel } from "@/data/user"
 import Link from "next/link"
 
 const links = [
@@ -16,34 +15,7 @@ const links = [
 ]
 
 export function NavBar() {
-  const [user, setUser] = useState<User|null>(null)
-
-  const syncUser = async () => {
-    const {data:{session}} = await supabase.auth.getSession()
-    if(session?.user){
-      // 直接用 session 数据，不依赖 profiles 表
-      setUser({
-        userId: session.user.id,
-        email: session.user.email || "",
-        name: session.user.user_metadata?.name || session.user.email?.split("@")[0] || "用户",
-        xp: 0, joinedAt: ""
-      })
-    }else{
-      setUser(null)
-    }
-  }
-  useEffect(() => {
-    syncUser()
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(syncUser)
-    const interval = setInterval(syncUser, 3000)
-    window.addEventListener("focus", syncUser)
-    return () => {
-      subscription.unsubscribe()
-      clearInterval(interval)
-      window.removeEventListener("focus", syncUser)
-    }
-  }, [])
-
+  const { user } = useAuth()
   const level = user ? getUserLevel(user.xp) : null
 
   return (

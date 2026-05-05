@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import "./globals.css"
+import { AuthProvider } from "@/lib/AuthContext"
 
 export const metadata: Metadata = {
   title: "小白AI — 从零到Agent · AI工具导航",
@@ -19,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{__html:`var _hmt=_hmt||[];(function(){var hm=document.createElement("script");hm.src="https://hm.baidu.com/hm.js?25dc9f7854f8b827d57b6451814fae7a";var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(hm,s)})()`}} />
       </head>
       <body style={{ background: '#000', color: '#f0f0f0', fontFamily: "'Noto Sans SC', sans-serif" }}>
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   )
