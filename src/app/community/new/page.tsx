@@ -34,7 +34,8 @@ export default function NewPostPage() {
   }
 
   if(done)return <div style={{background:'#000',minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center'}}>
-    <div style={{textAlign:'center'}}><p style={{fontSize:40,marginBottom:16}}>✓</p><h2 style={{fontSize:20,color:'#fff',marginBottom:8}}>发布成功！</h2>
+    <div style={{textAlign:'center',maxWidth:400}}><p style={{fontSize:40,marginBottom:16}}>📝</p><h2 style={{fontSize:20,color:'#fff',marginBottom:8}}>发布成功，审核中</h2>
+      <p style={{fontSize:13,color:'#888',marginBottom:24}}>你的帖子已提交，审核通过后将公开展示。</p>
       <button onClick={()=>router.push("/community")} className="btn-primary">返回社区</button></div></div>
 
   return <div style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
