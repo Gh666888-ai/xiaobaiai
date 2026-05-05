@@ -17,13 +17,20 @@ const links = [
 export function NavBar() {
   const [user, setUser] = useState<User|null>(null)
 
+  const syncUser = async () => {
+    const u = await getCurrentUser()
+    setUser(u)
+  }
   useEffect(() => {
-    getCurrentUser().then(setUser)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async () => {
-      const u = await getCurrentUser()
-      setUser(u)
-    })
-    return () => subscription.unsubscribe()
+    syncUser()
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(syncUser)
+    window.addEventListener("focus", syncUser)
+    window.addEventListener("storage", syncUser)
+    return () => {
+      subscription.unsubscribe()
+      window.removeEventListener("focus", syncUser)
+      window.removeEventListener("storage", syncUser)
+    }
   }, [])
 
   const level = user ? getUserLevel(user.xp) : null
