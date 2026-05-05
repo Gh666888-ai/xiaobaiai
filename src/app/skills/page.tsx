@@ -64,7 +64,8 @@ export default function SkillsPage() {
               const isEasy = s.difficulty==="简单"
               const isAdv = s.difficulty==="进阶"
               return (
-                <div key={s.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:14,padding:'24px',transition:'all 0.3s',display:'flex',flexDirection:'column',justifyContent:'space-between',position:'relative'}}
+                <a key={s.id} href={s.url} target="_blank" rel="noopener noreferrer"
+                  style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:14,padding:'24px',transition:'all 0.3s',display:'flex',flexDirection:'column',justifyContent:'space-between',position:'relative',textDecoration:'none'}}
                   onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.04)';e.currentTarget.style.borderColor='#7a6230'}}
                   onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor='#1a1a1a'}}>
                   <span style={{position:'absolute',top:12,right:16,fontFamily:"'JetBrains Mono',monospace",fontSize:20,fontWeight:900,color:i<3?'#c9a84c':'#222'}}>#{i+1}</span>
@@ -84,7 +85,7 @@ export default function SkillsPage() {
                     <Download size={12} /> {s.downloads} 安装
                     <span style={{marginLeft:'auto',fontSize:10,color:'#888'}}>{s.platform==="QClaw"?"技能市场搜•一键安装":s.platform==="OpenClaw"?"openclaw skill install":"自带/Dify工作流添加"}</span>
                   </div>
-                </div>
+                </a>
               )
             })}
           </div>
