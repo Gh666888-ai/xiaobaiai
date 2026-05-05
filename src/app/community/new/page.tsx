@@ -19,15 +19,14 @@ export default function NewPostPage() {
     if(!content.trim()){setErr("请输入内容");setBusy(false);return}
     try{
       const name = author || "匿名"
-      const {error} = await supabase.from("community_posts").insert({
+      const r = await fetch("/api/posts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
         title,content,category:cat,
         tags:tags.split(",").map(t=>t.trim()).filter(Boolean),
-        author_name:name,published_at:new Date().toISOString().slice(0,10),
-        status:"pending"
-      })
-      if(error)throw error
+        author_name:name
+      })})
+      if(!r.ok){const d=await r.json();setErr(d.error||"发布失败");setBusy(false);return}
       setDone(true)
-    }catch(e:any){setErr(e.message||"发布失败")}
+    }catch(e:any){setErr("发布失败")}
     setBusy(false)
   }
 

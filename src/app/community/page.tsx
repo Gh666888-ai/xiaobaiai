@@ -14,10 +14,7 @@ export default function CommunityPage() {
   const [search, setSearch] = useState("")
   const [posts, setPosts] = useState<any[]>([])
   useEffect(()=>{
-    (async()=>{
-      try{const{data}=await supabase.from("community_posts").select("*").eq("status","approved").order("created_at",{ascending:false})
-      if(data?.length)setPosts(data)}catch{}
-    })()
+    fetch("/api/posts?status=approved").then(r=>r.json()).then(d=>{if(Array.isArray(d))setPosts(d)}).catch(()=>{})
   },[])
 
   const filtered = posts.filter((p:any) => {
