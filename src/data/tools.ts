@@ -515,4 +515,15 @@ export const tools:Tool[]=[
   {id:"sparkmail",name:"Spark Mail AI",url:"https://sparkmailapp.com",description:"AI邮件客户端，自动分类+智能回复+优先级排序。邮件效率大幅提升。",logo:"",category:"AI效率",stage:2,pricing:fp,tags:["邮件","客户端","效率"],featured:false,rank:0,addedAt:"2026-05-05"},
   {id:"superhuman",name:"Superhuman AI",url:"https://superhuman.com",description:"最快的AI邮件客户端，AI辅助快速处理邮件。$30/月，效率翻倍。",logo:"",category:"AI效率",stage:3,pricing:paid,tags:["邮件","快速","效率"],featured:false,rank:0,addedAt:"2026-05-05"},
   {id:"raycast",name:"Raycast AI",url:"https://www.raycast.com",description:"Mac效率启动器+AI，快捷键打开+AI辅助。Mac用户的效率神器。",logo:"",category:"AI效率",stage:2,pricing:fp,tags:["Mac","启动器","效率"],featured:false,rank:0,addedAt:"2026-05-05"},
+  // ===== 2026年5月新增 =====
+  {id:"manus",name:"Manus",url:"https://manus.im",description:"中国首个通用AI Agent产品，一句话让AI帮你订机票、做报表、写报告。把想法直接变结果。",logo:"",category:"Agent平台",stage:6,pricing:quota,tags:["通用Agent","自主执行","国产"],featured:true,rank:0,addedAt:"2026-05-05"},
+  {id:"yuanbao",name:"元宝",url:"https://yuanbao.tencent.com",description:"腾讯AI助手，深度整合微信生态。支持AI绘画、文档分析、语音通话，微信用户的最佳入门选择。",logo:"",category:"对话AI",stage:1,pricing:free,tags:["腾讯","微信","入门","免费"],featured:false,rank:0,addedAt:"2026-05-05"},
+  {id:"photoroom",name:"PhotoRoom",url:"https://www.photoroom.com",description:"AI电商产品图神器，自动去背景+生成白色/场景背景。电商卖家的图片处理利器。",logo:"",category:"AI设计",stage:1,pricing:quota,tags:["产品图","去背景","电商"],featured:false,rank:0,addedAt:"2026-05-05"},
+  {id:"kaiber",name:"Kaiber",url:"https://kaiber.ai",description:"AI动画和视频生成，上传图片或文字生成动态艺术视频。适合音乐MV、数字艺术创作。",logo:"",category:"AI视频",stage:2,pricing:quota,tags:["动画","艺术","MV"],featured:false,rank:0,addedAt:"2026-05-05"},
+  {id:"adobe-firefly",name:"Adobe Firefly",url:"https://firefly.adobe.com",description:"Adobe出品的AI创作套件，文生图+生成式填充+文字效果。深度集成Photoshop，设计师的AI工具箱。",logo:"",category:"AI绘图",stage:2,pricing:quota,tags:["Adobe","Photoshop","设计"],featured:false,rank:0,addedAt:"2026-05-05"},
+  {id:"bubble-ai",name:"Bubble AI",url:"https://bubble.io",description:"无代码Web应用构建平台+AI，拖拽式搭建网站和SaaS。非程序员做出功能完整的在线产品。",logo:"",category:"AI编程",stage:2,pricing:quota,tags:["无代码","Web","SaaS"],featured:false,rank:0,addedAt:"2026-05-05"},
+  {id:"topaz-ai",name:"Topaz AI",url:"https://www.topazlabs.com",description:"AI图片和视频增强，超分辨率放大+降噪+锐化+面部修复。专业摄影师和视频工作者常用。",logo:"",category:"AI设计",stage:3,pricing:paid,tags:["增强","放大","降噪","专业"],featured:false,rank:0,addedAt:"2026-05-05"},
+  {id:"pictory",name:"Pictory",url:"https://pictory.ai",description:"AI视频自动生成，文字脚本一键转视频。自动匹配素材+配音+字幕，做自媒体视频极快。",logo:"",category:"AI视频",stage:2,pricing:quota,tags:["文字转视频","配素材","字幕"],featured:false,rank:0,addedAt:"2026-05-05"},
+  {id:"kapwing",name:"Kapwing",url:"https://www.kapwing.com",description:"在线AI视频编辑器，自动字幕+去背景+AI配音+格式转换。浏览器即用，自媒体人的日常工具。",logo:"",category:"AI视频",stage:1,pricing:quota,tags:["在线","编辑","字幕","自媒体"],featured:false,rank:0,addedAt:"2026-05-05"},
+  {id:"face-swap",name:"Face Swap AI",url:"https://faceswap.tech",description:"AI换脸和头像生成，上传照片自动生成各种风格头像。AI写真、职业照、创意头像一键生成。",logo:"",category:"AI绘图",stage:1,pricing:quota,tags:["换脸","头像","写真"],featured:false,rank:0,addedAt:"2026-05-05"},
 ]
