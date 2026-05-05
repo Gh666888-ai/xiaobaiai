@@ -15,9 +15,7 @@ export default function CommunityPage() {
   const [posts, setPosts] = useState<any[]>([])
   useEffect(()=>{
     supabase.from("community_posts").select("*").eq("status","approved").order("created_at",{ascending:false})
-    .then(({data})=>{if(data)setPosts(data)})
-    // 同时加载静态帖子
-    import("@/data/community").then(m=>setPosts(p=>[...p,...m.posts]))
+    .then(({data})=>{if(data && data.length>0)setPosts(data)}).catch(()=>{})
   },[])
 
   const filtered = posts.filter((p:any) => {
