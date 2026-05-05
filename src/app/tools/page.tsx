@@ -23,10 +23,12 @@ function ToolCard2({tool:t,rank,letter,avColor}:{tool:typeof tools[0];rank:numbe
     <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:12,fontWeight:900,color:rank<=3?'#c9a84c':'#555',width:24}}>#{rank}</span>
     <span style={{width:36,height:36,borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:900,color:'#fff',background:avColor(t.name),fontFamily:"'JetBrains Mono',monospace",flexShrink:0}}>{letter(t.name)}</span>
     <div style={{flex:1,minWidth:0}}>
-      <h3 style={{fontSize:14,fontWeight:700,color:'#fff',marginBottom:2}}>{t.name}</h3>
-      <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
-        <span style={{fontSize:11,color:'#aaa'}}>{t.pricing}</span>
+      <h3 style={{fontSize:15,fontWeight:700,color:'#fff',marginBottom:2}}>{t.name}</h3>
+      <p style={{fontSize:12,color:'#aaa',lineHeight:1.5,marginBottom:4}}>{t.description}</p>
+      <div style={{display:'flex',gap:4,flexWrap:'wrap',alignItems:'center'}}>
+        <span style={{fontSize:11,color:'#888'}}>{t.pricing}</span>
         {t.featured&&<span style={{fontSize:11,color:'#c9a84c'}}>✦</span>}
+        {t.tags.slice(0,2).map(tg=><span key={tg} style={{fontSize:10,color:'#666',border:'1px solid #222',padding:'1px 6px',borderRadius:3}}>{tg}</span>)}
       </div>
     </div>
   </a>
@@ -70,14 +72,6 @@ function ToolsContent() {
           <Search size={14} style={{marginLeft:14,color:'#777'}} />
           <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="搜索工具..."
             style={{flex:1,background:'transparent',border:'none',outline:'none',padding:'11px 14px',fontSize:13,color:'#fff',fontFamily:"'Noto Sans SC', sans-serif"}} />
-        </div>
-
-        {/* 说明条 */}
-        <div style={{textAlign:'center',marginBottom:24,padding:'8px 16px',background:'rgba(255,255,255,0.02)',border:'1px solid #1a1a1a',borderRadius:8,display:'inline-block',margin:'0 auto',maxWidth:500}}>
-          <p style={{fontSize:11,color:'#aaa',lineHeight:1.6}}>
-            🇨🇳 = 可直接连接的国内工具 &nbsp;&nbsp; 🌍 = 需要特殊网络环境的国外工具<br/>
-            <span style={{color:'#7a6230'}}>点击分类排行卡片进入筛选，自动分栏展示</span>
-          </p>
         </div>
 
         {/* 各分类排行 —— 仅在无筛选时显示 */}
