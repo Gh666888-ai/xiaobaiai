@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { posts } from "@/data/community"
 import { MathRain } from "@/components/MathRain"
@@ -11,9 +11,16 @@ import { Heart, MessageCircle, Pin, ArrowLeft } from "lucide-react"
 export default function PostDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const post = posts.find(p => p.id === params.id)
+  const [staticPosts,setStaticPosts]=useState<any[]>([])
+  const [apiPosts,setApiPosts]=useState<any[]>([])
+  useEffect(()=>{
+    fetch("/community-posts.json").then(r=>r.json()).then(d=>{if(Array.isArray(d))setStaticPosts(d)}).catch(()=>{})
+    fetch("/api/posts?status=approved").then(r=>r.json()).then(d=>{if(Array.isArray(d))setApiPosts(d)}).catch(()=>{})
+  },[])
+  const allPosts=[...posts,...staticPosts,...apiPosts]
+  const post = allPosts.find(p => p.id === params.id)
   const [liked, setLiked] = useState(false)
-  const [likeCount, setLikeCount] = useState(post?.likes || 0)
+  const [likeCount, setLikeCount] = useState(post ? (post.likes || 0) : 0)
   const [showCommentBox, setShowCommentBox] = useState(false)
 
   if (!post) return (
