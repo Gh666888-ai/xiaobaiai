@@ -189,4 +189,65 @@ export const skills:Skill[]=[
   {id:"s128",name:"AI学习单词卡",description:"拍照/输入内容，AI自动生成外语单词卡+例句+发音。内置艾宾浩斯记忆曲线，每日推送复习。支持英/日/韩。",category:"学习教育",platform:"通用",difficulty:"简单",downloads:"13.4K",url:"https://clawhub.ai/skills",tags:["单词","外语","记忆","复习"]},
   {id:"s129",name:"多平台排版助手",description:"Markdown一键转公众号/知乎/掘金/CSDN排版。AI自动调整格式、配图位置、行间距，适配各平台特色。",category:"内容创作",platform:"通用",difficulty:"简单",downloads:"10.8K",url:"https://clawhub.ai/skills",tags:["排版","Markdown","多平台","公众号"]},
   {id:"s130",name:"Webhook触发器",description:"搭建IFTTT式自动化流程：监控指定事件→触发AI执行任务→结果推送到微信/飞书。零代码配置Webhook。",category:"自动化",platform:"通用",difficulty:"中等",downloads:"8.2K",url:"https://clawhub.ai/skills",tags:["Webhook","触发器","IFTTT","自动化"]},
+  // ===== 200+扩充（2026年5月） =====
+  // 自动化（5）
+  {id:"s131",name:"数据备份定时器",description:"定时自动备份指定文件夹到云盘或NAS。增量备份+版本管理，数据丢失的保险栓。",category:"自动化",platform:"QClaw",difficulty:"简单",downloads:"7.1K",url:"https://clawhub.ai/skills",tags:["备份","定时","云盘","安全"]},
+  {id:"s132",name:"A股收盘播报",description:"每日收盘自动生成A股行情摘要推送到微信。涨幅榜+跌幅榜+持仓变动，下班前速览。",category:"自动化",platform:"通用",difficulty:"简单",downloads:"5.3K",url:"https://clawhub.ai/skills",tags:["A股","收盘","推送","投资"]},
+  {id:"s133",name:"网站变更监控",description:"监控指定网页内容变化，价格变动/新文章/政策更新第一时间通知。竞品监控和降价提醒利器。",category:"自动化",platform:"OpenClaw",difficulty:"中等",downloads:"4.8K",url:"https://clawhub.ai/skills",tags:["监控","网页","变动","通知"]},
+  {id:"s134",name:"定时朋友圈发布",description:"定时自动发布朋友圈。支持图文/纯文字/视频，可设置多时段和重复规则。微商和自媒体的定时营销工具。",category:"自动化",platform:"QClaw",difficulty:"简单",downloads:"9.2K",url:"https://clawhub.ai/skills",tags:["朋友圈","定时","发布","微信"]},
+  {id:"s135",name:"RSS文章转公众号",description:"自动抓取RSS源文章，AI改写后发布到公众号草稿箱。内容搬运和采集的自动化流水线。",category:"自动化",platform:"通用",difficulty:"中等",downloads:"3.6K",url:"https://clawhub.ai/skills",tags:["RSS","公众号","采集","改写"]},
+  // 内容创作（5）
+  {id:"s136",name:"故事绘本生成器",description:"输入主题AI自动写故事+配插画，生成完整儿童绘本。可导出PDF打印，亲子阅读素材工厂。",category:"内容创作",platform:"通用",difficulty:"简单",downloads:"11.5K",url:"https://clawhub.ai/skills",tags:["绘本","故事","儿童","亲子"]},
+  {id:"s137",name:"抖音评论区引流",description:"AI自动生成高互动率评论，分析热门视频自动产出神评论。抖音运营的评论引流工具。",category:"内容创作",platform:"通用",difficulty:"中等",downloads:"7.8K",url:"https://clawhub.ai/skills",tags:["抖音","评论","引流","运营"]},
+  {id:"s138",name:"演讲稿生成器",description:"输入主题和场合，AI生成结构完整的演讲稿。支持婚礼致辞/年会发言/产品发布/毕业演讲等场景。",category:"内容创作",platform:"通用",difficulty:"简单",downloads:"8.9K",url:"https://clawhub.ai/skills",tags:["演讲","致辞","场合","文案"]},
+  {id:"s139",name:"AI对联生成",description:"输入上联或主题，AI自动生成工整对仗的下联和横批。春节/开业/庆典对联秒出。",category:"内容创作",platform:"通用",difficulty:"简单",downloads:"6.4K",url:"https://clawhub.ai/skills",tags:["对联","春节","对仗","传统文化"]},
+  {id:"s140",name:"知乎回答生成",description:"分析知乎问题自动生成高质量回答。引用来源+分点论述+个人观点，知乎涨粉的内容引擎。",category:"内容创作",platform:"通用",difficulty:"中等",downloads:"5.1K",url:"https://clawhub.ai/skills",tags:["知乎","问答","涨粉","引用"]},
+  // 数据分析（5）
+  {id:"s141",name:"竞品价格追踪",description:"定时抓取竞品价格页面，自动分析涨价/降价趋势并生成对比图表。电商卖家的价格参谋。",category:"数据分析",platform:"OpenClaw",difficulty:"中等",downloads:"4.3K",url:"https://clawhub.ai/skills",tags:["竞品","价格","追踪","图表"]},
+  {id:"s142",name:"运动数据看板",description:"同步Apple Watch/小米手环数据，AI分析运动趋势和健康变化。自动生成周报和改善建议。",category:"数据分析",platform:"通用",difficulty:"简单",downloads:"6.7K",url:"https://clawhub.ai/skills",tags:["运动","健康","手环","看板"]},
+  {id:"s143",name:"垃圾分类识别",description:"拍照或输入物品名，AI识别垃圾类型并告知投放要求。支持全国46个重点城市分类标准。",category:"数据分析",platform:"通用",difficulty:"简单",downloads:"12.3K",url:"https://clawhub.ai/skills",tags:["垃圾分类","识别","环保","实用"]},
+  {id:"s144",name:"问卷自动分析",description:"上传问卷星/腾讯问卷原始数据，AI自动统计+交叉分析+生成可视化报告。调研工作提效10倍。",category:"数据分析",platform:"Dify",difficulty:"中等",downloads:"5.8K",url:"https://clawhub.ai/skills",tags:["问卷","统计","分析","可视化"]},
+  {id:"s145",name:"餐饮数据运营",description:"分析外卖平台经营数据，AI给出热销品建议和定价策略。餐饮小店的AI运营参谋。",category:"数据分析",platform:"通用",difficulty:"中等",downloads:"3.9K",url:"https://clawhub.ai/skills",tags:["餐饮","外卖","运营","数据"]},
+  // 开发工具（5）
+  {id:"s146",name:"正则表达式生成",description:"用自然语言描述匹配规则，AI自动写出正则表达式。附测试用例和可视化图解。",category:"开发工具",platform:"通用",difficulty:"简单",downloads:"8.5K",url:"https://clawhub.ai/skills",tags:["正则","生成","自然语言"]},
+  {id:"s147",name:"Postman测试脚本",description:"根据API文档自动生成Postman测试集合和自动化测试脚本。接口测试效率翻倍。",category:"开发工具",platform:"通用",difficulty:"中等",downloads:"4.2K",url:"https://clawhub.ai/skills",tags:["Postman","API","测试","自动化"]},
+  {id:"s148",name:"ChatGPT插件开发",description:"零代码搭建ChatGPT插件，接入你的数据和服务。不用写后端代码也能发布插件。",category:"开发工具",platform:"Dify",difficulty:"中等",downloads:"3.7K",url:"https://clawhub.ai/skills",tags:["ChatGPT","插件","零代码"]},
+  {id:"s149",name:"数据库设计助手",description:"输入业务需求自动生成数据库ER图和建表SQL。支持MySQL/PostgreSQL/MongoDB。",category:"开发工具",platform:"通用",difficulty:"中等",downloads:"5.6K",url:"https://clawhub.ai/skills",tags:["数据库","ER图","SQL","设计"]},
+  {id:"s150",name:"Commit Message规范",description:"读取Git diff自动生成Conventional Commits格式的提交信息。团队协作的Git规范助手。",category:"开发工具",platform:"OpenClaw",difficulty:"简单",downloads:"6.3K",url:"https://clawhub.ai/skills",tags:["Git","Commit","规范","团队"]},
+  // 通讯社交（5）
+  {id:"s151",name:"微信好友备份",description:"自动导出微信好友列表和标签到Excel。通讯录备份和客户管理的实用工具。",category:"通讯社交",platform:"QClaw",difficulty:"简单",downloads:"10.2K",url:"https://clawhub.ai/skills",tags:["微信","好友","备份","通讯录"]},
+  {id:"s152",name:"评论情绪回复",description:"分析社交媒体评论情绪（正面/负面/中性），AI生成匹配情绪的回复。品牌社媒的智能互动助手。",category:"通讯社交",platform:"通用",difficulty:"中等",downloads:"4.5K",url:"https://clawhub.ai/skills",tags:["评论","情绪","回复","社交"]},
+  {id:"s153",name:"钉钉审批助手",description:"自动处理钉钉审批：请假/报销/加班自动判断并给出审批意见。HR和经理的审批减负。",category:"通讯社交",platform:"通用",difficulty:"中等",downloads:"3.2K",url:"https://clawhub.ai/skills",tags:["钉钉","审批","自动","HR"]},
+  {id:"s154",name:"生日祝福管家",description:"同步通讯录生日信息，生日当天自动发送个性化祝福。支持微信/短信/邮件多种渠道。",category:"通讯社交",platform:"QClaw",difficulty:"简单",downloads:"8.6K",url:"https://clawhub.ai/skills",tags:["生日","祝福","自动","通讯录"]},
+  {id:"s155",name:"微信群活跃统计",description:"分析微信群聊天记录，统计成员发言排行和活跃时段。社群运营的数据参谋。",category:"通讯社交",platform:"通用",difficulty:"中等",downloads:"5.9K",url:"https://clawhub.ai/skills",tags:["微信","群聊","统计","运营"]},
+  // 办公效率（5）
+  {id:"s156",name:"差旅报销单",description:"拍照上传交通/餐饮/住宿发票，AI自动分类填写报销单并计算总额。出差党的报销终结者。",category:"办公效率",platform:"通用",difficulty:"简单",downloads:"11.8K",url:"https://clawhub.ai/skills",tags:["报销","差旅","发票","分类"]},
+  {id:"s157",name:"邮件跟进提醒",description:"AI追踪已发邮件，超过设定时间未回复自动提醒。销售跟进的防漏神器。",category:"办公效率",platform:"OpenClaw",difficulty:"简单",downloads:"6.2K",url:"https://clawhub.ai/skills",tags:["邮件","跟进","提醒","销售"]},
+  {id:"s158",name:"模板填充机器人",description:"上传Excel模板和数据源，AI自动批量填充生成多个文件。合同/报价单/证书的批量生产工具。",category:"办公效率",platform:"通用",difficulty:"中等",downloads:"7.4K",url:"https://clawhub.ai/skills",tags:["模板","批量","填充","文档"]},
+  {id:"s159",name:"工作日志生成",description:"从日历/邮件/聊天碎片自动拼接每日工作日志。下班前自动生成当日工作总结。",category:"办公效率",platform:"QClaw",difficulty:"简单",downloads:"9.1K",url:"https://clawhub.ai/skills",tags:["日志","总结","日报","自动"]},
+  {id:"s160",name:"快递地址提取",description:"AI识别聊天记录或截图中的地址信息自动提取并格式化。电商客服的地址录入利器。",category:"办公效率",platform:"通用",difficulty:"简单",downloads:"8.3K",url:"https://clawhub.ai/skills",tags:["快递","地址","提取","电商"]},
+  // 学习教育（5）
+  {id:"s161",name:"错题整理本",description:"拍照上传试卷/作业错题，AI自动分类归档+同类题推荐+易错知识点分析。学生党的复习利器。",category:"学习教育",platform:"通用",difficulty:"简单",downloads:"13.6K",url:"https://clawhub.ai/skills",tags:["错题","拍照","分类","复习"]},
+  {id:"s162",name:"AI练字助手",description:"AI分析手写字迹美观度，逐字给出结构改进建议。练字+AI打分+进步曲线。",category:"学习教育",platform:"通用",difficulty:"简单",downloads:"5.4K",url:"https://clawhub.ai/skills",tags:["练字","书法","评分","进步"]},
+  {id:"s163",name:"文言文翻译",description:"AI文言文↔白话文互译。读古籍、写古文作业、理解诗词的随身翻译。",category:"学习教育",platform:"通用",difficulty:"简单",downloads:"10.1K",url:"https://clawhub.ai/skills",tags:["文言文","翻译","古籍","诗词"]},
+  {id:"s164",name:"儿童作业辅导",description:"拍照上传小学/初中作业题，AI分步讲解思路而非直接给答案。不会教孩子的家长救星。",category:"学习教育",platform:"通用",difficulty:"简单",downloads:"14.8K",url:"https://clawhub.ai/skills",tags:["作业","辅导","儿童","家长"]},
+  {id:"s165",name:"考研计划生成",description:"输入目标院校和专业，AI生成全年备考计划。精确到每天的学习内容和进度。",category:"学习教育",platform:"通用",difficulty:"中等",downloads:"7.2K",url:"https://clawhub.ai/skills",tags:["考研","计划","备考","每日"]},
+  // 生活娱乐（5）
+  {id:"s166",name:"植物识别养护",description:"拍照识别植物种类，AI给出浇水/光照/施肥/病虫害防治指南。养花新手的盆栽管家。",category:"生活娱乐",platform:"通用",difficulty:"简单",downloads:"9.7K",url:"https://clawhub.ai/skills",tags:["植物","识别","养护","拍照"]},
+  {id:"s167",name:"穿搭衣橱管理",description:"拍照录入衣橱单品，AI根据天气和场合推荐搭配。出门前30秒搞定穿搭决策。",category:"生活娱乐",platform:"通用",difficulty:"简单",downloads:"8.4K",url:"https://clawhub.ai/skills",tags:["穿搭","衣橱","推荐","拍照"]},
+  {id:"s168",name:"手机套餐分析",description:"AI分析通话/流量使用记录，推荐最省钱的手机套餐。每年帮你省几百块话费。",category:"生活娱乐",platform:"通用",difficulty:"简单",downloads:"6.5K",url:"https://clawhub.ai/skills",tags:["套餐","省钱","话费","分析"]},
+  {id:"s169",name:"猫咪狗子翻译器",description:"上传宠物叫声录音，AI分析情绪（开心/饿/不安/想玩）。铲屎官的读心术。",category:"生活娱乐",platform:"通用",difficulty:"简单",downloads:"15.2K",url:"https://clawhub.ai/skills",tags:["宠物","翻译","叫声","情绪"]},
+  {id:"s170",name:"表情包工厂",description:"输入文字自动生成表情包，支持热梗/熊猫人/老干部风。斗图从来不会输。",category:"生活娱乐",platform:"通用",difficulty:"简单",downloads:"12.7K",url:"https://clawhub.ai/skills",tags:["表情包","斗图","自动","趣味"]},
+  // 企业应用（5）
+  {id:"s171",name:"排班表生成器",description:"输入员工可用时间和需求，AI自动生成最优排班表。支持轮班/大小周/弹性排班。",category:"企业应用",platform:"通用",difficulty:"中等",downloads:"5.4K",url:"https://clawhub.ai/skills",tags:["排班","轮班","HR","调度"]},
+  {id:"s172",name:"投标书生成",description:"输入项目需求和公司材料，AI自动生成投标书框架和核心内容。商务团队的投标加速器。",category:"企业应用",platform:"通用",difficulty:"中等",downloads:"3.8K",url:"https://clawhub.ai/skills",tags:["投标","标书","商务","框架"]},
+  {id:"s173",name:"客户分级模型",description:"基于RFM模型自动分析客户价值并分级。高价值客户重点维护，流失预警客户及时挽回。",category:"企业应用",platform:"Dify",difficulty:"中等",downloads:"4.6K",url:"https://clawhub.ai/skills",tags:["客户","分级","RFM","CRM"]},
+  {id:"s174",name:"员工离职预测",description:"AI分析考勤/绩效/沟通频次数据，预测离职风险并给出留人建议。HR的前瞻管理工具。",category:"企业应用",platform:"Dify",difficulty:"进阶",downloads:"2.9K",url:"https://clawhub.ai/skills",tags:["离职","预测","HR","留人"]},
+  {id:"s175",name:"公司制度问答",description:"上传公司制度文档搭建内部问答机器人。员工直接问AI而不是翻制度手册。",category:"企业应用",platform:"Dify",difficulty:"简单",downloads:"6.1K",url:"https://clawhub.ai/skills",tags:["制度","问答","RAG","内部"]},
+  // AI音频/视频/设计（5）
+  {id:"s176",name:"AI配音工坊",description:"选择音色输入文案，AI生成专业级配音。支持100+音色风格，比传统配音便宜100倍。",category:"AI音频",platform:"通用",difficulty:"简单",downloads:"16.3K",url:"https://clawhub.ai/skills",tags:["配音","音色","专业","便宜"]},
+  {id:"s177",name:"播客混音助手",description:"AI自动混音播客录音：电平平衡+降噪+加背景音乐+片头片尾。播客后期一键搞定。",category:"AI音频",platform:"通用",difficulty:"中等",downloads:"4.1K",url:"https://clawhub.ai/skills",tags:["播客","混音","后期","自动化"]},
+  {id:"s178",name:"短视频去重",description:"AI智能去重处理：镜像/变速/色调/抽帧/加转场，降低搬运视频查重率。二创必备。",category:"AI视频",platform:"通用",difficulty:"简单",downloads:"14.6K",url:"https://clawhub.ai/skills",tags:["去重","短视频","搬运","二创"]},
+  {id:"s179",name:"直播切片助手",description:"AI自动识别直播回放高光片段，一键切出多个短视频。直播带货的二次内容生产工具。",category:"AI视频",platform:"通用",difficulty:"中等",downloads:"11.2K",url:"https://clawhub.ai/skills",tags:["直播","切片","高光","带货"]},
+  {id:"s180",name:"AI图标生成器",description:"输入关键词AI生成简洁图标，支持多尺寸多格式导出。App开发/PPT/网站都需要的图标工具。",category:"AI设计",platform:"通用",difficulty:"简单",downloads:"9.8K",url:"https://clawhub.ai/skills",tags:["图标","生成","多尺寸","设计"]},
 ]
