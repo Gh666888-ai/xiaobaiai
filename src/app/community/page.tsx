@@ -84,11 +84,11 @@ export default function CommunityPage() {
 
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:16,flexWrap:'wrap',gap:10}}>
                   <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-                    {p.tags.map(t=><span key={t} style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#888',border:'1px solid #222',padding:'2px 8px',borderRadius:4,fontWeight:500}}>{t}</span>)}
+                    {(Array.isArray(p.tags)?p.tags:[]).map((t:any)=><span key={t} style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#888',border:'1px solid #222',padding:'2px 8px',borderRadius:4,fontWeight:500}}>{t}</span>)}
                   </div>
                   <div style={{display:'flex',gap:16,fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#aaa'}}>
-                    <span style={{display:'flex',alignItems:'center',gap:4}}><Heart size={13} /> {p.likes}</span>
-                    <span style={{display:'flex',alignItems:'center',gap:4}}><MessageCircle size={13} /> {p.comments}</span>
+                    <span style={{display:'flex',alignItems:'center',gap:4}}><Heart size={13} /> {p.likes||0}</span>
+                    <span style={{display:'flex',alignItems:'center',gap:4}}><MessageCircle size={13} /> {p.comments_count||p.comments||0}</span>
                   </div>
                 </div>
               </div>
