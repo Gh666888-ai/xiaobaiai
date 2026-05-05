@@ -1,10 +1,11 @@
 // @ts-nocheck
 "use client"
 
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import { tools } from "@/data/tools"
 import { news } from "@/data/news"
 import Link from "next/link"
+import { Search } from "lucide-react"
 
 const SYMBOLS = [
   '0','1','2','3','4','5','6','7','8','9',
@@ -20,6 +21,7 @@ function avatarColor(n:string){const c=["#c9a84c","#7a6230","#e8c96a","#5a8a5a"]
 
 export default function HomePage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [searchQuery, setSearchQuery] = useState("")
   const newsData = news.slice(0, 6)
 
   useEffect(() => {
@@ -71,12 +73,30 @@ export default function HomePage() {
           <div style={{width:0,height:1,background:'linear-gradient(90deg, transparent, #c9a84c, transparent)',margin:'0 auto 32px',animation:'expandWidth 1s ease forwards 0.8s'}} />
           <p style={{fontSize:'clamp(15px, 2vw, 18px)',fontWeight:300,lineHeight:2,color:'rgba(255,255,255,0.5)',letterSpacing:'0.05em',maxWidth:560,margin:'0 auto 16px',opacity:0,animation:'fadeUp 0.8s ease forwards 1s'}}>从零到 Agent，每一步都算数</p>
           <p style={{fontSize:'clamp(13px, 1.5vw, 15px)',fontWeight:300,lineHeight:2,color:'rgba(255,255,255,0.3)',letterSpacing:'0.05em',maxWidth:560,margin:'0 auto 48px',opacity:0,animation:'fadeUp 0.8s ease forwards 1.1s'}}>工具导航 + 学习平台 + 新闻聚合 · Agent 维护 + 社区共建</p>
-          <div style={{display:'flex',gap:12,flexWrap:'wrap',justifyContent:'center',opacity:0,animation:'fadeUp 0.8s ease forwards 1.3s'}}>
+          {/* 全局搜索 */}
+          <div style={{maxWidth:480,margin:'24px auto 0',opacity:0,animation:'fadeUp 0.8s ease forwards 1.3s'}}>
+            <div style={{display:'flex',alignItems:'center',background:'rgba(255,255,255,0.04)',border:'1px solid #222',borderRadius:10}}>
+              <Search size={14} style={{marginLeft:14,color:'#777',flexShrink:0}} />
+              <input type="text" placeholder="搜工具、模型、技能、教程..."
+                onChange={e=>setSearchQuery(e.target.value)}
+                style={{flex:1,background:'transparent',border:'none',outline:'none',padding:'12px 14px',fontSize:14,fontWeight:500,color:'#fff',fontFamily:"'Noto Sans SC', sans-serif"}} />
+            </div>
+          </div>
+
+          {/* 计数条 */}
+          <div style={{display:'flex',justifyContent:'center',gap:32,marginTop:32,flexWrap:'wrap',opacity:0,animation:'fadeUp 0.8s ease forwards 1.5s'}}>
+            <div style={{textAlign:'center'}}><p style={{fontSize:24,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>{tools.length}</p><p style={{fontSize:10,color:'#888'}}>AI工具</p></div>
+            <div style={{textAlign:'center'}}><p style={{fontSize:24,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>{news.length}</p><p style={{fontSize:10,color:'#888'}}>AI资讯</p></div>
+            <div style={{textAlign:'center'}}><p style={{fontSize:24,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>5</p><p style={{fontSize:10,color:'#888'}}>学习阶段</p></div>
+            <div style={{textAlign:'center'}}><p style={{fontSize:24,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>120+</p><p style={{fontSize:10,color:'#888'}}>Agent技能</p></div>
+          </div>
+
+          <div style={{display:'flex',gap:12,flexWrap:'wrap',justifyContent:'center',marginTop:32,opacity:0,animation:'fadeUp 0.8s ease forwards 1.7s'}}>
             <Link href="/learn" style={{display:'inline-flex',alignItems:'center',gap:12,padding:'14px 36px',border:'1px solid #7a6230',color:'#e8c96a',fontFamily:"'JetBrains Mono', monospace",fontSize:12,letterSpacing:'0.15em',textDecoration:'none',background:'rgba(201,168,76,0.06)',transition:'all 0.3s'}}>
               🐣 小白入门
             </Link>
             <Link href="/tools" style={{display:'inline-flex',alignItems:'center',gap:12,padding:'14px 36px',border:'1px solid #333',color:'#888',fontFamily:"'JetBrains Mono', monospace",fontSize:12,letterSpacing:'0.15em',textDecoration:'none',transition:'all 0.3s'}}>
-              ⚡ 资深老手
+              ⚡ 找工具
             </Link>
           </div>
         </div>

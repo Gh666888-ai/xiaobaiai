@@ -49,6 +49,17 @@ export default function LoginPage() {
         <h2 style={{fontSize:18,fontWeight:700,color:'#fff'}}>{name||email}</h2>
         <p style={{fontSize:13,color:'#c9a84c',marginTop:8}}>已登录</p>
         <p style={{fontSize:11,color:'#555',marginTop:8}}>{email}</p>
+        <div style={{textAlign:'left',marginTop:20,fontSize:11,color:'#888',lineHeight:2}}>
+          <p style={{color:'#e8c96a',fontWeight:700,marginBottom:8,fontSize:12}}>🏆 等级规则</p>
+          <p>🆕 游客 — 0 XP</p>
+          <p>⭐ 铜星 — 100 XP</p>
+          <p>🌟 银星 — 300 XP</p>
+          <p>✨ 金星 — 1000 XP</p>
+          <p>☀️ 太阳 — 3000 XP</p>
+          <p>👑 皇冠 — 10000 XP</p>
+          <p>🌈 至尊皇冠 — 30000 XP</p>
+          <p style={{color:'#555',marginTop:8}}>浏览文章+5 · 提交内容+10 · 投稿通过+50 · 每日登录+3</p>
+        </div>
         <button onClick={doLogout} className="btn-outline" style={{width:'100%',justifyContent:'center',marginTop:32}}>退出登录</button>
         <Link href="/" style={{display:'block',marginTop:16,fontSize:11,color:'#555',textDecoration:'none'}}>← 返回首页</Link>
       </div></div>
