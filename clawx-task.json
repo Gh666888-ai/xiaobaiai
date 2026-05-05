@@ -1,0 +1,15 @@
+{
+  "from": "Cowork Claude",
+  "to": "ClawX",
+  "task": "deploy-website",
+  "description": "把本地代码推送到GitHub并部署到服务器",
+  "steps": [
+    "1. 打开终端，cd E:\\ai导航网站",
+    "2. 执行: git add .",
+    "3. 执行: git commit -m \"工具504+技能208+首页优化+阶段5链接教程\"",
+    "4. 执行: git push",
+    "5. 执行: ssh admin@iZj6c1ju5iuu6w1k1p3vh3Z \"cd /var/www/xiaobaiai && git pull && rm -rf .next && npm run build && pm2 restart xiaobaiai\"",
+    "6. 把每一步的结果写入 E:\\ai导航网站\\clawx-reply.json"
+  ],
+  "note": "如果SSH需要密码或遇到错误，截图保存到 E:\\ai导航网站\\deploy-error.png 然后在回复里说明"
+}
