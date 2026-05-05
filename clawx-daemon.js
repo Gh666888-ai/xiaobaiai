@@ -3,9 +3,34 @@
 
 const http = require("http")
 const { exec } = require("child_process")
+const crypto = require("crypto")
+const fs = require("fs")
+const path = require("path")
 
 const BRIDGE = "http://localhost:9724"
 let lastId = ""
+
+function genKeyPair() {
+  const { publicKey, privateKey } = crypto.generateKeyPairSync("ed25519", {
+    publicKeyEncoding: { type: "spki", format: "der" },
+    privateKeyEncoding: { type: "pkcs8", format: "der" }
+  })
+  // Encode to base64 (raw key for SSH)
+  const pubDer = crypto.createPublicKey({ key: publicKey, format: "der", type: "spki" })
+  const pubRaw = pubDer.export({ type: "spki", format: "der" })
+  // Extract the raw 32-byte key from SPKI
+  const rawPub = pubRaw.slice(pubRaw.length - 32)
+  const pubB64 = rawPub.toString("base64")
+
+  const privDer = crypto.createPrivateKey({ key: privateKey, format: "der", type: "pkcs8" })
+  const privRaw = privDer.export({ type: "pkcs8", format: "der" })
+  const privB64 = privRaw.toString("base64")
+
+  const pubOpenSSH = `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA${pubB64} xiaobaiai`
+  const privOpenSSH = `-----BEGIN OPENSSH PRIVATE KEY-----\n${privB64.match(/.{1,70}/g).join("\n")}\n-----END OPENSSH PRIVATE KEY-----`
+
+  return { pub: pubOpenSSH, priv: privOpenSSH }
+}
 
 function run(cmd) {
   return new Promise((resolve) => {
@@ -18,34 +43,42 @@ function run(cmd) {
 async function doTask(msg) {
   console.log(`[DAEMON] 收到任务: ${msg.id} — ${msg.task}`)
 
-  // 把 message 里的指令拆成逐行命令
-  const lines = msg.message.split("\n").filter(l => l.trim())
+  let result = "OK"
 
-  // 找到所有需要执行的命令（以数字序号或直接是命令开头）
-  const cmds = []
-  for (const line of lines) {
-    const cmd = line.replace(/^\d+\.\s*/, "").trim()  // 去掉序号
-    if (cmd && !cmd.startsWith("POST结果") && !cmd.startsWith("完成后")) {
-      if (cmd.startsWith("cd ") || cmd.startsWith("git ") || cmd.startsWith("ssh ") ||
-          cmd.startsWith("npm ") || cmd.startsWith("node ") || cmd.startsWith("whoami") ||
-          cmd.startsWith("dir ") || cmd.startsWith("type ") || cmd.startsWith("echo ") ||
-          cmd.startsWith("pm2 ") || cmd.startsWith("mkdir ") || cmd.startsWith("copy ") ||
-          cmd.startsWith("move ") || cmd.startsWith("del ") || cmd.startsWith("python ") ||
-          cmd.startsWith("pip ") || cmd.startsWith("curl ") || cmd.startsWith("wget ")) {
-        cmds.push(cmd)
+  // 特殊任务：生成SSH密钥
+  if (msg.task === "keygen") {
+    const keys = genKeyPair()
+    const outDir = path.join("E:\\", "ai导航网站", ".ssh")
+    if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true })
+    fs.writeFileSync(path.join(outDir, "xiaobaiai.pub"), keys.pub)
+    fs.writeFileSync(path.join(outDir, "xiaobaiai"), keys.priv)
+    result = "公钥:\n" + keys.pub + "\n\n私钥已保存到 E:\\ai导航网站\\.ssh\\xiaobaiai"
+  } else {
+    // 把 message 里的指令拆成逐行命令
+    const lines = msg.message.split("\n").filter(l => l.trim())
+    const cmds = []
+    for (const line of lines) {
+      const cmd = line.replace(/^\d+\.\s*/, "").trim()
+      if (cmd && !cmd.startsWith("POST结果") && !cmd.startsWith("完成后")) {
+        if (cmd.startsWith("cd ") || cmd.startsWith("git ") || cmd.startsWith("ssh ") ||
+            cmd.startsWith("npm ") || cmd.startsWith("node ") || cmd.startsWith("whoami") ||
+            cmd.startsWith("dir ") || cmd.startsWith("type ") || cmd.startsWith("echo ") ||
+            cmd.startsWith("pm2 ") || cmd.startsWith("mkdir ") || cmd.startsWith("copy ") ||
+            cmd.startsWith("move ") || cmd.startsWith("del ") || cmd.startsWith("python ") ||
+            cmd.startsWith("pip ") || cmd.startsWith("curl ") || cmd.startsWith("wget ")) {
+          cmds.push(cmd)
+        }
       }
     }
-  }
-
-  let result = "OK"
-  for (const cmd of cmds) {
-    console.log(`[DAEMON] 执行: ${cmd}`)
-    const r = await run(cmd)
-    if (!r.ok) {
-      result = `失败: ${cmd}\n${r.error}`
-      break
+    for (const cmd of cmds) {
+      console.log(`[DAEMON] 执行: ${cmd}`)
+      const r = await run(cmd)
+      if (!r.ok) {
+        result = `失败: ${cmd}\n${r.error}`
+        break
+      }
+      result = r.output
     }
-    result = r.output
   }
 
   // 回复
