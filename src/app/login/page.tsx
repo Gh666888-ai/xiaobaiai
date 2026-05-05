@@ -46,7 +46,8 @@ export default function LoginPage() {
       }
     }catch{setErr("网络错误")}
     setBusy(false)
-    setTimeout(()=>router.push("/"),500)
+    // 等 session 保存
+    setTimeout(()=>{router.push("/");window.location.reload()},1000)
   }
 
   const doLogout=async()=>{await supabase.auth.signOut();setLoggedIn(false);setName("");setPwd("");router.push("/")}
