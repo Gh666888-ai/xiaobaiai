@@ -14,8 +14,10 @@ export default function CommunityPage() {
   const [search, setSearch] = useState("")
   const [posts, setPosts] = useState<any[]>([])
   useEffect(()=>{
-    supabase.from("community_posts").select("*").eq("status","approved").order("created_at",{ascending:false})
-    .then(({data})=>{if(data && data.length>0)setPosts(data)}).catch(()=>{})
+    (async()=>{
+      try{const{data}=await supabase.from("community_posts").select("*").eq("status","approved").order("created_at",{ascending:false})
+      if(data?.length)setPosts(data)}catch{}
+    })()
   },[])
 
   const filtered = posts.filter((p:any) => {
