@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { news } from "@/data/news"
 import { MathRain } from "@/components/MathRain"
@@ -8,7 +9,9 @@ import Link from "next/link"
 
 export default function NewsDetailPage() {
   const params = useParams()
-  const item = news.find(n=>n.id===params.id)
+  const [fetched,setFetched]=useState<any[]>([])
+  useEffect(()=>{fetch("/fetched-news.json").then(r=>r.json()).then(d=>{if(Array.isArray(d))setFetched(d)}).catch(()=>{})},[])
+  const item = [...news,...fetched].find((n:any)=>n.id===params.id)
 
   if(!item)return <div style={{background:'#000',minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center'}}><div style={{textAlign:'center'}}><p style={{fontSize:48,color:'#555'}}>404</p><Link href="/news" style={{color:'#c9a84c'}}>返回资讯</Link></div></div>
 

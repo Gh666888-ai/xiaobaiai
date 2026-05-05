@@ -4,15 +4,18 @@ const http = require("http")
 const fs = require("fs")
 const path = require("path")
 
-// 国内可访问源
+// 国内可访问源（优先中文）
 const sources = [
   { name:"机器之心", host:"www.jiqizhixin.com", path:"/", imp:7, cat:"行业动态" },
   { name:"量子位", host:"www.qbitai.com", path:"/", imp:6, cat:"行业动态" },
+  { name:"36氪AI", host:"36kr.com", path:"/information/AI", imp:6, cat:"行业动态" },
   { name:"CSDN AI", host:"www.csdn.net", path:"/nav/ai", imp:5, cat:"教程资源" },
-  { name:"Dify Blog", host:"dify.ai", path:"/blog", imp:6, cat:"教程资源" },
-  { name:"GitHub", host:"github.com", path:"/trending?since=daily", imp:5, cat:"开源项目" },
   { name:"InfoQ AI", host:"www.infoq.cn", path:"/topic/AI", imp:5, cat:"行业动态" },
   { name:"知乎AI", host:"www.zhihu.com", path:"/topic/19550901/hot", imp:5, cat:"行业动态" },
+  { name:"钛媒体", host:"www.tmtpost.com", path:"/", imp:5, cat:"行业动态" },
+  { name:"AI科技评论", host:"www.leiphone.com", path:"/category/ai", imp:5, cat:"行业动态" },
+  { name:"Dify Blog", host:"dify.ai", path:"/blog", imp:6, cat:"教程资源" },
+  { name:"GitHub", host:"github.com", path:"/trending?since=daily", imp:5, cat:"开源项目" },
   { name:"HuggingFace", host:"huggingface.co", path:"/papers", imp:7, cat:"开源项目" },
 ]
 
