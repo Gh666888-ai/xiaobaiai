@@ -12,6 +12,7 @@ const links = [
   { l: "学习路径", h: "/learn" },
   { l: "AI 资讯", h: "/news" },
   { l: "社区", h: "/community" },
+  { l: "关于", h: "/about" },
 ]
 
 export function NavBar() {

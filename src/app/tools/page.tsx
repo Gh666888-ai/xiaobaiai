@@ -43,17 +43,17 @@ function ToolsContent() {
   const [search, setSearch] = useState("")
   const [cat, setCat] = useState<ToolCategory|null>(null)
   const [stage, setStage] = useState<number|null>(null)
-  const [region, setRegion] = useState<"全部"|"国内"|"国外">("全部")
+  const [region, setRegion] = useState<"全部"|"中国"|"海外">("全部")
   useEffect(()=>{const c=sp.get("category")as ToolCategory|null;if(c)setCat(c)},[sp])
 
   const filtered = useMemo(()=>{
     let r=tools
     if(search.trim()){const q=search.toLowerCase();r=r.filter(t=>t.name.toLowerCase().includes(q)||t.description.toLowerCase().includes(q)||t.tags.some(t=>t.toLowerCase().includes(q)))}
     if(cat)r=r.filter(t=>t.category===cat);if(stage!==null)r=r.filter(t=>t.stage===stage)
-    // 国内外判断：国内=包含国产/中文/国内等标签
+    // 中海外判断：中国=包含国产/中文/中国等标签
     const cnKeywords = ["国产","中文","腾讯","阿里","百度","字节","快手","智谱","月之暗面","MiniMax","Kimi","DeepSeek","通义","文心","豆包","即梦","可灵","Coze","QClaw","ArkClaw"]
-    if(region==="国内") r=r.filter(t=>cnKeywords.some(kw=>t.name.includes(kw)||t.tags.some(tg=>tg.includes(kw))||t.description.includes(kw)))
-    if(region==="国外") r=r.filter(t=>!cnKeywords.some(kw=>t.name.includes(kw)||t.tags.some(tg=>tg.includes(kw))))
+    if(region==="中国") r=r.filter(t=>cnKeywords.some(kw=>t.name.includes(kw)||t.tags.some(tg=>tg.includes(kw))||t.description.includes(kw)))
+    if(region==="海外") r=r.filter(t=>!cnKeywords.some(kw=>t.name.includes(kw)||t.tags.some(tg=>tg.includes(kw))))
     return r.sort((a,b)=>b.rank-a.rank)
   },[search,cat,stage,region])
 
@@ -123,13 +123,13 @@ function ToolsContent() {
         ):(
           <div style={{display:'flex',gap:16}} className="max-sm:flex-col">
             <div style={{flex:1}}>
-              <h3 style={{fontSize:14,fontWeight:700,color:'#e8c96a',marginBottom:12,fontFamily:"'JetBrains Mono',monospace"}}>🇨🇳 国内</h3>
+              <h3 style={{fontSize:14,fontWeight:700,color:'#e8c96a',marginBottom:12,fontFamily:"'JetBrains Mono',monospace"}}>🇨🇳 中国</h3>
               <div style={{display:'flex',flexDirection:'column',gap:8}}>
                 {filtered.filter(t=>isCN(t)).map((t,i)=><ToolCard2 key={t.id} tool={t} rank={filtered.indexOf(t)+1} letter={letter} avColor={avColor} />)}
               </div>
             </div>
             <div style={{flex:1}}>
-              <h3 style={{fontSize:14,fontWeight:700,color:'#c9a84c',marginBottom:12,fontFamily:"'JetBrains Mono',monospace"}}>🌍 国外</h3>
+              <h3 style={{fontSize:14,fontWeight:700,color:'#c9a84c',marginBottom:12,fontFamily:"'JetBrains Mono',monospace"}}>🌍 海外</h3>
               <div style={{display:'flex',flexDirection:'column',gap:8}}>
                 {filtered.filter(t=>!isCN(t)).map((t,i)=><ToolCard2 key={t.id} tool={t} rank={filtered.indexOf(t)+1} letter={letter} avColor={avColor} />)}
               </div>
