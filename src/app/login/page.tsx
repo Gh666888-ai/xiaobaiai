@@ -34,6 +34,14 @@ export default function LoginPage() {
         if(error){setErr("邮箱或密码错误");setBusy(false);return}
       }
       setLoggedIn(true)
+      // 创建/更新 profile
+      const {data:{session}} = await supabase.auth.getSession()
+      if(session){
+        await supabase.from("profiles").upsert({
+          id:session.user.id, name:name||email.split("@")[0], email,
+          xp:0, joined_at:new Date().toISOString().slice(0,10)
+        },{onConflict:"id"}).select()
+      }
     }catch{setErr("网络错误")}
     setBusy(false)
   }
