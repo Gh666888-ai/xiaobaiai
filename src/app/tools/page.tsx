@@ -92,20 +92,20 @@ function ToolsContent() {
                   style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:12,padding:'16px 20px',display:'block',textDecoration:'none',transition:'all 0.3s'}}
                   onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.06)';e.currentTarget.style.borderColor='#7a6230'}}
                   onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor='#1a1a1a'}}>
-                  <h3 style={{fontSize:13,fontWeight:700,color:'#ccc',marginBottom:10,display:'flex',alignItems:'center',gap:6}}>
+                  <h3 style={{fontSize:16,fontWeight:700,color:'#ddd',marginBottom:12,display:'flex',alignItems:'center',gap:8}}>
                     <span>{cat.icon}</span> {cat.label}
-                    <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:9,color:'#555',marginLeft:'auto'}}>{tools.filter(t=>t.category===cat.key).length}个</span>
+                    <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:12,fontWeight:700,color:'#888',marginLeft:'auto'}}>{tools.filter(t=>t.category===cat.key).length}个</span>
                   </h3>
                   {top5.map((t,i)=>{
                     const avColors=["#c9a84c","silver","#CD7F32","#555","#555"]
                     return (
                       <a key={t.id} href={t.url} target="_blank" rel="noopener noreferrer"
                         style={{display:'flex',alignItems:'center',gap:8,padding:'6px 0',textDecoration:'none',borderBottom:i<4?'1px solid #111':'none'}}>
-                        <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:700,color:avColors[i],width:20}}>#{i+1}</span>
-                        <span style={{width:22,height:22,borderRadius:4,display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:800,color:'#fff',background:avColors[i],flexShrink:0,fontFamily:"'JetBrains Mono',monospace"}}>{t.name[0].toUpperCase()}</span>
-                        <span style={{fontSize:12,fontWeight:600,color:'#ccc',flex:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{t.name}</span>
-                        <span style={{fontSize:9,fontWeight:700,color:isCN(t)?'#e8c96a':'#c9a84c',marginLeft:'auto'}}>{isCN(t)?'🇨🇳':'🌍'}</span>
-                        <span style={{fontSize:10,color:'#555'}}>{t.pricing}</span>
+                        <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:13,fontWeight:700,color:avColors[i],width:24}}>#{i+1}</span>
+                        <span style={{width:26,height:26,borderRadius:4,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:800,color:'#fff',background:avColors[i],flexShrink:0,fontFamily:"'JetBrains Mono',monospace"}}>{t.name[0].toUpperCase()}</span>
+                        <span style={{fontSize:14,fontWeight:600,color:'#ddd',flex:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{t.name}</span>
+                        <span style={{fontSize:12,fontWeight:700,color:isCN(t)?'#e8c96a':'#c9a84c',marginLeft:'auto'}}>{isCN(t)?'🇨🇳':'🌍'}</span>
+                        <span style={{fontSize:12,color:'#aaa'}}>{t.pricing}</span>
                       </a>
                     )
                   })}
@@ -117,9 +117,9 @@ function ToolsContent() {
 
         {/* 选中分类后的专属页面 */}
         {cat && <div style={{marginBottom:32}}>
-          <button onClick={()=>{setCat(null);window.history.pushState({},"","/tools")}} style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#aaa',background:'none',border:'1px solid #333',padding:'4px 12px',borderRadius:6,cursor:'pointer',marginBottom:12}}>← 返回全部</button>
-          <h2 style={{fontSize:22,fontWeight:900,color:'#fff'}}>{categories.find(c=>c.key===cat)?.icon} {cat}</h2>
-          <p style={{fontSize:13,color:'#888',marginTop:4}}>{tools.filter(t=>t.category===cat).length} 个工具</p>
+          <button onClick={()=>{setCat(null);window.history.pushState({},"","/tools")}} style={{fontFamily:"'JetBrains Mono',monospace",fontSize:14,fontWeight:700,color:'#e8c96a',background:'none',border:'1px solid #7a6230',padding:'8px 20px',borderRadius:6,cursor:'pointer',marginBottom:16}}>← 返回全部</button>
+          <h2 style={{fontSize:30,fontWeight:900,color:'#fff'}}>{categories.find(c=>c.key===cat)?.icon} {cat}</h2>
+          <p style={{fontSize:16,color:'#ccc',marginTop:6}}>{tools.filter(t=>t.category===cat).length} 个工具</p>
         </div>}
 
         <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:700,color:'#ccc',marginBottom:24}}>{filtered.length} results</p>
