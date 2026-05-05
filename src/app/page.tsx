@@ -5,6 +5,7 @@ import { useRef, useEffect, useState } from "react"
 import { tools } from "@/data/tools"
 import { news } from "@/data/news"
 import Link from "next/link"
+import { NavBar } from "@/components/NavBar"
 import { Search } from "lucide-react"
 
 const SYMBOLS = [
@@ -49,17 +50,7 @@ export default function HomePage() {
   return (
     <div style={{background:'#000',minHeight:'100vh',color:'#f0f0f0',fontFamily:"'Noto Sans SC', sans-serif",overflowX:'hidden'}}>
       {/* 顶部导航 */}
-      <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:100,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'20px 60px',background:'linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%)'}} className="max-sm:px-6">
-        <span style={{fontSize:13,fontWeight:700,letterSpacing:'0.2em',color:'#c9a84c',textTransform:'uppercase',fontFamily:"'JetBrains Mono', monospace"}}>小白AI</span>
-        <div style={{display:'flex',gap:40}} className="max-sm:hidden">
-          {[
-            {l:'工具导航',h:'/tools'},{l:'学习路径',h:'/learn'},{l:'技能库',h:'/skills'},{l:'AI资讯',h:'/news'},{l:'社区',h:'/community'}
-          ].map(x=>(
-            <Link key={x.l} href={x.h} style={{fontFamily:"'JetBrains Mono', monospace",fontSize:11,letterSpacing:'0.12em',color:'rgba(255,255,255,0.45)',textDecoration:'none',transition:'color 0.2s'}}>{x.l}</Link>
-          ))}
-        </div>
-        <Link href="/login" style={{fontFamily:"'JetBrains Mono', monospace",fontSize:11,letterSpacing:'0.15em',color:'#c9a84c',textTransform:'uppercase',border:'1px solid #7a6230',padding:'8px 20px',background:'transparent',cursor:'pointer',transition:'all 0.3s',textDecoration:'none'}}>登录</Link>
-      </nav>
+      <NavBar />
 
       {/* 全屏 Hero + Canvas雨 */}
       <section style={{position:'relative',height:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
