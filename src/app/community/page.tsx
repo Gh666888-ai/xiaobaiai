@@ -22,7 +22,7 @@ export default function CommunityPage() {
 
   const filtered = posts.filter((p:any) => {
     if (cat !== "全部" && p.category !== cat) return false
-    if (search.trim() && !p.title.includes(search) && !p.content.includes(search) && !p.tags.some(t=>t.includes(search))) return false
+    if (search.trim() && !p.title.includes(search) && !p.content.includes(search) && !(p.tags||[]).some((t:any)=>t.includes(search))) return false
     return true
   }).sort((a,b) => {
     if (a.pinned && !b.pinned) return -1
