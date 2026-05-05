@@ -93,7 +93,10 @@ export default function ModelsPage() {
                   <span className="tag tag-gray" style={{fontWeight:600,fontSize:9}}>{m.category}</span>
                   <span className="tag tag-green" style={{fontWeight:600,fontSize:9}}>{m.speed}</span>
                 </div>
-                <p style={{fontSize:12,color:'#aaa',lineHeight:1.6}}>{m.description}</p>
+                <p style={{fontSize:13,color:'#ccc',lineHeight:1.7}}>{m.description}</p>
+                {m.pros&&<div style={{marginTop:6}}><span style={{fontSize:11,color:'#3DA563',fontWeight:700}}>✅ {m.pros}</span></div>}
+                {m.cons&&<div style={{marginTop:2}}><span style={{fontSize:11,color:'#D94841',fontWeight:700}}>⚠️ {m.cons}</span></div>}
+                {m.useCase&&<div style={{marginTop:2}}><span style={{fontSize:11,color:'#c9a84c',fontWeight:700}}>🎯 {m.useCase}</span></div>}
                 <div style={{display:'flex',gap:16,marginTop:6,fontFamily:"'JetBrains Mono',monospace",fontSize:9,color:'#666',alignItems:'center'}}>
                   <span>{m.pricing}</span>
                   <span>上下文: {m.contextWindow}</span>
