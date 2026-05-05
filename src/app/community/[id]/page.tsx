@@ -51,7 +51,7 @@ export default function PostDetailPage() {
 
         {/* 标签行 */}
         <div style={{display:'flex',gap:8,marginBottom:28,flexWrap:'wrap'}}>
-          {post.tags.map(t=><span key={t} style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:600,color:'#ccc',border:'1px solid #333',padding:'3px 10px',borderRadius:4}}>{t}</span>)}
+          {(post.tags as string[]).map((t:string)=><span key={t} style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:600,color:'#ccc',border:'1px solid #333',padding:'3px 10px',borderRadius:4}}>{t}</span>)}
         </div>
 
         {/* 正文 */}
