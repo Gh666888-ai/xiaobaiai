@@ -1,61 +1,87 @@
-// 小白AI · AI资讯自动抓取脚本
-const https = require("https")
+// 小白AI · AI资讯自动抓取脚本 v2
+// 安装依赖：npm install node-fetch cheerio
+// 定时运行：crontab -e 加 0 8 * * * cd /var/www/xiaobaiai && node scripts/fetch-news.js
+
+const fetch = require("node-fetch")
+const cheerio = require("cheerio")
 const fs = require("fs")
 const path = require("path")
 
 // 抓取源配置
 const sources = [
-  { name:"OpenAI Blog", url:"https://openai.com/blog/rss.xml", type:"rss", imp:8, cat:"产品发布" },
-  { name:"Anthropic Blog", url:"https://www.anthropic.com/blog/rss.xml", type:"rss", imp:8, cat:"产品发布" },
-  { name:"Google AI Blog", url:"https://blog.google/technology/ai/rss/", type:"rss", imp:7, cat:"产品发布" },
-  { name:"HuggingFace Daily", url:"https://huggingface.co/papers", type:"hf", imp:7, cat:"开源项目" },
-  { name:"36氪 AI频道", url:"https://36kr.com/feed-ai", type:"rss", imp:6, cat:"行业动态" },
-  { name:"机器之心", url:"https://jiqizhixin.com/rss", type:"rss", imp:6, cat:"行业动态" },
-  { name:"DeepSeek Blog", url:"https://api-docs.deepseek.com/news", type:"scrape", imp:7, cat:"开源项目" },
-  { name:"Qwen Blog", url:"https://qwenlm.github.io/blog/", type:"scrape", imp:6, cat:"开源项目" },
-  { name:"Coze Blog", url:"https://www.coze.cn/blog", type:"scrape", imp:5, cat:"教程资源" },
-  { name:"Dify Blog", url:"https://dify.ai/blog", type:"scrape", imp:6, cat:"教程资源" },
-  { name:"WAYTOAGI", url:"https://waytoagi.com", type:"scrape", imp:5, cat:"行业动态" },
-  { name:"Meta AI Blog", url:"https://ai.meta.com/blog/", type:"scrape", imp:7, cat:"产品发布" },
+  { name:"OpenAI", url:"https://openai.com/blog", sel:"article h3 a", imp:10, cat:"产品发布", domain:"https://openai.com" },
+  { name:"Anthropic", url:"https://www.anthropic.com/blog", sel:"article h2 a", imp:9, cat:"产品发布", domain:"https://www.anthropic.com" },
+  { name:"Meta AI", url:"https://ai.meta.com/blog/", sel:".blog-card a", imp:8, cat:"产品发布", domain:"https://ai.meta.com" },
+  { name:"HuggingFace", url:"https://huggingface.co/papers", sel:"article h3 a", imp:7, cat:"开源项目", domain:"https://huggingface.co" },
+  { name:"机器之心", url:"https://jiqizhixin.com", sel:".post-title a", imp:6, cat:"行业动态", domain:"https://jiqizhixin.com" },
+  { name:"WaytoAGI", url:"https://waytoagi.com", sel:"h2 a", imp:5, cat:"教程资源", domain:"https://waytoagi.com" },
+  { name:"DeepSeek", url:"https://api-docs.deepseek.com/news", sel:"h3 a", imp:7, cat:"开源项目", domain:"https://api-docs.deepseek.com" },
+  { name:"Qwen Blog", url:"https://qwenlm.github.io/blog/", sel:"h2 a", imp:6, cat:"开源项目", domain:"https://qwenlm.github.io" },
 ]
 
-function get(url) {
-  return new Promise((resolve, reject) => {
-    https.get(url, res => {
-      let data = ""; res.on("data", c => data += c)
-      res.on("end", () => resolve(data))
-    }).on("error", reject)
-  })
+async function fetchPage(url) {
+  try {
+    const res = await fetch(url, { headers: { "User-Agent":"Mozilla/5.0" }, timeout:15000 })
+    return await res.text()
+  } catch { return "" }
+}
+
+async function extractArticle(url) {
+  try {
+    const html = await fetchPage(url)
+    if (!html) return { content:"", image:"" }
+    const $ = cheerio.load(html)
+    // 提取正文
+    const article = $("article, .post-content, .blog-content, main, .content").first()
+    const content = article.length ? article.text().trim().slice(0, 3000) : ""
+    // 提取首图
+    const img = $("article img, .post-content img, main img").first().attr("src") || ""
+    const image = img && img.startsWith("http") ? img : (img ? sources.find(s=>url.includes(s.domain))?.domain + img : "")
+    return { content, image }
+  } catch { return { content:"", image:"" } }
 }
 
 async function main() {
-  console.log("🔄 开始抓取AI资讯...")
+  console.log(`🔄 小白AI · AI资讯抓取 ${new Date().toISOString()}`)
   const allNews = []
 
   for (const src of sources) {
     try {
       console.log(`  📡 ${src.name}...`)
-      const html = await get(src.url)
-      // 简单提取标题和链接
+      const html = await fetchPage(src.url)
+      if (!html) continue
+      const $ = cheerio.load(html)
       const items = []
-      if (src.type === "rss") {
-        const titles = html.match(/<title>(.+?)<\/title>/g)?.slice(1) || []
-        const links = html.match(/<link>(.+?)<\/link>/g)?.slice(1) || []
-        for (let i = 0; i < Math.min(titles.length, 5); i++) {
-          const title = titles[i]?.replace(/<\/?title>/g, "").trim()
-          const link = links[i]?.replace(/<\/?link>/g, "").trim()
-          if (title && title.length > 10) items.push({ title, url:link||src.url, source:src.name, importance:src.imp, category:src.cat })
-        }
+      $(src.sel).each((i, el) => {
+        if (i >= 3) return // 每个源最多3条
+        const title = $(el).text().trim()
+        let link = $(el).attr("href") || ""
+        if (link && !link.startsWith("http")) link = src.domain + link
+        if (title && title.length > 10) items.push({ title, url: link })
+      })
+
+      // 抓每篇文章的正文和图片
+      for (const item of items) {
+        const { content, image } = await extractArticle(item.url)
+        allNews.push({
+          id: `auto-${Date.now()}-${Math.random().toString(36).slice(2,6)}`,
+          title: item.title, summary: content.slice(0, 200), content,
+          url: item.url, source: src.name, category: src.cat,
+          publishedAt: new Date().toISOString().slice(0, 10),
+          importance: src.imp, isAutoGenerated: true, image
+        })
+        await new Promise(r => setTimeout(r, 2000))
       }
-      allNews.push(...items)
-      await new Promise(r => setTimeout(r, 1000)) // 避免请求太快
-    } catch (e) { console.log(`    ⚠️ ${src.name} 抓取失败`)}
+    } catch (e) { console.log(`    ⚠️ ${src.name} 失败: ${e.message}`)}
   }
 
-  // 写入临时JSON
+  // 过滤太短的标题
+  const valid = allNews.filter(n => n.title.length > 10 && n.content.length > 50)
+
+  // 写入抓取结果
   const outPath = path.join(__dirname, "..", "fetched-news.json")
-  fs.writeFileSync(outPath, JSON.stringify(allNews, null, 2))
-  console.log(`✅ 抓到 ${allNews.length} 条，保存到 ${outPath}`)
+  fs.writeFileSync(outPath, JSON.stringify(valid, null, 2))
+  console.log(`✅ 抓到 ${valid.length} 条完整资讯 → ${outPath}`)
 }
 
 main()
