@@ -29,10 +29,9 @@ export default function NewsDetailPage() {
         </div>
         <h1 style={{fontSize:30,fontWeight:900,color:'#fff',lineHeight:1.4,marginBottom:24}}>{item.title}</h1>
         <div style={{fontSize:16,color:'#ccc',lineHeight:2.2,whiteSpace:'pre-wrap'}}>
-          {item.content
-            ? item.content
-            : <><p style={{marginBottom:16}}>{item.summary}</p><p style={{marginBottom:16}}>{item.summary}</p><p style={{color:'#888',fontSize:13,textAlign:'center',padding:24,border:'1px dashed #333',borderRadius:8}}>📡 完整内容待Agent抓取后自动更新<br/>每日8:00自动从 {item.source} 获取全文和图片</p></>
-          }
+          <p style={{marginBottom:16}}>{item.summary}</p>
+          {item.content && item.content !== item.summary && <p>{item.content}</p>}
+          <p style={{color:'#888',fontSize:13,textAlign:'center',padding:24,border:'1px dashed #333',borderRadius:8,marginTop:24}}>📡 完整内容与图片由Agent每日自动抓取更新</p>
         </div>
         {item.url&&item.url!=="#"&&<a href={item.url} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{marginTop:32}}>查看原文 →</a>}
       </div>
