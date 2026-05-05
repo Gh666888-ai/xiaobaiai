@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { posts, Post } from "@/data/community"
+import { supabase } from "@/lib/supabase"
+import { useState, useEffect } from "react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import Link from "next/link"

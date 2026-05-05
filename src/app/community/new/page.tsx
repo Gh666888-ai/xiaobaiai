@@ -18,18 +18,16 @@ export default function NewPostPage() {
     if(!title.trim()){setErr("请输入标题");setBusy(false);return}
     if(!content.trim()){setErr("请输入内容");setBusy(false);return}
     try{
-      const name = localStorage.getItem("xiaobaiai_user_name") || author || "匿名"
-      // 直接存 localStorage，不用 Supabase
-      const posts = JSON.parse(localStorage.getItem("community_posts")||"[]")
-      posts.unshift({
-        id:Date.now(),title,content,category:cat,
+      const name = author || "匿名"
+      const {error} = await supabase.from("community_posts").insert({
+        title,content,category:cat,
         tags:tags.split(",").map(t=>t.trim()).filter(Boolean),
         author_name:name,published_at:new Date().toISOString().slice(0,10),
-        likes:0,comments:0
+        status:"pending"
       })
-      localStorage.setItem("community_posts",JSON.stringify(posts))
+      if(error)throw error
       setDone(true)
-    }catch(e:any){setErr("发布失败，请重试")}
+    }catch(e:any){setErr(e.message||"发布失败")}
     setBusy(false)
   }
 
