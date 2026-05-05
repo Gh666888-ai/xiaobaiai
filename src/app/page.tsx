@@ -79,7 +79,7 @@ export default function HomePage() {
             <div style={{textAlign:'center'}}><p style={{fontSize:24,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>{tools.length}</p><p style={{fontSize:10,color:'#888'}}>AI工具</p></div>
             <div style={{textAlign:'center'}}><p style={{fontSize:24,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>{news.length}</p><p style={{fontSize:10,color:'#888'}}>AI资讯</p></div>
             <div style={{textAlign:'center'}}><p style={{fontSize:24,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>5</p><p style={{fontSize:10,color:'#888'}}>学习阶段</p></div>
-            <div style={{textAlign:'center'}}><p style={{fontSize:24,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>120+</p><p style={{fontSize:10,color:'#888'}}>Agent技能</p></div>
+            <div style={{textAlign:'center'}}><p style={{fontSize:24,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>5000+</p><p style={{fontSize:10,color:'#888'}}>Agent技能</p></div>
           </div>
 
           <div style={{textAlign:'center',marginTop:28,opacity:0,animation:'fadeUp 0.8s ease forwards 1.7s'}}>

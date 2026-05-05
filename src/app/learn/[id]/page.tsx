@@ -88,8 +88,19 @@ export default function StageDetailPage() {
           </div>
         )}
 
+        {/* 阶段5（工作流自动化）→ 连接教程资源 */}
+        {stageId===4 && (
+          <Link href="/news?category=教程资源"
+            style={{width:'100%',padding:'24px',background:'rgba(201,168,76,0.04)',border:'1px solid #7a6230',cursor:'pointer',textAlign:'left',transition:'all 0.3s',display:'block',textDecoration:'none'}}
+            onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.08)';e.currentTarget.style.borderColor='#c9a84c'}}
+            onMouseLeave={e=>{e.currentTarget.style.background='rgba(201,168,76,0.04)';e.currentTarget.style.borderColor='#7a6230'}}>
+            <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:9,color:'#aaa',letterSpacing:'0.15em',marginBottom:4}}>NEXT STEP</p>
+            <p style={{fontSize:16,fontWeight:700,color:'#c9a84c'}}>📖 教程资源 → 手把手实战指南</p>
+            <p style={{fontSize:13,color:'#ccc',marginTop:8}}>从零代码搭建AI客服、Prompt万能模板、Claude Code上手……大量教程等你探索</p>
+          </Link>
+        )}
         {/* 下一步 */}
-        {stageId < 7 && (
+        {stageId < 4 && (
           <button onClick={()=>router.push(`/learn/${stageId+1}`)}
             style={{width:'100%',padding:'24px',background:'rgba(255,255,255,0.02)',border:'1px solid #1a1a1a',cursor:'pointer',textAlign:'left',transition:'all 0.3s',display:'block'}}
             onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.04)';e.currentTarget.style.borderColor='#7a6230'}}
