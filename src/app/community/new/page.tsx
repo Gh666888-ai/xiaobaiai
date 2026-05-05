@@ -20,12 +20,10 @@ export default function NewPostPage() {
     try{
       const session = (await supabase.auth.getSession()).data.session
       if(!session){setErr("请先登录后再发帖");setBusy(false);return}
-      const{error}=await supabase.from("community_posts").insert({
-        title,content,category:cat,tags:tags.split(",").map(t=>t.trim()).filter(Boolean),
-        author_name:author,author_id:session.user.id,
-        published_at:new Date().toISOString().slice(0,10)
-      })
-      if(error){setErr(error.message);setBusy(false);return}
+      const r = await fetch("/api/posts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+        title,content,category:cat,tags:tags.split(",").map(t=>t.trim()).filter(Boolean),author_name:author
+      })})
+      if(!r.ok){setErr("发布失败");setBusy(false);return}
       setDone(true)
     }catch(e:any){setErr("发布失败，请重试")}
     setBusy(false)
