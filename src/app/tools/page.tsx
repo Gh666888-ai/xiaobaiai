@@ -1,7 +1,7 @@
 "use client"
 
 import { Suspense, useState, useMemo, useEffect } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { tools, categories, stageLabels, ToolCategory } from "@/data/tools"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
@@ -35,6 +35,7 @@ const btnSel:React.CSSProperties = {...btnBase,borderColor:'#7a6230',color:'#e8c
 
 function ToolsContent() {
   const sp = useSearchParams()
+  const router = useRouter()
   const [search, setSearch] = useState("")
   const [cat, setCat] = useState<ToolCategory|null>(null)
   const [stage, setStage] = useState<number|null>(null)
@@ -85,7 +86,7 @@ function ToolsContent() {
               const top5 = tools.filter(t=>t.category===cat.key).sort((a,b)=>b.rank-a.rank).slice(0,5)
               if(top5.length===0) return null
               return (
-                <div key={cat.key} onClick={()=>window.location.href=`/tools?category=${cat.key}`}
+                <div key={cat.key} onClick={()=>{setCat(cat.key);router.push(`/tools?category=${cat.key}`)}}
                   style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:12,padding:'16px 20px',cursor:'pointer',transition:'all 0.3s'}}
                   onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.06)';e.currentTarget.style.borderColor='#7a6230'}}
                   onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor='#1a1a1a'}}>
