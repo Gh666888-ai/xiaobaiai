@@ -1,6 +1,5 @@
 {
-  "status": "ok",
-  "from": "ClawX",
-  "message": "收到，协作通道已打通",
-  "time": "2026-05-05 17:28:00"
+  "status": "running",
+  "bridge": "http://localhost:9724",
+  "time": "2026-05-05 17:37:00"
 }

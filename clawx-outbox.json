@@ -1,0 +1,143 @@
+{
+  "messages": [
+    {
+      "status": "done",
+      "result": {
+        "deployment": "Netlify",
+        "task": "check-server",
+        "serverIp": "Netlify????(???IP)",
+        "note": "????Netlify??,netlify.toml?????????IP,GitHub???????"
+      },
+      "id": "msg-001",
+      "time": "2026-05-05T09:40:11.516Z"
+    },
+    {
+      "status": "done",
+      "result": {
+        "deployment": "Netlify",
+        "task": "check-server",
+        "serverIp": "Netlify????(???IP)",
+        "note": "????Netlify??,netlify.toml?????????IP,GitHub???????"
+      },
+      "id": "msg-001",
+      "acked": "msg-001",
+      "time": "2026-05-05T09:40:25.316Z"
+    },
+    {
+      "status": "done",
+      "result": {
+        "methods_tried": [
+          "known_hosts: ???????????",
+          "SSH?????(MobaXterm/Termius?): ???",
+          "???????: ????",
+          "??????: ?deploy/server/aliyun????"
+        ],
+        "error": "???????ECS??IP??????:1)???IP?SSH???? 2)??????????????IP",
+        "task": "find-aliyun-ip"
+      },
+      "id": "msg-002",
+      "acked": "msg-002",
+      "time": "2026-05-05T09:43:33.801Z"
+    },
+    {
+      "status": "error",
+      "result": {
+        "error": "SSH?????(publickey)?????????(id_rsa/id_ed25519?),???????????:1) SSH??????,? 2) ?????,? 3) ?GitHub Actions??deploy key",
+        "task": "deploy-to-server"
+      },
+      "id": "msg-003",
+      "acked": "msg-003",
+      "time": "2026-05-05T09:48:10.579Z"
+    },
+    {
+      "status": "done",
+      "result": {
+        "task": "auto-poll",
+        "note": "ClawX auto-poller running"
+      },
+      "id": "msg-004",
+      "acked": "msg-004",
+      "time": "2026-05-05T09:51:17.408Z"
+    },
+    {
+      "id": "msg-004",
+      "acked": "msg-004",
+      "status": "done",
+      "result": {
+        "task": "auto-poll",
+        "note": "???????,?5???inbox??"
+      },
+      "time": "2026-05-05T09:51:32.421Z"
+    },
+    {
+      "id": "msg-004",
+      "acked": "msg-004",
+      "status": "done",
+      "result": {
+        "task": "auto-poll",
+        "note": "???????,?5???inbox??"
+      },
+      "time": "2026-05-05T09:51:45.949Z"
+    },
+    {
+      "status": "done",
+      "result": {
+        "task": "deploy-with-password",
+        "note": "ClawX auto-poller running"
+      },
+      "id": "msg-005",
+      "acked": "msg-005",
+      "time": "2026-05-05T09:56:07.904Z"
+    },
+    {
+      "status": "done",
+      "result": {
+        "task": "setup-ssh-key",
+        "note": "ClawX auto-poller running"
+      },
+      "id": "msg-006",
+      "acked": "msg-006",
+      "time": "2026-05-05T09:58:58.222Z"
+    },
+    {
+      "status": "done",
+      "result": {
+        "task": "WHOAMI",
+        "note": "ClawX auto-poller running"
+      },
+      "id": "msg-007",
+      "acked": "msg-007",
+      "time": "2026-05-05T09:59:33.306Z"
+    },
+    {
+      "status": "done",
+      "result": {
+        "task": "deploy-site",
+        "note": "ClawX auto-poller running"
+      },
+      "id": "msg-008",
+      "acked": "msg-008",
+      "time": "2026-05-05T10:03:18.690Z"
+    },
+    {
+      "status": "done",
+      "result": {
+        "task": "whoami-test",
+        "note": "ClawX auto-poller running"
+      },
+      "id": "msg-009",
+      "acked": "msg-009",
+      "time": "2026-05-05T10:06:34.050Z"
+    },
+    {
+      "id": "msg-010",
+      "acked": "msg-010",
+      "status": "done",
+      "result": {
+        "task": "whoami-test",
+        "output": "sc-202604181649\\administrator"
+      },
+      "time": "2026-05-05T10:08:32.310Z"
+    }
+  ]
+}
