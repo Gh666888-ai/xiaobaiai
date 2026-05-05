@@ -11,10 +11,14 @@ function fmt(d:string){const diff=Math.floor((Date.now()-new Date(d).getTime())/
 export default function NewsPage() {
   const [cat,setCat]=useState<NewsCategory|null>(null)
 
+  const [fetched,setFetched]=useState<any[]>([])
+
   const sorted = useMemo(()=>{
-    let r=news;if(cat)r=r.filter(n=>n.category===cat)
-    return r.sort((a,b)=>b.importance-a.importance||new Date(b.publishedAt).getTime()-new Date(a.publishedAt).getTime())
-  },[cat])
+    let r = [...news, ...fetched];if(cat)r=r.filter((n:any)=>n.category===cat)
+    return r.sort((a:any,b:any)=>b.importance-a.importance||new Date(b.publishedAt).getTime()-new Date(a.publishedAt).getTime())
+  },[cat,fetched])
+
+  useEffect(()=>{fetch("/fetched-news.json").then(r=>r.json()).then(d=>{if(Array.isArray(d))setFetched(d)}).catch(()=>{})},[])
 
   return (
     <div style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
