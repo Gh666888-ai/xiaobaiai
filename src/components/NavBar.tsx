@@ -1,9 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { Bot, Compass, GraduationCap, Home, Newspaper, Search, Trophy, Users } from "lucide-react"
+import { Bot, Compass, GraduationCap, Newspaper, Search, Trophy, Users } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext"
 import { LevelBadge } from "@/components/LevelBadge"
+import { XiaobaiLogo } from "@/components/XiaobaiLogo"
 
 const links = [
   { label: "小白爱学习", href: "/learn", icon: GraduationCap },
@@ -20,9 +21,8 @@ export function NavBar() {
 
   return (
     <nav style={{ position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18, padding: "10px 24px", background: "rgba(0,0,0,0.9)", backdropFilter: "blur(12px)", borderBottom: "1px solid #1a1a1a", overflowX: "auto", whiteSpace: "nowrap" }}>
-      <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 900, letterSpacing: "0.08em", color: "#c9a84c", fontFamily: "'JetBrains Mono', monospace", textDecoration: "none", flexShrink: 0 }}>
-        <Home size={15} />
-        小白AI
+      <Link href="/" aria-label="小白AI 首页" style={{ display: "inline-flex", alignItems: "center", textDecoration: "none", flexShrink: 0 }}>
+        <XiaobaiLogo />
       </Link>
       <div style={{ display: "flex", gap: 12, alignItems: "center", flexShrink: 0 }}>
         {links.map((item) => {
