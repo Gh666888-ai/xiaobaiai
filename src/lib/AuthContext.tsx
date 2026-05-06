@@ -16,6 +16,22 @@ const AuthContext = createContext<{
   refresh: ()=>Promise<void>
 }>({user:null,loading:true,refresh:async()=>{}})
 
+async function buildAuthUser(sessionUser: any): Promise<AuthUser> {
+  let profile: any = null
+  try {
+    const { data } = await supabase.from("profiles").select("name,xp").eq("id", sessionUser.id).single()
+    profile = data
+  } catch {
+    profile = null
+  }
+  return {
+    userId: sessionUser.id,
+    email: sessionUser.email || "",
+    name: profile?.name || sessionUser.user_metadata?.name || sessionUser.email?.split("@")[0] || "用户",
+    xp: Number(profile?.xp || 0),
+  }
+}
+
 export function AuthProvider({children}:{children:ReactNode}){
   const [user,setUser] = useState<AuthUser|null>(null)
   const [loading,setLoading] = useState(true)
@@ -24,12 +40,7 @@ export function AuthProvider({children}:{children:ReactNode}){
     try{
       const {data:{session}} = await supabase.auth.getSession()
       if(session?.user){
-        setUser({
-          userId: session.user.id,
-          email: session.user.email || "",
-          name: session.user.user_metadata?.name || session.user.email?.split("@")[0] || "用户",
-          xp: 0
-        })
+        setUser(await buildAuthUser(session.user))
       }else{
         setUser(null)
       }
@@ -42,14 +53,9 @@ export function AuthProvider({children}:{children:ReactNode}){
 
   useEffect(()=>{
     refresh()
-    const {data:{subscription}} = supabase.auth.onAuthStateChange((_event,session)=>{
+    const {data:{subscription}} = supabase.auth.onAuthStateChange(async (_event,session)=>{
       if(session?.user){
-        setUser({
-          userId: session.user.id,
-          email: session.user.email||"",
-          name: session.user.user_metadata?.name || session.user.email?.split("@")[0] || "用户",
-          xp:0
-        })
+        setUser(await buildAuthUser(session.user))
       }else{
         setUser(null)
       }

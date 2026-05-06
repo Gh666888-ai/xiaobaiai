@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 
   try {
     if (mode === "register") {
-      const { error: signUpError } = await withTimeout(
+      const { data: signUpData, error: signUpError } = await withTimeout(
         supabase.auth.signUp({
           email,
           password,
@@ -56,6 +56,15 @@ export async function POST(req: NextRequest) {
         }),
       )
       if (signUpError) return jsonError(normalizeAuthError(signUpError.message))
+      if (signUpData.user?.id) {
+        await supabase.from("profiles").upsert({
+          id: signUpData.user.id,
+          name,
+          email,
+          xp: 0,
+          joined_at: new Date().toISOString().slice(0, 10),
+        }, { onConflict: "id" })
+      }
     }
 
     const { data, error } = await withTimeout(supabase.auth.signInWithPassword({ email, password }))

@@ -12,13 +12,13 @@ export interface User {
 
 // 等级系统
 export const LEVELS = [
-  { level: 0, name: "游客",      minXP: 0,     badge: "🆕",   color: "#999",    desc: "刚开始探索AI世界" },
-  { level: 1, name: "铜星",      minXP: 100,   badge: "⭐",   color: "#CD7F32", desc: "铜色小星星" },
-  { level: 2, name: "银星",      minXP: 300,   badge: "🌟",   color: "#C0C0C0", desc: "银色大星星" },
-  { level: 3, name: "金星",      minXP: 1000,  badge: "✨",   color: "#FFD700", desc: "金色小星星" },
-  { level: 4, name: "太阳",      minXP: 3000,  badge: "☀️",   color: "#CD7F32", desc: "铜色太阳" },
-  { level: 5, name: "皇冠",      minXP: 10000, badge: "👑",   color: "#CD7F32", desc: "铜色皇冠" },
-  { level: 6, name: "至尊皇冠",  minXP: 30000, badge: "🌈👑", color: "#FFD700", desc: "五彩金色皇冠" },
+  { level: 0, name: "初识者",    minXP: 0,     badge: "◇", color: "#8f8f8f", accent: "#cfcfcf", desc: "刚开始探索 AI 世界" },
+  { level: 1, name: "星火学员",  minXP: 100,   badge: "✦", color: "#9f6b3b", accent: "#d6a36a", desc: "完成第一批 AI 小任务" },
+  { level: 2, name: "银翼探索者", minXP: 300,   badge: "✧", color: "#9fb2c8", accent: "#e4edf8", desc: "能独立选择工具和学习路径" },
+  { level: 3, name: "金核创造者", minXP: 1000,  badge: "✹", color: "#c9a84c", accent: "#fff0a8", desc: "能把 AI 用进真实工作流" },
+  { level: 4, name: "曜石指挥官", minXP: 3000,  badge: "◆", color: "#7ad7c6", accent: "#d8fff7", desc: "开始指挥 Agent 完成多步任务" },
+  { level: 5, name: "星环架构师", minXP: 10000, badge: "◈", color: "#b692ff", accent: "#efe4ff", desc: "能搭建稳定的 AI 系统和流程" },
+  { level: 6, name: "小白AI共创者", minXP: 30000, badge: "✺", color: "#ffd86b", accent: "#ffffff", desc: "小白AI核心共创身份" },
 ]
 
 export function getUserLevel(xp: number) {

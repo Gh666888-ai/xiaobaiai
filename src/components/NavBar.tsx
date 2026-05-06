@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Bot, Compass, GraduationCap, Home, Newspaper, Search, Trophy, Users } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext"
-import { getUserLevel } from "@/data/user"
+import { LevelBadge } from "@/components/LevelBadge"
 
 const links = [
   { label: "小白爱学习", href: "/learn", icon: GraduationCap },
@@ -17,7 +17,6 @@ const links = [
 
 export function NavBar() {
   const { user } = useAuth()
-  const level = user ? getUserLevel(user.xp) : null
 
   return (
     <nav style={{ position: "sticky", top: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18, padding: "10px 24px", background: "rgba(0,0,0,0.9)", backdropFilter: "blur(12px)", borderBottom: "1px solid #1a1a1a", overflowX: "auto", whiteSpace: "nowrap" }}>
@@ -36,9 +35,8 @@ export function NavBar() {
           )
         })}
         {user ? (
-          <Link href="/login" style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", padding: "4px 12px", border: "1px solid #333", borderRadius: 8, transition: "0.2s", flexShrink: 0 }}>
-            <span style={{ fontSize: 16 }}>{level?.badge}</span>
-            <span style={{ fontFamily: "'Noto Sans SC', sans-serif", fontSize: 12, fontWeight: 800, color: "#ccc" }}>{user.name}</span>
+          <Link href="/login" style={{ textDecoration: "none", flexShrink: 0 }}>
+            <LevelBadge name={user.name} xp={user.xp} />
           </Link>
         ) : (
           <Link href="/login" style={{ fontFamily: "'Noto Sans SC', sans-serif", fontSize: 13, fontWeight: 800, color: "#e8c96a", border: "1px solid #7a6230", padding: "6px 14px", borderRadius: 6, textDecoration: "none", transition: "0.2s", flexShrink: 0 }}>
