@@ -90,11 +90,12 @@ export default function HomePage() {
               <input type="text" placeholder="搜工具、模型、技能、教程..."
                 value={searchQuery} onChange={e=>handleSearch(e.target.value)} onKeyDown={goSearch}
                 onFocus={()=>searchResults.length>0&&setShowResults(true)}
-                onBlur={()=>setTimeout(()=>setShowResults(false),200)}
+                onBlur={()=>setTimeout(()=>setShowResults(false),300)}
                 style={{flex:1,background:'transparent',border:'none',outline:'none',padding:'12px 14px',fontSize:14,fontWeight:500,color:'#fff',fontFamily:"'Noto Sans SC', sans-serif"}} />
             </div>
             {showResults && searchResults.length > 0 && (
-              <div style={{position:'absolute',top:'100%',left:0,right:0,background:'#111',border:'1px solid #222',borderRadius:10,marginTop:4,zIndex:100,overflow:'hidden'}}>
+              <div style={{position:'absolute',top:'100%',left:0,right:0,background:'#111',border:'1px solid #222',borderRadius:10,marginTop:4,zIndex:100,overflow:'hidden'}}
+                onMouseDown={e=>e.preventDefault()}>
                 {searchResults.map(t=>(
                   <a key={t.id} href={t.url} target="_blank" rel="noopener noreferrer"
                     style={{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',textDecoration:'none',borderBottom:'1px solid #1a1a1a',transition:'background 0.2s'}}
