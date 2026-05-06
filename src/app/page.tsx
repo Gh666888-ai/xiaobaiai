@@ -49,9 +49,16 @@ export default function HomePage() {
     const ctx = canvas.getContext('2d'); if(!ctx)return
     let cols = Math.floor(window.innerWidth / 13)
     const drops:number[] = Array(cols).fill(0).map(()=>Math.random()*-100)
+    let paused = false
     function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;cols=Math.floor(canvas.width/13);if(drops.length<cols){drops.length=cols;for(let i=0;i<cols;i++)if(drops[i]===undefined)drops[i]=Math.random()*-100}}
     resize();window.addEventListener('resize',resize)
+    // 页面隐藏时暂停动画，节省CPU
+    document.addEventListener('visibilitychange',()=>{paused=document.hidden})
+    // Canvas滚出视口时暂停
+    const observer = new IntersectionObserver(([e])=>{paused=!e.isIntersecting},{threshold:0})
+    observer.observe(canvas)
     function draw(){
+      if(paused) return
       ctx.fillStyle='rgba(0,0,0,0.06)';ctx.fillRect(0,0,canvas.width,canvas.height)
       for(let i=0;i<drops.length;i++){
         const char=SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)]
@@ -63,7 +70,7 @@ export default function HomePage() {
       }
     }
     const interval=setInterval(draw,50);draw()
-    return()=>{clearInterval(interval);window.removeEventListener('resize',resize)}
+    return()=>{clearInterval(interval);window.removeEventListener('resize',resize);observer.disconnect()}
   },[])
 
   return (
