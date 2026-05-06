@@ -11,19 +11,19 @@ const sources = [
 
 const curatedPrices = [
   {
-    id: "gpt54",
+    id: "gpt55",
     provider: "OpenAI",
-    model: "GPT-5.4",
-    input: "$2.50 / 1M tokens",
-    output: "$15.00 / 1M tokens",
-    note: "以 OpenAI 官方 API pricing 页面为准，可能随档位、缓存和批处理变化。",
+    model: "GPT-5.5",
+    input: "$5.00 / 1M tokens",
+    output: "$30.00 / 1M tokens",
+    note: "以 OpenAI 官方 API pricing 页面为准；GPT-5.4 是更便宜档，GPT-5.5 是更高档旗舰。",
   },
   {
     id: "claude-opus4",
     provider: "Anthropic",
     model: "Claude Opus 4.6",
     input: "$5.00 / 1M tokens",
-    output: "以官方页面为准",
+    output: "以官方价格页为准",
     note: "Anthropic 不同模型和缓存价格口径不同，正式计费前需复核控制台。",
   },
   {

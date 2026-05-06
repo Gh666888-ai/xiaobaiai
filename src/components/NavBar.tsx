@@ -1,16 +1,17 @@
 "use client"
 
 import Link from "next/link"
-import { Bot, Compass, GraduationCap, Home, MessageCircle, Search, Trophy, Users } from "lucide-react"
+import { Bot, Compass, GraduationCap, Home, MessageCircle, Newspaper, Search, Trophy, Users } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext"
 import { getUserLevel } from "@/data/user"
 
 const links = [
+  { l: "小白爱学习", h: "/learn", icon: GraduationCap },
   { l: "工具", h: "/tools", icon: Compass },
   { l: "问AI", h: "/chat", icon: MessageCircle },
   { l: "选择器", h: "/choose-tool", icon: Search },
   { l: "成长舱", h: "/growth", icon: Trophy },
-  { l: "学习", h: "/learn", icon: GraduationCap },
+  { l: "资讯", h: "/news", icon: Newspaper },
   { l: "模型", h: "/models", icon: Bot },
   { l: "社区", h: "/community", icon: Users },
 ]
