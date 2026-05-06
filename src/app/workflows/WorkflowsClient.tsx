@@ -224,8 +224,8 @@ export default function WorkflowsClient() {
     <div style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
       <MathRain />
       <NavBar />
-      <main style={{ maxWidth: 1220, margin: "0 auto", padding: "58px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.88)" }} className="max-sm:px-4">
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 360px", gap: 22, alignItems: "end", marginBottom: 26 }} className="max-sm:grid-cols-1">
+      <main style={{ maxWidth: 1220, margin: "0 auto", padding: "58px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.88)" }} className="workflows-page max-sm:px-4">
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 360px", gap: 22, alignItems: "end", marginBottom: 26 }} className="workflow-hero max-sm:grid-cols-1">
           <div>
             <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.36em", color: "#16c4d8", textTransform: "uppercase", marginBottom: 10, fontWeight: 900 }}>Workflow Builder</p>
             <h1 style={{ fontSize: 38, fontWeight: 950, color: "#fff", letterSpacing: "0.02em", marginBottom: 10 }}>AI 工作流搭建器</h1>
@@ -234,7 +234,7 @@ export default function WorkflowsClient() {
           <ContentVisual compact title="AI 自动化流程" label="WORKFLOW" meta="Trigger -> AI -> Action" kind="agent" />
         </div>
 
-        <section style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 10, marginBottom: 18 }} className="max-sm:grid-cols-1">
+        <section style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 10, marginBottom: 18 }} className="workflow-template-grid max-sm:grid-cols-1">
           {workflowTemplates.map((template) => {
             const active = selected.id === template.id
             return (
@@ -246,9 +246,24 @@ export default function WorkflowsClient() {
           })}
         </section>
 
-        <div style={{ display: "grid", gridTemplateColumns: "250px minmax(0,1fr) 350px", gap: 16 }} className="max-sm:grid-cols-1">
-          <aside style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <section style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "250px minmax(0,1fr) 350px", gap: 16 }} className="workflow-layout max-sm:grid-cols-1">
+          <aside style={{ display: "flex", flexDirection: "column", gap: 12 }} className="workflow-sidebar">
+            <section style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 16 }} className="workflow-cloud-panel">
+              <h2 style={{ color: "#fff", fontSize: 15, fontWeight: 950, marginBottom: 12 }}>我的云端库</h2>
+              {!user && <p style={{ color: "#999", fontSize: 12, lineHeight: 1.7 }}>登录后可以把工作流保存到账号，手机和电脑同步。</p>}
+              {user && loadingCloud && <p style={{ color: "#888", fontSize: 12 }}>正在读取...</p>}
+              {user && !loadingCloud && savedWorkflows.length === 0 && <p style={{ color: "#999", fontSize: 12, lineHeight: 1.7 }}>还没有云端工作流，保存当前流程后会出现在这里。</p>}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }} className="workflow-cloud-list">
+                {savedWorkflows.map((workflow) => (
+                  <button key={workflow.id} onClick={() => applySavedWorkflow(workflow)} style={{ textAlign: "left", border: `1px solid ${workflow.id === workflowId ? "#16c4d8" : "#232323"}`, borderRadius: 8, background: workflow.id === workflowId ? "rgba(22,196,216,0.08)" : "rgba(0,0,0,0.22)", padding: 10, cursor: "pointer" }} className="workflow-cloud-item">
+                    <span style={{ display: "block", color: "#eee", fontSize: 12, fontWeight: 900 }}>{workflow.name}</span>
+                    <span style={{ display: "block", color: "#777", fontSize: 10, marginTop: 4 }}>{timeLabel(workflow.last_run_at)} · {workflow.last_status || "draft"}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            <section style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 16 }} className="workflow-step-library">
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                 <Plus size={16} style={{ color: "#16c4d8" }} />
                 <h2 style={{ color: "#fff", fontSize: 15, fontWeight: 950 }}>添加步骤</h2>
@@ -257,7 +272,7 @@ export default function WorkflowsClient() {
                 {workflowStepLibrary.map((step) => {
                   const Icon = typeMeta[step.type].icon
                   return (
-                    <button key={step.id} onClick={() => addStep(step)} style={{ display: "grid", gridTemplateColumns: "24px 1fr", gap: 9, textAlign: "left", border: "1px solid #232323", borderRadius: 8, background: "rgba(0,0,0,0.22)", padding: 10, cursor: "pointer" }}>
+                    <button key={step.id} onClick={() => addStep(step)} style={{ display: "grid", gridTemplateColumns: "24px 1fr", gap: 9, textAlign: "left", border: "1px solid #232323", borderRadius: 8, background: "rgba(0,0,0,0.22)", padding: 10, cursor: "pointer" }} className="workflow-step-option">
                       <Icon size={16} style={{ color: typeMeta[step.type].color, marginTop: 2 }} />
                       <span>
                         <span style={{ display: "block", color: "#ddd", fontSize: 12, fontWeight: 900 }}>{step.title}</span>
@@ -269,23 +284,9 @@ export default function WorkflowsClient() {
               </div>
             </section>
 
-            <section style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 16 }}>
-              <h2 style={{ color: "#fff", fontSize: 15, fontWeight: 950, marginBottom: 12 }}>我的云端库</h2>
-              {!user && <p style={{ color: "#999", fontSize: 12, lineHeight: 1.7 }}>登录后可以把工作流保存到账号，手机和电脑同步。</p>}
-              {user && loadingCloud && <p style={{ color: "#888", fontSize: 12 }}>正在读取...</p>}
-              {user && !loadingCloud && savedWorkflows.length === 0 && <p style={{ color: "#999", fontSize: 12, lineHeight: 1.7 }}>还没有云端工作流，保存当前流程后会出现在这里。</p>}
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {savedWorkflows.map((workflow) => (
-                  <button key={workflow.id} onClick={() => applySavedWorkflow(workflow)} style={{ textAlign: "left", border: `1px solid ${workflow.id === workflowId ? "#16c4d8" : "#232323"}`, borderRadius: 8, background: workflow.id === workflowId ? "rgba(22,196,216,0.08)" : "rgba(0,0,0,0.22)", padding: 10, cursor: "pointer" }}>
-                    <span style={{ display: "block", color: "#eee", fontSize: 12, fontWeight: 900 }}>{workflow.name}</span>
-                    <span style={{ display: "block", color: "#777", fontSize: 10, marginTop: 4 }}>{timeLabel(workflow.last_run_at)} · {workflow.last_status || "draft"}</span>
-                  </button>
-                ))}
-              </div>
-            </section>
           </aside>
 
-          <section style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 18 }}>
+          <section style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 18 }} className="workflow-editor-panel">
             <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 10, marginBottom: 16 }}>
               <input value={name} onChange={(event) => setName(event.target.value)} className="form-input" placeholder="工作流名称" />
               <textarea value={goal} onChange={(event) => setGoal(event.target.value)} className="form-input" rows={3} placeholder="这个工作流要解决什么问题？" />
@@ -301,8 +302,8 @@ export default function WorkflowsClient() {
                 const meta = typeMeta[step.type]
                 const Icon = meta.icon
                 return (
-                  <div key={step.id} style={{ border: "1px solid #242424", borderRadius: 10, background: "rgba(0,0,0,0.24)", padding: 14 }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "34px 1fr auto", gap: 10, alignItems: "start" }}>
+                  <div key={step.id} style={{ border: "1px solid #242424", borderRadius: 10, background: "rgba(0,0,0,0.24)", padding: 14 }} className="workflow-step-card">
+                    <div style={{ display: "grid", gridTemplateColumns: "34px 1fr auto", gap: 10, alignItems: "start" }} className="workflow-step-card-grid">
                       <div style={{ width: 34, height: 34, borderRadius: 9, border: `1px solid ${meta.color}`, background: `${meta.color}18`, display: "flex", alignItems: "center", justifyContent: "center", color: meta.color, fontWeight: 950 }}>
                         <Icon size={17} />
                       </div>
@@ -330,7 +331,7 @@ export default function WorkflowsClient() {
                 <h2 style={{ color: "#fff", fontSize: 16, fontWeight: 950 }}>小白一键配置向导</h2>
               </div>
               <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginBottom: 12 }}>按模板填写账号、来源和推送地址，小白AI 会生成可执行配置。Webhook 支持 n8n、Dify Workflow、飞书机器人、企业微信机器人。</p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }} className="max-sm:grid-cols-1">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }} className="workflow-guide-grid max-sm:grid-cols-1">
                 <input className="form-input" value={config.schedule || ""} onChange={(event) => setConfig((prev) => ({ ...prev, schedule: event.target.value }))} placeholder={selected.defaultSchedule} />
                 {guideInputs.map((input) => (
                   <input key={input.key} className="form-input" value={config[input.key] || ""} onChange={(event) => setConfig((prev) => ({ ...prev, [input.key]: event.target.value }))} placeholder={`${input.label}：${input.placeholder}`} />
@@ -342,7 +343,7 @@ export default function WorkflowsClient() {
             </section>
           </section>
 
-          <aside style={{ border: "1px solid #17343a", borderRadius: 12, background: "rgba(22,196,216,0.045)", padding: 18, alignSelf: "start" }}>
+          <aside style={{ border: "1px solid #17343a", borderRadius: 12, background: "rgba(22,196,216,0.045)", padding: 18, alignSelf: "start" }} className="workflow-output-panel">
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
               <Sparkles size={17} style={{ color: "#7ee7f0" }} />
               <h2 style={{ color: "#fff", fontSize: 17, fontWeight: 950 }}>执行方案</h2>
@@ -387,6 +388,131 @@ export default function WorkflowsClient() {
             </div>
           </aside>
         </div>
+
+        <style>{`
+          @media (max-width: 760px) {
+            .workflows-page {
+              padding: 28px 12px 112px !important;
+              background: rgba(0,0,0,0.94) !important;
+            }
+            .workflow-hero {
+              display: block !important;
+              margin-bottom: 18px !important;
+            }
+            .workflow-hero h1 {
+              font-size: 27px !important;
+              line-height: 1.18 !important;
+              margin-bottom: 10px !important;
+            }
+            .workflow-hero p:not(:first-child) {
+              font-size: 13px !important;
+              line-height: 1.75 !important;
+            }
+            .workflow-hero > div:last-child {
+              display: none !important;
+            }
+            .workflow-template-grid {
+              display: flex !important;
+              grid-template-columns: none !important;
+              gap: 10px !important;
+              overflow-x: auto !important;
+              padding: 2px 0 12px !important;
+              margin-bottom: 14px !important;
+              scroll-snap-type: x proximity;
+            }
+            .workflow-template-grid > button {
+              flex: 0 0 76%;
+              min-width: 236px;
+              scroll-snap-align: start;
+              padding: 13px !important;
+            }
+            .workflow-layout {
+              display: flex !important;
+              flex-direction: column !important;
+              gap: 12px !important;
+            }
+            .workflow-sidebar {
+              display: flex !important;
+              flex-direction: column !important;
+              gap: 12px !important;
+            }
+            .workflow-cloud-panel,
+            .workflow-step-library,
+            .workflow-editor-panel,
+            .workflow-output-panel {
+              border-radius: 10px !important;
+              padding: 14px !important;
+            }
+            .workflow-cloud-panel {
+              order: 1;
+              border-color: #17343a !important;
+              background: rgba(22,196,216,0.05) !important;
+            }
+            .workflow-step-library {
+              order: 2;
+            }
+            .workflow-cloud-list {
+              display: flex !important;
+              flex-direction: row !important;
+              overflow-x: auto !important;
+              gap: 8px !important;
+              padding-bottom: 4px;
+            }
+            .workflow-cloud-item {
+              flex: 0 0 76%;
+              min-width: 230px;
+            }
+            .workflow-step-library > div:last-child {
+              display: grid !important;
+              grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+              gap: 8px !important;
+            }
+            .workflow-step-option {
+              display: flex !important;
+              flex-direction: column !important;
+              gap: 7px !important;
+              min-height: 92px !important;
+            }
+            .workflow-editor-panel {
+              order: 2;
+            }
+            .workflow-output-panel {
+              order: 3;
+            }
+            .workflow-step-card {
+              padding: 12px !important;
+            }
+            .workflow-step-card-grid {
+              display: grid !important;
+              grid-template-columns: 30px minmax(0, 1fr) 36px !important;
+              gap: 8px !important;
+            }
+            .workflow-step-card-grid > div:first-child {
+              width: 30px !important;
+              height: 30px !important;
+            }
+            .workflow-guide-grid {
+              display: grid !important;
+              grid-template-columns: 1fr !important;
+            }
+            .workflow-output-panel pre {
+              max-height: 220px !important;
+              font-size: 12px !important;
+            }
+            .workflow-output-panel .btn-primary,
+            .workflow-output-panel .btn-outline {
+              width: 100% !important;
+              justify-content: center !important;
+              min-height: 46px !important;
+              border-radius: 9px !important;
+            }
+            .workflows-page input,
+            .workflows-page textarea {
+              font-size: 15px !important;
+              border-radius: 8px !important;
+            }
+          }
+        `}</style>
       </main>
     </div>
   )
