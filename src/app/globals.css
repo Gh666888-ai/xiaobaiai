@@ -134,4 +134,12 @@ body {
   [style*="grid-template-columns"] {
     grid-template-columns: repeat(1, 1fr) !important;
   }
+  /* 触摸优化：放大点击区域 */
+  a, button { min-height: 44px; min-width: 44px; }
+  input { font-size: 16px !important; }
+  /* 卡片间距紧凑 */
+  [style*="borderRadius:16"] { padding: 16px !important; }
+  [style*="padding:24px"] { padding: 14px !important; }
+  /* 分类排行卡片grid适配 */
+  [style*="minmax(320px,"] { grid-template-columns: 1fr !important; }
 }
