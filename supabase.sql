@@ -107,6 +107,8 @@ CREATE TABLE IF NOT EXISTS ai_workflows (
 CREATE INDEX IF NOT EXISTS ai_workflows_user_updated_idx ON ai_workflows(user_id, updated_at DESC);
 CREATE INDEX IF NOT EXISTS ai_workflows_enabled_idx ON ai_workflows(enabled);
 
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE ai_workflows TO authenticated;
+
 ALTER TABLE ai_workflows ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can read own workflows" ON ai_workflows;
 DROP POLICY IF EXISTS "Users can insert own workflows" ON ai_workflows;
@@ -133,6 +135,8 @@ CREATE TABLE IF NOT EXISTS workflow_runs (
 
 CREATE INDEX IF NOT EXISTS workflow_runs_user_started_idx ON workflow_runs(user_id, started_at DESC);
 CREATE INDEX IF NOT EXISTS workflow_runs_workflow_idx ON workflow_runs(workflow_id, started_at DESC);
+
+GRANT SELECT, INSERT ON TABLE workflow_runs TO authenticated;
 
 ALTER TABLE workflow_runs ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can read own workflow runs" ON workflow_runs;
