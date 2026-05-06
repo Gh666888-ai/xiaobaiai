@@ -1,11 +1,18 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { models, Model } from "@/data/models"
 import { modelRankingMeta } from "@/data/model-meta"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { Search, Zap, Cpu, Trophy } from "lucide-react"
+
+type PriceSnapshot = {
+  updatedAt: string
+  priceBasis: string
+  sources: { name: string; url: string; reachable?: boolean; status?: string }[]
+  prices: { id: string; input: string; output: string; note: string }[]
+}
 
 const btnBase={fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:700,padding:'5px 14px',border:'1px solid #1a1a1a',color:'#888',background:'transparent',cursor:'pointer',transition:'0.2s',borderRadius:6}
 const btnSel={...btnBase,borderColor:'#7a6230',color:'#e8c96a',background:'rgba(201,168,76,0.08)'}
@@ -14,6 +21,14 @@ export default function ModelsPage() {
   const [type, setType] = useState<"全部"|"API"|"本地">("全部")
   const [cat, setCat] = useState<string>("全部")
   const [search, setSearch] = useState("")
+  const [priceSnapshot, setPriceSnapshot] = useState<PriceSnapshot | null>(null)
+
+  useEffect(() => {
+    fetch("/model-prices.json")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => data && setPriceSnapshot(data))
+      .catch(() => setPriceSnapshot(null))
+  }, [])
 
   const cats = ["全部","对话","编程","绘图","视频","音频","嵌入"]
 
@@ -57,6 +72,13 @@ export default function ModelsPage() {
 
         <div style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.04)',borderRadius:12,padding:'16px 18px',marginBottom:34}}>
           <p style={{fontSize:12,color:'#d6c28a',lineHeight:1.8}}>{modelRankingMeta.priceBasis}</p>
+          {priceSnapshot && (
+            <div style={{marginTop:12,padding:'12px 14px',border:'1px solid #2a1f10',borderRadius:8,background:'rgba(0,0,0,0.28)'}}>
+              <p style={{fontSize:12,color:'#fff',fontWeight:900}}>自动价格快照：{new Date(priceSnapshot.updatedAt).toLocaleString("zh-CN", { hour12: false })}</p>
+              <p style={{fontSize:11,color:'#aaa',lineHeight:1.8,marginTop:4}}>{priceSnapshot.priceBasis}</p>
+              <p style={{fontSize:11,color:'#777',lineHeight:1.8,marginTop:4}}>服务器可用 <code style={{color:'#c9a84c'}}>npm run update:model-prices</code> 定期刷新，结果写入 <code style={{color:'#c9a84c'}}>public/model-prices.json</code>。</p>
+            </div>
+          )}
           <p style={{fontSize:12,color:'#aaa',lineHeight:1.8,marginTop:6}}>{modelRankingMeta.subjectiveNote}</p>
           <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:10}}>
             {modelRankingMeta.sources.map(source=>(
@@ -128,7 +150,7 @@ export default function ModelsPage() {
                 {m.cons?<div style={{marginTop:2}}><span style={{fontSize:11,color:'#D94841',fontWeight:700}}>⚠️ {m.cons}</span></div>:null}
                 {m.useCase&&<div style={{marginTop:2}}><span style={{fontSize:11,color:'#c9a84c',fontWeight:700}}>🎯 {m.useCase}</span></div>}
                 <div style={{display:'flex',gap:16,marginTop:6,fontFamily:"'JetBrains Mono',monospace",fontSize:9,color:'#666',alignItems:'center'}}>
-                  <span>价格: {m.pricing}</span>
+                  <span>价格: {priceSnapshot?.prices.find(p=>p.id===m.id)?.input || m.pricing}</span>
                   <span>上下文: {m.contextWindow}</span>
                   <span>场景: {m.useCase}</span>
                   <a href={m.url} target="_blank" rel="noopener noreferrer" style={{color:'#c9a84c',textDecoration:'none',fontWeight:700,marginLeft:'auto'}}>下载/访问 →</a>

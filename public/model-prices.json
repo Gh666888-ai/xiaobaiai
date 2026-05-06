@@ -1,0 +1,84 @@
+{
+  "updatedAt": "2026-05-07T00:00:00.000Z",
+  "priceBasis": "自动脚本生成的价格快照。脚本会检查官方价格页可达性，价格表采用人工维护的稳定字段，避免抓取页面结构变化导致线上错误。",
+  "updateCommand": "npm run update:model-prices",
+  "sources": [
+    {
+      "provider": "OpenAI",
+      "name": "OpenAI API Pricing",
+      "url": "https://openai.com/api/pricing/",
+      "reachable": false,
+      "status": "not checked in repository snapshot"
+    },
+    {
+      "provider": "Anthropic",
+      "name": "Anthropic Pricing",
+      "url": "https://docs.anthropic.com/en/docs/about-claude/pricing",
+      "reachable": false,
+      "status": "not checked in repository snapshot"
+    },
+    {
+      "provider": "Google",
+      "name": "Gemini API Pricing",
+      "url": "https://ai.google.dev/gemini-api/docs/pricing",
+      "reachable": false,
+      "status": "not checked in repository snapshot"
+    },
+    {
+      "provider": "DeepSeek",
+      "name": "DeepSeek API Pricing",
+      "url": "https://api-docs.deepseek.com/quick_start/pricing",
+      "reachable": false,
+      "status": "not checked in repository snapshot"
+    },
+    {
+      "provider": "Alibaba",
+      "name": "DashScope Pricing",
+      "url": "https://help.aliyun.com/zh/model-studio/",
+      "reachable": false,
+      "status": "not checked in repository snapshot"
+    }
+  ],
+  "prices": [
+    {
+      "id": "gpt54",
+      "provider": "OpenAI",
+      "model": "GPT-5.4",
+      "input": "$2.50 / 1M tokens",
+      "output": "$15.00 / 1M tokens",
+      "note": "以 OpenAI 官方 API pricing 页面为准，可能随档位、缓存和批处理变化。"
+    },
+    {
+      "id": "claude-opus4",
+      "provider": "Anthropic",
+      "model": "Claude Opus 4.6",
+      "input": "$5.00 / 1M tokens",
+      "output": "以官方页面为准",
+      "note": "Anthropic 不同模型和缓存价格口径不同，正式计费前需复核控制台。"
+    },
+    {
+      "id": "gemini3",
+      "provider": "Google",
+      "model": "Gemini 3.1 Pro",
+      "input": "$2.00 起 / 1M tokens",
+      "output": "$12.00 起 / 1M tokens",
+      "note": "Gemini 价格受模型版本、上下文长度、批处理和服务档位影响。"
+    },
+    {
+      "id": "deepseek-v4",
+      "provider": "DeepSeek",
+      "model": "DeepSeek V4",
+      "input": "$0.14 / 1M tokens",
+      "output": "$0.28 / 1M tokens",
+      "note": "DeepSeek Flash/Pro 和促销折扣可能变化，页面展示为快照。"
+    },
+    {
+      "id": "qwen35",
+      "provider": "Alibaba",
+      "model": "Qwen 3.5",
+      "input": "以 DashScope 官方计费文档为准",
+      "output": "以 DashScope 官方计费文档为准",
+      "note": "阿里云按模型、地域、调用方式和活动价格计费。"
+    }
+  ]
+}

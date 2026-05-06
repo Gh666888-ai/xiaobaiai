@@ -76,3 +76,11 @@ CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.
 -- 帖子：所有人可读
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can read posts" ON posts FOR SELECT USING (true);
+
+-- 社区投稿审核增强字段。如果你已经有 community_posts 表，直接执行这一段即可。
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS pinned BOOLEAN DEFAULT FALSE;
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS featured BOOLEAN DEFAULT FALSE;
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS editor_note TEXT;
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS published_at TEXT;
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS likes INTEGER DEFAULT 0;
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS comments_count INTEGER DEFAULT 0;

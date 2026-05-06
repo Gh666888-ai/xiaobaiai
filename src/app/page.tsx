@@ -8,7 +8,7 @@ import { news } from "@/data/news"
 import { searchSite, SearchResult } from "@/lib/search"
 import Link from "next/link"
 import { NavBar } from "@/components/NavBar"
-import { Search, Route, Sparkles, Wrench } from "lucide-react"
+import { MessageCircle, Search, Route, Sparkles, Wrench } from "lucide-react"
 
 const SYMBOLS = [
   '0','1','2','3','4','5','6','7','8','9',
@@ -133,11 +133,13 @@ export default function HomePage() {
             <div style={{textAlign:'center'}}><p style={{fontSize:24,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>5000+</p><p style={{fontSize:10,color:'#888'}}>Agent技能</p></div>
           </div>
 
-          <div style={{display:'grid',gridTemplateColumns:'repeat(3, minmax(0, 1fr))',gap:10,maxWidth:760,margin:'28px auto 0',opacity:0,animation:'fadeUp 0.8s ease forwards 1.7s'}} className="max-sm:grid-cols-1">
+          <div style={{display:'grid',gridTemplateColumns:'repeat(5, minmax(0, 1fr))',gap:10,maxWidth:980,margin:'28px auto 0',opacity:0,animation:'fadeUp 0.8s ease forwards 1.7s'}} className="max-sm:grid-cols-1">
             {[
               {icon:<Route size={17}/>,label:'我完全不会 AI，从这里开始',href:'/learn/0'},
-              {icon:<Wrench size={17}/>,label:'帮我选一个 AI 工具',href:'/search?q=帮我选一个 AI 工具'},
+              {icon:<Wrench size={17}/>,label:'帮我选一个 AI 工具',href:'/choose-tool'},
               {icon:<Sparkles size={17}/>,label:'生成我的学习路线',href:'/search?q=生成我的学习路线'},
+              {icon:<MessageCircle size={17}/>,label:'直接问小白AI',href:'/chat'},
+              {icon:<Sparkles size={17}/>,label:'进入 AI 成长舱',href:'/growth'},
             ].map(cta=>(
               <Link key={cta.label} href={cta.href} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,minHeight:48,padding:'10px 14px',border:'1px solid #1f1f1f',background:'rgba(255,255,255,0.035)',borderRadius:10,color:'#ddd',fontSize:13,fontWeight:700,textDecoration:'none'}}>
                 <span style={{color:'#e8c96a',display:'inline-flex'}}>{cta.icon}</span>

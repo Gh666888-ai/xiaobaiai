@@ -1,11 +1,14 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { stages } from "@/data/learning-path"
 import { tools } from "@/data/tools"
 import { toolPath } from "@/data/tool-meta"
 import { MathRain } from "@/components/MathRain"
 import Link from "next/link"
+import { CheckCircle2, Circle } from "lucide-react"
+import { LearningProgress, progressId, readLearningProgress, writeLearningProgress } from "@/lib/learning-progress"
 
 function letter(n:string){return /^[a-zA-Z]/.test(n)?n[0].toUpperCase():n[0]}
 function avColor(n:string){const c=["#c9a84c","#e8c96a","#7a6230","#5a8a5a"];let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return c[Math.abs(h)%c.length]}
@@ -16,6 +19,19 @@ export default function StageDetailPage() {
   const stageId = Number(params.id)
   const stage = stages.find(s=>s.id===stageId)
   const stageTools = tools.filter(t=>t.stage===stageId).slice(0,3)
+  const [progress, setProgress] = useState<LearningProgress>({})
+
+  useEffect(() => {
+    setProgress(readLearningProgress())
+  }, [stageId])
+
+  const toggleSection = (sectionIndex: number) => {
+    const id = progressId(stageId, sectionIndex)
+    const next = { ...progress, [id]: !progress[id] }
+    if (!next[id]) delete next[id]
+    setProgress(next)
+    writeLearningProgress(next)
+  }
 
   if(!stage) return (
     <div style={{background:'#000',minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#aaa'}}>
@@ -25,6 +41,9 @@ export default function StageDetailPage() {
       </div>
     </div>
   )
+
+  const completedCount = stage.sections.filter((_, index) => progress[progressId(stageId, index)]).length
+  const progressPercent = stage.sections.length ? Math.round(completedCount / stage.sections.length * 100) : 0
 
   return (
     <div style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
@@ -50,14 +69,32 @@ export default function StageDetailPage() {
           <span>{stage.timeEstimate}</span>
         </div>
 
+        <div style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.05)',borderRadius:12,padding:'16px 18px',marginBottom:28}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:10}}>
+            <p style={{fontSize:13,fontWeight:900,color:'#fff'}}>本阶段进度</p>
+            <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:12,fontWeight:900,color:'#e8c96a'}}>{completedCount}/{stage.sections.length} · {progressPercent}%</p>
+          </div>
+          <div style={{height:8,background:'#111',border:'1px solid #242424',borderRadius:999,overflow:'hidden'}}>
+            <div style={{height:'100%',width:`${progressPercent}%`,background:'linear-gradient(90deg,#7a6230,#e8c96a)',transition:'width 0.3s'}} />
+          </div>
+        </div>
+
         {/* 章节 */}
         <div style={{display:'flex',flexDirection:'column',gap:2,background:'#1a1a1a',border:'1px solid #1a1a1a',marginBottom:48}}>
-          {stage.sections.map((section,i)=>(
-            <div key={i} style={{background:'rgba(255,255,255,0.02)',padding:'32px'}}>
+          {stage.sections.map((section,i)=>{
+            const done = !!progress[progressId(stageId, i)]
+            return (
+            <div key={i} style={{background:done?'rgba(201,168,76,0.045)':'rgba(255,255,255,0.02)',padding:'32px'}}>
               <div style={{display:'flex',alignItems:'flex-start',gap:14}}>
-                <span style={{width:28,height:28,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'JetBrains Mono',monospace",fontSize:12,fontWeight:700,color:'#c9a84c',border:'1px solid #7a6230',flexShrink:0}}>{i+1}</span>
-                <div>
-                  <h3 style={{fontSize:18,fontWeight:700,color:'#fff',marginBottom:12}}>{section.title}</h3>
+                <span style={{width:28,height:28,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'JetBrains Mono',monospace",fontSize:12,fontWeight:700,color:done?'#111':'#c9a84c',border:'1px solid #7a6230',background:done?'#e8c96a':'transparent',flexShrink:0}}>{done ? "✓" : i+1}</span>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12,marginBottom:12,flexWrap:'wrap'}}>
+                    <h3 style={{fontSize:18,fontWeight:700,color:'#fff'}}>{section.title}</h3>
+                    <button onClick={()=>toggleSection(i)} style={{display:'inline-flex',alignItems:'center',gap:6,whiteSpace:'nowrap',border:`1px solid ${done?'#7a6230':'#333'}`,background:done?'rgba(201,168,76,0.12)':'rgba(255,255,255,0.03)',color:done?'#e8c96a':'#aaa',borderRadius:8,padding:'7px 10px',fontSize:12,fontWeight:900,cursor:'pointer'}}>
+                      {done ? <CheckCircle2 size={14}/> : <Circle size={14}/>}
+                      {done ? "已学完" : "标记已学完"}
+                    </button>
+                  </div>
                   <p style={{fontSize:16,color:'#eee',lineHeight:1.9,whiteSpace:'pre-line'}}>{section.content}</p>
                   {section.tips && (
                     <div style={{marginTop:16,padding:'16px',background:'rgba(201,168,76,0.04)',border:'1px solid #2a1f10',borderRadius:4}}>
@@ -68,7 +105,7 @@ export default function StageDetailPage() {
                 </div>
               </div>
             </div>
-          ))}
+          )})}
         </div>
 
         {/* 推荐工具 */}

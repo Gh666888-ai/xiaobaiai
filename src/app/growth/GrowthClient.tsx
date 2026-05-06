@@ -1,0 +1,194 @@
+"use client"
+
+import { useEffect, useMemo, useState } from "react"
+import Link from "next/link"
+import { CalendarCheck, CheckCircle2, Compass, Flame, Rocket, Sparkles, Target, Trophy } from "lucide-react"
+import { MathRain } from "@/components/MathRain"
+import { NavBar } from "@/components/NavBar"
+import { stages } from "@/data/learning-path"
+import { progressId, readLearningProgress } from "@/lib/learning-progress"
+
+type GrowthState = {
+  xp: number
+  streak: number
+  lastCheckIn: string
+  doneMissions: Record<string, boolean>
+}
+
+const GROWTH_KEY = "xiaobaiai:growth:v1"
+
+const missions = [
+  { id: "ask-ai", title: "问 AI 一个真实问题", desc: "不要问泛泛的问题，直接拿今天的工作、学习或生活需求试一次。", xp: 20, href: "/search?q=我想让 AI 帮我分析一个需求" },
+  { id: "choose-tool", title: "完成一次工具选择", desc: "用 AI 工具选择器选出今天最适合你的工具。", xp: 30, href: "/choose-tool" },
+  { id: "learn-section", title: "学完一个章节", desc: "进入学习路径，标记任意一个章节为已学完。", xp: 40, href: "/learn" },
+  { id: "read-community", title: "读一篇社区经验", desc: "看一篇真实案例，把能复用的一步记下来。", xp: 25, href: "/community" },
+]
+
+function todayKey() {
+  return new Date().toISOString().slice(0, 10)
+}
+
+function readGrowth(): GrowthState {
+  if (typeof window === "undefined") return { xp: 0, streak: 0, lastCheckIn: "", doneMissions: {} }
+  try {
+    const raw = window.localStorage.getItem(GROWTH_KEY)
+    return raw ? JSON.parse(raw) : { xp: 0, streak: 0, lastCheckIn: "", doneMissions: {} }
+  } catch {
+    return { xp: 0, streak: 0, lastCheckIn: "", doneMissions: {} }
+  }
+}
+
+function writeGrowth(state: GrowthState) {
+  window.localStorage.setItem(GROWTH_KEY, JSON.stringify(state))
+}
+
+function levelName(xp: number) {
+  if (xp >= 1200) return { name: "Agent 实战者", next: 1600 }
+  if (xp >= 700) return { name: "工作流搭建者", next: 1200 }
+  if (xp >= 360) return { name: "AI 工具熟手", next: 700 }
+  if (xp >= 120) return { name: "提示词练习生", next: 360 }
+  return { name: "AI 新手", next: 120 }
+}
+
+export default function GrowthClient() {
+  const [state, setState] = useState<GrowthState>({ xp: 0, streak: 0, lastCheckIn: "", doneMissions: {} })
+  const [learnDone, setLearnDone] = useState(0)
+
+  useEffect(() => {
+    setState(readGrowth())
+    const progress = readLearningProgress()
+    setLearnDone(Object.values(progress).filter(Boolean).length)
+  }, [])
+
+  const today = todayKey()
+  const checkedToday = state.lastCheckIn === today
+  const doneCount = missions.filter((mission) => state.doneMissions[`${today}:${mission.id}`]).length
+  const level = levelName(state.xp)
+  const levelPercent = Math.min(100, Math.round((state.xp / level.next) * 100))
+
+  const suggestedStage = useMemo(() => {
+    let best = stages[0]
+    for (const stage of stages) {
+      const completed = stage.sections.filter((_, index) => readLearningProgress()[progressId(stage.id, index)]).length
+      if (completed < stage.sections.length) {
+        best = stage
+        break
+      }
+    }
+    return best
+  }, [learnDone])
+
+  const checkIn = () => {
+    if (checkedToday) return
+    const next = { ...state, xp: state.xp + 15, streak: state.streak + 1, lastCheckIn: today }
+    setState(next)
+    writeGrowth(next)
+  }
+
+  const finishMission = (missionId: string, xp: number) => {
+    const key = `${today}:${missionId}`
+    if (state.doneMissions[key]) return
+    const next = { ...state, xp: state.xp + xp, doneMissions: { ...state.doneMissions, [key]: true } }
+    setState(next)
+    writeGrowth(next)
+  }
+
+  return (
+    <div style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
+      <MathRain />
+      <NavBar />
+
+      <main style={{ maxWidth: 1120, margin: "0 auto", padding: "58px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.86)" }} className="max-sm:px-4">
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 28, alignItems: "flex-end", marginBottom: 28, flexWrap: "wrap" }}>
+          <div>
+            <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.36em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 800 }}>Growth Deck</p>
+            <h1 style={{ fontSize: 38, fontWeight: 950, color: "#fff", letterSpacing: "0.02em", marginBottom: 10 }}>AI 成长舱</h1>
+            <p style={{ fontSize: 15, color: "#cfcfcf", lineHeight: 1.9, maxWidth: 680 }}>每天给自己一个小任务，积累经验值、连续学习和下一步路线。这个进度保存在你的浏览器里，不需要登录也能用。</p>
+          </div>
+          <button onClick={checkIn} disabled={checkedToday} style={{ display: "inline-flex", alignItems: "center", gap: 8, color: checkedToday ? "#3DA563" : "#111", background: checkedToday ? "rgba(61,165,99,0.1)" : "#e8c96a", border: checkedToday ? "1px solid #2f7d4d" : "1px solid #e8c96a", borderRadius: 10, padding: "11px 16px", fontSize: 13, fontWeight: 950, cursor: checkedToday ? "default" : "pointer" }}>
+            <CalendarCheck size={16} /> {checkedToday ? "今日已打卡" : "今日打卡 +15XP"}
+          </button>
+        </div>
+
+        <section style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: 10, marginBottom: 18 }} className="max-sm:grid-cols-2">
+          {[
+            { icon: <Trophy size={18} />, label: "等级", value: level.name },
+            { icon: <Sparkles size={18} />, label: "经验值", value: `${state.xp} XP` },
+            { icon: <Flame size={18} />, label: "连续打卡", value: `${state.streak} 天` },
+            { icon: <CheckCircle2 size={18} />, label: "今日任务", value: `${doneCount}/${missions.length}` },
+          ].map((item) => (
+            <div key={item.label} style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 18 }}>
+              <div style={{ color: "#e8c96a", marginBottom: 10 }}>{item.icon}</div>
+              <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 9, color: "#777", marginBottom: 5 }}>{item.label}</p>
+              <p style={{ color: "#fff", fontSize: 16, fontWeight: 950 }}>{item.value}</p>
+            </div>
+          ))}
+        </section>
+
+        <section style={{ border: "1px solid #2a1f10", borderRadius: 12, padding: 18, background: "rgba(201,168,76,0.05)", marginBottom: 18 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 10, alignItems: "center" }}>
+            <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>等级进度</p>
+            <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 12, fontWeight: 900 }}>{state.xp}/{level.next}</p>
+          </div>
+          <div style={{ height: 9, background: "#111", border: "1px solid #242424", borderRadius: 999, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${levelPercent}%`, background: "linear-gradient(90deg,#7a6230,#e8c96a)", transition: "width 0.3s" }} />
+          </div>
+        </section>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1.15fr 0.85fr", gap: 16 }} className="max-sm:grid-cols-1">
+          <section style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 20 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+              <Target size={17} style={{ color: "#e8c96a" }} />
+              <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950 }}>今日任务</h2>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {missions.map((mission) => {
+                const done = !!state.doneMissions[`${today}:${mission.id}`]
+                return (
+                  <div key={mission.id} style={{ border: `1px solid ${done ? "#2f7d4d" : "#242424"}`, borderRadius: 10, background: done ? "rgba(61,165,99,0.07)" : "rgba(0,0,0,0.22)", padding: 15 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: 14, alignItems: "flex-start" }}>
+                      <div>
+                        <p style={{ color: "#fff", fontSize: 15, fontWeight: 950 }}>{mission.title}</p>
+                        <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginTop: 5 }}>{mission.desc}</p>
+                      </div>
+                      <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 11, fontWeight: 900, whiteSpace: "nowrap" }}>+{mission.xp}XP</span>
+                    </div>
+                    <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                      <Link href={mission.href} className="btn-outline" style={{ fontSize: 11, padding: "6px 13px", textDecoration: "none" }}>去完成</Link>
+                      <button onClick={() => finishMission(mission.id, mission.xp)} disabled={done} className={done ? "btn-outline" : "btn-primary"} style={{ fontSize: 11, padding: "6px 13px" }}>{done ? "已领取" : "领取经验"}</button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+
+          <aside style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 20 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <Compass size={17} style={{ color: "#e8c96a" }} />
+                <h2 style={{ color: "#fff", fontSize: 17, fontWeight: 950 }}>下一步推荐</h2>
+              </div>
+              <p style={{ color: "#ddd", fontSize: 14, lineHeight: 1.8 }}>{suggestedStage.title}</p>
+              <p style={{ color: "#888", fontSize: 12, lineHeight: 1.8, marginTop: 6 }}>{suggestedStage.subtitle}</p>
+              <Link href={`/learn/${suggestedStage.id}`} className="btn-primary" style={{ textDecoration: "none", marginTop: 14, display: "inline-flex" }}>继续学习</Link>
+            </div>
+
+            <div style={{ border: "1px solid #2a1f10", borderRadius: 12, background: "rgba(201,168,76,0.045)", padding: 20 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <Rocket size={17} style={{ color: "#e8c96a" }} />
+                <h2 style={{ color: "#fff", fontSize: 17, fontWeight: 950 }}>站内路线</h2>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <Link href="/choose-tool" style={{ color: "#c9a84c", textDecoration: "none", fontSize: 13, fontWeight: 900 }}>1. 先选工具</Link>
+                <Link href="/learn" style={{ color: "#c9a84c", textDecoration: "none", fontSize: 13, fontWeight: 900 }}>2. 按章节学习</Link>
+                <Link href="/community" style={{ color: "#c9a84c", textDecoration: "none", fontSize: 13, fontWeight: 900 }}>3. 看真实案例</Link>
+                <Link href="/community/new" style={{ color: "#c9a84c", textDecoration: "none", fontSize: 13, fontWeight: 900 }}>4. 分享你的成果</Link>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </main>
+    </div>
+  )
+}
