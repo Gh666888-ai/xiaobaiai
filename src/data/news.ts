@@ -26,8 +26,8 @@ export const newsCategories: { key: NewsCategory; label: string }[] = [
 export const news: NewsItem[] = [
   {
     id: "news-1",
-    title: "OpenAI 发布 GPT-5 系列模型，推理能力大幅提升",
-    summary: "OpenAI 正式发布 GPT-5 系列，在复杂推理、数学和代码生成方面取得显著进步。新模型支持更长的上下文窗口和更精准的工具调用能力，对 Agent 开发者是重大利好。",
+    title: "OpenAI 发布 GPT-5.5，史上最强 Agent 模型，自主策划发布会",
+    summary: "GPT-5.5 是 OpenAI 最新旗舰模型，Terminal-Bench 2.0 准确率 82.7%，数学能力提升 300%。支持 200 页超长上下文，能自主规划任务执行。Sam Altman 透露 GPT-5.5 自行策划了发布会，标志着 Agent 时代的真正到来。",
     url: "https://openai.com/index/introducing-gpt-5/",
     source: "OpenAI 官方博客",
     category: "产品发布",

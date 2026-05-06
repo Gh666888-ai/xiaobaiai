@@ -2,6 +2,7 @@
 "use client"
 
 import { useRef, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { tools } from "@/data/tools"
 import { news } from "@/data/news"
 import Link from "next/link"
@@ -21,9 +22,27 @@ function letter(n:string){return /^[a-zA-Z]/.test(n)?n[0].toUpperCase():n[0]}
 function avatarColor(n:string){const c=["#c9a84c","#7a6230","#e8c96a","#5a8a5a"];let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return c[Math.abs(h)%c.length]}
 
 export default function HomePage() {
+  const router = useRouter()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<typeof tools>([])
+  const [showResults, setShowResults] = useState(false)
   const newsData = news.slice(0, 6)
+
+  function handleSearch(q: string) {
+    setSearchQuery(q)
+    if (!q.trim()) { setSearchResults([]); setShowResults(false); return }
+    const kw = q.toLowerCase()
+    const results = tools.filter(t => t.name.toLowerCase().includes(kw) || t.description.toLowerCase().includes(kw) || t.tags.some(tg => tg.toLowerCase().includes(kw))).slice(0, 6)
+    setSearchResults(results)
+    setShowResults(true)
+  }
+  function goSearch(e?: React.KeyboardEvent) {
+    if (e && e.key !== "Enter") return
+    if (!searchQuery.trim()) return
+    setShowResults(false)
+    router.push(`/tools?search=${encodeURIComponent(searchQuery.trim())}`)
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current; if(!canvas)return
@@ -65,13 +84,37 @@ export default function HomePage() {
           <p style={{fontSize:'clamp(15px, 2vw, 18px)',fontWeight:300,lineHeight:2,color:'rgba(255,255,255,0.5)',letterSpacing:'0.05em',maxWidth:560,margin:'0 auto 16px',opacity:0,animation:'fadeUp 0.8s ease forwards 1s'}}>从零到 Agent，每一步都算数</p>
           <p style={{fontSize:'clamp(13px, 1.5vw, 15px)',fontWeight:300,lineHeight:2,color:'rgba(255,255,255,0.3)',letterSpacing:'0.05em',maxWidth:560,margin:'0 auto 48px',opacity:0,animation:'fadeUp 0.8s ease forwards 1.1s'}}>工具导航 + 学习平台 + 新闻聚合 · Agent 维护 + 社区共建</p>
           {/* 全局搜索 */}
-          <div style={{maxWidth:480,margin:'24px auto 0',opacity:0,animation:'fadeUp 0.8s ease forwards 1.3s'}}>
+          <div style={{maxWidth:480,margin:'24px auto 0',opacity:0,animation:'fadeUp 0.8s ease forwards 1.3s',position:'relative'}}>
             <div style={{display:'flex',alignItems:'center',background:'rgba(255,255,255,0.04)',border:'1px solid #222',borderRadius:10}}>
               <Search size={14} style={{marginLeft:14,color:'#777',flexShrink:0}} />
               <input type="text" placeholder="搜工具、模型、技能、教程..."
-                onChange={e=>setSearchQuery(e.target.value)}
+                value={searchQuery} onChange={e=>handleSearch(e.target.value)} onKeyDown={goSearch}
+                onFocus={()=>searchResults.length>0&&setShowResults(true)}
+                onBlur={()=>setTimeout(()=>setShowResults(false),200)}
                 style={{flex:1,background:'transparent',border:'none',outline:'none',padding:'12px 14px',fontSize:14,fontWeight:500,color:'#fff',fontFamily:"'Noto Sans SC', sans-serif"}} />
             </div>
+            {showResults && searchResults.length > 0 && (
+              <div style={{position:'absolute',top:'100%',left:0,right:0,background:'#111',border:'1px solid #222',borderRadius:10,marginTop:4,zIndex:100,overflow:'hidden'}}>
+                {searchResults.map(t=>(
+                  <a key={t.id} href={t.url} target="_blank" rel="noopener noreferrer"
+                    style={{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',textDecoration:'none',borderBottom:'1px solid #1a1a1a',transition:'background 0.2s'}}
+                    onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.08)'}}
+                    onMouseLeave={e=>{e.currentTarget.style.background='transparent'}}>
+                    <span style={{fontSize:16}}>{letter(t.name)}</span>
+                    <div style={{flex:1}}>
+                      <p style={{fontSize:13,fontWeight:600,color:'#fff'}}>{t.name}</p>
+                      <p style={{fontSize:11,color:'#888',lineHeight:1.3}}>{t.description.slice(0,50)}...</p>
+                    </div>
+                    <span style={{fontSize:10,color:'#666',border:'1px solid #333',padding:'1px 6px',borderRadius:3}}>{t.pricing}</span>
+                  </a>
+                ))}
+                <div style={{textAlign:'center',padding:'8px'}}>
+                  <span style={{fontSize:11,color:'#c9a84c',cursor:'pointer'}} onClick={()=>goSearch()}>
+                    查看全部结果 → 按 Enter
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* 计数条 */}

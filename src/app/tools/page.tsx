@@ -44,7 +44,7 @@ function ToolsContent() {
   const [cat, setCat] = useState<ToolCategory|null>(null)
   const [stage, setStage] = useState<number|null>(null)
   const [region, setRegion] = useState<"全部"|"中国"|"海外">("全部")
-  useEffect(()=>{const c=sp.get("category")as ToolCategory|null;if(c)setCat(c)},[sp])
+  useEffect(()=>{const c=sp.get("category")as ToolCategory|null;if(c)setCat(c);const s=sp.get("search");if(s)setSearch(s)},[sp])
 
   const filtered = useMemo(()=>{
     let r=tools

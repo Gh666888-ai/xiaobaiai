@@ -3,8 +3,23 @@ import "./globals.css"
 import { AuthProvider } from "@/lib/AuthContext"
 
 export const metadata: Metadata = {
-  title: "小白AI — 从零到Agent · AI工具导航",
+  metadataBase: new URL("https://xiaobaiai.cn"),
+  title: { default: "小白AI — 从零到Agent · AI工具导航", template: "%s | 小白AI" },
   description: "AI工具导航、从零到Agent的学习路径、AI最新资讯。Agent自动维护 + 社区用户共建。",
+  openGraph: {
+    type: "website",
+    locale: "zh_CN",
+    siteName: "小白AI",
+    title: "小白AI — 从零到Agent · AI工具导航",
+    description: "收录50+款AI工具，7阶段渐进式学习路径，Agent自动维护的最新AI资讯。",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "小白AI — 从零到Agent · AI工具导航",
+    description: "AI工具导航、从零到Agent的学习路径、AI最新资讯。",
+  },
+  robots: { index: true, follow: true },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
