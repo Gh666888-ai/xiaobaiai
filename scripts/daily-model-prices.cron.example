@@ -1,0 +1,7 @@
+# 每天凌晨 3:20 自动更新模型价格快照、重新构建并重启站点。
+# 使用方法：
+# 1. 在服务器执行：crontab -e
+# 2. 粘贴下面这一行
+# 3. 如果你的 PM2 应用名不是 xiaobaiai，把 PM2_APP 改成真实名称
+
+20 3 * * * APP_DIR=/var/www/xiaobaiai PM2_APP=xiaobaiai bash /var/www/xiaobaiai/scripts/daily-model-prices.sh >> /var/log/xiaobaiai-model-prices.log 2>&1
