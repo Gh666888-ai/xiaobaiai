@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { tools, stageLabels, ToolCategory } from "@/data/tools"
+import { getToolMeta, toolPath } from "@/data/tool-meta"
 
 type ChatMessage = {
   role: "system" | "user" | "assistant"
@@ -83,6 +85,135 @@ function fallbackReply(message: string) {
   return "可以，我先帮你拆成三步：\n\n1. 你想让 AI 帮你完成什么结果？比如写文章、做图、写代码、做客服、做自动化。\n2. 你现在有什么材料？比如文档、表格、网页、图片、业务规则。\n3. 你希望输出成什么？比如一篇文章、一个表格、一个流程、一个工具推荐。\n\n你可以直接按这个格式发给我：\n「我的目标是……我现在有……我希望得到……」"
 }
 
+type RecommendationRule = {
+  name: string
+  keywords: string[]
+  categories: ToolCategory[]
+  toolIds: string[]
+  firstStep: string
+  learnStage: number
+}
+
+const recommendationRules: RecommendationRule[] = [
+  {
+    name: "餐饮/本地门店",
+    keywords: ["餐饮", "饭店", "餐厅", "奶茶", "咖啡", "门店", "本地生活", "酒店", "民宿", "旅游", "美业", "美容", "健身房"],
+    categories: ["AI营销", "AI写作", "AI绘图", "AI视频", "AI设计", "Agent平台"],
+    toolIds: ["doubao", "kimi", "huoshan", "jimeng", "jianying-ai", "chati", "dify", "coze"],
+    firstStep: "先做一套可发布内容：让 AI 生成 3 条小红书/抖音文案，再用绘图或视频工具做封面和短视频。",
+    learnStage: 1,
+  },
+  {
+    name: "电商/直播带货",
+    keywords: ["电商", "淘宝", "天猫", "拼多多", "抖店", "京东", "直播", "带货", "商品", "详情页", "店铺"],
+    categories: ["AI营销", "AI写作", "AI绘图", "AI视频", "AI设计", "AI数据"],
+    toolIds: ["doubao", "kimi", "writesonic", "copyai", "jimeng", "wanxiang", "jianying-ai", "chati"],
+    firstStep: "先把一个商品跑通：商品卖点提炼、标题优化、详情页文案、主图创意、短视频脚本各做 1 版。",
+    learnStage: 2,
+  },
+  {
+    name: "自媒体/内容创作",
+    keywords: ["自媒体", "公众号", "小红书", "抖音", "快手", "视频号", "短视频", "博主", "内容", "写文章", "图文"],
+    categories: ["AI写作", "AI视频", "AI绘图", "AI音频", "AI营销"],
+    toolIds: ["kimi", "doubao", "huoshan", "xiezuocat", "jimeng", "jianying-ai", "suno", "chati"],
+    firstStep: "先确定一个账号定位，让 AI 输出 10 个选题，再挑 1 个做成图文或短视频。",
+    learnStage: 2,
+  },
+  {
+    name: "教育/培训",
+    keywords: ["教育", "培训", "老师", "课程", "学生", "教案", "学校", "知识付费", "题库", "作业"],
+    categories: ["AI学习", "对话AI", "AI办公", "AI视频", "AI音频"],
+    toolIds: ["kimi", "deepseek", "tongyi", "gamma", "qianwen-ppt", "xunfei-tingjian", "datawhale"],
+    firstStep: "先选一节课，让 AI 生成课程大纲、讲义、练习题和课后答疑模板。",
+    learnStage: 1,
+  },
+  {
+    name: "客服/私域运营",
+    keywords: ["客服", "售后", "私域", "社群", "企业微信", "微信", "客户", "咨询", "知识库", "自动回复"],
+    categories: ["Agent平台", "对话AI", "AI办公", "AI效率"],
+    toolIds: ["dify", "coze", "fastgpt", "kimi", "deepseek", "feishu-ai", "n8n"],
+    firstStep: "先整理 20 个高频问题，搭一个知识库问答，再设置人工接管边界。",
+    learnStage: 5,
+  },
+  {
+    name: "编程/软件开发",
+    keywords: ["编程", "代码", "程序员", "开发", "网站", "小程序", "app", "saas", "系统", "后台", "数据库"],
+    categories: ["AI编程", "Agent平台", "模型平台", "对话AI"],
+    toolIds: ["cursor", "codex", "claude-code", "github-copilot", "windsurf", "deepseek", "ollama"],
+    firstStep: "先让 AI 读一个小需求，生成页面或接口草稿，再人工 review 和测试。",
+    learnStage: 4,
+  },
+  {
+    name: "设计/品牌/装修",
+    keywords: ["设计", "品牌", "logo", "海报", "包装", "装修", "室内", "视觉", "平面", "UI"],
+    categories: ["AI设计", "AI绘图", "AI视频", "AI营销"],
+    toolIds: ["jimeng", "wanxiang", "midjourney", "ideogram", "uizard", "removebg", "canva"],
+    firstStep: "先生成 3 套风格方向：品牌关键词、配色、海报草图和主视觉，再挑一套细化。",
+    learnStage: 2,
+  },
+  {
+    name: "法律/财税/专业服务",
+    keywords: ["律师", "法律", "合同", "财税", "会计", "审计", "咨询公司", "顾问", "专业服务"],
+    categories: ["对话AI", "AI搜索", "AI办公", "AI写作"],
+    toolIds: ["kimi", "deepseek", "metaso", "perplexity", "xiezuocat", "feishu-ai"],
+    firstStep: "先让 AI 做资料整理、摘要和清单，不要让 AI 直接替代专业判断；重要结论必须人工核验。",
+    learnStage: 2,
+  },
+  {
+    name: "数据分析/运营决策",
+    keywords: ["数据", "报表", "分析", "运营", "增长", "销售", "表格", "BI", "统计", "复盘"],
+    categories: ["AI数据", "AI办公", "AI搜索", "对话AI"],
+    toolIds: ["julius", "tomoro", "kimi", "deepseek", "feishu-ai", "perplexity"],
+    firstStep: "先上传一份表格，让 AI 输出趋势、异常点、原因假设和下一步动作。",
+    learnStage: 3,
+  },
+]
+
+function includesAny(text: string, keywords: string[]) {
+  return keywords.some((keyword) => text.includes(keyword.toLowerCase()))
+}
+
+function toolByIds(ids: string[]) {
+  return ids.map((id) => tools.find((tool) => tool.id === id)).filter(Boolean) as typeof tools
+}
+
+function pickRecommendedTools(rule: RecommendationRule, message: string) {
+  const text = message.toLowerCase()
+  const seeded = toolByIds(rule.toolIds)
+  const byCategory = tools
+    .filter((tool) => rule.categories.includes(tool.category))
+    .filter((tool) => {
+      const haystack = `${tool.name} ${tool.description} ${tool.tags.join(" ")} ${tool.category}`.toLowerCase()
+      return tool.featured || tool.stage <= rule.learnStage + 1 || text.split(/\s+/).some((word) => word.length > 1 && haystack.includes(word))
+    })
+    .sort((a, b) => Number(b.featured) - Number(a.featured) || b.rank - a.rank || a.stage - b.stage)
+
+  const merged = [...seeded, ...byCategory]
+  return Array.from(new Map(merged.map((tool) => [tool.id, tool])).values()).slice(0, 6)
+}
+
+function siteToolRecommendation(message: string) {
+  const text = message.toLowerCase()
+  const intent =
+    includesAny(text, ["我做", "我是做", "行业", "公司", "门店", "客户", "想做", "我要", "怎么用ai", "怎么用 ai", "推荐", "适合", "方案"]) ||
+    recommendationRules.some((rule) => includesAny(text, rule.keywords))
+
+  if (!intent) return ""
+
+  const rule =
+    recommendationRules.find((item) => includesAny(text, item.keywords)) ||
+    recommendationRules.find((item) => includesAny(text, item.categories.map((category) => category.toLowerCase()))) ||
+    recommendationRules[2]
+
+  const picked = pickRecommendedTools(rule, message)
+  const toolLines = picked.map((tool, index) => {
+    const meta = getToolMeta(tool)
+    return `${index + 1}. ${tool.name}（${tool.category}，${tool.pricing}，${meta.difficulty}，中文支持${meta.chineseSupport}）\n   适合：${tool.description}\n   站内详情：${toolPath(tool)}`
+  })
+
+  return `我先按「${rule.name}」这个方向给你推荐站内工具，不调用外部 API。\n\n建议组合：\n${toolLines.join("\n")}\n\n第一步：${rule.firstStep}\n\n学习路线：\n1. 先去 /choose-tool 做一次工具选择，确认用途、预算和网络偏好。\n2. 再去 /learn/${rule.learnStage} 看「${stageLabels[rule.learnStage] || "对应阶段"}」相关教程。\n3. 如果要做客服、知识库或自动化，再进入 /learn/5 学 Agent 入门。\n\n你可以继续补充：你的行业、主要客户、想节省哪部分时间、是否需要中文/免费/国内可用，我会继续从站内工具库里缩小到 2-3 个最适合的工具。`
+}
+
 function siteReply(message: string) {
   const text = message.toLowerCase()
   const isAboutSite =
@@ -160,6 +291,16 @@ export async function POST(req: NextRequest) {
   const history = Array.isArray(body.messages) ? body.messages.slice(-8) : []
 
   if (!userMessage) return NextResponse.json({ error: "empty message" }, { status: 400 })
+
+  const freeToolRecommendation = siteToolRecommendation(userMessage)
+  if (freeToolRecommendation) {
+    return NextResponse.json({
+      reply: freeToolRecommendation,
+      mode: "site",
+      free: true,
+      remaining: null,
+    })
+  }
 
   const freeSiteReply = siteReply(userMessage)
   if (freeSiteReply) {
