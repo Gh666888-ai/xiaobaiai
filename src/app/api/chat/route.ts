@@ -344,7 +344,7 @@ export async function POST(req: NextRequest) {
 
   const apiKey = process.env.AI_CHAT_API_KEY || process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY
   const baseUrl = (process.env.AI_CHAT_BASE_URL || process.env.OPENAI_BASE_URL || "https://api.deepseek.com").replace(/\/$/, "")
-  const model = process.env.AI_CHAT_MODEL || process.env.DEEPSEEK_MODEL || "deepseek-chat"
+  const model = process.env.AI_CHAT_MODEL || process.env.DEEPSEEK_MODEL || "deepseek-v4-flash"
 
   if (!apiKey) {
     return NextResponse.json({
@@ -380,6 +380,11 @@ export async function POST(req: NextRequest) {
 
     if (!response.ok) {
       const detail = await response.text()
+      console.error("[chat:deepseek]", {
+        status: response.status,
+        model,
+        detail: detail.slice(0, 500),
+      })
       return NextResponse.json({ reply: fallbackReply(userMessage), mode: "fallback", error: detail.slice(0, 500) })
     }
 
