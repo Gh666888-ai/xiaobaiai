@@ -66,7 +66,7 @@ export function FloatingChat() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "你好，我是小白AI助手。你可以直接告诉我你想做什么，我会帮你拆步骤、选工具、找学习路线。",
+      content: "你好呀，我是小白AI助手。你只管说想做什么，我来拆步骤、挑工具、指路线，小白雷达开机。",
     },
   ])
   const [input, setInput] = useState("")
@@ -113,7 +113,7 @@ export function FloatingChat() {
         ...prev,
         {
           role: "assistant",
-          content: "这个问题需要调用真实 AI 能力。为了保护 API 成本，请先登录；如果你问的是站内页面、工具、学习路径、模型排行、社区等问题，我可以直接免费回答。",
+          content: "这个问题要进入智能探索模式。先登录一下，小白就能放开脑袋帮你深挖；站内入口、工具、学习路线这些我现在就能答。",
         },
       ])
       setSpeaking(true)
@@ -162,7 +162,7 @@ export function FloatingChat() {
               <XiaobaiMascot size={48} mood={sending ? "thinking" : user ? "happy" : "welcome"} />
               <div>
                 <p className="xiaobai-title">小白AI助手</p>
-                <p className="xiaobai-subtitle">{mode === "ai" ? "AI 已接入" : mode === "site" ? "站内免费回答" : mode === "fallback" ? "本地兜底模式" : user ? "当前页面陪跑" : "站内问题可免费问"}</p>
+                <p className="xiaobai-subtitle">{mode === "ai" ? "智能探索中" : mode === "site" ? "站内速答" : mode === "fallback" ? "灵感缓存模式" : user ? "当前页面陪跑" : "站内速答待命"}</p>
               </div>
             </div>
             <div className="xiaobai-head-actions">
@@ -181,8 +181,8 @@ export function FloatingChat() {
                 <div className="xiaobai-login-note">
                   <XiaobaiMascot size={36} mood="welcome" />
                   <div>
-                    <p>站内问题可免费问</p>
-                    <span>问工具、学习、模型、资讯、社区、登录等站内问题不消耗 API；开放问题需要登录。</span>
+                    <p>小白速答已待命</p>
+                    <span>问工具、学习、模型、资讯、社区、登录这些站内问题，我可以马上带路；深度探索登录后开启。</span>
                   </div>
                   <Link href={`/login?redirect=${encodeURIComponent(pathname || "/")}`}>
                     <LogIn size={13} />
@@ -234,7 +234,7 @@ export function FloatingChat() {
               ))}
             </div>
 
-            {remaining !== null && <p className="xiaobai-quota">今日剩余免费提问：{remaining} 次</p>}
+            {remaining !== null && <p className="xiaobai-quota">智能探索模式：今日剩余 {remaining} 次</p>}
 
             <div className="xiaobai-input-row">
               <textarea
@@ -248,7 +248,7 @@ export function FloatingChat() {
                 }}
                 disabled={loading}
                 rows={2}
-                placeholder={user ? "直接问：我想用 AI 做……" : "可免费问站内问题，开放问题需登录"}
+                placeholder={user ? "直接问：我想用 AI 做……" : "先问站内问题，深度探索登录开启"}
               />
               <button type="button" onClick={() => send()} disabled={sending || !input.trim() || loading} aria-label="发送给小白AI">
                 <ArrowUp size={18} />
@@ -270,7 +270,7 @@ export function FloatingChat() {
         <XiaobaiMascot size={66} mood={open ? "happy" : launcherMood} />
         <span>
           <strong>问小白AI</strong>
-          <small>{launcherMood === "thinking" ? "正在思考路线" : launcherMood === "recommend" ? "帮你选工具" : "当前页面陪跑"}</small>
+          <small>{launcherMood === "thinking" ? "小白雷达转起来" : launcherMood === "recommend" ? "帮你挑神器" : "当前页面陪跑"}</small>
         </span>
         <MessageCircle size={17} />
       </button>

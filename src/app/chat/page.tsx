@@ -26,7 +26,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "你好，我是小白AI助手。你可以直接问我：选工具、拆需求、学 AI、模型价格、本地部署、Agent 自动化。你说目标，我帮你拆成能执行的步骤。",
+      content: "你好呀，我是小白AI助手。选工具、拆需求、学 AI、模型价格、本地部署、Agent 自动化都可以问。你说目标，我把路线铺开。",
     },
   ])
   const [input, setInput] = useState("")
@@ -89,13 +89,13 @@ export default function ChatPage() {
               <XiaobaiMascot size={38} mood={sending ? "thinking" : user ? "happy" : "welcome"} />
               <div>
                 <h1 style={{ color: "#fff", fontSize: 17, fontWeight: 950 }}>小白AI助手</h1>
-                <p style={{ color: mode === "ai" ? "#3DA563" : "#777", fontSize: 11, marginTop: 2 }}>{mode === "ai" ? "AI 已接入" : mode === "fallback" ? "本地兜底模式" : user ? "站内陪跑" : "登录后使用"}</p>
+                <p style={{ color: mode === "ai" ? "#3DA563" : "#777", fontSize: 11, marginTop: 2 }}>{mode === "ai" ? "智能探索中" : mode === "fallback" ? "灵感缓存模式" : user ? "站内陪跑" : "登录后开启"}</p>
               </div>
             </div>
 
             <p style={{ color: "#999", fontSize: 12, lineHeight: 1.8, marginBottom: 16 }}>问问题时尽量说清楚目标、材料和想要的结果，我会优先给你能照着做的步骤。</p>
             {remaining !== null && (
-              <p style={{ color: "#d6c28a", fontSize: 11, lineHeight: 1.6, marginBottom: 12, border: "1px solid #2a1f10", background: "rgba(201,168,76,0.05)", borderRadius: 8, padding: "8px 10px" }}>今日剩余免费提问：{remaining} 次</p>
+              <p style={{ color: "#d6c28a", fontSize: 11, lineHeight: 1.6, marginBottom: 12, border: "1px solid #2a1f10", background: "rgba(201,168,76,0.05)", borderRadius: 8, padding: "8px 10px" }}>智能探索模式：今日剩余 {remaining} 次</p>
             )}
 
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
@@ -120,7 +120,7 @@ export default function ChatPage() {
                     <XiaobaiMascot size={82} mood="welcome" />
                   </div>
                   <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, marginBottom: 10 }}>登录后使用小白AI助手</h2>
-                  <p style={{ color: "#cfcfcf", fontSize: 14, lineHeight: 1.9, marginBottom: 22 }}>为了保护 DeepSeek API 成本和回答质量，站内 AI 问答需要登录后使用。登录后可以继续提问，并保留后续做收藏、学习进度和成长等级的空间。</p>
+                  <p style={{ color: "#cfcfcf", fontSize: 14, lineHeight: 1.9, marginBottom: 22 }}>登录后开启小白AI智能探索模式，可以继续追问复杂需求、方案拆解和自动化流程。小白会把答案尽量拆成能照着做的步骤。</p>
                   <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
                     <Link href="/login?redirect=/chat" className="btn-primary" style={{ textDecoration: "none" }}><LogIn size={15} /> 登录 / 注册</Link>
                     <Link href="/choose-tool" className="btn-outline" style={{ textDecoration: "none" }}>先用工具选择器</Link>
