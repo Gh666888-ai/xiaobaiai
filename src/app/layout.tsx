@@ -20,21 +20,33 @@ const jetbrains = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://xiaobaiai.cn"),
+  metadataBase: new URL("https://www.xiaobaiai.cn"),
   title: { default: "小白AI — 从零到Agent · AI工具导航", template: "%s | 小白AI" },
   description: "AI工具导航、从零到Agent的学习路径、AI最新资讯。Agent自动维护 + 社区用户共建。",
+  applicationName: "小白AI",
+  keywords: ["AI工具导航", "AI学习路径", "Agent", "AI资讯", "AI模型排行", "AI技能库"],
+  authors: [{ name: "小白AI" }],
+  creator: "小白AI",
+  publisher: "小白AI",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.svg",
+  },
   openGraph: {
     type: "website",
     locale: "zh_CN",
     siteName: "小白AI",
     title: "小白AI — 从零到Agent · AI工具导航",
-    description: "收录50+款AI工具，7阶段渐进式学习路径，Agent自动维护的最新AI资讯。",
+    description: "收录 AI 工具、Agent 技能、模型排行、学习路径和 AI 资讯，帮助零基础用户开始使用 AI。",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "小白AI — 从零到Agent · AI工具导航",
     description: "AI工具导航、从零到Agent的学习路径、AI最新资讯。",
+    images: ["/og-image.png"],
   },
   robots: { index: true, follow: true },
 }
