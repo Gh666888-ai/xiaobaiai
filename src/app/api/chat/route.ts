@@ -217,6 +217,12 @@ function siteToolRecommendation(message: string) {
 function siteReply(message: string) {
   const text = message.toLowerCase()
   const isAboutSite =
+    text.includes("你是谁") ||
+    text.includes("你叫什么") ||
+    text.includes("叫什么") ||
+    text.includes("你是什么") ||
+    text.includes("你是deepseek") ||
+    text.includes("你是 deepseek") ||
     text.includes("你们网站") ||
     text.includes("这个网站") ||
     text.includes("小白ai") ||

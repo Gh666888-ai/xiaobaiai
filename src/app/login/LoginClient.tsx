@@ -30,25 +30,31 @@ export default function LoginPage() {
           setBusy(false)
           return
         }
-        const { error } = await supabase.auth.signUp({ email, password: pwd, options: { data: { name } } })
-        if (error) {
-          setErr(error.message.includes("already") ? "该邮箱已注册，请切换到登录。" : error.message)
-          setBusy(false)
-          return
-        }
-        await supabase.auth.signInWithPassword({ email, password: pwd })
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password: pwd })
-        if (error) {
-          setErr("邮箱或密码错误。第一次使用请切换到注册。")
-          setBusy(false)
-          return
-        }
+      }
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode, email, password: pwd, name }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setErr(data.error || "登录服务暂时不可用，请稍后再试。")
+        setBusy(false)
+        return
+      }
+      const { error } = await supabase.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      })
+      if (error) {
+        setErr("登录成功但本地会话写入失败，请刷新后再试。")
+        setBusy(false)
+        return
       }
       await refresh()
       router.push(safeRedirect)
     } catch {
-      setErr("网络错误，请稍后再试。")
+      setErr("网络连接不稳定，请稍后再试。")
     }
     setBusy(false)
   }
@@ -118,7 +124,7 @@ export default function LoginPage() {
 
           <div style={{ background: "rgba(201,168,76,0.04)", border: "1px solid #2a1f10", borderRadius: 10, padding: "12px 14px" }}>
             <p style={{ fontSize: 12, color: "#d6c28a", lineHeight: 1.7 }}>
-              当前使用邮箱 + 密码登录。手机号/验证码登录后续可以接入，届时会明确标注验证码用途和有效时间。
+              当前使用邮箱 + 密码登录，请求会先发送到小白AI站内登录通道，再由服务器完成验证，手机网络下会比浏览器直连第三方登录服务更稳定。
             </p>
           </div>
 

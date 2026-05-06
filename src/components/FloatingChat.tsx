@@ -25,6 +25,12 @@ const starters = [
 function isSiteQuestion(message: string) {
   const text = message.toLowerCase()
   return [
+    "你是谁",
+    "你叫什么",
+    "叫什么",
+    "你是什么",
+    "你是deepseek",
+    "你是 deepseek",
     "你们网站",
     "这个网站",
     "小白ai",
