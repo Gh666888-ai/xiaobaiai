@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://www.xiaobaiai.cn/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.xiaobaiai.cn/chat</loc><changefreq>daily</changefreq><priority>0.95</priority></url>
+  <url><loc>https://www.xiaobaiai.cn/choose-tool</loc><changefreq>weekly</changefreq><priority>0.95</priority></url>
+  <url><loc>https://www.xiaobaiai.cn/growth</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.xiaobaiai.cn/search</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.xiaobaiai.cn/tools</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://www.xiaobaiai.cn/learn</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://www.xiaobaiai.cn/news</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
-  <url><loc>https://www.xiaobaiai.cn/models</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.xiaobaiai.cn/models</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.xiaobaiai.cn/skills</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://www.xiaobaiai.cn/community</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.xiaobaiai.cn/community</loc><changefreq>daily</changefreq><priority>0.75</priority></url>
+  <url><loc>https://www.xiaobaiai.cn/community/new</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://www.xiaobaiai.cn/contribute</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://www.xiaobaiai.cn/about</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://www.xiaobaiai.cn/learn/0</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>

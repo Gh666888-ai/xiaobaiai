@@ -9,6 +9,7 @@ import { searchSite, SearchResult } from "@/lib/search"
 import Link from "next/link"
 import { NavBar } from "@/components/NavBar"
 import { MessageCircle, Search, Route, Sparkles, Wrench } from "lucide-react"
+import { XiaobaiMascot } from "@/components/XiaobaiMascot"
 
 const SYMBOLS = [
   '0','1','2','3','4','5','6','7','8','9',
@@ -77,6 +78,13 @@ export default function HomePage() {
     <div style={{background:'#000',minHeight:'100vh',color:'#f0f0f0',fontFamily:"'Noto Sans SC', sans-serif",overflowX:'hidden'}}>
       {/* 顶部导航 */}
       <NavBar />
+      <Link href="/chat" aria-label="问小白AI" style={{position:'fixed',right:22,bottom:22,zIndex:80,display:'flex',alignItems:'center',gap:10,padding:'10px 13px',border:'1px solid #7a6230',borderRadius:16,background:'rgba(0,0,0,0.82)',boxShadow:'0 18px 60px rgba(0,0,0,0.65)',textDecoration:'none',backdropFilter:'blur(14px)'}}>
+        <XiaobaiMascot size={36} mood="happy" />
+        <span style={{display:'flex',flexDirection:'column',lineHeight:1.25}}>
+          <span style={{fontSize:12,fontWeight:900,color:'#fff'}}>问小白AI</span>
+          <span style={{fontSize:10,color:'#c9a84c'}}>帮你选工具</span>
+        </span>
+      </Link>
 
       {/* 全屏 Hero + Canvas雨 */}
       <section style={{position:'relative',height:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
@@ -101,7 +109,7 @@ export default function HomePage() {
                 style={{flex:1,background:'transparent',border:'none',outline:'none',padding:'12px 14px',fontSize:14,fontWeight:500,color:'#fff',fontFamily:"'Noto Sans SC', sans-serif"}} />
             </div>
             {showResults && searchResults.length > 0 && (
-              <div style={{position:'absolute',top:'100%',left:0,right:0,background:'#111',border:'1px solid #222',borderRadius:10,marginTop:4,zIndex:100,overflow:'hidden'}}
+              <div style={{position:'absolute',top:'100%',left:0,right:0,background:'#070707',border:'1px solid #2a2a2a',borderRadius:10,marginTop:6,zIndex:9999,overflowY:'auto',maxHeight:360,boxShadow:'0 24px 80px rgba(0,0,0,0.92), 0 0 0 1px rgba(201,168,76,0.08)',backdropFilter:'blur(16px)'}}
                 onMouseDown={e=>e.preventDefault()}>
                 {searchResults.map(item=>(
                   <Link key={item.id} href={item.href}

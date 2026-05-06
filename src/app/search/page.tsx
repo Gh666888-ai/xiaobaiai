@@ -11,11 +11,12 @@ export const metadata: Metadata = {
 }
 
 const quickQueries = ["完全不会 AI", "写作工具", "AI 编程", "模型价格", "Agent 教程", "PPT"]
+const groupNames = ["工具", "模型", "技能", "教程", "资讯"]
 
 export default function SearchPage({ searchParams }: { searchParams?: { q?: string } }) {
   const q = searchParams?.q?.trim() || ""
   const results = searchSite(q, 80)
-  const groups = ["工具", "模型", "技能", "教程", "资讯"].map((kind) => ({
+  const groups = groupNames.map((kind) => ({
     kind,
     results: results.filter((item) => item.kind === kind),
   }))
@@ -26,8 +27,8 @@ export default function SearchPage({ searchParams }: { searchParams?: { q?: stri
       <NavBar />
       <main style={{ maxWidth: 960, margin: "0 auto", padding: "60px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.86)" }} className="max-sm:px-4">
         <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.4em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 700 }}>Search</p>
-        <h1 style={{ fontSize: 36, fontWeight: 900, color: "#fff", marginBottom: 10 }}>站内搜索</h1>
-        <p style={{ fontSize: 14, color: "#ccc", marginBottom: 28 }}>工具、模型、技能、教程和资讯统一检索。支持地址：/search?q=关键词。</p>
+        <h1 style={{ fontSize: 36, fontWeight: 950, color: "#fff", marginBottom: 10 }}>站内搜索</h1>
+        <p style={{ fontSize: 14, color: "#ccc", marginBottom: 28 }}>统一搜索工具、模型、技能、教程和资讯。也支持地址：/search?q=关键词。</p>
 
         <form action="/search" style={{ display: "flex", gap: 10, marginBottom: 18 }}>
           <input name="q" defaultValue={q} placeholder="搜工具、模型、技能、教程..." className="form-input" style={{ flex: 1, height: 46, fontSize: 15 }} autoFocus />

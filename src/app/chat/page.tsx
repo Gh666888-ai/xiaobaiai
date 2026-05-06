@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { ArrowUp, Bot, Compass, Loader2, Sparkles, UserRound } from "lucide-react"
+import { ArrowUp, Compass, Loader2, Sparkles, UserRound } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
+import { XiaobaiMascot } from "@/components/XiaobaiMascot"
 
 type Message = {
   role: "user" | "assistant"
@@ -67,9 +68,7 @@ export default function ChatPage() {
         <section style={{ border: "1px solid #1a1a1a", borderRadius: 16, background: "rgba(0,0,0,0.88)", overflow: "hidden", minHeight: "calc(100vh - 160px)", display: "grid", gridTemplateColumns: "280px 1fr" }} className="max-sm:grid-cols-1">
           <aside style={{ borderRight: "1px solid #1a1a1a", padding: 20, background: "rgba(255,255,255,0.025)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(201,168,76,0.12)", border: "1px solid #7a6230", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Bot size={18} style={{ color: "#e8c96a" }} />
-              </div>
+              <XiaobaiMascot size={38} mood={sending ? "thinking" : "happy"} />
               <div>
                 <h1 style={{ color: "#fff", fontSize: 17, fontWeight: 950 }}>小白AI助手</h1>
                 <p style={{ color: mode === "ai" ? "#3DA563" : "#777", fontSize: 11, marginTop: 2 }}>{mode === "ai" ? "AI 已接入" : mode === "fallback" ? "本地兜底模式" : "站内陪跑"}</p>
@@ -98,9 +97,13 @@ export default function ChatPage() {
                 const isUser = message.role === "user"
                 return (
                   <div key={index} style={{ display: "flex", gap: 10, alignItems: "flex-start", flexDirection: isUser ? "row-reverse" : "row" }}>
-                    <div style={{ width: 30, height: 30, borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", background: isUser ? "rgba(201,168,76,0.12)" : "rgba(255,255,255,0.05)", border: `1px solid ${isUser ? "#7a6230" : "#242424"}`, flexShrink: 0 }}>
-                      {isUser ? <UserRound size={15} style={{ color: "#e8c96a" }} /> : <Bot size={15} style={{ color: "#c9a84c" }} />}
-                    </div>
+                    {isUser ? (
+                      <div style={{ width: 30, height: 30, borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(201,168,76,0.12)", border: "1px solid #7a6230", flexShrink: 0 }}>
+                        <UserRound size={15} style={{ color: "#e8c96a" }} />
+                      </div>
+                    ) : (
+                      <XiaobaiMascot size={30} mood="idle" />
+                    )}
                     <div style={{ maxWidth: "78%", border: `1px solid ${isUser ? "rgba(201,168,76,0.25)" : "#1a1a1a"}`, background: isUser ? "rgba(201,168,76,0.1)" : "rgba(255,255,255,0.04)", borderRadius: 12, padding: "12px 14px", color: "#e8e8e8", fontSize: 14, lineHeight: 1.8, whiteSpace: "pre-line", wordBreak: "break-word" }}>
                       {message.content}
                     </div>
