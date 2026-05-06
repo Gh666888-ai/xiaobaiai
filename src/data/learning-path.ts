@@ -1,3 +1,5 @@
+import { chinaAgentInstallSections, chinaLocalDeploymentSections } from "./china-agent-guides"
+
 // 学习路径 · 小白AI · 4 大板块
 export interface Stage {
   id: number; title: string; subtitle: string
@@ -45,7 +47,7 @@ export const stages: Stage[] = [
 
   // ===== 板块3：安装主流的Agent =====
   {id:2,title:"安装主流Agent",subtitle:"在电脑上安装Agent，让它帮你自动干活",
-    whoIsThisFor:"会用AI工具，想让AI自动执行任务的人",timeEstimate:"约 3 小时",icon:"◆",color:"#E8833A",sections:[
+    whoIsThisFor:"会用AI工具，想让AI自动执行任务的人",timeEstimate:"约 6 小时",icon:"◆",color:"#E8833A",sections:[
     {title:"QClaw 安装教程（腾讯出品，最简单，零英文）",
       content:"QClaw 是腾讯电脑管家出品的本地AI助手，基于OpenClaw。全程中文、不需要命令行。\n\n📥 安装步骤（跟安装微信一样简单）：\n\n① 打开浏览器，输入 qclaw.qq.com → 回车\n② 看到一个大大的「下载Windows版」按钮 → 点击\n③ 下载完成后，在浏览器底部或下载文件夹找到安装包 → 双击打开\n④ 一路点「下一步」→「我同意」→「安装」→「完成」\n   （跟装任何软件一模一样，没有任何要选要填的）\n⑤ 桌面会出现一个红色龙虾图标 → 双击打开\n⑥ 软件打开后，看左下角 → 有个手机小图标 → 点击\n⑦ 会弹出一个二维码 → 用微信扫码\n⑧ 手机微信点「确认」→ 绑定成功\n⑨ 微信里会出现一个叫「龙虾」的联系人\n\n✅ 安装完成！现在你可以：\n• 在电脑上直接跟 QClaw 对话框聊天\n• 在手机上通过微信给「龙虾」发指令\n\n💡 试试给QClaw发这个：「帮我整理桌面上散落的文件，按类型分到不同文件夹」",
       tools:["qclaw"],tips:"QClaw内置了Kimi、GLM-5、DeepSeek等模型，全部免费不需要自己配API Key。整个安装过程零英文。"},
@@ -58,6 +60,7 @@ export const stages: Stage[] = [
     {title:"套壳 vs 开源：为什么要学真正的开源Agent？",
       content:"现在市面上有很多AI Agent，但分两类：\n\n🏢 套壳Agent（如QClaw、ArkClaw）：\n优点：安装简单（双击安装包→扫码→搞定），内置模型，零配置\n缺点：不能自由接入其他模型、不能改底层配置、部分功能被阉割\n适合：纯小白入门，体验Agent是什么感觉\n\n🦞 开源Agent（OpenClaw、Hermes）：\n优点：完全自由——接入任何模型、写任何技能、改任何配置\n缺点：需要自己安装配置（跟着教程15分钟也能搞定）\n适合：想要真正掌控AI的人\n\n💡 类比：套壳=租房子（家具配好但不能装修），开源=买毛坯房（一开始空但你想怎么装就怎么装）。\n\n🎯 这个路径的设计思路：先用QClaw体验Agent的能力 → 再用开源Agent获得完全自由 → 学会后你能做的事是套壳Agent望尘莫及的。",
       tools:[],tips:"套壳Agent帮你省了前15分钟的安装，但限制了你后面15年的可能性。学会开源Agent，等于打开了Agent世界的全部大门。"},
+    ...chinaAgentInstallSections,
     {title:"Agent 界面（UI）安装教程：不敲命令，用网页/桌面版",
       content:"很多人装了Agent发现只能敲命令，不适应。其实有好看的图形界面可以装。\n\n🖥 OpenClaw 官方 Web UI：\n① 装完 OpenClaw 后 → 打开浏览器 → 访问 http://localhost:8642\n② 直接就是网页版操作界面，不需要额外安装\n③ 在网页里打字、上传文件、查看历史——全部可视化\n\n🖥 OpenClaw 第三方桌面 UI（更好看）：\n\nAionUi（推荐！开源免费，支持多引擎）：\n① 打开 github.com/iOfficeAI/AionUi → Releases → 下载最新版\n② Windows 下载 .exe、Mac 下载 .dmg\n③ 双击安装 → 打开 → 选择 OpenClaw 引擎 → 输入你的 API Key\n④ 支持 Claude Code / Codex / Gemini CLI 等多个引擎切换\n⑤ 界面像聊天软件，左侧联系人列表，右侧对话区\n\nOpen WebUI（类ChatGPT体验）：\n① github.com/open-webui/open-webui → 一键Docker安装\n② docker run -d -p 3000:8080 ghcr.io/open-webui/open-webui:main\n③ 浏览器打开 localhost:3000\n④ 界面跟ChatGPT几乎一模一样，支持Ollama本地模型\n\nLobeChat（颜值最高）：\n① lobehub.com → 一键部署到Vercel（免费）\n② 或者下载桌面版：github.com/lobehub/lobe-chat/releases\n③ 支持DeepSeek/通义千问/Claude/GPT全系列\n④ 插件市场+助手市场，功能最丰富\n\n🔮 Hermes Web UI：\n• Hermes 自带 Web 面板：终端输入 hermes dashboard\n• 浏览器打开 localhost:8642 → 可视化操作界面\n• Docker 部署版可安装 WebUI：docker pull nesquena/hermes-webui\n\n💻 Claude Code UI 替代：\n• Claude Code 本身只有命令行 → 用 Cherry Studio / Chatbox 替代\n• Cherry Studio：cherryhq.com → 下载桌面版 → 添加Claude API\n• Chatbox：chatboxai.app → 下载 → 添加Claude/DeepSeek API\n\n🎯 小白推荐组合：\nQClaw（最简单，自带界面）+ AionUi（OpenClaw专用UI）+ Cherry Studio（通用聊天界面）。三个全覆盖。",
       tools:[],tips:"界面选择口诀：纯聊天→Cherry Studio、Agent操控→AionUi、本地模型→Open WebUI、企业→LobeChat。按需选，不用全装。"},
@@ -77,13 +80,14 @@ export const stages: Stage[] = [
 
   // ===== 板块4：部署模型 + 本地部署模型 =====
   {id:3,title:"部署模型 + 本地部署",subtitle:"在自己电脑上跑AI模型，数据不出门、完全免费",
-    whoIsThisFor:"想在自己电脑上用AI、不依赖网络、不花API费用的人",timeEstimate:"约 4 小时",icon:"◆",color:"#C8944A",sections:[
+    whoIsThisFor:"想在自己电脑上用AI、不依赖网络、不花API费用的人",timeEstimate:"约 6 小时",icon:"◆",color:"#C8944A",sections:[
     {title:"本地模型分类：哪些能处理文字？哪些能处理图片？",
       content:"不是所有模型都能处理图片！装错模型会无法运行。按任务分类：\n\n📝 纯文字模型（只能聊天/写作/代码）：\n• Qwen3 全系列（7B/14B/32B/72B）→ 中文最强，日常首选\n• DeepSeek R1/V4 → 编程和数学推理最强\n• Llama 4 全系列 → 英文最强，多语言好\n• GLM-5.1 → 自主编程，中文好\n• Command R+ → 企业RAG，自带引用\n\n🎨 能处理图片的模型（多模态）：\n• Qwen 3.5 VL → 文字+图片理解，Apache开源\n• Kimi K2.5 → 视觉编码领先，能看代码截图写代码\n• MiniMax M2.5 → 图文理解+编码\n• Llama 4 Maverick → 原生多模态\n• Pixtral → Mistral的多模态模型\n\n🎙 语音模型（文字→语音/语音→文字）：\n• Whisper V3 → 语音转文字，100+语言，CPU可跑\n• ChatTTS → 文字转语音，中文自然度高\n• Fish Speech → 声音克隆，实时生成\n• CosyVoice → 阿里开源，支持情感和方言\n• ElevenLabs → 需要API（不是本地），质量最高\n\n🖼 绘图模型（文字→图片）：\n• SD3 Turbo → 最新开源绘图，8GB显存\n• SDXL Turbo → 一步生成，实时绘图\n• Flux → 黑森林实验室出品，文字渲染强\n• ComfyUI → 不是模型，是运行上面模型的图形界面\n\n🎵 音乐模型：\n• Suno → 需要API，音乐生成标杆\n• Bark → 开源TTS，Suno出品，能笑能唱\n\n⚠️ 重要：多模态模型比纯文字模型大很多！\n• Qwen3 14B 纯文字：约8GB，16GB内存可跑\n• Qwen3.5 VL 多模态：约20GB，需要24GB+内存\n• 画图模型（SD3）：需要独立显卡，8GB+显存\n• 画图模型和文字模型可以同时装，互不影响",
       tools:[],tips:"不确定自己要什么→先装纯文字的Qwen3 14B。90%的人有这个就够了。需要看图再装多模态，需要画图再装SD3。"},
     {title:"本地部署入门：你能在电脑上跑什么模型？",
       content:"本地部署 = 把AI模型下载到你电脑上运行，不需要联网、数据不出电脑、完全免费。\n\n⚠️ 先搞清楚你的电脑配置：\n• 右键「此电脑」→「属性」→ 看「内存」是多少 GB\n• 如果有独立显卡（NVIDIA），右键桌面 → NVIDIA控制面板 → 看显存\n\n📊 按配置选模型（对照你的电脑）：\n\n💻 8GB 内存 / 无独显（老电脑/轻薄本）：\n→ 可跑 Qwen3 7B、Gemma 4、Phi-4（日常对话够用）\n→ 推荐工具：Ollama（最省资源）\n\n💻 16GB 内存 / 6-8GB 显存（主流配置）：\n→ 可跑 Qwen3 14B、DeepSeek R1 8B、MiniMax M2.5 10B\n→ 推荐工具：Ollama + LM Studio\n\n💻 32GB+ 内存 / 12-24GB 显存（高配）：\n→ 可跑 Qwen 3.5 17B、DeepSeek V4 37B、GLM-5.1 40B\n→ 推荐工具：Ollama + TextGen WebUI\n\n💻 服务器 / 多卡（发烧友）：\n→ 可跑 Llama 4 Scout、DeepSeek R1 70B、Qwen3 235B\n→ 推荐工具：vLLM + Ollama",
       tools:["ollama"],tips:"不确定配置的话，先从 Qwen3 7B 开始试。下载快、运行快，聊聊天、写写文案够用了。"},
+    ...chinaLocalDeploymentSections,
     {title:"Ollama 安装教程（最简单，一句话跑模型）",
       content:"Ollama 是目前最简单的本地AI运行工具，支持 Windows/Mac/Linux。\n\n📥 安装（全程中文支持）：\n\n① 打开浏览器，输入 ollama.com → 回车\n② 看到大大的「Download」按钮 → 点击（自动识别你的系统）\n③ 如果是Windows，点「Download for Windows」\n④ 下载完 → 双击安装文件 → 一路「下一步」→「安装」\n   （纯英文安装界面但只需要点 Next → Install → Finish）\n⑤ 安装完成后，桌面不会有图标 —— 用命令行\n\n🚀 运行第一个模型：\n⑥ 按键盘 Win 键 → 输入 cmd → 回车（打开命令提示符）\n⑦ 输入这个命令，回车：\n    ollama run qwen3:7b\n⑧ 第一次会自动下载（约4-5GB，等几分钟）\n⑨ 下载完出现 >>> 符号 → 直接输入中文问题 → 回车\n\n💡 试试跟它对话：输入「你好，用中文介绍一下你自己」→ 回车\n\n🎉 你现在在自己电脑上跑AI了！不需要联网！\n\n📋 常用命令（复制粘贴即可）：\n• ollama list → 查看已下载的模型\n• ollama pull 模型名 → 下载新模型\n• ollama rm 模型名 → 删除模型释放空间\n• Ctrl+C → 退出对话",
       tools:["ollama"],tips:"如果下载速度慢（国内网络），可以在系统设置里配代理。或者用国内镜像：hf-mirror.com 下载模型文件，再手动导入Ollama。"},

@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation"
 import { stages } from "@/data/learning-path"
 import { tools } from "@/data/tools"
+import { toolPath } from "@/data/tool-meta"
 import { MathRain } from "@/components/MathRain"
 import Link from "next/link"
 
@@ -76,17 +77,36 @@ export default function StageDetailPage() {
             <h3 style={{fontSize:14,fontWeight:700,color:'#fff',marginBottom:16}}>本阶段推荐工具</h3>
             <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
               {stageTools.map(t=>(
-                <a key={t.id} href={t.url} target="_blank" rel="noopener noreferrer"
+                <Link key={t.id} href={toolPath(t)}
                   style={{display:'flex',alignItems:'center',gap:8,padding:'10px 16px',background:'rgba(255,255,255,0.02)',border:'1px solid #1a1a1a',textDecoration:'none',transition:'all 0.3s'}}
                   onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.04)';e.currentTarget.style.borderColor='#7a6230'}}
                   onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.02)';e.currentTarget.style.borderColor='#1a1a1a'}}>
                   <span style={{width:24,height:24,borderRadius:4,display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:800,color:'#fff',background:avColor(t.name),fontFamily:"'JetBrains Mono',monospace"}}>{letter(t.name)}</span>
                   <span style={{fontSize:12,fontWeight:700,color:'#ccc'}}>{t.name}</span>
-                </a>
+                </Link>
               ))}
             </div>
           </div>
         )}
+
+        <div style={{marginBottom:48,background:'rgba(201,168,76,0.04)',border:'1px solid #2a1f10',borderRadius:10,padding:'24px 28px'}}>
+          <h3 style={{fontSize:16,fontWeight:900,color:'#fff',marginBottom:14}}>学完这一阶段，你应该能做到</h3>
+          <div style={{display:'flex',flexDirection:'column',gap:10}}>
+            {[
+              `用自己的话解释「${stage.title}」解决什么问题。`,
+              "独立完成本页至少 1 个工具或流程的第一次使用。",
+              "把一次 AI 输出结果人工检查并改成可交付版本。",
+            ].map((item,i)=>(
+              <p key={item} style={{fontSize:14,color:'#ddd',lineHeight:1.8}}>
+                <span style={{fontFamily:"'JetBrains Mono',monospace",color:'#e8c96a',fontWeight:900,marginRight:8}}>CHECK {i+1}</span>{item}
+              </p>
+            ))}
+          </div>
+          <div style={{display:'flex',gap:10,flexWrap:'wrap',marginTop:20}}>
+            <Link href="/search?q=生成我的学习路线" className="btn-primary" style={{textDecoration:'none'}}>生成我的学习路线</Link>
+            <Link href="/search?q=帮我选一个 AI 工具" className="btn-outline" style={{textDecoration:'none'}}>帮我选工具</Link>
+          </div>
+        </div>
 
         {/* 阶段5（工作流自动化）→ 连接教程资源 */}
         {stageId===4 && (

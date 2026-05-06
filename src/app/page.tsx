@@ -5,9 +5,10 @@ import { useRef, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { tools } from "@/data/tools"
 import { news } from "@/data/news"
+import { searchSite, SearchResult } from "@/lib/search"
 import Link from "next/link"
 import { NavBar } from "@/components/NavBar"
-import { Search } from "lucide-react"
+import { Search, Route, Sparkles, Wrench } from "lucide-react"
 
 const SYMBOLS = [
   '0','1','2','3','4','5','6','7','8','9',
@@ -25,15 +26,14 @@ export default function HomePage() {
   const router = useRouter()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [searchQuery, setSearchQuery] = useState("")
-  const [searchResults, setSearchResults] = useState<typeof tools>([])
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [showResults, setShowResults] = useState(false)
   const newsData = news.slice(0, 6)
 
   function handleSearch(q: string) {
     setSearchQuery(q)
     if (!q.trim()) { setSearchResults([]); setShowResults(false); return }
-    const kw = q.toLowerCase()
-    const results = tools.filter(t => t.name.toLowerCase().includes(kw) || t.description.toLowerCase().includes(kw) || t.tags.some(tg => tg.toLowerCase().includes(kw))).slice(0, 6)
+    const results = searchSite(q, 8)
     setSearchResults(results)
     setShowResults(true)
   }
@@ -41,7 +41,7 @@ export default function HomePage() {
     if (e && e.key !== "Enter") return
     if (!searchQuery.trim()) return
     setShowResults(false)
-    router.push(`/tools?search=${encodeURIComponent(searchQuery.trim())}`)
+    router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
   }
 
   useEffect(() => {
@@ -103,18 +103,18 @@ export default function HomePage() {
             {showResults && searchResults.length > 0 && (
               <div style={{position:'absolute',top:'100%',left:0,right:0,background:'#111',border:'1px solid #222',borderRadius:10,marginTop:4,zIndex:100,overflow:'hidden'}}
                 onMouseDown={e=>e.preventDefault()}>
-                {searchResults.map(t=>(
-                  <a key={t.id} href={t.url} target="_blank" rel="noopener noreferrer"
+                {searchResults.map(item=>(
+                  <Link key={item.id} href={item.href}
                     style={{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',textDecoration:'none',borderBottom:'1px solid #1a1a1a',transition:'background 0.2s'}}
                     onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.08)'}}
                     onMouseLeave={e=>{e.currentTarget.style.background='transparent'}}>
-                    <span style={{fontSize:16}}>{letter(t.name)}</span>
+                    <span className="tag tag-gold" style={{fontSize:9,flexShrink:0}}>{item.kind}</span>
                     <div style={{flex:1}}>
-                      <p style={{fontSize:13,fontWeight:600,color:'#fff'}}>{t.name}</p>
-                      <p style={{fontSize:11,color:'#888',lineHeight:1.3}}>{t.description.slice(0,50)}...</p>
+                      <p style={{fontSize:13,fontWeight:600,color:'#fff'}}>{item.title}</p>
+                      <p style={{fontSize:11,color:'#888',lineHeight:1.3}}>{item.description.slice(0,58)}...</p>
                     </div>
-                    <span style={{fontSize:10,color:'#666',border:'1px solid #333',padding:'1px 6px',borderRadius:3}}>{t.pricing}</span>
-                  </a>
+                    <span style={{fontSize:10,color:'#666',border:'1px solid #333',padding:'1px 6px',borderRadius:3}}>{item.meta.split("·")[0]}</span>
+                  </Link>
                 ))}
                 <div style={{textAlign:'center',padding:'8px'}}>
                   <span style={{fontSize:11,color:'#c9a84c',cursor:'pointer'}} onClick={()=>goSearch()}>
@@ -138,6 +138,19 @@ export default function HomePage() {
               <p style={{fontSize:'clamp(24px,4vw,36px)',fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.1em',marginBottom:8}}>小白入门</p>
               <p style={{fontSize:14,fontWeight:400,color:'#aaa',fontFamily:"'Noto Sans SC',sans-serif",margin:0}}>手把手教你从下载到应用</p>
             </Link>
+          </div>
+
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3, minmax(0, 1fr))',gap:10,maxWidth:760,margin:'22px auto 0',opacity:0,animation:'fadeUp 0.8s ease forwards 1.8s'}} className="max-sm:grid-cols-1">
+            {[
+              {icon:<Route size={17}/>,label:'我完全不会 AI，从这里开始',href:'/learn/0'},
+              {icon:<Wrench size={17}/>,label:'帮我选一个 AI 工具',href:'/search?q=帮我选一个 AI 工具'},
+              {icon:<Sparkles size={17}/>,label:'生成我的学习路线',href:'/search?q=生成我的学习路线'},
+            ].map(cta=>(
+              <Link key={cta.label} href={cta.href} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,minHeight:48,padding:'10px 14px',border:'1px solid #1f1f1f',background:'rgba(255,255,255,0.035)',borderRadius:10,color:'#ddd',fontSize:13,fontWeight:700,textDecoration:'none'}}>
+                <span style={{color:'#e8c96a',display:'inline-flex'}}>{cta.icon}</span>
+                <span>{cta.label}</span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>

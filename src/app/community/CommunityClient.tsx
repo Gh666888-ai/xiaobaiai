@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
+import { posts as seedPosts } from "@/data/community"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import Link from "next/link"
@@ -21,7 +22,9 @@ export default function CommunityPage() {
       const api=Array.isArray(apiPosts)?apiPosts:[]
       const st=Array.isArray(staticPosts)?staticPosts:[]
       const ids=new Set(api.map((p:any)=>p.id))
-      setPosts([...api,...st.filter((p:any)=>!ids.has(p.id))])
+      const seeded=[...api,...st.filter((p:any)=>!ids.has(p.id))]
+      const seededIds=new Set(seeded.map((p:any)=>p.id))
+      setPosts([...seeded,...seedPosts.filter((p:any)=>!seededIds.has(p.id))])
     }).catch(()=>{})
   },[])
 
@@ -44,6 +47,16 @@ export default function CommunityPage() {
         <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.4em',color:'#7a6230',textTransform:'uppercase',marginBottom:10,fontWeight:700}}>Community</p>
         <h1 style={{fontSize:36,fontWeight:900,color:'#fff',letterSpacing:'0.02em',marginBottom:8}}>社区</h1>
         <p style={{fontSize:15,fontWeight:500,color:'#ccc',marginBottom:40}}>Agent 实战经验 · 踩坑记录 · AI 可行性分析</p>
+
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3, 1fr)',gap:8,marginBottom:28}} className="max-sm:grid-cols-1">
+          {[
+            {t:'提交你的 AI 使用案例',h:'/community/new'},
+            {t:'分享踩坑记录',h:'/community/new'},
+            {t:'我想让 AI 帮我分析一个需求',h:'/search?q=我想让 AI 帮我分析一个需求'},
+          ].map(item=>(
+            <Link key={item.t} href={item.h} style={{textDecoration:'none',border:'1px solid #1a1a1a',background:'rgba(255,255,255,0.03)',borderRadius:10,padding:'14px 16px',fontSize:13,fontWeight:700,color:'#ddd',textAlign:'center'}}>{item.t}</Link>
+          ))}
+        </div>
 
         {/* 搜索 */}
         <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:32}}>

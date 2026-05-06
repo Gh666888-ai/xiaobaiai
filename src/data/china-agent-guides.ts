@@ -1,0 +1,61 @@
+import type { Section } from "./learning-path"
+
+export const chinaAgentInstallSections: Section[] = [
+  {
+    title: "中国环境安装前准备：先把电脑、账号和网络准备好",
+    content: "这一节给完全不懂电脑的小白看。不要一上来复制命令，先确认环境。\n\n一、确认你的系统\n\nWindows：\n① 按 Win 键，搜索「关于你的电脑」\n② 看 Windows 版本，建议 Windows 10/11\n③ 看「已安装 RAM」，记住是 8GB、16GB、32GB 还是更高\n④ 如果有 NVIDIA 显卡，右键桌面 → NVIDIA 控制面板 → 系统信息 → 看显存\n\nMac：\n① 左上角苹果图标 → 关于本机\n② 记住芯片：M1/M2/M3/M4 或 Intel\n③ 记住内存：8GB、16GB、32GB 或更高\n\nLinux / 阿里云服务器：\n① 打开终端\n② 输入 uname -a 看系统\n③ 输入 free -h 看内存\n④ 输入 df -h 看磁盘空间\n\n二、中国网络环境优先方案\n\n不要把部署成功率押在来路不明的一键脚本或代理工具上。优先用这几种稳定、合规、可维护的路线：\n\n1. 模型优先用国内可访问服务\nDeepSeek V4、通义千问、Kimi、智谱 GLM 更适合国内注册、访问和付费。\n\n2. npm 下载慢时用国内 npm 镜像\n在终端执行：\n    npm config set registry https://registry.npmmirror.com\n\n恢复官方源：\n    npm config set registry https://registry.npmjs.org\n\n3. GitHub 慢时换执行环境\n更稳的做法：\n• 在阿里云服务器安装和部署\n• 下载项目官方 Release 包\n• 使用项目官方文档提供的镜像或安装脚本\n\n4. 海外模型服务不是小白首选\nClaude Code 官方默认依赖 Anthropic 支持的账号、地区和网络环境。国内小白更推荐先用 DeepSeek V4 作为模型后端。\n\n三、至少准备这些东西\n\n必备：\n• 一个邮箱\n• 一个 DeepSeek 开发者账号\n• 一台 Windows 10/11、Mac 或阿里云服务器\n• 30-60 分钟不被打扰的时间\n\n建议：\n• Windows 用户安装 WSL2 + Ubuntu\n• Mac 用户安装 Homebrew\n• 服务器用户使用 Ubuntu 22.04 或 24.04\n\n四、安全提醒\n\nAPI Key 等同于支付密钥。不要发到公开群、公开仓库、陌生网页或不明脚本里。任何教程让你把 Key 粘进陌生网站，都先停下来。",
+    tools: ["deepseek"],
+    tips: "小白最稳路线：DeepSeek V4 API + OpenClaw 或 Claude Code。先跑通 API，再装 Agent。",
+  },
+  {
+    title: "DeepSeek V4 API Key 获取与通用配置",
+    content: "OpenClaw、Claude Code、Hermes、本地 WebUI 都可以接模型。中国用户建议先接 DeepSeek V4，因为访问、付费和中文体验更友好。\n\n第一步：注册 DeepSeek 开发者平台\n\n① 打开浏览器\n② 访问 platform.deepseek.com\n③ 用手机号或邮箱注册\n④ 登录后找到 API Keys / 密钥管理\n⑤ 点击创建 API Key\n⑥ 复制 sk- 开头的密钥\n\n注意：密钥通常只完整显示一次。复制后保存到你自己的密码管理器或本地记事本。\n\n第二步：记住 4 个关键配置\n\nOpenAI 兼容地址：\n    https://api.deepseek.com\n\nAnthropic 兼容地址：\n    https://api.deepseek.com/anthropic\n\n推荐模型：\n    deepseek-v4-flash\n\n更强模型：\n    deepseek-v4-pro\n\n旧模型名：\n    deepseek-chat\n    deepseek-reasoner\n\n官方说明里旧模型名会在 2026-07-24 后废弃，所以新教程统一推荐 deepseek-v4-flash 或 deepseek-v4-pro。\n\n第三步：新手怎么选\n\n日常聊天、总结、客服、写文案：\n    deepseek-v4-flash\n\n复杂推理、代码修复、Agent 多步任务：\n    deepseek-v4-pro\n\n省钱原则：\n    先用 flash，效果不够再切 pro。\n\n第四步：常见报错\n\n401：\nAPI Key 错了，检查有没有复制少字符、前后有没有空格。\n\n402 或 insufficient balance：\n余额不足或没有开通计费。\n\n404 model not found：\n模型名写错，改成 deepseek-v4-flash。\n\ntimeout：\n网络不稳定，稍后重试，或换到你有权使用的稳定网络环境。",
+    tools: ["deepseek"],
+    tips: "复制 API Key 时最容易多复制一个空格。填配置前先粘到记事本里看一眼。",
+  },
+  {
+    title: "Windows 10/11 安装 OpenClaw + 接入 DeepSeek V4",
+    content: "OpenClaw 官方支持 Windows，但更推荐 Windows 用户用 WSL2，也就是在 Windows 里安装一个 Ubuntu 小系统。这样最稳定。\n\n第一部分：安装 WSL2 + Ubuntu\n\n① 右键开始菜单\n② 点击「终端管理员」或「Windows PowerShell 管理员」\n③ 输入：\n    wsl --install\n④ 等它自动安装\n⑤ 如果提示重启，就重启电脑\n⑥ 重启后打开 Ubuntu\n⑦ 第一次打开会让你设置用户名和密码\n\n密码输入时屏幕不会显示，这是正常的。输入完按回车即可。\n\n第二部分：更新 Ubuntu\n\n打开 Ubuntu，复制：\n    sudo apt update\n\n再复制：\n    sudo apt upgrade -y\n\n第三部分：安装 OpenClaw\n\n官方推荐 Node 24 或 Node 22.14+，安装脚本通常会自动处理。\n\n在 Ubuntu 里执行：\n    curl -fsSL https://openclaw.ai/install.sh | bash\n\n如果提示 curl 不存在：\n    sudo apt install -y curl\n\n然后再执行安装命令。\n\n第四部分：初始化 OpenClaw\n\n安装完成后执行：\n    openclaw onboard --install-daemon\n\n向导里按下面填：\n    Model Provider：OpenAI Compatible 或 Custom\n    Base URL：https://api.deepseek.com\n    API Key：你的 DeepSeek API Key\n    Model：deepseek-v4-flash\n\n如果有高级模型 / Reasoning Model：\n    deepseek-v4-pro\n\n第五部分：启动和测试\n\n执行：\n    openclaw\n\n输入：\n    你好，请用中文告诉我你现在连接的是哪个模型。\n\n如果能正常中文回答，说明成功。\n\n第六部分：打开 Web 界面\n\n如果 OpenClaw 提示本地地址，复制到浏览器打开。常见地址可能是：\n    http://localhost:3000\n    http://localhost:8642\n\n第七部分：常见问题\n\nnode version too low：\nNode 版本太低。执行 node -v 看版本，低于 22 就升级。\n\nnpm install 很慢：\n    npm config set registry https://registry.npmmirror.com\n\nopenclaw: command not found：\n关闭 Ubuntu 重新打开，或者执行：\n    source ~/.bashrc\n\n浏览器打不开 localhost：\n确认 OpenClaw 还在运行，并使用终端里提示的端口。",
+    tools: ["openclaw", "deepseek"],
+    tips: "Windows 小白不要优先选 Docker。先用 WSL2 + 官方安装脚本，成功率最高。",
+  },
+  {
+    title: "Mac / Linux / 阿里云服务器安装 OpenClaw + DeepSeek V4",
+    content: "这个教程适合 Mac、Ubuntu 桌面、阿里云 ECS 服务器。服务器推荐 Ubuntu 22.04 或 24.04。\n\n第一步：打开终端\n\nMac：打开「终端」应用。\n\nUbuntu：按 Ctrl + Alt + T。\n\n阿里云服务器：用 SSH 登录服务器：\n    ssh root@你的服务器IP\n\n第二步：检查系统和内存\n\n执行：\n    node -v\n    npm -v\n    free -h\n\n如果 node 命令不存在，没关系，OpenClaw 官方安装脚本通常会处理 Node。\n\n第三步：安装 OpenClaw\n\n执行：\n    curl -fsSL https://openclaw.ai/install.sh | bash\n\n如果服务器在国内，npm 下载慢时先试：\n    npm config set registry https://registry.npmmirror.com\n\n第四步：初始化\n\n执行：\n    openclaw onboard --install-daemon\n\n按下面填：\n    Provider：OpenAI Compatible / Custom\n    Base URL：https://api.deepseek.com\n    API Key：你的 DeepSeek API Key\n    Model：deepseek-v4-flash\n\n第五步：服务器部署时放行端口\n\n如果 OpenClaw Web UI 跑在 3000 端口，你需要在阿里云安全组放行 3000。\n\n正式部署更推荐 Nginx 反代，只暴露 80/443：\n    用户访问 https://agent.你的域名\n    Nginx 转发到 localhost:3000\n\n第六步：后台运行\n\n如果只是自己试用：\n    openclaw\n\n如果要长期运行，优先看 OpenClaw 官方 daemon / service 配置。小白可先用 pm2：\n    npm install -g pm2\n    pm2 start openclaw --name openclaw\n    pm2 save\n\n第七步：更新\n\n执行：\n    openclaw update\n\n如果是源码安装：\n    cd ~/.openclaw\n    git pull\n    npm install\n    npm run build",
+    tools: ["openclaw", "deepseek"],
+    tips: "服务器部署最稳：阿里云 Ubuntu + DeepSeek API + Nginx HTTPS。不要把管理后台裸露到公网。",
+  },
+  {
+    title: "Claude Code 安装 + 接入 DeepSeek V4（中国用户注意版）",
+    content: "Claude Code 是 Anthropic 官方终端编程 Agent。它很强，但国内用户要先知道：官方版默认需要 Anthropic 支持的账号、地区和网络环境。小白如果只是想写代码，OpenClaw / Cline / Continue + DeepSeek V4 往往更稳。\n\n如果你已经具备可用账号和合规网络环境，可以按下面安装。\n\n一、Windows 安装方式\n\n推荐方式：WSL2 Ubuntu。\n\n① 先按前面教程安装 WSL2\n② 打开 Ubuntu\n③ 检查 Node：\n    node -v\n④ 如果版本低于 18，先升级 Node\n⑤ 安装 Claude Code：\n    npm install -g @anthropic-ai/claude-code\n⑥ 检查：\n    claude doctor\n⑦ 启动：\n    claude\n\n备选方式：Git Bash。\n\n① 安装 Git for Windows\n② 打开 Git Bash\n③ 执行：\n    npm install -g @anthropic-ai/claude-code\n④ 启动：\n    claude\n\n二、Mac / Linux 安装方式\n\n打开终端：\n    npm install -g @anthropic-ai/claude-code\n    claude doctor\n    claude\n\n不要使用 sudo npm install -g。官方不推荐 sudo，因为容易造成权限和安全问题。\n\n三、接入 DeepSeek V4 的思路\n\nDeepSeek 官方提供 Anthropic 兼容地址：\n    https://api.deepseek.com/anthropic\n\n临时测试方式：\n\nMac / Linux / WSL：\n    export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic\n    export ANTHROPIC_API_KEY=你的DeepSeek_API_Key\n    export ANTHROPIC_MODEL=deepseek-v4-flash\n    claude\n\nWindows PowerShell：\n    $env:ANTHROPIC_BASE_URL=\"https://api.deepseek.com/anthropic\"\n    $env:ANTHROPIC_API_KEY=\"你的DeepSeek_API_Key\"\n    $env:ANTHROPIC_MODEL=\"deepseek-v4-flash\"\n    claude\n\n四、长期保存配置\n\n用户级配置位置通常是：\n\nMac / Linux / WSL：\n    ~/.claude/settings.json\n\nWindows：\n    C:\\Users\\你的用户名\\.claude\\settings.json\n\n可以把非密钥环境变量写入 env：\n    {\n      \"env\": {\n        \"ANTHROPIC_BASE_URL\": \"https://api.deepseek.com/anthropic\",\n        \"ANTHROPIC_MODEL\": \"deepseek-v4-flash\"\n      }\n    }\n\nAPI Key 不建议直接写进项目配置。个人电脑可以用系统环境变量保存。\n\n五、第一次测试\n\n进入一个代码项目目录：\n    cd 你的项目目录\n    claude\n\n输入：\n    请先阅读这个项目，不要改文件，告诉我它是什么技术栈。\n\n如果能列出文件并回答，说明工具正常。\n\n六、常见问题\n\n认证失败：\n检查 API Key 是否 DeepSeek 的 key；检查 base url 是否 /anthropic 结尾。\n\n模型不存在：\n把模型名改成 deepseek-v4-flash。\n\n权限太大：\n第一次使用时，不要让它直接执行删除、部署、支付相关命令。让它先解释计划，再确认。",
+    tools: ["claude-code", "deepseek"],
+    tips: "Claude Code 很强，但小白最容易让它乱改文件。第一次一定说：先阅读项目，不要修改文件。",
+  },
+  {
+    title: "Hermes 安装 + DeepSeek V4 接入：小白稳定路线",
+    content: "Hermes 的版本和社区发行渠道变化比较快。安装前先确认你正在看的官网、GitHub 仓库或文档是否是项目维护者发布的，不要随便运行陌生脚本。\n\n一、Hermes 适合谁\n\n适合：\n• 想做长期记忆的 Agent\n• 想让 Agent 从任务中学习\n• 想接微信、飞书、Telegram 等消息入口\n\n不适合：\n• 完全第一次接触命令行的人\n• 只想聊天问答的人\n• 不愿意处理配置文件的人\n\n小白建议：先 OpenClaw，再 Hermes。\n\n二、Windows 安装建议\n\n推荐 WSL2 Ubuntu，不推荐直接原生 Windows。\n\n① 安装 WSL2\n② 打开 Ubuntu\n③ 更新系统：\n    sudo apt update\n    sudo apt upgrade -y\n④ 安装 Node 22+ 或按 Hermes 官方文档要求安装运行时\n⑤ 按 Hermes 官方 README 的 Install 命令执行\n\n如果官方提供 npm 安装，形式通常类似：\n    npm install -g hermes-agent\n\n如果官方提供脚本，先看清脚本域名是否来自官方，再执行。\n\n三、Mac / Linux 安装建议\n\n① 打开终端\n② 按官方文档安装运行时\n③ 执行官方 Install 命令\n④ 执行：\n    hermes --version\n\n四、接入 DeepSeek V4\n\n如果 Hermes 支持 OpenAI Compatible Provider，按这个填：\n    Provider：OpenAI Compatible\n    Base URL：https://api.deepseek.com\n    API Key：你的 DeepSeek API Key\n    Model：deepseek-v4-flash\n\n如果 Hermes 支持 Anthropic Compatible Provider，按这个填：\n    Provider：Anthropic Compatible\n    Base URL：https://api.deepseek.com/anthropic\n    API Key：你的 DeepSeek API Key\n    Model：deepseek-v4-flash\n\n五、启动 Dashboard\n\n如果你的 Hermes 版本支持 dashboard，常见形式是：\n    hermes dashboard\n\n然后浏览器打开终端提示的 localhost 地址。\n\n六、微信/飞书入口\n\n先不要一上来接微信。正确顺序：\n① 先让 Hermes 在终端里能正常回答\n② 再让它调用一个简单工具，例如读取天气或总结网页\n③ 再接飞书或企业微信\n④ 最后再考虑个人微信\n\n原因：个人微信通道最容易掉线，排错最难。企业微信/飞书更稳定，也更适合长期使用。\n\n七、排错清单\n\nhermes command not found：\n关闭终端重开，或检查 npm 全局 bin 是否在 PATH。\n\n模型无响应：\n先用 DeepSeek 平台测试 API Key，再回 Hermes 配置。\n\n消息平台收不到回复：\n先确认 Agent 本体能回答，再排查网关，不要两个问题混在一起排。",
+    tools: ["deepseek"],
+    tips: "Hermes 版本变化快，站内教程给的是稳定思路；具体命令以后要跟官方 README 同步更新。",
+  },
+]
+
+export const chinaLocalDeploymentSections: Section[] = [
+  {
+    title: "本地部署先看机器：按电脑配置选择最优方案",
+    content: "本地部署不是越大越好，而是你的电脑能流畅跑什么。先按下面对号入座。\n\n怎么查看配置：\n\nWindows：\n① 右键「此电脑」\n② 点「属性」\n③ 看内存\n④ 如果有 NVIDIA 显卡，右键桌面 → NVIDIA 控制面板 → 系统信息 → 看显存\n\nMac：\n① 左上角苹果图标\n② 关于本机\n③ 看芯片和内存\n\nLinux：\n    free -h\n    lspci | grep -i nvidia\n    nvidia-smi\n\n配置一：8GB 内存，无独显\n\n推荐方案：\n    Ollama + Qwen 3 7B / Gemma 小模型\n\n适合：\n    日常聊天、简单写作、解释概念\n\n不要做：\n    大文档分析、复杂编程、AI 绘图\n\n配置二：16GB 内存，无独显或轻薄本\n\n推荐方案：\n    Ollama + Qwen 3 14B\n    LM Studio 图形界面\n\n适合：\n    中文问答、写周报、总结短文档、轻量代码解释\n\n配置三：16GB 内存 + 6GB/8GB NVIDIA 显存\n\n推荐方案：\n    Ollama + Qwen 3 14B\n    ComfyUI + SDXL Turbo 或 SD3 小模型\n\n适合：\n    文本模型 + 入门绘图\n\n配置四：32GB 内存 + 12GB/16GB 显存\n\n推荐方案：\n    Ollama + Qwen 32B / DeepSeek R1 32B\n    LM Studio\n    ComfyUI\n\n适合：\n    编程、复杂推理、长文档、本地知识库\n\n配置五：64GB 内存 + 24GB 显存\n\n推荐方案：\n    Ollama / vLLM + 32B/70B 量化模型\n    本地 RAG 知识库\n    ComfyUI 高质量工作流\n\n适合：\n    企业内网、数据敏感、长时间高频使用\n\n小白最终选择：\n\n如果只是想能用：\n    16GB 内存以下 → 用 DeepSeek API\n    16GB 到 32GB → 本地 Qwen + DeepSeek API 混用\n    32GB 以上 → 本地主力 + API 兜底\n\n不要为了本地部署立刻买很贵的电脑。先用 DeepSeek V4 API 跑通场景，再决定要不要升级硬件。",
+    tools: ["ollama", "deepseek"],
+    tips: "最省钱方案：日常本地跑小模型，复杂任务切 DeepSeek V4 API。既省钱，又不折腾。",
+  },
+  {
+    title: "Windows 本地部署：Ollama + LM Studio 双方案",
+    content: "Windows 小白本地部署，推荐两个工具：Ollama 负责稳定运行，LM Studio 负责图形界面。\n\n方案 A：Ollama，最稳\n\n① 打开浏览器\n② 访问 ollama.com\n③ 点击 Download\n④ 下载 Windows 版\n⑤ 双击安装，一路 Next / Install / Finish\n⑥ 按 Win 键，输入 cmd，打开命令提示符\n⑦ 输入：\n    ollama run qwen3:7b\n\n第一次会下载模型，等它完成。\n\n如果你是 16GB 内存：\n    ollama run qwen3:14b\n\n如果你是 32GB 内存：\n    ollama run deepseek-r1:32b\n\n常用命令：\n    ollama list\n    ollama pull qwen3:14b\n    ollama rm qwen3:7b\n\n方案 B：LM Studio，图形界面\n\n① 访问 lmstudio.ai\n② 下载 Windows 版\n③ 双击安装\n④ 打开 LM Studio\n⑤ 搜索 qwen 或 deepseek\n⑥ 选择 GGUF / Q4 量化版本\n⑦ 点击 Download\n⑧ 下载完成后点击 Chat\n\n怎么选量化：\n\nQ4：占内存少，速度快，适合小白。\nQ5：质量更好，内存要求更高。\nQ8：更接近原模型，但很吃内存。\n\n小白选 Q4_K_M，别纠结。\n\n接入 OpenClaw：\n\n如果本地模型提供 OpenAI 兼容地址，通常是：\n    http://localhost:11434/v1\n\nOpenClaw 里填：\n    Provider：OpenAI Compatible\n    Base URL：http://localhost:11434/v1\n    API Key：随便填一个，例如 ollama\n    Model：qwen3:14b\n\n注意：本地模型速度慢是正常的。第一次加载可能等 10-60 秒。",
+    tools: ["ollama"],
+    tips: "Windows 不懂命令行就先用 LM Studio；想接 Agent 就用 Ollama，因为接口更标准。",
+  },
+  {
+    title: "阿里云服务器部署：API 优先，本地模型谨慎",
+    content: "阿里云服务器有两种用途：部署 Agent，或者跑本地模型。小白建议先部署 Agent，模型用 DeepSeek API。\n\n方案 A：轻量服务器 + DeepSeek API（推荐）\n\n配置：\n    2 核 4GB 内存\n    Ubuntu 22.04\n    40GB 磁盘\n\n适合：\n    OpenClaw / Dify / n8n\n    调 DeepSeek V4 API\n\n优点：\n    便宜、稳定、不吃显卡\n\n安装路线：\n① 登录服务器\n② 安装 OpenClaw\n③ 配置 DeepSeek API\n④ 用 pm2 或 systemd 后台运行\n⑤ 用 Nginx + HTTPS 绑定域名\n\n方案 B：GPU 服务器 + 本地模型\n\n配置：\n    NVIDIA 显卡\n    16GB 显存以上\n    32GB 内存以上\n\n适合：\n    企业内网模型\n    高频调用\n    数据不能出云环境\n\n缺点：\n    贵，维护复杂\n\n方案 C：混合方案\n\nAgent 在阿里云跑：\n    OpenClaw / Dify / n8n\n\n模型分两类：\n    普通任务 → DeepSeek V4 API\n    隐私任务 → 本地 Ollama / vLLM\n\n这是最实际的企业方案。\n\n阿里云安全组要放行什么：\n\n网站：\n    80\n    443\n\n测试阶段：\n    3000 或 OpenClaw 提示的端口\n\n正式环境：\n    不建议直接暴露 3000\n    用 Nginx 转到 443\n\n如果你只是个人用，不要买 GPU 服务器。DeepSeek API 的成本通常远低于 GPU 服务器费用。",
+    tools: ["openclaw", "deepseek"],
+    tips: "服务器不是越强越好。个人 Agent 用 2 核 4GB + DeepSeek API 就够起步。",
+  },
+]

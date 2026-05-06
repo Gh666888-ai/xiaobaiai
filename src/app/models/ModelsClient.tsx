@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { models, Model } from "@/data/models"
+import { modelRankingMeta } from "@/data/model-meta"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { Search, Zap, Cpu, Trophy } from "lucide-react"
@@ -34,6 +35,35 @@ export default function ModelsPage() {
         <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.4em',color:'#7a6230',textTransform:'uppercase',marginBottom:10,fontWeight:700}}>Model Rankings</p>
         <h1 style={{fontSize:36,fontWeight:900,color:'#fff',letterSpacing:'0.02em',marginBottom:8}}>AI 模型排行</h1>
         <p style={{fontSize:15,fontWeight:500,color:'#ccc',marginBottom:40}}>API 云模型 + 本地部署模型 · 排名和推荐</p>
+
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4, 1fr)',gap:8,marginBottom:28}} className="max-sm:grid-cols-1">
+          <div style={{border:'1px solid #1a1a1a',background:'rgba(255,255,255,0.03)',borderRadius:10,padding:'14px 16px'}}>
+            <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:9,color:'#777',marginBottom:5}}>UPDATED</p>
+            <p style={{fontSize:13,color:'#fff',fontWeight:800}}>{modelRankingMeta.updatedAt}</p>
+          </div>
+          <div style={{border:'1px solid #1a1a1a',background:'rgba(255,255,255,0.03)',borderRadius:10,padding:'14px 16px'}}>
+            <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:9,color:'#777',marginBottom:5}}>PRICE BASIS</p>
+            <p style={{fontSize:13,color:'#fff',fontWeight:800}}>公开 API 标价</p>
+          </div>
+          <div style={{border:'1px solid #1a1a1a',background:'rgba(255,255,255,0.03)',borderRadius:10,padding:'14px 16px'}}>
+            <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:9,color:'#777',marginBottom:5}}>SCORE</p>
+            <p style={{fontSize:13,color:'#fff',fontWeight:800}}>本站主观评分</p>
+          </div>
+          <div style={{border:'1px solid #1a1a1a',background:'rgba(255,255,255,0.03)',borderRadius:10,padding:'14px 16px'}}>
+            <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:9,color:'#777',marginBottom:5}}>SOURCES</p>
+            <p style={{fontSize:13,color:'#fff',fontWeight:800}}>{modelRankingMeta.sources.length} 个来源</p>
+          </div>
+        </div>
+
+        <div style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.04)',borderRadius:12,padding:'16px 18px',marginBottom:34}}>
+          <p style={{fontSize:12,color:'#d6c28a',lineHeight:1.8}}>{modelRankingMeta.priceBasis}</p>
+          <p style={{fontSize:12,color:'#aaa',lineHeight:1.8,marginTop:6}}>{modelRankingMeta.subjectiveNote}</p>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:10}}>
+            {modelRankingMeta.sources.map(source=>(
+              <a key={source.name} href={source.url} target="_blank" rel="noopener noreferrer" className="tag tag-gray" style={{textDecoration:'none',fontSize:9}}>{source.name}</a>
+            ))}
+          </div>
+        </div>
 
         {/* Top 3 */}
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(300px, 1fr))',gap:10,marginBottom:40}}>
@@ -98,8 +128,9 @@ export default function ModelsPage() {
                 {m.cons?<div style={{marginTop:2}}><span style={{fontSize:11,color:'#D94841',fontWeight:700}}>⚠️ {m.cons}</span></div>:null}
                 {m.useCase&&<div style={{marginTop:2}}><span style={{fontSize:11,color:'#c9a84c',fontWeight:700}}>🎯 {m.useCase}</span></div>}
                 <div style={{display:'flex',gap:16,marginTop:6,fontFamily:"'JetBrains Mono',monospace",fontSize:9,color:'#666',alignItems:'center'}}>
-                  <span>{m.pricing}</span>
+                  <span>价格: {m.pricing}</span>
                   <span>上下文: {m.contextWindow}</span>
+                  <span>场景: {m.useCase}</span>
                   <a href={m.url} target="_blank" rel="noopener noreferrer" style={{color:'#c9a84c',textDecoration:'none',fontWeight:700,marginLeft:'auto'}}>下载/访问 →</a>
                 </div>
               </div>

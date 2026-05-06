@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { news } from "@/data/news"
+import { buildNewsArticle } from "@/lib/content"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import Link from "next/link"
@@ -29,11 +30,11 @@ export default function NewsDetailPage() {
         </div>
         <h1 style={{fontSize:30,fontWeight:900,color:'#fff',lineHeight:1.4,marginBottom:24}}>{item.title}</h1>
         <div style={{fontSize:16,color:'#ccc',lineHeight:2.2,whiteSpace:'pre-wrap'}}>
-          <p style={{marginBottom:16}}>{item.summary}</p>
-          {item.content && item.content !== item.summary && <p>{item.content}</p>}
-          {item.url && item.url !== "#" && <a href={item.url} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{marginTop:24}}>查看原文 →</a>}
+          <p style={{marginBottom:16,color:'#e8c96a'}}>{item.summary}</p>
+          <p>{buildNewsArticle(item)}</p>
+          {item.url && item.url !== "#" && <p style={{fontSize:13,color:'#777',marginTop:24}}>本文已整理为站内可读版本，外部来源仅用于继续核对背景信息。</p>}
         </div>
-        {item.url&&item.url!=="#"&&<a href={item.url} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{marginTop:32}}>查看原文 →</a>}
+        {item.url&&item.url!=="#"&&<a href={item.url} target="_blank" rel="noopener noreferrer" className="btn-outline" style={{marginTop:32}}>参考来源 →</a>}
       </div>
     </div>
   )

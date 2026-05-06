@@ -1,16 +1,16 @@
 "use client"
 
 import { Tool, stageLabels } from "@/data/tools"
+import { toolPath } from "@/data/tool-meta"
 import { ExternalLink, Zap } from "lucide-react"
+import Link from "next/link"
 
 export function ToolCard({ tool }: { tool: Tool }) {
   const stageLabel = stageLabels[tool.stage]
 
   return (
-    <a
-      href={tool.url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <Link
+      href={toolPath(tool)}
       className="card block p-4 no-underline group"
     >
       <div className="flex items-start justify-between gap-2 mb-2.5">
@@ -38,6 +38,6 @@ export function ToolCard({ tool }: { tool: Tool }) {
           <span key={tag} className="tag tag-gray">{tag}</span>
         ))}
       </div>
-    </a>
+    </Link>
   )
 }

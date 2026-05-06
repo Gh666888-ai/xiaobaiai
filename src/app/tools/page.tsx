@@ -1,69 +1,79 @@
 import type { Metadata } from "next"
-import { Suspense } from "react"
+import Link from "next/link"
 import { tools, categories } from "@/data/tools"
+import { categoryPath, isDomesticTool } from "@/data/tool-meta"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
-import ToolsClient from "./ToolsClient"
-import Link from "next/link"
-
-const cnKw=["国产","中文","腾讯","阿里","百度","字节","快手","智谱","月之暗面","MiniMax","Kimi","DeepSeek","通义","文心","豆包","即梦","可灵","Coze","QClaw","ArkClaw","CowAgent","NocoBase","AionUi","万兴"]
-function isCN(t:typeof tools[0]){return cnKw.some(k=>t.name.includes(k)||t.tags.some(tg=>tg.includes(k))||t.description.includes(k))}
 
 export const metadata: Metadata = {
-  title: "AI工具导航 — 600+款AI工具分类排行",
-  description: "收录600+款AI工具，覆盖对话AI/绘图/视频/写作/编程/办公等15个分类。每款工具标注学习阶段，新手也能快速找到适合的AI产品。",
+  title: "AI工具导航 - 分类入口",
+  description: "按对话、绘图、视频、写作、编程、办公、搜索、Agent、模型平台等分类浏览 AI 工具，进入分类后查看具体工具和详情。",
+}
+
+const categoryIntro: Record<string, string> = {
+  对话AI: "日常问答、写作、翻译、文件分析和个人助手，新手最该先试。",
+  AI绘图: "生成海报、头像、插画、电商图和概念设计，适合创意内容生产。",
+  AI视频: "文生视频、图生视频、数字人、口播和短视频自动化。",
+  AI写作: "文章、营销文案、论文辅助、SEO 内容和社媒笔记。",
+  AI编程: "代码补全、项目生成、Bug 修复、代码审查和编程 Agent。",
+  AI办公: "文档、PPT、表格、会议纪要、合同审查和知识库问答。",
+  AI搜索: "联网搜索、研究报告、学术检索和带来源的答案整理。",
+  Agent平台: "可视化搭建自动客服、工作流、任务助手和多 Agent 协作。",
+  模型平台: "API 接入、本地模型、模型托管、推理服务和模型社区。",
+  AI音频: "配音、语音识别、音乐生成、音频增强和声音克隆。",
+  AI设计: "Logo、UI、图片增强、矢量图、商品图和设计辅助。",
+  AI营销: "广告文案、投放素材、私域运营、销售自动化和增长分析。",
+  AI数据: "表格分析、BI 报告、SQL、数据清洗和趋势解释。",
+  AI学习: "语言学习、考试训练、论文辅助、课程总结和个人教练。",
+  AI效率: "任务管理、自动化、日程、邮件、个人知识库和效率插件。",
 }
 
 export default function ToolsPage() {
   return (
-    <div style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
+    <div style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
       <MathRain />
       <NavBar />
-      <div style={{maxWidth:1100,margin:'0 auto',padding:'60px 60px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.85)',textAlign:'left'}} className="max-sm:px-4">
-        <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.4em',color:'#7a6230',textTransform:'uppercase',marginBottom:10,fontWeight:700}}>Directory</p>
-        <h1 style={{fontSize:36,fontWeight:900,color:'#fff',letterSpacing:'0.02em',marginBottom:8}}>工具导航</h1>
-        <p style={{fontSize:14,fontWeight:400,color:'#ccc',marginBottom:32,textAlign:'left'}}>{tools.length} tools indexed</p>
+      <main style={{ maxWidth: 1120, margin: "0 auto", padding: "60px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.86)" }} className="max-sm:px-4">
+        <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.4em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 700 }}>Directory</p>
+        <h1 style={{ fontSize: 36, fontWeight: 900, color: "#fff", letterSpacing: "0.02em", marginBottom: 8 }}>工具导航</h1>
+        <p style={{ fontSize: 15, color: "#ccc", marginBottom: 18 }}>先选分类，再看该分类下的工具排行和详情。首页不再堆具体工具，路径更清楚。</p>
 
-        {/* 搜索——客户端组件 */}
-        <Suspense fallback={<div style={{textAlign:'center',padding:40,color:'#888'}}>加载搜索...</div>}>
-          <ToolsClient />
-        </Suspense>
-
-        {/* 分类排行——服务端渲染，SEO友好 */}
-        <div style={{marginTop:40}}>
-          <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.2em',color:'#e8c96a',fontWeight:700,marginBottom:16}}>🏆 分类排行（点击进入分类）</p>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(320px, 1fr))',gap:10}}>
-            {categories.map(cat=>{
-              const top5 = tools.filter(t=>t.category===cat.key).sort((a,b)=>b.rank-a.rank).slice(0,5)
-              if(top5.length===0) return null
-              return (
-                <Link key={cat.key} href={`/tools?category=${encodeURIComponent(cat.key)}`}
-                  className="card-cat"
-                  style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:12,padding:'16px 20px',display:'block',textDecoration:'none',transition:'all 0.3s'}}>
-                  <h3 style={{fontSize:16,fontWeight:700,color:'#ddd',marginBottom:12,display:'flex',alignItems:'center',gap:8}}>
-                    <span>{cat.icon}</span> {cat.label}
-                    <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:12,fontWeight:700,color:'#888',marginLeft:'auto'}}>{tools.filter(t=>t.category===cat.key).length}个</span>
-                  </h3>
-                  {top5.map((t,i)=>{
-                    const avColors=["#c9a84c","silver","#CD7F32","#555","#555"]
-                    return (
-                      <Link key={t.id} href={t.url} target="_blank" rel="noopener noreferrer"
-                        style={{display:'flex',alignItems:'center',gap:8,padding:'6px 0',textDecoration:'none',borderBottom:i<4?'1px solid #111':'none'}}>
-                        <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:13,fontWeight:700,color:avColors[i],width:24}}>#{i+1}</span>
-                        <span style={{width:26,height:26,borderRadius:4,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:800,color:'#fff',background:avColors[i],flexShrink:0,fontFamily:"'JetBrains Mono',monospace"}}>{t.name[0].toUpperCase()}</span>
-                        <span style={{fontSize:14,fontWeight:600,color:'#ddd',flex:1,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{t.name}</span>
-                        <span style={{fontSize:12,fontWeight:700,color:isCN(t)?'#e8c96a':'#c9a84c',marginLeft:'auto'}}>{isCN(t)?'🇨🇳':'🌍'}</span>
-                        <span style={{fontSize:12,color:'#aaa'}}>{t.pricing}</span>
-                      </Link>
-                    )
-                  })}
-                </Link>
-              )
-            })}
-          </div>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 36 }}>
+          <Link href="/search" className="btn-outline" style={{ textDecoration: "none" }}>搜索全部工具</Link>
+          <Link href="/learn/1" className="btn-outline" style={{ textDecoration: "none" }}>我完全不会 AI</Link>
+          <Link href="/search?q=帮我选一个 AI 工具" className="btn-primary" style={{ textDecoration: "none" }}>帮我选工具</Link>
         </div>
-      </div>
 
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 12 }}>
+          {categories.map((cat) => {
+            const items = tools.filter((tool) => tool.category === cat.key)
+            const freeCount = items.filter((tool) => tool.pricing === "免费" || tool.pricing === "有免费额度").length
+            const cnCount = items.filter(isDomesticTool).length
+            const featured = items.filter((tool) => tool.featured).slice(0, 3)
+            return (
+              <Link key={cat.key} href={categoryPath(cat.key)} className="card-cat" style={{ display: "block", textDecoration: "none", background: "rgba(255,255,255,0.03)", border: "1px solid #1a1a1a", borderRadius: 12, padding: "22px 24px", minHeight: 220 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+                  <span style={{ width: 42, height: 42, borderRadius: 10, background: "rgba(201,168,76,0.08)", border: "1px solid #2a1f10", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>{cat.icon}</span>
+                  <div style={{ flex: 1 }}>
+                    <h2 style={{ fontSize: 18, color: "#fff", fontWeight: 900 }}>{cat.label}</h2>
+                    <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, color: "#777", marginTop: 2 }}>{items.length} tools</p>
+                  </div>
+                </div>
+                <p style={{ fontSize: 13, color: "#bbb", lineHeight: 1.7, minHeight: 44 }}>{categoryIntro[cat.key] || "精选 AI 工具分类，适合按场景逐步探索。"}</p>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, margin: "18px 0" }}>
+                  <div><p style={{ fontSize: 18, color: "#e8c96a", fontWeight: 900 }}>{freeCount}</p><p style={{ fontSize: 10, color: "#777" }}>免费/额度</p></div>
+                  <div><p style={{ fontSize: 18, color: "#e8c96a", fontWeight: 900 }}>{cnCount}</p><p style={{ fontSize: 10, color: "#777" }}>中文友好</p></div>
+                  <div><p style={{ fontSize: 18, color: "#e8c96a", fontWeight: 900 }}>{featured.length}</p><p style={{ fontSize: 10, color: "#777" }}>推荐</p></div>
+                </div>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {featured.map((tool) => <span key={tool.id} className="tag tag-gray" style={{ fontSize: 10 }}>{tool.name}</span>)}
+                  {featured.length === 0 && <span className="tag tag-gray" style={{ fontSize: 10 }}>进入查看</span>}
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+      </main>
       <style>{`.card-cat:hover{background:rgba(201,168,76,0.06)!important;border-color:#7a6230!important}`}</style>
     </div>
   )
