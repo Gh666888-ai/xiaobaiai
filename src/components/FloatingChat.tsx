@@ -77,7 +77,7 @@ export function FloatingChat() {
   const [launcherMood, setLauncherMood] = useState<LauncherMood>("welcome")
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  const hideOnFullChat = pathname === "/chat"
+  const hideOnFullChat = pathname === "/chat" || pathname === "/login"
 
   useEffect(() => {
     const openChat = () => {

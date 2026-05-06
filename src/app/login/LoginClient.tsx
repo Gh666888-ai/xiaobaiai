@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/AuthContext"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
@@ -50,11 +50,18 @@ export default function LoginPage() {
   const [pwd, setPwd] = useState("")
   const [name, setName] = useState("")
   const [err, setErr] = useState("")
+  const [notice, setNotice] = useState("")
   const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    setErr("")
+    setNotice("")
+  }, [mode])
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErr("")
+    setNotice("")
     setBusy(true)
     try {
       if (mode === "register") {
@@ -72,6 +79,12 @@ export default function LoginPage() {
         return
       }
       if (!data?.session?.access_token || !data?.session?.refresh_token) {
+        if (mode === "register") {
+          setMode("login")
+          setNotice("账号已经创建成功。请用刚才的邮箱和密码登录。")
+          setBusy(false)
+          return
+        }
         setErr("登录服务没有返回完整会话，请稍后再试。")
         setBusy(false)
         return
@@ -126,8 +139,8 @@ export default function LoginPage() {
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 22 }}>
-          <button type="button" onClick={() => setMode("login")} className={mode === "login" ? "btn-primary" : "btn-outline"} style={{ justifyContent: "center" }}>登录</button>
-          <button type="button" onClick={() => setMode("register")} className={mode === "register" ? "btn-primary" : "btn-outline"} style={{ justifyContent: "center" }}>注册</button>
+          <button type="button" disabled={busy} onClick={() => setMode("login")} className={mode === "login" ? "btn-primary" : "btn-outline"} style={{ justifyContent: "center", opacity: busy ? 0.62 : 1 }}>登录</button>
+          <button type="button" disabled={busy} onClick={() => setMode("register")} className={mode === "register" ? "btn-primary" : "btn-outline"} style={{ justifyContent: "center", opacity: busy ? 0.62 : 1 }}>注册</button>
         </div>
 
         <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -152,7 +165,8 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {err && <p style={{ fontSize: 12, color: "#D94841", textAlign: "center" }}>{err}</p>}
+          {notice && <p style={{ fontSize: 12, color: "#8eeaf2", textAlign: "center", lineHeight: 1.7 }}>{notice}</p>}
+          {err && <p style={{ fontSize: 12, color: "#D94841", textAlign: "center", lineHeight: 1.7 }}>{err}</p>}
           <button type="submit" disabled={busy} className="btn-primary" style={{ justifyContent: "center", opacity: busy ? 0.6 : 1 }}>
             {busy ? "请稍后..." : mode === "login" ? "登录" : "创建账号并登录"}
           </button>

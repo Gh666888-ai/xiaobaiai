@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || ""
+const supabaseKey = supabaseServiceKey || supabaseAnonKey
 const MAX_LEVEL_EMAIL = "15171192200@163.com"
 const MAX_LEVEL_XP = 30000
 
@@ -22,17 +24,26 @@ async function withTimeout<T>(promise: Promise<T>, ms = 15000) {
   }
 }
 
+function createSupabaseClient(key = supabaseKey) {
+  return createClient(supabaseUrl, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+    global: {
+      fetch: (input, init) => fetch(input, { ...init, signal: init?.signal ?? AbortSignal.timeout(12000) }),
+    },
+  })
+}
+
 function normalizeAuthError(message = "") {
   const lower = message.toLowerCase()
   if (lower.includes("invalid login") || lower.includes("invalid credentials")) return "邮箱或密码错误。第一次使用请切换到注册。"
-  if (lower.includes("already") || lower.includes("registered")) return "该邮箱已注册，请切换到登录。"
+  if (lower.includes("already") || lower.includes("registered") || lower.includes("user already exists")) return "该邮箱已注册，请切换到登录并使用原密码。"
   if (lower.includes("timeout")) return "登录服务暂时响应较慢，请稍后再试。"
   if (lower.includes("email not confirmed")) return "邮箱还没有完成验证，请先查看邮箱验证邮件。"
   return message || "登录服务暂时不可用，请稍后再试。"
 }
 
 export async function POST(req: NextRequest) {
-  if (!supabaseUrl || !supabaseKey) return jsonError("服务器登录配置缺失，请检查 Supabase 环境变量。", 500)
+  if (!supabaseUrl || !supabaseAnonKey) return jsonError("服务器登录配置缺失，请检查 Supabase 环境变量。", 500)
 
   const body = await req.json().catch(() => null)
   const mode = body?.mode === "register" ? "register" : "login"
@@ -44,17 +55,13 @@ export async function POST(req: NextRequest) {
   if (password.length < 6) return jsonError("密码至少 6 位。")
   if (mode === "register" && !name) return jsonError("注册时请填写昵称，方便社区展示。")
 
-  const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-    global: {
-      fetch: (input, init) => fetch(input, { ...init, signal: init?.signal ?? AbortSignal.timeout(12000) }),
-    },
-  })
+  const authSupabase = createSupabaseClient(supabaseAnonKey)
+  const adminSupabase = createSupabaseClient(supabaseServiceKey || supabaseAnonKey)
 
   try {
     if (mode === "register") {
       const { data: signUpData, error: signUpError } = await withTimeout(
-        supabase.auth.signUp({
+        authSupabase.auth.signUp({
           email,
           password,
           options: { data: { name } },
@@ -62,7 +69,7 @@ export async function POST(req: NextRequest) {
       )
       if (signUpError) return jsonError(normalizeAuthError(signUpError.message))
       if (signUpData.user?.id) {
-        await supabase.from("profiles").upsert({
+        await adminSupabase.from("profiles").upsert({
           id: signUpData.user.id,
           name,
           email,
@@ -72,7 +79,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const { data, error } = await withTimeout(supabase.auth.signInWithPassword({ email, password }))
+    const { data, error } = await withTimeout(authSupabase.auth.signInWithPassword({ email, password }))
     if (error) return jsonError(normalizeAuthError(error.message), 401)
     if (!data.session || !data.user) return jsonError("没有拿到登录会话，请稍后再试。", 502)
 
@@ -101,12 +108,7 @@ export async function GET(req: NextRequest) {
   const token = authHeader.toLowerCase().startsWith("bearer ") ? authHeader.slice(7) : ""
   if (!token) return jsonError("未登录。", 401)
 
-  const supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-    global: {
-      fetch: (input, init) => fetch(input, { ...init, signal: init?.signal ?? AbortSignal.timeout(12000) }),
-    },
-  })
+  const supabase = createSupabaseClient()
 
   try {
     const { data, error } = await withTimeout(supabase.auth.getUser(token), 12000)
