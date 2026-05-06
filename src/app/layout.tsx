@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
-    apple: "/apple-touch-icon.svg",
+    apple: "/xiaobai-icon-180.png",
   },
   alternates: {
     canonical: "/",
@@ -60,13 +60,13 @@ export const metadata: Metadata = {
     description:
       "面向 AI 新手的一站式入口：工具选择器、站内AI助手、学习路径、模型排行、社区案例和每日成长任务。",
     url: "https://www.xiaobaiai.cn",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "小白AI" }],
+    images: [{ url: "/xiaobai-mascot.png", width: 1200, height: 1600, alt: "小白AI" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "小白AI - 从零开始学 AI、选工具、用 Agent",
     description: "AI工具导航、学习路径、站内AI助手、模型排行和社区案例。",
-    images: ["/og-image.png"],
+    images: ["/xiaobai-mascot.png"],
   },
   robots: {
     index: true,

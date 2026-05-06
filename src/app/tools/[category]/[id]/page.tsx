@@ -3,6 +3,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { categories, stageLabels, tools } from "@/data/tools"
 import { categoryPath, getToolAlternatives, getToolMeta, toolPath } from "@/data/tool-meta"
+import { brandLogoFromName, domainIcon } from "@/lib/visual-assets"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 
@@ -30,6 +31,7 @@ export default function ToolDetailPage({ params }: { params: { category: string;
   if (!tool) notFound()
   const category = categories.find((item) => item.key === tool.category)
   const meta = getToolMeta(tool)
+  const logo = tool.logo || brandLogoFromName(tool.name) || domainIcon(tool.url)
   const alternatives = getToolAlternatives(tool)
   const compare = [
     ["适合阶段", stageLabels[tool.stage] || `阶段 ${tool.stage}`],
@@ -53,7 +55,10 @@ export default function ToolDetailPage({ params }: { params: { category: string;
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 24, marginBottom: 28 }} className="max-sm:flex-col">
           <div>
             <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.35em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 700 }}>{tool.category}</p>
-            <h1 style={{ fontSize: 40, color: "#fff", fontWeight: 900, marginBottom: 10 }}>{tool.name}</h1>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
+              {logo && <img src={logo} alt={`${tool.name} logo`} style={{ width: 54, height: 54, borderRadius: 14, objectFit: "contain", background: "#fff", padding: 9, border: "1px solid #222" }} />}
+              <h1 style={{ fontSize: 40, color: "#fff", fontWeight: 900 }}>{tool.name}</h1>
+            </div>
             <p style={{ fontSize: 16, color: "#ccc", lineHeight: 1.9 }}>{tool.description}</p>
           </div>
           <a href={tool.url} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ textDecoration: "none", whiteSpace: "nowrap" }}>访问官网</a>

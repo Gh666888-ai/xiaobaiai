@@ -1,26 +1,32 @@
 {
-  "name": "小白AI - 从零开始学 AI、选工具、用 Agent",
+  "name": "小白AI - AI导航学习工作流搭建网站",
   "short_name": "小白AI",
-  "description": "面向零基础用户的 AI 工具导航、学习路径、模型排行、站内 AI 助手、社区案例和 AI 成长任务平台。",
+  "description": "面向 AI 新手的工具导航、学习路径、模型排行、站内 AI 助手、社区案例和 AI 工作流搭建平台。",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#050505",
-  "theme_color": "#c9a84c",
+  "theme_color": "#19c2d8",
   "lang": "zh-CN",
   "orientation": "portrait-primary",
   "categories": ["education", "productivity", "utilities"],
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/xiaobai-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/apple-touch-icon.svg",
+      "src": "/xiaobai-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/xiaobai-icon-180.png",
       "sizes": "180x180",
-      "type": "image/svg+xml"
+      "type": "image/png"
     }
   ]
 }

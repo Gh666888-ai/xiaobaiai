@@ -2,32 +2,39 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { ArrowRight, Bot, CheckCircle2, Clipboard, Database, FileText, GitBranch, Play, Plus, Save, ShieldCheck, Sparkles, Trash2, Workflow } from "lucide-react"
+import { ArrowRight, Bot, CheckCircle2, Clipboard, Database, FileText, GitBranch, History, Loader2, Play, Plus, Save, Send, Settings2, ShieldCheck, Sparkles, Trash2, Workflow } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { ContentVisual } from "@/components/ContentVisual"
+import { useAuth } from "@/lib/AuthContext"
+import { readAppAuth } from "@/lib/app-auth"
+import { buildWorkflowPlan, workflowStepLibrary, workflowTemplates, WorkflowStep, WorkflowStepType, WorkflowTemplate } from "@/data/workflows"
 
-type StepType = "trigger" | "collect" | "ai" | "action" | "review" | "output"
+type FlowStep = WorkflowStep
 
-type FlowStep = {
+type SavedWorkflow = {
   id: string
-  type: StepType
-  title: string
-  detail: string
-  tool: string
-}
-
-type Template = {
-  id: string
+  template_id?: string
   name: string
-  scene: string
   goal: string
-  difficulty: string
-  time: string
   steps: FlowStep[]
+  config?: Record<string, string>
+  schedule?: string
+  enabled?: boolean
+  last_run_at?: string
+  last_status?: string
+  updated_at?: string
 }
 
-const typeMeta: Record<StepType, { label: string; icon: any; color: string }> = {
+type WorkflowRun = {
+  id: string
+  workflow_name: string
+  status: string
+  message: string
+  started_at: string
+}
+
+const typeMeta: Record<WorkflowStepType, { label: string; icon: any; color: string }> = {
   trigger: { label: "触发", icon: Play, color: "#e8c96a" },
   collect: { label: "采集", icon: Database, color: "#64b5f6" },
   ai: { label: "AI", icon: Bot, color: "#7ee7d7" },
@@ -35,82 +42,6 @@ const typeMeta: Record<StepType, { label: string; icon: any; color: string }> = 
   review: { label: "审核", icon: ShieldCheck, color: "#f1c15f" },
   output: { label: "输出", icon: FileText, color: "#ff9a76" },
 }
-
-const stepLibrary: FlowStep[] = [
-  { id: "trigger-time", type: "trigger", title: "定时触发", detail: "每天、每周或每月自动运行一次。", tool: "Cron / QClaw / n8n" },
-  { id: "trigger-form", type: "trigger", title: "表单触发", detail: "用户提交需求后自动进入流程。", tool: "飞书表单 / 网站表单" },
-  { id: "collect-web", type: "collect", title: "抓取网页信息", detail: "读取指定网站、RSS、热榜或公开资料。", tool: "Browser / Tavily / RSS" },
-  { id: "collect-file", type: "collect", title: "读取文件资料", detail: "读取 PDF、Word、Excel 或知识库。", tool: "Dify 知识库 / Kimi" },
-  { id: "ai-summary", type: "ai", title: "AI 摘要与分类", detail: "把长内容压缩成要点，并按主题分类。", tool: "DeepSeek / Kimi / 通义千问" },
-  { id: "ai-draft", type: "ai", title: "AI 生成草稿", detail: "生成回复、文章、日报、脚本或方案初稿。", tool: "小白AI / DeepSeek" },
-  { id: "action-sheet", type: "action", title: "写入表格", detail: "把结构化结果写入表格、数据库或多维表。", tool: "飞书多维表格 / Excel" },
-  { id: "action-send", type: "action", title: "发送通知", detail: "把结果推送到微信、飞书、邮箱或站内消息。", tool: "企业微信 / 飞书 / 邮箱" },
-  { id: "review-human", type: "review", title: "人工确认", detail: "对外发送、扣费、删除文件前必须人工确认。", tool: "人工审核节点" },
-  { id: "output-report", type: "output", title: "生成报告", detail: "输出 Markdown、PDF、日报、看板或任务清单。", tool: "小白AI / Gamma / 飞书文档" },
-]
-
-const templates: Template[] = [
-  {
-    id: "daily-news",
-    name: "AI 资讯早报",
-    scene: "内容运营",
-    goal: "每天自动抓取 AI 资讯，筛选重点并生成早报。",
-    difficulty: "入门",
-    time: "30 分钟搭好",
-    steps: [
-      stepLibrary[0],
-      stepLibrary[2],
-      stepLibrary[4],
-      stepLibrary[9],
-      stepLibrary[7],
-    ],
-  },
-  {
-    id: "customer-service",
-    name: "智能客服草稿",
-    scene: "客服/私域",
-    goal: "收到用户问题后，自动检索资料并生成回复草稿。",
-    difficulty: "进阶",
-    time: "1 小时搭好",
-    steps: [
-      stepLibrary[1],
-      stepLibrary[3],
-      stepLibrary[5],
-      stepLibrary[8],
-      stepLibrary[7],
-    ],
-  },
-  {
-    id: "weekly-report",
-    name: "自动周报",
-    scene: "办公提效",
-    goal: "汇总本周数据、任务和沟通记录，生成周报。",
-    difficulty: "入门",
-    time: "40 分钟搭好",
-    steps: [
-      stepLibrary[0],
-      stepLibrary[6],
-      stepLibrary[4],
-      stepLibrary[9],
-      stepLibrary[8],
-    ],
-  },
-  {
-    id: "content-pipeline",
-    name: "内容矩阵发布",
-    scene: "自媒体",
-    goal: "一个选题生成多平台内容草稿，再人工审核发布。",
-    difficulty: "进阶",
-    time: "1-2 小时",
-    steps: [
-      stepLibrary[1],
-      stepLibrary[5],
-      stepLibrary[9],
-      stepLibrary[8],
-      stepLibrary[7],
-    ],
-  },
-]
 
 const draftKey = "xiaobaiai:workflow-draft:v1"
 
@@ -122,44 +53,78 @@ function cloneStep(step: FlowStep): FlowStep {
   return { ...step, id: makeId() }
 }
 
-function buildPlan(name: string, goal: string, steps: FlowStep[]) {
-  return [
-    `# ${name || "我的 AI 工作流"}`,
-    "",
-    `目标：${goal || "把重复任务拆成可执行的自动化流程。"}`,
-    "",
-    "## 流程步骤",
-    ...steps.map((step, index) => `${index + 1}. 【${typeMeta[step.type].label}】${step.title}\n   - 说明：${step.detail}\n   - 推荐工具：${step.tool}`),
-    "",
-    "## 上线前检查",
-    "- 是否明确触发条件，避免误触发。",
-    "- 是否设置人工审核点，特别是对外发送、扣费、删除文件和客户沟通。",
-    "- 是否准备失败重试和异常通知。",
-    "- 是否把 API Key、客户隐私和业务数据放在安全位置。",
-    "",
-    "## 小白AI建议",
-    "先让流程半自动跑 3 天，确认结果稳定后，再逐步减少人工审核。",
-  ].join("\n")
+function authHeaders(): Record<string, string> {
+  const token = readAppAuth()?.session?.access_token
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
+function timeLabel(value?: string) {
+  if (!value) return "还没有运行"
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return `${date.toLocaleDateString("zh-CN")} ${date.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`
 }
 
 export default function WorkflowsClient() {
+  const { user } = useAuth()
   const [templateParam, setTemplateParam] = useState("")
-  const [selected, setSelected] = useState<Template>(templates[0])
-  const [name, setName] = useState(templates[0].name)
-  const [goal, setGoal] = useState(templates[0].goal)
-  const [steps, setSteps] = useState<FlowStep[]>(templates[0].steps.map(cloneStep))
+  const [selected, setSelected] = useState<WorkflowTemplate>(workflowTemplates[0])
+  const [workflowId, setWorkflowId] = useState("")
+  const [name, setName] = useState(workflowTemplates[0].name)
+  const [goal, setGoal] = useState(workflowTemplates[0].goal)
+  const [steps, setSteps] = useState<FlowStep[]>(workflowTemplates[0].steps.map(cloneStep))
+  const [config, setConfig] = useState<Record<string, string>>({ schedule: workflowTemplates[0].defaultSchedule })
+  const [savedWorkflows, setSavedWorkflows] = useState<SavedWorkflow[]>([])
+  const [runs, setRuns] = useState<WorkflowRun[]>([])
   const [copied, setCopied] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [running, setRunning] = useState(false)
+  const [runMessage, setRunMessage] = useState("")
+  const [loadingCloud, setLoadingCloud] = useState(false)
 
-  const plan = useMemo(() => buildPlan(name, goal, steps), [name, goal, steps])
+  const plan = useMemo(() => buildWorkflowPlan(name, goal, steps), [name, goal, steps])
 
-  const applyTemplate = (template: Template) => {
+  const applyTemplate = (template: WorkflowTemplate) => {
     setSelected(template)
+    setWorkflowId("")
     setName(template.name)
     setGoal(template.goal)
     setSteps(template.steps.map(cloneStep))
+    setConfig({ schedule: template.defaultSchedule })
     setCopied(false)
     setSaved(false)
+    setRunMessage("")
+  }
+
+  const applySavedWorkflow = (workflow: SavedWorkflow) => {
+    const template = workflowTemplates.find((item) => item.id === workflow.template_id) || selected
+    setSelected(template)
+    setWorkflowId(workflow.id)
+    setName(workflow.name)
+    setGoal(workflow.goal)
+    setSteps((workflow.steps || template.steps).map(cloneStep))
+    setConfig({ schedule: workflow.schedule || template.defaultSchedule, ...(workflow.config || {}) })
+    setSaved(false)
+    setRunMessage("")
+  }
+
+  async function loadCloud() {
+    if (!user) return
+    setLoadingCloud(true)
+    try {
+      const headers = authHeaders()
+      const [workflowRes, runRes] = await Promise.all([
+        fetch("/api/workflows", { headers }),
+        fetch("/api/workflows/runs", { headers }),
+      ])
+      const workflowData = await workflowRes.json().catch(() => ({}))
+      const runData = await runRes.json().catch(() => ({}))
+      setSavedWorkflows(Array.isArray(workflowData.workflows) ? workflowData.workflows : [])
+      setRuns(Array.isArray(runData.runs) ? runData.runs : [])
+    } finally {
+      setLoadingCloud(false)
+    }
   }
 
   useEffect(() => {
@@ -167,12 +132,11 @@ export default function WorkflowsClient() {
     const rawDraft = window.localStorage.getItem(draftKey)
     if (!rawDraft) return
     try {
-      const draft = JSON.parse(rawDraft) as { name?: string; goal?: string; steps?: FlowStep[] }
+      const draft = JSON.parse(rawDraft) as { name?: string; goal?: string; steps?: FlowStep[]; config?: Record<string, string> }
       if (draft.name) setName(draft.name)
       if (draft.goal) setGoal(draft.goal)
-      if (Array.isArray(draft.steps) && draft.steps.length > 0) {
-        setSteps(draft.steps.map((step) => ({ ...step, id: makeId() })))
-      }
+      if (draft.config) setConfig(draft.config)
+      if (Array.isArray(draft.steps) && draft.steps.length > 0) setSteps(draft.steps.map((step) => ({ ...step, id: makeId() })))
     } catch {
       window.localStorage.removeItem(draftKey)
     }
@@ -180,21 +144,17 @@ export default function WorkflowsClient() {
 
   useEffect(() => {
     if (!templateParam || selected.id === templateParam) return
-    const template = templates.find((item) => item.id === templateParam)
+    const template = workflowTemplates.find((item) => item.id === templateParam)
     if (template) applyTemplate(template)
   }, [templateParam, selected.id])
 
-  const addStep = (step: FlowStep) => {
-    setSteps((current) => [...current, cloneStep(step)])
-  }
+  useEffect(() => {
+    loadCloud()
+  }, [user?.userId])
 
-  const updateStep = (id: string, patch: Partial<FlowStep>) => {
-    setSteps((current) => current.map((step) => (step.id === id ? { ...step, ...patch } : step)))
-  }
-
-  const removeStep = (id: string) => {
-    setSteps((current) => current.filter((step) => step.id !== id))
-  }
+  const addStep = (step: FlowStep) => setSteps((current) => [...current, cloneStep(step)])
+  const updateStep = (id: string, patch: Partial<FlowStep>) => setSteps((current) => current.map((step) => (step.id === id ? { ...step, ...patch } : step)))
+  const removeStep = (id: string) => setSteps((current) => current.filter((step) => step.id !== id))
 
   const copyPlan = async () => {
     await navigator.clipboard.writeText(plan).catch(() => undefined)
@@ -202,58 +162,127 @@ export default function WorkflowsClient() {
     window.setTimeout(() => setCopied(false), 1600)
   }
 
-  const saveDraft = () => {
-    window.localStorage.setItem(draftKey, JSON.stringify({ name, goal, steps }))
-    setSaved(true)
-    window.setTimeout(() => setSaved(false), 1600)
+  const saveDraft = async () => {
+    if (!user) {
+      window.localStorage.setItem(draftKey, JSON.stringify({ name, goal, steps, config }))
+      setSaved(true)
+      window.setTimeout(() => setSaved(false), 1600)
+      return ""
+    }
+    setSaving(true)
+    try {
+      const res = await fetch("/api/workflows", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ id: workflowId || undefined, templateId: selected.id, name, goal, steps, config, schedule: config.schedule || selected.defaultSchedule, enabled: false }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "保存失败")
+      setWorkflowId(data.workflow.id)
+      setSaved(true)
+      await loadCloud()
+      window.setTimeout(() => setSaved(false), 1600)
+      return data.workflow.id as string
+    } catch (error: any) {
+      setRunMessage(error?.message || "保存失败，请稍后再试。")
+      return ""
+    } finally {
+      setSaving(false)
+    }
   }
+
+  const runOnce = async () => {
+    if (!user) {
+      setRunMessage("请先登录，再运行云端工作流。")
+      return
+    }
+    let id = workflowId
+    if (!id) {
+      id = await saveDraft()
+    }
+    if (!id) {
+      setRunMessage("请先保存工作流，再运行。")
+      return
+    }
+    setRunning(true)
+    setRunMessage("")
+    try {
+      const res = await fetch(`/api/workflows/${id}/run`, { method: "POST", headers: authHeaders() })
+      const data = await res.json()
+      setRunMessage(data.message || "已运行一次。")
+      await loadCloud()
+    } catch {
+      setRunMessage("运行失败，请检查 Webhook 地址或稍后再试。")
+    } finally {
+      setRunning(false)
+    }
+  }
+
+  const guideInputs = [...selected.guide.inputs, ...selected.guide.outputs]
 
   return (
     <div style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
       <MathRain />
       <NavBar />
-      <main style={{ maxWidth: 1180, margin: "0 auto", padding: "58px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.88)" }} className="max-sm:px-4">
+      <main style={{ maxWidth: 1220, margin: "0 auto", padding: "58px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.88)" }} className="max-sm:px-4">
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 360px", gap: 22, alignItems: "end", marginBottom: 26 }} className="max-sm:grid-cols-1">
           <div>
-            <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.36em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 900 }}>Workflow Builder</p>
+            <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.36em", color: "#16c4d8", textTransform: "uppercase", marginBottom: 10, fontWeight: 900 }}>Workflow Builder</p>
             <h1 style={{ fontSize: 38, fontWeight: 950, color: "#fff", letterSpacing: "0.02em", marginBottom: 10 }}>AI 工作流搭建器</h1>
-            <p style={{ fontSize: 15, color: "#cfcfcf", lineHeight: 1.9, maxWidth: 720 }}>用小白能看懂的方式，把一个想法拆成触发、采集、AI处理、动作、审核和输出。先生成可执行方案，再逐步接入真实自动化工具。</p>
+            <p style={{ fontSize: 15, color: "#cfcfcf", lineHeight: 1.9, maxWidth: 760 }}>用小白能看懂的方式，把一个想法拆成触发、采集、AI处理、动作、审核和输出。登录后保存到云端，换手机也能继续编辑，并可通过 n8n、Dify、飞书多维表和企业微信 Webhook 运行。</p>
           </div>
           <ContentVisual compact title="AI 自动化流程" label="WORKFLOW" meta="Trigger -> AI -> Action" kind="agent" />
         </div>
 
         <section style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 10, marginBottom: 18 }} className="max-sm:grid-cols-1">
-          {templates.map((template) => {
+          {workflowTemplates.map((template) => {
             const active = selected.id === template.id
             return (
-              <button key={template.id} onClick={() => applyTemplate(template)} style={{ textAlign: "left", border: `1px solid ${active ? "#7a6230" : "#202020"}`, borderRadius: 10, background: active ? "rgba(201,168,76,0.08)" : "rgba(255,255,255,0.03)", padding: 15, cursor: "pointer" }}>
-                <p style={{ color: active ? "#e8c96a" : "#fff", fontSize: 15, fontWeight: 950, marginBottom: 7 }}>{template.name}</p>
+              <button key={template.id} onClick={() => applyTemplate(template)} style={{ textAlign: "left", border: `1px solid ${active ? "#16c4d8" : "#202020"}`, borderRadius: 10, background: active ? "rgba(22,196,216,0.08)" : "rgba(255,255,255,0.03)", padding: 15, cursor: "pointer" }}>
+                <p style={{ color: active ? "#7ee7f0" : "#fff", fontSize: 15, fontWeight: 950, marginBottom: 7 }}>{template.name}</p>
                 <p style={{ color: "#999", fontSize: 12, lineHeight: 1.65 }}>{template.scene} · {template.difficulty} · {template.time}</p>
               </button>
             )
           })}
         </section>
 
-        <div style={{ display: "grid", gridTemplateColumns: "260px minmax(0,1fr) 330px", gap: 16 }} className="max-sm:grid-cols-1">
-          <aside style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 16, alignSelf: "start" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-              <Plus size={16} style={{ color: "#e8c96a" }} />
-              <h2 style={{ color: "#fff", fontSize: 15, fontWeight: 950 }}>添加步骤</h2>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {stepLibrary.map((step) => {
-                const Icon = typeMeta[step.type].icon
-                return (
-                  <button key={step.id} onClick={() => addStep(step)} style={{ display: "grid", gridTemplateColumns: "24px 1fr", gap: 9, textAlign: "left", border: "1px solid #232323", borderRadius: 8, background: "rgba(0,0,0,0.22)", padding: 10, cursor: "pointer" }}>
-                    <Icon size={16} style={{ color: typeMeta[step.type].color, marginTop: 2 }} />
-                    <span>
-                      <span style={{ display: "block", color: "#ddd", fontSize: 12, fontWeight: 900 }}>{step.title}</span>
-                      <span style={{ display: "block", color: "#777", fontSize: 11, lineHeight: 1.55, marginTop: 2 }}>{step.tool}</span>
-                    </span>
+        <div style={{ display: "grid", gridTemplateColumns: "250px minmax(0,1fr) 350px", gap: 16 }} className="max-sm:grid-cols-1">
+          <aside style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <section style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <Plus size={16} style={{ color: "#16c4d8" }} />
+                <h2 style={{ color: "#fff", fontSize: 15, fontWeight: 950 }}>添加步骤</h2>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {workflowStepLibrary.map((step) => {
+                  const Icon = typeMeta[step.type].icon
+                  return (
+                    <button key={step.id} onClick={() => addStep(step)} style={{ display: "grid", gridTemplateColumns: "24px 1fr", gap: 9, textAlign: "left", border: "1px solid #232323", borderRadius: 8, background: "rgba(0,0,0,0.22)", padding: 10, cursor: "pointer" }}>
+                      <Icon size={16} style={{ color: typeMeta[step.type].color, marginTop: 2 }} />
+                      <span>
+                        <span style={{ display: "block", color: "#ddd", fontSize: 12, fontWeight: 900 }}>{step.title}</span>
+                        <span style={{ display: "block", color: "#777", fontSize: 11, lineHeight: 1.55, marginTop: 2 }}>{step.tool}</span>
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </section>
+
+            <section style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 16 }}>
+              <h2 style={{ color: "#fff", fontSize: 15, fontWeight: 950, marginBottom: 12 }}>我的云端库</h2>
+              {!user && <p style={{ color: "#999", fontSize: 12, lineHeight: 1.7 }}>登录后可以把工作流保存到账号，手机和电脑同步。</p>}
+              {user && loadingCloud && <p style={{ color: "#888", fontSize: 12 }}>正在读取...</p>}
+              {user && !loadingCloud && savedWorkflows.length === 0 && <p style={{ color: "#999", fontSize: 12, lineHeight: 1.7 }}>还没有云端工作流，保存当前流程后会出现在这里。</p>}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {savedWorkflows.map((workflow) => (
+                  <button key={workflow.id} onClick={() => applySavedWorkflow(workflow)} style={{ textAlign: "left", border: `1px solid ${workflow.id === workflowId ? "#16c4d8" : "#232323"}`, borderRadius: 8, background: workflow.id === workflowId ? "rgba(22,196,216,0.08)" : "rgba(0,0,0,0.22)", padding: 10, cursor: "pointer" }}>
+                    <span style={{ display: "block", color: "#eee", fontSize: 12, fontWeight: 900 }}>{workflow.name}</span>
+                    <span style={{ display: "block", color: "#777", fontSize: 10, marginTop: 4 }}>{timeLabel(workflow.last_run_at)} · {workflow.last_status || "draft"}</span>
                   </button>
-                )
-              })}
-            </div>
+                ))}
+              </div>
+            </section>
           </aside>
 
           <section style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 18 }}>
@@ -263,11 +292,11 @@ export default function WorkflowsClient() {
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-              <GitBranch size={17} style={{ color: "#e8c96a" }} />
+              <GitBranch size={17} style={{ color: "#16c4d8" }} />
               <h2 style={{ color: "#fff", fontSize: 17, fontWeight: 950 }}>流程编排</h2>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
               {steps.map((step, index) => {
                 const meta = typeMeta[step.type]
                 const Icon = meta.icon
@@ -294,25 +323,63 @@ export default function WorkflowsClient() {
                 )
               })}
             </div>
+
+            <section style={{ border: "1px solid #17343a", borderRadius: 12, padding: 16, background: "rgba(22,196,216,0.045)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <Settings2 size={17} style={{ color: "#7ee7f0" }} />
+                <h2 style={{ color: "#fff", fontSize: 16, fontWeight: 950 }}>小白一键配置向导</h2>
+              </div>
+              <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginBottom: 12 }}>按模板填写账号、来源和推送地址，小白AI 会生成可执行配置。Webhook 支持 n8n、Dify Workflow、飞书机器人、企业微信机器人。</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }} className="max-sm:grid-cols-1">
+                <input className="form-input" value={config.schedule || ""} onChange={(event) => setConfig((prev) => ({ ...prev, schedule: event.target.value }))} placeholder={selected.defaultSchedule} />
+                {guideInputs.map((input) => (
+                  <input key={input.key} className="form-input" value={config[input.key] || ""} onChange={(event) => setConfig((prev) => ({ ...prev, [input.key]: event.target.value }))} placeholder={`${input.label}：${input.placeholder}`} />
+                ))}
+              </div>
+              <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {selected.guide.accounts.map((account) => <span key={account} style={{ border: "1px solid #1d3d43", background: "rgba(0,0,0,0.18)", color: "#8eeaf2", borderRadius: 999, padding: "4px 9px", fontSize: 11 }}>{account}</span>)}
+              </div>
+            </section>
           </section>
 
-          <aside style={{ border: "1px solid #2a1f10", borderRadius: 12, background: "rgba(201,168,76,0.045)", padding: 18, alignSelf: "start" }}>
+          <aside style={{ border: "1px solid #17343a", borderRadius: 12, background: "rgba(22,196,216,0.045)", padding: 18, alignSelf: "start" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-              <Sparkles size={17} style={{ color: "#e8c96a" }} />
+              <Sparkles size={17} style={{ color: "#7ee7f0" }} />
               <h2 style={{ color: "#fff", fontSize: 17, fontWeight: 950 }}>执行方案</h2>
             </div>
-            <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-word", color: "#ddd", fontSize: 12, lineHeight: 1.75, fontFamily: "'Noto Sans SC', sans-serif", background: "rgba(0,0,0,0.28)", border: "1px solid #1f1f1f", borderRadius: 10, padding: 13, maxHeight: 520, overflow: "auto" }}>{plan}</pre>
+            <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-word", color: "#ddd", fontSize: 12, lineHeight: 1.75, fontFamily: "'Noto Sans SC', sans-serif", background: "rgba(0,0,0,0.28)", border: "1px solid #1f1f1f", borderRadius: 10, padding: 13, maxHeight: 360, overflow: "auto" }}>{plan}</pre>
             <button onClick={copyPlan} className="btn-primary" style={{ width: "100%", justifyContent: "center", marginTop: 12 }}>
               {copied ? <CheckCircle2 size={15} /> : <Clipboard size={15} />}
               {copied ? "已复制" : "复制方案"}
             </button>
-            <button onClick={saveDraft} className="btn-outline" style={{ width: "100%", justifyContent: "center", marginTop: 10 }}>
-              {saved ? <CheckCircle2 size={15} /> : <Save size={15} />}
-              {saved ? "已保存草稿" : "保存草稿"}
+            <button onClick={saveDraft} className="btn-outline" disabled={saving} style={{ width: "100%", justifyContent: "center", marginTop: 10 }}>
+              {saving ? <Loader2 size={15} className="spin" /> : saved ? <CheckCircle2 size={15} /> : <Save size={15} />}
+              {user ? (saved ? "已保存到云端" : "保存到云端库") : (saved ? "已保存本机草稿" : "保存本机草稿")}
             </button>
-            <div style={{ marginTop: 14, border: "1px solid #202020", borderRadius: 10, padding: 13, background: "rgba(0,0,0,0.2)" }}>
-              <p style={{ color: "#fff", fontSize: 13, fontWeight: 950, marginBottom: 7 }}>下一步</p>
-              <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75 }}>把方案复制给右下角小白AI，或发到社区让大家帮你检查。后续版本会加入保存工作流、真实执行和定时运行。</p>
+            <button onClick={runOnce} className="btn-primary" disabled={running || !user} style={{ width: "100%", justifyContent: "center", marginTop: 10 }}>
+              {running ? <Loader2 size={15} className="spin" /> : <Send size={15} />}
+              运行一次
+            </button>
+            {!user && <p style={{ color: "#999", fontSize: 12, lineHeight: 1.7, marginTop: 10 }}>运行和云端同步需要登录。本机草稿仍可保存。</p>}
+            {runMessage && <p style={{ color: runMessage.includes("失败") ? "#ff9a76" : "#8eeaf2", fontSize: 12, lineHeight: 1.7, marginTop: 10 }}>{runMessage}</p>}
+
+            <div style={{ marginTop: 16, border: "1px solid #202020", borderRadius: 10, padding: 13, background: "rgba(0,0,0,0.2)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                <History size={15} style={{ color: "#7ee7f0" }} />
+                <p style={{ color: "#fff", fontSize: 13, fontWeight: 950 }}>运行记录</p>
+              </div>
+              {runs.length === 0 ? (
+                <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75 }}>还没有运行记录。运行一次后，会看到类似“今天 08:00 资讯早报已生成”。</p>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {runs.slice(0, 8).map((run) => (
+                    <div key={run.id} style={{ border: "1px solid #242424", borderRadius: 8, padding: 9, background: "rgba(255,255,255,0.025)" }}>
+                      <p style={{ color: "#ddd", fontSize: 12, fontWeight: 850 }}>{timeLabel(run.started_at)} {run.workflow_name}</p>
+                      <p style={{ color: run.status === "success" ? "#8eeaf2" : "#ff9a76", fontSize: 11, marginTop: 3 }}>{run.message}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
                 <Link href="/community/new" className="btn-outline" style={{ textDecoration: "none", padding: "7px 12px" }}>发到社区</Link>
                 <Link href="/learn/4" className="btn-outline" style={{ textDecoration: "none", padding: "7px 12px" }}>学习自动化</Link>

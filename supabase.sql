@@ -86,3 +86,54 @@ ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS likes INTEGER DEFAULT 0;
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS comments_count INTEGER DEFAULT 0;
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS author_email TEXT;
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS author_xp INTEGER DEFAULT 0;
+
+-- AI 工作流云端库。登录用户保存后，换手机/电脑也能继续编辑。
+CREATE TABLE IF NOT EXISTS ai_workflows (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  template_id TEXT,
+  name TEXT NOT NULL,
+  goal TEXT,
+  steps JSONB NOT NULL DEFAULT '[]'::jsonb,
+  config JSONB NOT NULL DEFAULT '{}'::jsonb,
+  schedule TEXT,
+  enabled BOOLEAN DEFAULT FALSE,
+  last_run_at TIMESTAMPTZ,
+  last_status TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS ai_workflows_user_updated_idx ON ai_workflows(user_id, updated_at DESC);
+CREATE INDEX IF NOT EXISTS ai_workflows_enabled_idx ON ai_workflows(enabled);
+
+ALTER TABLE ai_workflows ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can read own workflows" ON ai_workflows;
+DROP POLICY IF EXISTS "Users can insert own workflows" ON ai_workflows;
+DROP POLICY IF EXISTS "Users can update own workflows" ON ai_workflows;
+DROP POLICY IF EXISTS "Users can delete own workflows" ON ai_workflows;
+CREATE POLICY "Users can read own workflows" ON ai_workflows FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own workflows" ON ai_workflows FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own workflows" ON ai_workflows FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own workflows" ON ai_workflows FOR DELETE USING (auth.uid() = user_id);
+
+-- 工作流运行记录。用于展示“今天 08:00 资讯早报已生成”。
+CREATE TABLE IF NOT EXISTS workflow_runs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  workflow_id UUID REFERENCES ai_workflows(id) ON DELETE SET NULL,
+  workflow_name TEXT,
+  status TEXT NOT NULL DEFAULT 'success',
+  message TEXT,
+  output TEXT,
+  meta JSONB NOT NULL DEFAULT '{}'::jsonb,
+  started_at TIMESTAMPTZ DEFAULT NOW(),
+  finished_at TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS workflow_runs_user_started_idx ON workflow_runs(user_id, started_at DESC);
+CREATE INDEX IF NOT EXISTS workflow_runs_workflow_idx ON workflow_runs(workflow_id, started_at DESC);
+
+ALTER TABLE workflow_runs ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can read own workflow runs" ON workflow_runs;
+CREATE POLICY "Users can read own workflow runs" ON workflow_runs FOR SELECT USING (auth.uid() = user_id);

@@ -3,6 +3,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { categories, tools } from "@/data/tools"
 import { getToolMeta, toolPath } from "@/data/tool-meta"
+import { brandLogoFromName, domainIcon } from "@/lib/visual-assets"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 
@@ -43,10 +44,12 @@ export default function ToolCategoryPage({ params }: { params: { category: strin
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 10 }}>
           {items.map((tool, index) => {
             const meta = getToolMeta(tool)
+            const logo = tool.logo || brandLogoFromName(tool.name) || domainIcon(tool.url)
             return (
               <Link key={tool.id} href={toolPath(tool)} style={{ display: "block", textDecoration: "none", border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: "20px 22px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
                   <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, color: index < 3 ? "#e8c96a" : "#666", fontWeight: 900, width: 28 }}>#{index + 1}</span>
+                  {logo && <img src={logo} alt={`${tool.name} logo`} style={{ width: 34, height: 34, borderRadius: 9, objectFit: "contain", background: "#fff", padding: 6, border: "1px solid #222" }} />}
                   <h2 style={{ fontSize: 17, color: "#fff", fontWeight: 900, flex: 1 }}>{tool.name}</h2>
                   {tool.featured && <span className="tag tag-gold" style={{ fontSize: 10 }}>推荐</span>}
                 </div>

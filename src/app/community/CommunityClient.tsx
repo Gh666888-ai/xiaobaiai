@@ -7,6 +7,7 @@ import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisual"
 import { LevelBadge } from "@/components/LevelBadge"
+import { communityImage } from "@/lib/visual-assets"
 import Link from "next/link"
 import { Heart, MessageCircle, Pin, Search } from "lucide-react"
 
@@ -93,7 +94,11 @@ export default function CommunityPage() {
                 onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.04)';e.currentTarget.style.borderColor='#7a6230'}}
                 onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor='#1a1a1a'}}>
                 <div style={{display:'grid',gridTemplateColumns:'230px minmax(0,1fr)',gap:20,alignItems:'stretch'}} className="max-sm:grid-cols-1">
-                  <ContentVisual compact title={p.title} label={p.category} meta={`${p.likes||0} likes`} kind={inferContentVisualKind(`${p.category} ${p.title} ${(p.tags||[]).join(" ")}`,"community")} />
+                  {p.image || p.cover || communityImage(`${p.category} ${p.title} ${(p.tags||[]).join(" ")}`) ? (
+                    <img src={p.image || p.cover || communityImage(`${p.category} ${p.title} ${(p.tags||[]).join(" ")}`)} alt="" style={{ width: "100%", height: 126, objectFit: "cover", borderRadius: 8, border: "1px solid #1f1f1f", display: "block", background: "#111" }} />
+                  ) : (
+                    <ContentVisual compact title={p.title} label={p.category} meta={`${p.likes||0} likes`} kind={inferContentVisualKind(`${p.category} ${p.title} ${(p.tags||[]).join(" ")}`,"community")} />
+                  )}
                   <div style={{minWidth:0}}>
                     <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10,flexWrap:'wrap'}}>
                       {p.pinned && <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#e8c96a',border:'1px solid #7a6230',padding:'2px 8px',borderRadius:4,display:'flex',alignItems:'center',gap:4}}><Pin size={10} />置顶</span>}

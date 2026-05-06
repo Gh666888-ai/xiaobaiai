@@ -7,6 +7,7 @@ import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisual"
 import { LevelBadge } from "@/components/LevelBadge"
+import { communityImage } from "@/lib/visual-assets"
 import Link from "next/link"
 import { Heart, MessageCircle, Pin, ArrowLeft } from "lucide-react"
 
@@ -60,7 +61,11 @@ export default function PostDetailPage() {
         </div>
 
         <div style={{marginBottom:32}}>
-          <ContentVisual title={post.title} label={post.category} meta={`${authorName} · ${post.publishedAt || post.published_at || ""}`} kind={inferContentVisualKind(`${post.category} ${post.title} ${(post.tags || []).join(" ")}`,"community")} />
+          {post.image || post.cover || communityImage(`${post.category} ${post.title} ${(post.tags || []).join(" ")}`) ? (
+            <img src={post.image || post.cover || communityImage(`${post.category} ${post.title} ${(post.tags || []).join(" ")}`)} alt="" style={{ width: "100%", maxHeight: 420, objectFit: "cover", borderRadius: 8, border: "1px solid #1f1f1f", marginBottom: 28, background: "#111" }} />
+          ) : (
+            <ContentVisual title={post.title} label={post.category} meta={`${authorName} · ${post.publishedAt || post.published_at || ""}`} kind={inferContentVisualKind(`${post.category} ${post.title} ${(post.tags || []).join(" ")}`,"community")} />
+          )}
         </div>
 
         {/* 正文 */}
