@@ -6,14 +6,14 @@ import { useAuth } from "@/lib/AuthContext"
 import { getUserLevel } from "@/data/user"
 
 const links = [
-  { l: "小白爱学习", h: "/learn", icon: GraduationCap },
-  { l: "工具", h: "/tools", icon: Compass },
-  { l: "问AI", h: "/chat", icon: MessageCircle },
-  { l: "选择器", h: "/choose-tool", icon: Search },
-  { l: "成长舱", h: "/growth", icon: Trophy },
-  { l: "资讯", h: "/news", icon: Newspaper },
-  { l: "模型", h: "/models", icon: Bot },
-  { l: "社区", h: "/community", icon: Users },
+  { label: "小白爱学习", href: "/learn", icon: GraduationCap },
+  { label: "工具", href: "/tools", icon: Compass },
+  { label: "问AI", href: "/chat", icon: MessageCircle },
+  { label: "选择器", href: "/choose-tool", icon: Search },
+  { label: "成长舱", href: "/growth", icon: Trophy },
+  { label: "资讯", href: "/news", icon: Newspaper },
+  { label: "模型", href: "/models", icon: Bot },
+  { label: "社区", href: "/community", icon: Users },
 ]
 
 export function NavBar() {
@@ -30,9 +30,9 @@ export function NavBar() {
         {links.map((item) => {
           const Icon = item.icon
           return (
-            <Link key={item.l} href={item.h} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontFamily: "'Noto Sans SC', sans-serif", fontSize: 13, fontWeight: 800, color: "#ccc", textDecoration: "none", transition: "color 0.2s", whiteSpace: "nowrap" }}>
+            <Link key={item.href} href={item.href} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontFamily: "'Noto Sans SC', sans-serif", fontSize: 13, fontWeight: 800, color: "#ccc", textDecoration: "none", transition: "color 0.2s", whiteSpace: "nowrap" }}>
               <Icon size={14} style={{ color: "#7a6230" }} />
-              {item.l}
+              {item.label}
             </Link>
           )
         })}

@@ -155,6 +155,22 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
+
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3, minmax(0, 1fr))',gap:10,maxWidth:720,margin:'18px auto 0',opacity:0,animation:'fadeUp 0.8s ease forwards 1.85s'}} className="max-sm:grid-cols-1">
+            {[
+              {mood:'welcome' as const,title:'欢迎',text:'第一次来，我带你从最简单的一步开始。'},
+              {mood:'thinking' as const,title:'思考',text:'遇到复杂问题，我先帮你拆目标和步骤。'},
+              {mood:'recommend' as const,title:'推荐工具',text:'说出用途，我给你匹配工具和学习路径。'},
+            ].map(item=>(
+              <Link key={item.title} href={item.mood==='recommend'?'/choose-tool':'/chat'} style={{display:'flex',alignItems:'center',gap:10,border:'1px solid #1f1f1f',background:'rgba(0,0,0,0.52)',borderRadius:12,padding:'12px 14px',textDecoration:'none',textAlign:'left'}}>
+                <XiaobaiMascot size={38} mood={item.mood} />
+                <span style={{display:'flex',flexDirection:'column',gap:3}}>
+                  <span style={{fontSize:13,fontWeight:950,color:'#fff'}}>{item.title}</span>
+                  <span style={{fontSize:11,lineHeight:1.5,color:'#999'}}>{item.text}</span>
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -163,8 +179,8 @@ export default function HomePage() {
         <p style={{fontFamily:"'JetBrains Mono', monospace",fontSize:10,letterSpacing:'0.4em',color:'#7a6230',textTransform:'uppercase',textAlign:'center',marginBottom:80}}>核心板块</p>
         <div style={{display:'grid',gridTemplateColumns:'repeat(3, 1fr)',gap:2,maxWidth:1100,margin:'0 auto'}} className="max-sm:grid-cols-1">
           {[
+            {icon:'◉',name:'小白爱学习',desc:'7 个阶段，从认识 AI 到搭建 Agent 工作流。每步有配套工具和详细教程，零基础友好。',href:'/learn'},
             {icon:'◈',name:'工具导航',desc:`收录 ${tools.length}+ 款 AI 工具，覆盖 15 个分类。每款工具标注学习阶段，新手也能快速找到适合自己的 AI 产品。`,href:'/tools'},
-            {icon:'◉',name:'学习路径',desc:'7 个阶段，从认识 AI 到搭建 Agent 工作流。每步有配套工具和详细教程，零基础友好。',href:'/learn'},
             {icon:'◎',name:'AI 资讯',desc:'Agent 自动聚合最新 AI 动态 + 社区用户投稿。双内容源保障资讯广度与质量。',href:'/news'},
           ].map(card=>(
             <Link key={card.name} href={card.href}

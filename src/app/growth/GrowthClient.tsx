@@ -5,6 +5,7 @@ import Link from "next/link"
 import { CalendarCheck, CheckCircle2, Compass, Flame, Rocket, Sparkles, Target, Trophy } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
+import { XiaobaiMascot } from "@/components/XiaobaiMascot"
 import { stages } from "@/data/learning-path"
 import { progressId, readLearningProgress } from "@/lib/learning-progress"
 
@@ -50,6 +51,14 @@ function levelName(xp: number) {
   return { name: "AI 新手", next: 120 }
 }
 
+function levelBadge(xp: number) {
+  if (xp >= 1200) return { title: "实战徽章", subtitle: "已经能独立搭 Agent", color: "#e8c96a", mood: "complete" as const }
+  if (xp >= 700) return { title: "工作流徽章", subtitle: "能把工具串成流程", color: "#3DA563", mood: "recommend" as const }
+  if (xp >= 360) return { title: "工具熟手徽章", subtitle: "能判断工具适不适合", color: "#e8c96a", mood: "happy" as const }
+  if (xp >= 120) return { title: "练习生徽章", subtitle: "开始稳定练提示词", color: "#c9a84c", mood: "thinking" as const }
+  return { title: "新手徽章", subtitle: "从第一步开始发光", color: "#c9a84c", mood: "welcome" as const }
+}
+
 export default function GrowthClient() {
   const [state, setState] = useState<GrowthState>({ xp: 0, streak: 0, lastCheckIn: "", doneMissions: {} })
   const [learnDone, setLearnDone] = useState(0)
@@ -64,6 +73,7 @@ export default function GrowthClient() {
   const checkedToday = state.lastCheckIn === today
   const doneCount = missions.filter((mission) => state.doneMissions[`${today}:${mission.id}`]).length
   const level = levelName(state.xp)
+  const badge = levelBadge(state.xp)
   const levelPercent = Math.min(100, Math.round((state.xp / level.next) * 100))
 
   const suggestedStage = useMemo(() => {
@@ -105,9 +115,18 @@ export default function GrowthClient() {
             <h1 style={{ fontSize: 38, fontWeight: 950, color: "#fff", letterSpacing: "0.02em", marginBottom: 10 }}>AI 成长舱</h1>
             <p style={{ fontSize: 15, color: "#cfcfcf", lineHeight: 1.9, maxWidth: 680 }}>每天给自己一个小任务，积累经验值、连续学习和下一步路线。这个进度保存在你的浏览器里，不需要登录也能用。</p>
           </div>
-          <button onClick={checkIn} disabled={checkedToday} style={{ display: "inline-flex", alignItems: "center", gap: 8, color: checkedToday ? "#3DA563" : "#111", background: checkedToday ? "rgba(61,165,99,0.1)" : "#e8c96a", border: checkedToday ? "1px solid #2f7d4d" : "1px solid #e8c96a", borderRadius: 10, padding: "11px 16px", fontSize: 13, fontWeight: 950, cursor: checkedToday ? "default" : "pointer" }}>
-            <CalendarCheck size={16} /> {checkedToday ? "今日已打卡" : "今日打卡 +15XP"}
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, border: "1px solid #2a1f10", borderRadius: 14, background: "rgba(201,168,76,0.055)", padding: "10px 13px" }}>
+              <XiaobaiMascot size={46} mood={badge.mood} />
+              <div>
+                <p style={{ color: badge.color, fontSize: 13, fontWeight: 950 }}>{badge.title}</p>
+                <p style={{ color: "#aaa", fontSize: 11, marginTop: 3 }}>{badge.subtitle}</p>
+              </div>
+            </div>
+            <button onClick={checkIn} disabled={checkedToday} style={{ display: "inline-flex", alignItems: "center", gap: 8, color: checkedToday ? "#3DA563" : "#111", background: checkedToday ? "rgba(61,165,99,0.1)" : "#e8c96a", border: checkedToday ? "1px solid #2f7d4d" : "1px solid #e8c96a", borderRadius: 10, padding: "11px 16px", fontSize: 13, fontWeight: 950, cursor: checkedToday ? "default" : "pointer" }}>
+              <CalendarCheck size={16} /> {checkedToday ? "今日已打卡" : "今日打卡 +15XP"}
+            </button>
+          </div>
         </div>
 
         <section style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: 10, marginBottom: 18 }} className="max-sm:grid-cols-2">

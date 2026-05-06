@@ -2,10 +2,12 @@
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { ArrowUp, Compass, Loader2, Sparkles, UserRound } from "lucide-react"
+import { ArrowUp, Compass, Loader2, LogIn, Sparkles, UserRound } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { XiaobaiMascot } from "@/components/XiaobaiMascot"
+import { useAuth } from "@/lib/AuthContext"
+import { supabase } from "@/lib/supabase"
 
 type Message = {
   role: "user" | "assistant"
@@ -20,6 +22,7 @@ const starters = [
 ]
 
 export default function ChatPage() {
+  const { user, loading } = useAuth()
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -29,6 +32,8 @@ export default function ChatPage() {
   const [input, setInput] = useState("")
   const [sending, setSending] = useState(false)
   const [mode, setMode] = useState<"ai" | "fallback" | "">("")
+  const [remaining, setRemaining] = useState<number | null>(null)
+  const [speaking, setSpeaking] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -37,15 +42,21 @@ export default function ChatPage() {
 
   async function send(text = input) {
     const value = text.trim()
-    if (!value || sending) return
+    if (!value || sending || !user) return
     const nextMessages: Message[] = [...messages, { role: "user", content: value }]
     setMessages(nextMessages)
     setInput("")
     setSending(true)
+    setSpeaking(false)
     try {
+      const { data: sessionData } = await supabase.auth.getSession()
+      const token = sessionData.session?.access_token
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           message: value,
           messages: nextMessages.slice(-8).map((item) => ({ role: item.role, content: item.content })),
@@ -53,11 +64,19 @@ export default function ChatPage() {
       })
       const data = await res.json()
       setMode(data.mode || "")
+      setRemaining(typeof data.remaining === "number" ? data.remaining : null)
+      if (!res.ok && data.loginRequired) {
+        setMessages((prev) => [...prev, { role: "assistant", content: data.reply || "需要登录后继续使用小白AI助手。" }])
+        return
+      }
       setMessages((prev) => [...prev, { role: "assistant", content: data.reply || "我刚才没拿到有效回复，你可以换个问法再试一次。" }])
+      setSpeaking(true)
+      window.setTimeout(() => setSpeaking(false), 1800)
     } catch {
       setMessages((prev) => [...prev, { role: "assistant", content: "请求失败了。你可以稍后再试，或者先去工具选择器 /choose-tool 完成推荐。" }])
+    } finally {
+      setSending(false)
     }
-    setSending(false)
   }
 
   return (
@@ -68,18 +87,21 @@ export default function ChatPage() {
         <section style={{ border: "1px solid #1a1a1a", borderRadius: 16, background: "rgba(0,0,0,0.88)", overflow: "hidden", minHeight: "calc(100vh - 160px)", display: "grid", gridTemplateColumns: "280px 1fr" }} className="max-sm:grid-cols-1">
           <aside style={{ borderRight: "1px solid #1a1a1a", padding: 20, background: "rgba(255,255,255,0.025)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-              <XiaobaiMascot size={38} mood={sending ? "thinking" : "happy"} />
+              <XiaobaiMascot size={38} mood={sending ? "thinking" : user ? "happy" : "welcome"} />
               <div>
                 <h1 style={{ color: "#fff", fontSize: 17, fontWeight: 950 }}>小白AI助手</h1>
-                <p style={{ color: mode === "ai" ? "#3DA563" : "#777", fontSize: 11, marginTop: 2 }}>{mode === "ai" ? "AI 已接入" : mode === "fallback" ? "本地兜底模式" : "站内陪跑"}</p>
+                <p style={{ color: mode === "ai" ? "#3DA563" : "#777", fontSize: 11, marginTop: 2 }}>{mode === "ai" ? "AI 已接入" : mode === "fallback" ? "本地兜底模式" : user ? "站内陪跑" : "登录后使用"}</p>
               </div>
             </div>
 
             <p style={{ color: "#999", fontSize: 12, lineHeight: 1.8, marginBottom: 16 }}>问问题时尽量说清楚目标、材料和想要的结果，我会优先给你能照着做的步骤。</p>
+            {remaining !== null && (
+              <p style={{ color: "#d6c28a", fontSize: 11, lineHeight: 1.6, marginBottom: 12, border: "1px solid #2a1f10", background: "rgba(201,168,76,0.05)", borderRadius: 8, padding: "8px 10px" }}>今日剩余免费提问：{remaining} 次</p>
+            )}
 
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
               {starters.map((item) => (
-                <button key={item} onClick={() => send(item)} style={{ textAlign: "left", border: "1px solid #242424", background: "rgba(0,0,0,0.25)", borderRadius: 8, padding: "10px 11px", color: "#ddd", fontSize: 12, lineHeight: 1.55, cursor: "pointer" }}>
+                <button key={item} onClick={() => send(item)} disabled={!user || loading} style={{ textAlign: "left", border: "1px solid #242424", background: "rgba(0,0,0,0.25)", borderRadius: 8, padding: "10px 11px", color: user ? "#ddd" : "#777", fontSize: 12, lineHeight: 1.55, cursor: user ? "pointer" : "default" }}>
                   {item}
                 </button>
               ))}
@@ -92,9 +114,36 @@ export default function ChatPage() {
           </aside>
 
           <section style={{ display: "flex", flexDirection: "column", minHeight: 640 }}>
+            {!loading && !user ? (
+              <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 28 }}>
+                <div style={{ maxWidth: 520, textAlign: "center", border: "1px solid #2a1f10", borderRadius: 16, background: "rgba(201,168,76,0.045)", padding: "34px 30px" }}>
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: 18 }}>
+                    <XiaobaiMascot size={82} mood="welcome" />
+                  </div>
+                  <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, marginBottom: 10 }}>登录后使用小白AI助手</h2>
+                  <p style={{ color: "#cfcfcf", fontSize: 14, lineHeight: 1.9, marginBottom: 22 }}>为了保护 DeepSeek API 成本和回答质量，站内 AI 问答需要登录后使用。登录后可以继续提问，并保留后续做收藏、学习进度和成长等级的空间。</p>
+                  <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+                    <Link href="/login?redirect=/chat" className="btn-primary" style={{ textDecoration: "none" }}><LogIn size={15} /> 登录 / 注册</Link>
+                    <Link href="/choose-tool" className="btn-outline" style={{ textDecoration: "none" }}>先用工具选择器</Link>
+                    <Link href="/learn" className="btn-outline" style={{ textDecoration: "none" }}>小白爱学习</Link>
+                  </div>
+                </div>
+              </div>
+            ) : (
+            <>
             <div style={{ flex: 1, overflowY: "auto", padding: 22, display: "flex", flexDirection: "column", gap: 16 }}>
+              {messages.length <= 1 && (
+                <div style={{ border: "1px solid #2a1f10", borderRadius: 12, background: "rgba(201,168,76,0.04)", padding: 16, display: "flex", gap: 12, alignItems: "center" }}>
+                  <XiaobaiMascot size={44} mood="recommend" />
+                  <div>
+                    <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>不知道问什么也没关系</p>
+                    <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7, marginTop: 3 }}>你可以直接说“我想用 AI 做什么”，小白AI会帮你拆步骤、选工具、给学习路线。</p>
+                  </div>
+                </div>
+              )}
               {messages.map((message, index) => {
                 const isUser = message.role === "user"
+                const isLastAssistant = !isUser && index === messages.length - 1
                 return (
                   <div key={index} style={{ display: "flex", gap: 10, alignItems: "flex-start", flexDirection: isUser ? "row-reverse" : "row" }}>
                     {isUser ? (
@@ -102,7 +151,7 @@ export default function ChatPage() {
                         <UserRound size={15} style={{ color: "#e8c96a" }} />
                       </div>
                     ) : (
-                      <XiaobaiMascot size={30} mood="idle" />
+                      <XiaobaiMascot size={30} mood={isLastAssistant && speaking ? "talking" : "idle"} />
                     )}
                     <div style={{ maxWidth: "78%", border: `1px solid ${isUser ? "rgba(201,168,76,0.25)" : "#1a1a1a"}`, background: isUser ? "rgba(201,168,76,0.1)" : "rgba(255,255,255,0.04)", borderRadius: 12, padding: "12px 14px", color: "#e8e8e8", fontSize: 14, lineHeight: 1.8, whiteSpace: "pre-line", wordBreak: "break-word" }}>
                       {message.content}
@@ -130,14 +179,17 @@ export default function ChatPage() {
                     }
                   }}
                   placeholder="直接问：我想用 AI 做……现在有……希望得到……"
+                  disabled={loading || !user}
                   rows={2}
-                  style={{ flex: 1, resize: "none", background: "rgba(255,255,255,0.04)", border: "1px solid #222", borderRadius: 12, padding: "12px 14px", fontSize: 14, color: "#fff", outline: "none", lineHeight: 1.6 }}
+                  style={{ flex: 1, resize: "none", background: "rgba(255,255,255,0.04)", border: "1px solid #222", borderRadius: 12, padding: "12px 14px", fontSize: 14, color: "#fff", outline: "none", lineHeight: 1.6, opacity: loading || !user ? 0.55 : 1 }}
                 />
-                <button onClick={() => send()} disabled={sending || !input.trim()} style={{ width: 44, height: 44, borderRadius: 12, border: "1px solid #7a6230", background: "rgba(201,168,76,0.14)", color: "#e8c96a", display: "flex", alignItems: "center", justifyContent: "center", cursor: sending ? "default" : "pointer" }}>
+                <button onClick={() => send()} disabled={sending || !input.trim() || loading || !user} style={{ width: 44, height: 44, borderRadius: 12, border: "1px solid #7a6230", background: "rgba(201,168,76,0.14)", color: "#e8c96a", display: "flex", alignItems: "center", justifyContent: "center", cursor: sending ? "default" : "pointer" }}>
                   <ArrowUp size={18} />
                 </button>
               </div>
             </div>
+            </>
+            )}
           </section>
         </section>
       </main>

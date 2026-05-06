@@ -90,10 +90,6 @@ export default function StageDetailPage() {
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12,marginBottom:12,flexWrap:'wrap'}}>
                     <h3 style={{fontSize:18,fontWeight:700,color:'#fff'}}>{section.title}</h3>
-                    <button onClick={()=>toggleSection(i)} style={{display:'inline-flex',alignItems:'center',gap:6,whiteSpace:'nowrap',border:`1px solid ${done?'#7a6230':'#333'}`,background:done?'rgba(201,168,76,0.12)':'rgba(255,255,255,0.03)',color:done?'#e8c96a':'#aaa',borderRadius:8,padding:'7px 10px',fontSize:12,fontWeight:900,cursor:'pointer'}}>
-                      {done ? <CheckCircle2 size={14}/> : <Circle size={14}/>}
-                      {done ? "已学完" : "标记已学完"}
-                    </button>
                   </div>
                   <p style={{fontSize:16,color:'#eee',lineHeight:1.9,whiteSpace:'pre-line'}}>{section.content}</p>
                   {section.tips && (
@@ -102,6 +98,12 @@ export default function StageDetailPage() {
                       <p style={{fontSize:15,color:'#eee',lineHeight:1.7}}>{section.tips}</p>
                     </div>
                   )}
+                  <div style={{display:'flex',justifyContent:'flex-end',marginTop:18}}>
+                    <button onClick={()=>toggleSection(i)} style={{display:'inline-flex',alignItems:'center',gap:7,whiteSpace:'nowrap',border:`1px solid ${done?'#7a6230':'#333'}`,background:done?'rgba(201,168,76,0.12)':'rgba(255,255,255,0.03)',color:done?'#e8c96a':'#aaa',borderRadius:8,padding:'9px 12px',fontSize:12,fontWeight:900,cursor:'pointer'}}>
+                      {done ? <CheckCircle2 size={15}/> : <Circle size={15}/>}
+                      {done ? "已学完" : "读完了，标记已学完"}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

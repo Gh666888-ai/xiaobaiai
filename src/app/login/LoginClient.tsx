@@ -2,13 +2,16 @@
 
 import { useState } from "react"
 import { useAuth } from "@/lib/AuthContext"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import Link from "next/link"
 
 export default function LoginPage() {
   const { user, refresh } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get("redirect") || "/"
+  const safeRedirect = redirect.startsWith("/") && !redirect.startsWith("//") ? redirect : "/"
   const [mode, setMode] = useState<"login" | "register">("login")
   const [email, setEmail] = useState("")
   const [pwd, setPwd] = useState("")
@@ -43,7 +46,7 @@ export default function LoginPage() {
         }
       }
       await refresh()
-      router.push("/")
+      router.push(safeRedirect)
     } catch {
       setErr("网络错误，请稍后再试。")
     }
@@ -69,7 +72,8 @@ export default function LoginPage() {
           <p>后续同步收藏、学习进度和评论互动</p>
           <p>浏览文章、投稿和每日登录会用于成长等级</p>
         </div>
-        <button onClick={logout} className="btn-outline" style={{ width: "100%", justifyContent: "center", marginTop: 28 }}>退出登录</button>
+        <Link href={safeRedirect} className="btn-primary" style={{ width: "100%", justifyContent: "center", marginTop: 28, textDecoration: "none" }}>{safeRedirect === "/chat" ? "继续使用小白AI助手" : "继续访问"}</Link>
+        <button onClick={logout} className="btn-outline" style={{ width: "100%", justifyContent: "center", marginTop: 10 }}>退出登录</button>
         <Link href="/" style={{ display: "block", marginTop: 16, fontSize: 12, color: "#777", textDecoration: "none" }}>返回首页</Link>
       </div>
     </div>
@@ -82,8 +86,13 @@ export default function LoginPage() {
         <div style={{ textAlign: "center", marginBottom: 26 }}>
           <h2 style={{ fontSize: 24, fontWeight: 900, color: "#fff" }}>{mode === "login" ? "登录小白AI" : "注册小白AI"}</h2>
           <p style={{ fontSize: 13, color: "#aaa", marginTop: 8, lineHeight: 1.7 }}>
-            {mode === "login" ? "已有账号请登录。第一次使用请先切换到注册。" : "注册后可以投稿、发帖，并在后续保存收藏和学习进度。"}
+            {mode === "login" ? "已有账号请登录。第一次使用请先切换到注册。" : "注册后可以投稿、发帖，并在后续保存收藏、学习进度和小白AI对话体验。"}
           </p>
+          {safeRedirect === "/chat" && (
+            <p style={{ fontSize: 12, color: "#d6c28a", lineHeight: 1.7, marginTop: 10, border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 10, padding: "10px 12px" }}>
+              登录后会自动回到小白AI助手页面。
+            </p>
+          )}
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 22 }}>
