@@ -5,6 +5,15 @@ function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status })
 }
 
+function logSupabaseError(scope: string, error: any) {
+  console.error(`[workflows:${scope}]`, {
+    code: error?.code,
+    message: error?.message,
+    details: error?.details,
+    hint: error?.hint,
+  })
+}
+
 export async function GET(req: NextRequest) {
   const auth = await requireUser(req)
   if (!auth.ok) return jsonError(auth.error, auth.status)
@@ -15,7 +24,10 @@ export async function GET(req: NextRequest) {
     .eq("user_id", auth.user.id)
     .order("updated_at", { ascending: false })
 
-  if (error) return jsonError("读取工作流库失败，请确认 Supabase 已执行最新 SQL。", 500)
+  if (error) {
+    logSupabaseError("list", error)
+    return jsonError("读取工作流库失败，请稍后再试。", 500)
+  }
   return NextResponse.json({ workflows: data || [] })
 }
 
@@ -54,7 +66,10 @@ export async function POST(req: NextRequest) {
     .select("*")
     .single()
 
-  if (error) return jsonError("保存工作流失败，请确认 Supabase 已执行最新 SQL。", 500)
+  if (error) {
+    logSupabaseError("save", error)
+    return jsonError(`保存工作流失败：${error.message || "请稍后再试。"}`, 500)
+  }
   return NextResponse.json({ workflow: data })
 }
 

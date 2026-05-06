@@ -6,6 +6,15 @@ function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status })
 }
 
+function logSupabaseError(scope: string, error: any) {
+  console.error(`[workflow-run:${scope}]`, {
+    code: error?.code,
+    message: error?.message,
+    details: error?.details,
+    hint: error?.hint,
+  })
+}
+
 async function postWebhook(url: string, payload: unknown) {
   if (!url || !/^https?:\/\//i.test(url)) return { skipped: true }
   const res = await fetch(url, {
@@ -28,7 +37,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .eq("user_id", auth.user.id)
     .single()
 
-  if (error || !workflow) return jsonError("没有找到这个工作流。", 404)
+  if (error || !workflow) {
+    if (error) logSupabaseError("find", error)
+    return jsonError("没有找到这个工作流。", 404)
+  }
 
   const config = workflow.config || {}
   const steps = Array.isArray(workflow.steps) ? workflow.steps : []
@@ -62,7 +74,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     message = runError?.message || "Webhook 调用失败。"
   }
 
-  const { data: run } = await auth.supabase
+  const { data: run, error: runError } = await auth.supabase
     .from("workflow_runs")
     .insert({
       user_id: auth.user.id,
@@ -78,11 +90,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     .select("*")
     .single()
 
-  await auth.supabase
+  if (runError) logSupabaseError("insert-run", runError)
+
+  const { error: updateError } = await auth.supabase
     .from("ai_workflows")
     .update({ last_run_at: startedAt.toISOString(), last_status: status })
     .eq("id", workflow.id)
     .eq("user_id", auth.user.id)
+
+  if (updateError) logSupabaseError("update-workflow", updateError)
 
   return NextResponse.json({ status, message, output, run })
 }
