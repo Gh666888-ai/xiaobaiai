@@ -156,19 +156,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* 底部 */}
-      <footer style={{position:'fixed',bottom:0,left:0,right:0,zIndex:100,display:'flex',justifyContent:'space-between',alignItems:'center',padding:'16px 60px',background:'linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%)',borderTop:'1px solid #111'}} className="max-sm:px-6 max-sm:flex-col max-sm:gap-2">
-        <div style={{display:'flex',gap:32}}>
-          {[{l:'工具导航',h:'/tools'},{l:'学习路径',h:'/learn'},{l:'AI 资讯',h:'/news'},{l:'登录',h:'/login'}].map(x=>(
-            <Link key={x.l} href={x.h} style={{fontFamily:"'JetBrains Mono', monospace",fontSize:10,letterSpacing:'0.1em',color:'rgba(255,255,255,0.3)',textDecoration:'none',transition:'color 0.2s'}}>{x.l}</Link>
-          ))}
-        </div>
-        <span style={{fontFamily:"'JetBrains Mono', monospace",fontSize:10,color:'rgba(255,255,255,0.2)',letterSpacing:'0.05em'}}>© 2026 小白AI. Agent + Community.</span>
-      </footer>
-
-      {/* 页面底部留白防止fixed footer遮挡 */}
-      <div style={{height:60}} />
-
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes expandWidth { to { width: 120px; } }
