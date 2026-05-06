@@ -78,14 +78,6 @@ export default function HomePage() {
     <div style={{background:'#000',minHeight:'100vh',color:'#f0f0f0',fontFamily:"'Noto Sans SC', sans-serif",overflowX:'hidden'}}>
       {/* 顶部导航 */}
       <NavBar />
-      <Link href="/chat" aria-label="问小白AI" style={{position:'fixed',right:22,bottom:22,zIndex:80,display:'flex',alignItems:'center',gap:10,padding:'10px 13px',border:'1px solid #7a6230',borderRadius:16,background:'rgba(0,0,0,0.82)',boxShadow:'0 18px 60px rgba(0,0,0,0.65)',textDecoration:'none',backdropFilter:'blur(14px)'}}>
-        <XiaobaiMascot size={36} mood="happy" />
-        <span style={{display:'flex',flexDirection:'column',lineHeight:1.25}}>
-          <span style={{fontSize:12,fontWeight:900,color:'#fff'}}>问小白AI</span>
-          <span style={{fontSize:10,color:'#c9a84c'}}>帮你选工具</span>
-        </span>
-      </Link>
-
       {/* 全屏 Hero + Canvas雨 */}
       <section style={{position:'relative',height:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
         <canvas ref={canvasRef} style={{position:'absolute',inset:0,width:'100%',height:'100%',zIndex:0}} />
@@ -146,9 +138,14 @@ export default function HomePage() {
               {icon:<Route size={17}/>,label:'我完全不会 AI，从这里开始',href:'/learn/0'},
               {icon:<Wrench size={17}/>,label:'帮我选一个 AI 工具',href:'/choose-tool'},
               {icon:<Sparkles size={17}/>,label:'生成我的学习路线',href:'/search?q=生成我的学习路线'},
-              {icon:<MessageCircle size={17}/>,label:'直接问小白AI',href:'/chat'},
+              {icon:<MessageCircle size={17}/>,label:'直接问小白AI',action:'chat'},
               {icon:<Sparkles size={17}/>,label:'进入 AI 成长舱',href:'/growth'},
-            ].map(cta=>(
+            ].map(cta=> cta.action === 'chat' ? (
+              <button key={cta.label} type="button" onClick={()=>window.dispatchEvent(new Event('xiaobai:open-chat'))} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,minHeight:48,padding:'10px 14px',border:'1px solid #1f1f1f',background:'rgba(255,255,255,0.035)',borderRadius:10,color:'#ddd',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'Noto Sans SC', sans-serif"}}>
+                <span style={{color:'#e8c96a',display:'inline-flex'}}>{cta.icon}</span>
+                <span>{cta.label}</span>
+              </button>
+            ) : (
               <Link key={cta.label} href={cta.href} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,minHeight:48,padding:'10px 14px',border:'1px solid #1f1f1f',background:'rgba(255,255,255,0.035)',borderRadius:10,color:'#ddd',fontSize:13,fontWeight:700,textDecoration:'none'}}>
                 <span style={{color:'#e8c96a',display:'inline-flex'}}>{cta.icon}</span>
                 <span>{cta.label}</span>
@@ -156,21 +153,6 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div style={{display:'grid',gridTemplateColumns:'repeat(3, minmax(0, 1fr))',gap:10,maxWidth:720,margin:'18px auto 0',opacity:0,animation:'fadeUp 0.8s ease forwards 1.85s'}} className="max-sm:grid-cols-1">
-            {[
-              {mood:'welcome' as const,title:'欢迎',text:'第一次来，我带你从最简单的一步开始。'},
-              {mood:'thinking' as const,title:'思考',text:'遇到复杂问题，我先帮你拆目标和步骤。'},
-              {mood:'recommend' as const,title:'推荐工具',text:'说出用途，我给你匹配工具和学习路径。'},
-            ].map(item=>(
-              <Link key={item.title} href={item.mood==='recommend'?'/choose-tool':'/chat'} style={{display:'flex',alignItems:'center',gap:10,border:'1px solid #1f1f1f',background:'rgba(0,0,0,0.52)',borderRadius:12,padding:'12px 14px',textDecoration:'none',textAlign:'left'}}>
-                <XiaobaiMascot size={38} mood={item.mood} />
-                <span style={{display:'flex',flexDirection:'column',gap:3}}>
-                  <span style={{fontSize:13,fontWeight:950,color:'#fff'}}>{item.title}</span>
-                  <span style={{fontSize:11,lineHeight:1.5,color:'#999'}}>{item.text}</span>
-                </span>
-              </Link>
-            ))}
-          </div>
         </div>
       </section>
 

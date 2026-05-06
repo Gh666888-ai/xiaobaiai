@@ -8,7 +8,6 @@ import { getUserLevel } from "@/data/user"
 const links = [
   { label: "小白爱学习", href: "/learn", icon: GraduationCap },
   { label: "工具", href: "/tools", icon: Compass },
-  { label: "问AI", href: "/chat", icon: MessageCircle },
   { label: "选择器", href: "/choose-tool", icon: Search },
   { label: "成长舱", href: "/growth", icon: Trophy },
   { label: "资讯", href: "/news", icon: Newspaper },
@@ -36,6 +35,14 @@ export function NavBar() {
             </Link>
           )
         })}
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event("xiaobai:open-chat"))}
+          style={{ display: "inline-flex", alignItems: "center", gap: 5, fontFamily: "'Noto Sans SC', sans-serif", fontSize: 13, fontWeight: 800, color: "#ccc", textDecoration: "none", transition: "color 0.2s", whiteSpace: "nowrap", border: 0, background: "transparent", padding: 0, cursor: "pointer" }}
+        >
+          <MessageCircle size={14} style={{ color: "#7a6230" }} />
+          问AI
+        </button>
         {user ? (
           <Link href="/login" style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", padding: "4px 12px", border: "1px solid #333", borderRadius: 8, transition: "0.2s", flexShrink: 0 }}>
             <span style={{ fontSize: 16 }}>{level?.badge}</span>

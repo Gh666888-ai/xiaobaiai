@@ -83,12 +83,93 @@ function fallbackReply(message: string) {
   return "可以，我先帮你拆成三步：\n\n1. 你想让 AI 帮你完成什么结果？比如写文章、做图、写代码、做客服、做自动化。\n2. 你现在有什么材料？比如文档、表格、网页、图片、业务规则。\n3. 你希望输出成什么？比如一篇文章、一个表格、一个流程、一个工具推荐。\n\n你可以直接按这个格式发给我：\n「我的目标是……我现在有……我希望得到……」"
 }
 
+function siteReply(message: string) {
+  const text = message.toLowerCase()
+  const isAboutSite =
+    text.includes("你们网站") ||
+    text.includes("这个网站") ||
+    text.includes("小白ai") ||
+    text.includes("小白 ai") ||
+    text.includes("站内") ||
+    text.includes("页面") ||
+    text.includes("导航") ||
+    text.includes("功能") ||
+    text.includes("怎么用") ||
+    text.includes("在哪里") ||
+    text.includes("入口") ||
+    text.includes("工具") ||
+    text.includes("选择器") ||
+    text.includes("学习") ||
+    text.includes("教程") ||
+    text.includes("模型") ||
+    text.includes("价格") ||
+    text.includes("资讯") ||
+    text.includes("新闻") ||
+    text.includes("社区") ||
+    text.includes("投稿") ||
+    text.includes("成长") ||
+    text.includes("打卡") ||
+    text.includes("登录")
+
+  if (!isAboutSite) return ""
+
+  const siteIntro = "小白AI是一个面向零基础用户的一站式 AI 学习与导航网站，核心功能包括：AI 工具分类导航、AI 工具选择器、小白爱学习、模型排行、AI 资讯、社区案例、成长舱和站内小白AI助手。"
+
+  if (text.includes("你是谁") || text.includes("叫什么") || text.includes("deepseek") || text.includes("模型")) {
+    return `我是小白AI网站里的小白AI助手，负责帮你在站内选 AI 工具、找学习路径、看模型排行、理解资讯和拆解需求。\n\n${siteIntro}\n\n站内最常用的入口：\n1. /choose-tool：回答几个问题，帮你选工具。\n2. /learn：小白爱学习，从零开始学 AI 和 Agent。\n3. /models：看模型排行、更新时间、价格口径和适合场景。\n4. /community：看真实案例、踩坑记录和投稿。\n5. /growth：每天打卡，积累学习进度。\n\n如果你问的是站内问题，我会优先用免费站内规则回答；如果你问开放问题，服务器配置了 Key 时才会调用真实 AI API。`
+  }
+
+  if (text.includes("介绍") || text.includes("有什么") || text.includes("功能") || text.includes("怎么用") || text.includes("网站")) {
+    return `${siteIntro}\n\n新手建议这样用：\n1. 先点顶部「小白爱学习」，从 /learn/0 开始。\n2. 不知道用什么工具，就点「选择器」进入 /choose-tool。\n3. 想按分类找工具，就去 /tools。\n4. 想看模型价格和适合场景，就去 /models。\n5. 想看真实经验或投稿，就去 /community。\n6. 想每天保持节奏，就去 /growth 打卡。\n\n右下角的小白AI浮窗会在当前页面陪你，不用离开页面也能问站内问题。`
+  }
+
+  if (text.includes("工具") || text.includes("选择器") || text.includes("推荐")) {
+    return "如果你想选 AI 工具，优先去 /choose-tool。那里会按你的用途、水平、预算和网络偏好推荐工具。\n\n也可以这样走：\n1. 完全不知道选什么：点顶部「选择器」。\n2. 想按分类浏览：去 /tools。\n3. 想看某个工具详情：从分类页点进工具详情页。\n4. 想学怎么用：去 /learn 找对应阶段。\n\n新手最稳的路线是：先用工具选择器选一个工具，再用学习路径完成一个小任务，不要一上来追复杂工作流。"
+  }
+
+  if (text.includes("学习") || text.includes("教程") || text.includes("不会") || text.includes("入门")) {
+    return "学习入口在顶部第一个「小白爱学习」，也就是 /learn。\n\n建议顺序：\n1. /learn/0：先理解 AI、Agent 和常见工具类型。\n2. /learn/1：开始用对话 AI 完成真实小任务。\n3. 后续章节：再学 Prompt、Agent、本地部署和自动化。\n4. 每个章节读完后，在内容底部点「读完了，标记已学完」。\n5. /growth 可以查看每日任务和成长徽章。\n\n如果你完全不会 AI，就从 /learn/0 开始。"
+  }
+
+  if (text.includes("模型") || text.includes("价格") || text.includes("排行")) {
+    return "模型排行在 /models。这个页面会展示：更新时间、数据来源、价格口径、主观评分说明和适合场景。\n\n怎么看更实用：\n1. 日常中文问答：优先看中文体验、价格和稳定性。\n2. 编程/Agent：看代码能力、工具调用和长上下文。\n3. 本地部署：看显存、内存和量化版本。\n4. API 接入：正式使用前一定复核官方价格页。\n\n网站已经有每日模型价格更新脚本，但模型价格变化快，最终仍以官方页面为准。"
+  }
+
+  if (text.includes("资讯") || text.includes("新闻") || text.includes("文章")) {
+    return "AI 资讯入口在顶部「资讯」，也就是 /news。\n\n里面适合看：\n1. AI 产品发布。\n2. 模型更新和价格变化。\n3. Agent、自动化、本地部署相关教程。\n4. 社区投稿整理的实战内容。\n\n如果你点进资讯详情发现内容不够完整，可以优先看站内原创/教程类文章；后续也可以通过社区投稿补充案例。"
+  }
+
+  if (text.includes("社区") || text.includes("投稿") || text.includes("帖子") || text.includes("案例")) {
+    return "社区入口在 /community。你可以在这里看 AI 使用案例、踩坑记录、需求分析和工具推荐。\n\n常用入口：\n1. /community：看帖子列表。\n2. /community/new：提交你的 AI 使用案例。\n3. /moderate：后台审核投稿。\n\n适合投稿的内容包括：你用什么工具、解决了什么问题、具体步骤、结果如何、给新手的提醒。"
+  }
+
+  if (text.includes("成长") || text.includes("打卡") || text.includes("徽章") || text.includes("等级")) {
+    return "成长舱在 /growth。它会记录你的每日任务、打卡、经验值和小白AI等级徽章。\n\n建议每天做三件事：\n1. 问 AI 一个真实问题。\n2. 用工具选择器完成一次推荐。\n3. 学完一个学习章节并标记已学完。\n\n这个设计是为了让新手每天前进一点，而不是一次性学到累。"
+  }
+
+  if (text.includes("登录") || text.includes("注册") || text.includes("账号")) {
+    return "登录入口在顶部右侧「登录」，也就是 /login。\n\n当前登录用于：\n1. 使用小白AI站内问答。\n2. 后续同步收藏、学习进度和评论互动。\n3. 投稿、社区互动和成长等级。\n\n如果你是从问 AI 浮窗进入登录，登录后会自动回到当前页面。"
+  }
+
+  return "这个问题和小白AI网站有关，我先给你站内路线：\n\n1. 想选工具：去 /choose-tool。\n2. 想系统学习：去 /learn，也就是「小白爱学习」。\n3. 想看模型排行和价格：去 /models。\n4. 想看资讯：去 /news。\n5. 想看案例或投稿：去 /community。\n6. 想每天打卡：去 /growth。\n\n你也可以直接告诉我：你现在想完成什么任务，我会帮你选最短路径。"
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json()
   const userMessage = String(body.message || "").trim()
   const history = Array.isArray(body.messages) ? body.messages.slice(-8) : []
 
   if (!userMessage) return NextResponse.json({ error: "empty message" }, { status: 400 })
+
+  const freeSiteReply = siteReply(userMessage)
+  if (freeSiteReply) {
+    return NextResponse.json({
+      reply: freeSiteReply,
+      mode: "site",
+      free: true,
+      remaining: null,
+    })
+  }
 
   const ip = getClientIp(req)
   const minute = hitBucket(minuteBuckets, ip, PER_MINUTE_LIMIT, Date.now() + 60 * 1000)
