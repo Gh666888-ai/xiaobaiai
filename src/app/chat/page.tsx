@@ -7,7 +7,7 @@ import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { XiaobaiMascot } from "@/components/XiaobaiMascot"
 import { useAuth } from "@/lib/AuthContext"
-import { supabase } from "@/lib/supabase"
+import { readAppAuth } from "@/lib/app-auth"
 
 type Message = {
   role: "user" | "assistant"
@@ -49,8 +49,7 @@ export default function ChatPage() {
     setSending(true)
     setSpeaking(false)
     try {
-      const { data: sessionData } = await supabase.auth.getSession()
-      const token = sessionData.session?.access_token
+      const token = readAppAuth()?.session?.access_token
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: {

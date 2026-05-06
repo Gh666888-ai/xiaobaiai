@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { FileText, Lightbulb, Send, Sparkles } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
-import { supabase } from "@/lib/supabase"
+import { readAppAuth } from "@/lib/app-auth"
 
 type TemplateKey = "经验分享" | "踩坑记录" | "自动化实战" | "AI 分析" | "问题求助"
 
@@ -70,9 +70,8 @@ export default function NewPostPage() {
   const selectedTemplate = useMemo(() => templates[cat], [cat])
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setAuthor(data.session.user.user_metadata?.name || data.session.user.email || "")
-    })
+    const auth = readAppAuth()
+    if (auth?.user) setAuthor(auth.user.name || auth.user.email || "")
   }, [])
 
   const applyTemplate = (nextCat: TemplateKey) => {
@@ -98,8 +97,7 @@ export default function NewPostPage() {
       return
     }
     try {
-      const { data: sessionData } = await supabase.auth.getSession()
-      const accessToken = sessionData.session?.access_token
+      const accessToken = readAppAuth()?.session?.access_token
       const res = await fetch("/api/posts", {
         method: "POST",
         headers: {

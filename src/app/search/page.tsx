@@ -10,8 +10,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/search" },
 }
 
-const quickQueries = ["完全不会 AI", "写作工具", "AI 编程", "模型价格", "Agent 教程", "PPT"]
-const groupNames = ["工具", "模型", "技能", "教程", "资讯"]
+const quickQueries = ["完全不会 AI", "写作工具", "AI 编程", "AI 工作流", "模型价格", "Agent 教程", "PPT"]
+const groupNames = ["工具", "模型", "技能", "教程", "资讯", "工作流"]
 
 export default function SearchPage({ searchParams }: { searchParams?: { q?: string } }) {
   const q = searchParams?.q?.trim() || ""

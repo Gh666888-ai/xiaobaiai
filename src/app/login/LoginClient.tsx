@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useAuth } from "@/lib/AuthContext"
 import { useRouter, useSearchParams } from "next/navigation"
-import { supabase } from "@/lib/supabase"
 import Link from "next/link"
 
 function timeoutMessage(stage: string) {
@@ -41,7 +40,7 @@ async function postAuth(payload: Record<string, string>) {
 }
 
 export default function LoginPage() {
-  const { user, refresh } = useAuth()
+  const { user, setSession, logout: logoutSession } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get("redirect") || "/"
@@ -77,16 +76,7 @@ export default function LoginPage() {
         setBusy(false)
         return
       }
-      const { error } = await withTimeout(supabase.auth.setSession({
-        access_token: data.session.access_token,
-        refresh_token: data.session.refresh_token,
-      }), 8000, "本地登录会话写入")
-      if (error) {
-        setErr("登录成功但本地会话写入失败，请刷新后再试。")
-        setBusy(false)
-        return
-      }
-      await withTimeout(refresh(), 8000, "用户资料同步").catch(() => undefined)
+      await setSession({ user: data.user, session: data.session })
       router.push(safeRedirect)
     } catch (error: any) {
       setErr(error?.message || "网络连接不稳定，请稍后再试。")
@@ -95,8 +85,7 @@ export default function LoginPage() {
   }
 
   const logout = async () => {
-    await supabase.auth.signOut()
-    await refresh()
+    await logoutSession()
     router.push("/")
   }
 

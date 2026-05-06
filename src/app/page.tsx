@@ -8,7 +8,7 @@ import { news } from "@/data/news"
 import { searchSite, SearchResult } from "@/lib/search"
 import Link from "next/link"
 import { NavBar } from "@/components/NavBar"
-import { MessageCircle, Search, Route, Sparkles, Wrench } from "lucide-react"
+import { MessageCircle, Search, Route, Sparkles, Workflow, Wrench } from "lucide-react"
 import { XiaobaiMascot } from "@/components/XiaobaiMascot"
 
 const SYMBOLS = [
@@ -139,7 +139,7 @@ export default function HomePage() {
               {icon:<Wrench size={17}/>,label:'帮我选一个 AI 工具',href:'/choose-tool'},
               {icon:<Sparkles size={17}/>,label:'生成我的学习路线',href:'/search?q=生成我的学习路线'},
               {icon:<MessageCircle size={17}/>,label:'直接问小白AI',action:'chat'},
-              {icon:<Sparkles size={17}/>,label:'进入 AI 成长舱',href:'/growth'},
+              {icon:<Workflow size={17}/>,label:'搭建 AI 工作流',href:'/workflows'},
             ].map(cta=> cta.action === 'chat' ? (
               <button key={cta.label} type="button" onClick={()=>window.dispatchEvent(new Event('xiaobai:open-chat'))} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,minHeight:48,padding:'10px 14px',border:'1px solid #1f1f1f',background:'rgba(255,255,255,0.035)',borderRadius:10,color:'#ddd',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:"'Noto Sans SC', sans-serif"}}>
                 <span style={{color:'#e8c96a',display:'inline-flex'}}>{cta.icon}</span>

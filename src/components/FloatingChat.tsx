@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ArrowUp, Loader2, LogIn, MessageCircle, Minus, UserRound, X } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext"
-import { supabase } from "@/lib/supabase"
+import { readAppAuth } from "@/lib/app-auth"
 import { XiaobaiMascot } from "@/components/XiaobaiMascot"
 
 type Message = {
@@ -126,8 +126,7 @@ export function FloatingChat() {
     setSending(true)
     setSpeaking(false)
     try {
-      const { data: sessionData } = await supabase.auth.getSession()
-      const token = sessionData.session?.access_token
+      const token = readAppAuth()?.session?.access_token
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: {

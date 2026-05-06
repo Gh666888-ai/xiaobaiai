@@ -10,7 +10,7 @@ import { XiaobaiMascot } from "@/components/XiaobaiMascot"
 import { stages } from "@/data/learning-path"
 import { progressId, readLearningProgress } from "@/lib/learning-progress"
 import { useAuth } from "@/lib/AuthContext"
-import { supabase } from "@/lib/supabase"
+import { readAppAuth } from "@/lib/app-auth"
 
 type GrowthState = {
   xp: number
@@ -109,11 +109,18 @@ export default function GrowthClient() {
       requireLogin()
       return false
     }
-    const { data: profile, error: readError } = await supabase.from("profiles").select("xp").eq("id", user.userId).single()
-    if (readError || !profile) throw new Error("没有找到你的成长档案，请重新登录后再试。")
-    const nextXP = Number(profile.xp || 0) + amount
-    const { error: updateError } = await supabase.from("profiles").update({ xp: nextXP }).eq("id", user.userId)
-    if (updateError) throw new Error("经验写入失败，请稍后再试。")
+    const token = readAppAuth()?.session?.access_token
+    if (!token) {
+      requireLogin()
+      return false
+    }
+    const res = await fetch("/api/growth/xp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ amount }),
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(data.error || "经验写入失败，请稍后再试。")
     await refresh()
     return true
   }

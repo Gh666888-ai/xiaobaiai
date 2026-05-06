@@ -91,3 +91,40 @@ export async function POST(req: NextRequest) {
     return jsonError(normalizeAuthError(error?.message), error?.message === "timeout" ? 504 : 500)
   }
 }
+
+export async function GET(req: NextRequest) {
+  if (!supabaseUrl || !supabaseKey) return jsonError("服务器登录配置缺失，请检查 Supabase 环境变量。", 500)
+
+  const authHeader = req.headers.get("authorization") || ""
+  const token = authHeader.toLowerCase().startsWith("bearer ") ? authHeader.slice(7) : ""
+  if (!token) return jsonError("未登录。", 401)
+
+  const supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+    global: {
+      fetch: (input, init) => fetch(input, { ...init, signal: init?.signal ?? AbortSignal.timeout(12000) }),
+    },
+  })
+
+  try {
+    const { data, error } = await withTimeout(supabase.auth.getUser(token), 12000)
+    if (error || !data.user) return jsonError("登录已过期，请重新登录。", 401)
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("name,email,xp")
+      .eq("id", data.user.id)
+      .single()
+
+    return NextResponse.json({
+      user: {
+        id: data.user.id,
+        email: data.user.email || profile?.email || "",
+        name: profile?.name || data.user.user_metadata?.name || data.user.email?.split("@")[0] || "用户",
+        xp: Number(profile?.xp || 0),
+      },
+    })
+  } catch (error: any) {
+    return jsonError(normalizeAuthError(error?.message), error?.message === "timeout" ? 504 : 500)
+  }
+}

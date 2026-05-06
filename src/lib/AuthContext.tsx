@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
-import { supabase } from "@/lib/supabase"
+import { clearAppAuth, readAppAuth, writeAppAuth } from "@/lib/app-auth"
 
 export interface AuthUser {
   userId: string
@@ -14,23 +14,9 @@ const AuthContext = createContext<{
   user: AuthUser|null
   loading: boolean
   refresh: ()=>Promise<void>
-}>({user:null,loading:true,refresh:async()=>{}})
-
-async function buildAuthUser(sessionUser: any): Promise<AuthUser> {
-  let profile: any = null
-  try {
-    const { data } = await supabase.from("profiles").select("name,xp").eq("id", sessionUser.id).single()
-    profile = data
-  } catch {
-    profile = null
-  }
-  return {
-    userId: sessionUser.id,
-    email: sessionUser.email || "",
-    name: profile?.name || sessionUser.user_metadata?.name || sessionUser.email?.split("@")[0] || "用户",
-    xp: Number(profile?.xp || 0),
-  }
-}
+  setSession: (auth: any)=>Promise<void>
+  logout: ()=>Promise<void>
+}>({user:null,loading:true,refresh:async()=>{},setSession:async()=>{},logout:async()=>{}})
 
 export function AuthProvider({children}:{children:ReactNode}){
   const [user,setUser] = useState<AuthUser|null>(null)
@@ -38,12 +24,28 @@ export function AuthProvider({children}:{children:ReactNode}){
 
   const refresh = async () => {
     try{
-      const {data:{session}} = await supabase.auth.getSession()
-      if(session?.user){
-        setUser(await buildAuthUser(session.user))
-      }else{
+      const auth = readAppAuth()
+      if (!auth?.session?.access_token) {
         setUser(null)
+        return
       }
+      const res = await fetch("/api/auth", {
+        headers: { Authorization: `Bearer ${auth.session.access_token}` },
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data?.user) {
+        clearAppAuth()
+        setUser(null)
+        return
+      }
+      const nextUser = {
+        userId: data.user.id,
+        email: data.user.email || auth.user?.email || "",
+        name: data.user.name || auth.user?.name || "用户",
+        xp: Number(data.user.xp || auth.user?.xp || 0),
+      }
+      setUser(nextUser)
+      writeAppAuth({ ...auth, user: { id: nextUser.userId, email: nextUser.email, name: nextUser.name, xp: nextUser.xp } })
     }catch{
       setUser(null)
     }finally{
@@ -51,19 +53,27 @@ export function AuthProvider({children}:{children:ReactNode}){
     }
   }
 
+  const setSession = async (auth: any) => {
+    writeAppAuth(auth)
+    setUser({
+      userId: auth.user?.id || "",
+      email: auth.user?.email || "",
+      name: auth.user?.name || auth.user?.email?.split("@")[0] || "用户",
+      xp: Number(auth.user?.xp || 0),
+    })
+    await refresh().catch(() => undefined)
+  }
+
+  const logout = async () => {
+    clearAppAuth()
+    setUser(null)
+  }
+
   useEffect(()=>{
     refresh()
-    const {data:{subscription}} = supabase.auth.onAuthStateChange(async (_event,session)=>{
-      if(session?.user){
-        setUser(await buildAuthUser(session.user))
-      }else{
-        setUser(null)
-      }
-    })
-    return ()=>{subscription.unsubscribe()}
   },[])
 
-  return <AuthContext.Provider value={{user,loading,refresh}}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{user,loading,refresh,setSession,logout}}>{children}</AuthContext.Provider>
 }
 
 export function useAuth(){return useContext(AuthContext)}
