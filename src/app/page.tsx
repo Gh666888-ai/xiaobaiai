@@ -156,27 +156,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 核心能力 = 三个板块 */}
-      <div style={{position:'relative',zIndex:10,padding:'120px 60px',background:'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.95) 20%)'}} className="max-sm:px-6">
-        <p style={{fontFamily:"'JetBrains Mono', monospace",fontSize:10,letterSpacing:'0.4em',color:'#7a6230',textTransform:'uppercase',textAlign:'center',marginBottom:80}}>核心板块</p>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3, 1fr)',gap:2,maxWidth:1100,margin:'0 auto'}} className="max-sm:grid-cols-1">
-          {[
-            {icon:'◉',name:'小白爱学习',desc:'7 个阶段，从认识 AI 到搭建 Agent 工作流。每步有配套工具和详细教程，零基础友好。',href:'/learn'},
-            {icon:'◈',name:'工具导航',desc:`收录 ${tools.length}+ 款 AI 工具，覆盖 15 个分类。每款工具标注学习阶段，新手也能快速找到适合自己的 AI 产品。`,href:'/tools'},
-            {icon:'◎',name:'AI 资讯',desc:'Agent 自动聚合最新 AI 动态 + 社区用户投稿。双内容源保障资讯广度与质量。',href:'/news'},
-          ].map(card=>(
-            <Link key={card.name} href={card.href}
-              style={{background:'rgba(255,255,255,0.02)',border:'1px solid #1a1a1a',padding:'48px 36px',position:'relative',overflow:'hidden',transition:'all 0.4s',cursor:'pointer',textDecoration:'none',display:'block'}}
-              onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.04)';e.currentTarget.style.borderColor='#7a6230'}}
-              onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.02)';e.currentTarget.style.borderColor='#1a1a1a'}}>
-              <span style={{fontSize:28,marginBottom:24,display:'block',color:'#c9a84c'}}>{card.icon}</span>
-              <h3 style={{fontSize:20,fontWeight:700,color:'#fff',marginBottom:16,letterSpacing:'0.05em'}}>{card.name}</h3>
-              <p style={{fontSize:13,fontWeight:300,lineHeight:1.8,color:'rgba(255,255,255,0.4)',letterSpacing:'0.02em'}}>{card.desc}</p>
-            </Link>
-          ))}
-        </div>
-      </div>
-
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes expandWidth { to { width: 120px; } }
