@@ -6,8 +6,9 @@ import { stages } from "@/data/learning-path"
 import { tools } from "@/data/tools"
 import { toolPath } from "@/data/tool-meta"
 import { MathRain } from "@/components/MathRain"
+import { ContentVisual } from "@/components/ContentVisual"
 import Link from "next/link"
-import { CheckCircle2, Circle } from "lucide-react"
+import { CheckCircle2, ChevronLeft, ChevronRight, Circle } from "lucide-react"
 import { LearningProgress, progressId, readLearningProgress, writeLearningProgress } from "@/lib/learning-progress"
 
 function letter(n:string){return /^[a-zA-Z]/.test(n)?n[0].toUpperCase():n[0]}
@@ -20,9 +21,11 @@ export default function StageDetailPage() {
   const stage = stages.find(s=>s.id===stageId)
   const stageTools = tools.filter(t=>t.stage===stageId).slice(0,3)
   const [progress, setProgress] = useState<LearningProgress>({})
+  const [activeIndex, setActiveIndex] = useState(0)
 
   useEffect(() => {
     setProgress(readLearningProgress())
+    setActiveIndex(0)
   }, [stageId])
 
   const toggleSection = (sectionIndex: number) => {
@@ -44,6 +47,8 @@ export default function StageDetailPage() {
 
   const completedCount = stage.sections.filter((_, index) => progress[progressId(stageId, index)]).length
   const progressPercent = stage.sections.length ? Math.round(completedCount / stage.sections.length * 100) : 0
+  const activeSection = stage.sections[Math.min(activeIndex, stage.sections.length - 1)]
+  const activeDone = !!progress[progressId(stageId, activeIndex)]
 
   return (
     <div style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
@@ -53,7 +58,7 @@ export default function StageDetailPage() {
         <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#aaa',letterSpacing:'0.15em'}}>STAGE {String(stageId).padStart(2,"0")}</span>
       </nav>
 
-      <div style={{maxWidth:800,margin:'0 auto',padding:'60px 60px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.85)'}} className="max-sm:px-6">
+      <div style={{maxWidth:980,margin:'0 auto',padding:'60px 60px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.88)'}} className="max-sm:px-6">
         {/* 头部 */}
         <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:40}}>
           <div style={{width:56,height:56,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:28,background:'rgba(201,168,76,0.12)',flexShrink:0}}>{stage.icon}</div>
@@ -79,35 +84,58 @@ export default function StageDetailPage() {
           </div>
         </div>
 
-        {/* 章节 */}
-        <div style={{display:'flex',flexDirection:'column',gap:2,background:'#1a1a1a',border:'1px solid #1a1a1a',marginBottom:48}}>
-          {stage.sections.map((section,i)=>{
-            const done = !!progress[progressId(stageId, i)]
-            return (
-            <div key={i} style={{background:done?'rgba(201,168,76,0.045)':'rgba(255,255,255,0.02)',padding:'32px'}}>
-              <div style={{display:'flex',alignItems:'flex-start',gap:14}}>
-                <span style={{width:28,height:28,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'JetBrains Mono',monospace",fontSize:12,fontWeight:700,color:done?'#111':'#c9a84c',border:'1px solid #7a6230',background:done?'#e8c96a':'transparent',flexShrink:0}}>{done ? "✓" : i+1}</span>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12,marginBottom:12,flexWrap:'wrap'}}>
-                    <h3 style={{fontSize:18,fontWeight:700,color:'#fff'}}>{section.title}</h3>
-                  </div>
-                  <p style={{fontSize:16,color:'#eee',lineHeight:1.9,whiteSpace:'pre-line'}}>{section.content}</p>
-                  {section.tips && (
-                    <div style={{marginTop:16,padding:'16px',background:'rgba(201,168,76,0.04)',border:'1px solid #2a1f10',borderRadius:4}}>
-                      <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:13,color:'#e8c96a',letterSpacing:'0.1em',marginBottom:4}}>💡 TIP</p>
-                      <p style={{fontSize:15,color:'#eee',lineHeight:1.7}}>{section.tips}</p>
-                    </div>
-                  )}
-                  <div style={{display:'flex',justifyContent:'flex-end',marginTop:18}}>
-                    <button onClick={()=>toggleSection(i)} style={{display:'inline-flex',alignItems:'center',gap:7,whiteSpace:'nowrap',border:`1px solid ${done?'#7a6230':'#333'}`,background:done?'rgba(201,168,76,0.12)':'rgba(255,255,255,0.03)',color:done?'#e8c96a':'#aaa',borderRadius:8,padding:'9px 12px',fontSize:12,fontWeight:900,cursor:'pointer'}}>
-                      {done ? <CheckCircle2 size={15}/> : <Circle size={15}/>}
-                      {done ? "已学完" : "读完了，标记已学完"}
-                    </button>
-                  </div>
+        {/* 章节播放器 */}
+        <div style={{display:'grid',gridTemplateColumns:'240px minmax(0,1fr)',gap:16,marginBottom:48}} className="max-sm:grid-cols-1">
+          <div style={{border:'1px solid #1a1a1a',background:'rgba(255,255,255,0.02)',borderRadius:8,padding:12,alignSelf:'start'}}>
+            <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:900,color:'#777',letterSpacing:'0.14em',marginBottom:10}}>CHAPTERS</p>
+            <div style={{display:'flex',flexDirection:'column',gap:6}}>
+              {stage.sections.map((section,i)=>{
+                const done = !!progress[progressId(stageId, i)]
+                const isActive = i === activeIndex
+                return (
+                  <button key={section.title} onClick={()=>setActiveIndex(i)}
+                    style={{display:'flex',alignItems:'center',gap:8,width:'100%',textAlign:'left',border:`1px solid ${isActive?'#7a6230':'#202020'}`,background:isActive?'rgba(201,168,76,0.08)':'rgba(255,255,255,0.02)',borderRadius:6,padding:'9px 10px',cursor:'pointer',color:isActive?'#fff':'#aaa',fontFamily:"'Noto Sans SC', sans-serif"}}>
+                    <span style={{width:22,height:22,borderRadius:'50%',display:'inline-flex',alignItems:'center',justifyContent:'center',fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:900,color:done?'#111':'#c9a84c',border:'1px solid #7a6230',background:done?'#e8c96a':'transparent',flexShrink:0}}>{done ? "✓" : i+1}</span>
+                    <span style={{fontSize:12,fontWeight:800,lineHeight:1.35,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical'}}>{section.title}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div style={{border:'1px solid #1a1a1a',background:activeDone?'rgba(201,168,76,0.035)':'rgba(255,255,255,0.02)',borderRadius:8,overflow:'hidden'}}>
+            <ContentVisual title={activeSection.title} label={`CHAPTER ${activeIndex+1}`} meta={`${activeIndex+1}/${stage.sections.length} · ${stage.timeEstimate}`} kind={stage.id===4?"agent":stage.id>=2?"code":"learn"} />
+            <div style={{padding:'28px 30px'}} className="max-sm:px-4">
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:16,flexWrap:'wrap'}}>
+                <div>
+                  <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:900,color:'#7a6230',letterSpacing:'0.14em',marginBottom:6}}>CHAPTER {activeIndex+1}</p>
+                  <h3 style={{fontSize:22,fontWeight:900,color:'#fff',lineHeight:1.35}}>{activeSection.title}</h3>
                 </div>
+                <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:900,color:activeDone?'#e8c96a':'#777'}}>{activeDone ? "DONE" : "LEARNING"}</span>
+              </div>
+              <p style={{fontSize:16,color:'#eee',lineHeight:1.95,whiteSpace:'pre-line'}}>{activeSection.content}</p>
+              {activeSection.tips && (
+                <div style={{marginTop:18,padding:'16px',background:'rgba(201,168,76,0.04)',border:'1px solid #2a1f10',borderRadius:6}}>
+                  <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:12,color:'#e8c96a',letterSpacing:'0.1em',marginBottom:6}}>TIP</p>
+                  <p style={{fontSize:15,color:'#eee',lineHeight:1.75}}>{activeSection.tips}</p>
+                </div>
+              )}
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,marginTop:24,flexWrap:'wrap'}}>
+                <button onClick={()=>setActiveIndex(Math.max(0, activeIndex-1))} disabled={activeIndex===0}
+                  style={{display:'inline-flex',alignItems:'center',gap:6,border:'1px solid #333',background:'rgba(255,255,255,0.03)',color:activeIndex===0?'#444':'#bbb',borderRadius:8,padding:'10px 12px',fontSize:12,fontWeight:900,cursor:activeIndex===0?'not-allowed':'pointer'}}>
+                  <ChevronLeft size={15}/> 上一章
+                </button>
+                <button onClick={()=>toggleSection(activeIndex)} style={{display:'inline-flex',alignItems:'center',gap:7,whiteSpace:'nowrap',border:`1px solid ${activeDone?'#7a6230':'#333'}`,background:activeDone?'rgba(201,168,76,0.12)':'rgba(255,255,255,0.03)',color:activeDone?'#e8c96a':'#aaa',borderRadius:8,padding:'10px 12px',fontSize:12,fontWeight:900,cursor:'pointer'}}>
+                  {activeDone ? <CheckCircle2 size={15}/> : <Circle size={15}/>}
+                  {activeDone ? "已学完" : "读完了，标记已学完"}
+                </button>
+                <button onClick={()=>setActiveIndex(Math.min(stage.sections.length-1, activeIndex+1))} disabled={activeIndex===stage.sections.length-1}
+                  style={{display:'inline-flex',alignItems:'center',gap:6,border:'1px solid #333',background:'rgba(255,255,255,0.03)',color:activeIndex===stage.sections.length-1?'#444':'#bbb',borderRadius:8,padding:'10px 12px',fontSize:12,fontWeight:900,cursor:activeIndex===stage.sections.length-1?'not-allowed':'pointer'}}>
+                  下一章 <ChevronRight size={15}/>
+                </button>
               </div>
             </div>
-          )})}
+          </div>
         </div>
 
         {/* 推荐工具 */}

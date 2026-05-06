@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase"
 import { posts as seedPosts } from "@/data/community"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
+import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisual"
 import Link from "next/link"
 import { Heart, MessageCircle, Pin, Search } from "lucide-react"
 
@@ -43,10 +44,10 @@ export default function CommunityPage() {
       <MathRain />
       <NavBar />
 
-      <div style={{maxWidth:800,margin:'0 auto',padding:'60px 60px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.85)'}} className="max-sm:px-4">
+      <div style={{maxWidth:1080,margin:'0 auto',padding:'60px 60px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.88)'}} className="max-sm:px-4">
         <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.4em',color:'#7a6230',textTransform:'uppercase',marginBottom:10,fontWeight:700}}>Community</p>
         <h1 style={{fontSize:36,fontWeight:900,color:'#fff',letterSpacing:'0.02em',marginBottom:8}}>社区</h1>
-        <p style={{fontSize:15,fontWeight:500,color:'#ccc',marginBottom:40}}>Agent 实战经验 · 踩坑记录 · AI 可行性分析</p>
+        <p style={{fontSize:15,fontWeight:500,color:'#ccc',marginBottom:40}}>Agent 实战经验 · 踩坑记录 · AI 可行性分析 · 真实案例看板</p>
 
         <div style={{display:'grid',gridTemplateColumns:'repeat(3, 1fr)',gap:8,marginBottom:28}} className="max-sm:grid-cols-1">
           {[
@@ -84,29 +85,34 @@ export default function CommunityPage() {
         ):(
           <div style={{display:'flex',flexDirection:'column',gap:12}}>
             {filtered.map(p=>(
-              <div key={p.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:16,padding:'28px 32px',transition:'all 0.3s'}}
+              <div key={p.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:12,padding:'22px',transition:'all 0.3s'}}
                 onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.04)';e.currentTarget.style.borderColor='#7a6230'}}
                 onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor='#1a1a1a'}}>
-                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10,flexWrap:'wrap'}}>
-                  {p.pinned && <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#e8c96a',border:'1px solid #7a6230',padding:'2px 8px',borderRadius:4,display:'flex',alignItems:'center',gap:4}}><Pin size={10} />置顶</span>}
-                  <span className="tag tag-gold" style={{fontWeight:700,fontSize:11}}>{p.category}</span>
-                  <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#aaa'}}>{p.author}</span>
-                  <span style={{color:'#444'}}>·</span>
-                  <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#666'}}>{p.publishedAt}</span>
-                </div>
+                <div style={{display:'grid',gridTemplateColumns:'230px minmax(0,1fr)',gap:20,alignItems:'stretch'}} className="max-sm:grid-cols-1">
+                  <ContentVisual compact title={p.title} label={p.category} meta={`${p.likes||0} likes`} kind={inferContentVisualKind(`${p.category} ${p.title} ${(p.tags||[]).join(" ")}`,"community")} />
+                  <div style={{minWidth:0}}>
+                    <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10,flexWrap:'wrap'}}>
+                      {p.pinned && <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#e8c96a',border:'1px solid #7a6230',padding:'2px 8px',borderRadius:4,display:'flex',alignItems:'center',gap:4}}><Pin size={10} />置顶</span>}
+                      <span className="tag tag-gold" style={{fontWeight:700,fontSize:11}}>{p.category}</span>
+                      <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#aaa'}}>{p.author}</span>
+                      <span style={{color:'#444'}}>·</span>
+                      <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#666'}}>{p.publishedAt}</span>
+                    </div>
 
-                <Link href={`/community/${p.id}`} style={{textDecoration:'none'}}>
-                  <h2 style={{fontSize:20,fontWeight:800,color:'#fff',marginBottom:10,lineHeight:1.4,cursor:'pointer'}}>{p.title}</h2>
-                </Link>
-                <p style={{fontSize:14,color:'#ccc',lineHeight:1.8,display:'-webkit-box',WebkitLineClamp:4,WebkitBoxOrient:'vertical',overflow:'hidden',whiteSpace:'pre-line'}}>{p.content}</p>
+                    <Link href={`/community/${p.id}`} style={{textDecoration:'none'}}>
+                      <h2 style={{fontSize:20,fontWeight:800,color:'#fff',marginBottom:10,lineHeight:1.4,cursor:'pointer'}}>{p.title}</h2>
+                    </Link>
+                    <p style={{fontSize:14,color:'#ccc',lineHeight:1.8,display:'-webkit-box',WebkitLineClamp:3,WebkitBoxOrient:'vertical',overflow:'hidden',whiteSpace:'pre-line'}}>{p.content}</p>
 
-                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:16,flexWrap:'wrap',gap:10}}>
-                  <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-                    {(Array.isArray(p.tags)?p.tags:[]).map((t:any)=><span key={t} style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#888',border:'1px solid #222',padding:'2px 8px',borderRadius:4,fontWeight:500}}>{t}</span>)}
-                  </div>
-                  <div style={{display:'flex',gap:16,fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#aaa'}}>
-                    <span style={{display:'flex',alignItems:'center',gap:4}}><Heart size={13} /> {p.likes||0}</span>
-                    <span style={{display:'flex',alignItems:'center',gap:4}}><MessageCircle size={13} /> {p.comments_count||p.comments||0}</span>
+                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:16,flexWrap:'wrap',gap:10}}>
+                      <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                        {(Array.isArray(p.tags)?p.tags:[]).map((t:any)=><span key={t} style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#888',border:'1px solid #222',padding:'2px 8px',borderRadius:4,fontWeight:500}}>{t}</span>)}
+                      </div>
+                      <div style={{display:'flex',gap:16,fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#aaa'}}>
+                        <span style={{display:'flex',alignItems:'center',gap:4}}><Heart size={13} /> {p.likes||0}</span>
+                        <span style={{display:'flex',alignItems:'center',gap:4}}><MessageCircle size={13} /> {p.comments_count||p.comments||0}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

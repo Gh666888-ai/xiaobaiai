@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import { posts } from "@/data/community"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
+import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisual"
 import Link from "next/link"
 import { Heart, MessageCircle, Pin, ArrowLeft } from "lucide-react"
 
@@ -37,7 +38,7 @@ export default function PostDetailPage() {
       <MathRain />
       <NavBar />
 
-      <div style={{maxWidth:800,margin:'0 auto',padding:'60px 60px 100px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.85)'}} className="max-sm:px-4">
+      <div style={{maxWidth:900,margin:'0 auto',padding:'60px 60px 100px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.88)'}} className="max-sm:px-4">
         {/* 标签 */}
         <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16,flexWrap:'wrap'}}>
           {post.pinned && <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#e8c96a',border:'1px solid #7a6230',padding:'3px 10px',borderRadius:4,display:'flex',alignItems:'center',gap:4}}><Pin size={10} />置顶</span>}
@@ -54,8 +55,12 @@ export default function PostDetailPage() {
           {(post.tags as string[]).map((t:string)=><span key={t} style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:600,color:'#ccc',border:'1px solid #333',padding:'3px 10px',borderRadius:4}}>{t}</span>)}
         </div>
 
+        <div style={{marginBottom:32}}>
+          <ContentVisual title={post.title} label={post.category} meta={`${post.author} · ${post.publishedAt}`} kind={inferContentVisualKind(`${post.category} ${post.title} ${post.tags.join(" ")}`,"community")} />
+        </div>
+
         {/* 正文 */}
-        <div style={{fontSize:16,color:'#eee',lineHeight:2.2,whiteSpace:'pre-line',marginBottom:40}}>
+        <div style={{fontSize:16,color:'#eee',lineHeight:2.15,whiteSpace:'pre-line',marginBottom:40,border:'1px solid #181818',background:'rgba(255,255,255,0.018)',borderRadius:8,padding:'24px 26px'}}>
           {post.content}
         </div>
 
