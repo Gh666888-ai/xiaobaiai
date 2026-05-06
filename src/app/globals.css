@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* 小白AI — Memory Lab Theme */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
