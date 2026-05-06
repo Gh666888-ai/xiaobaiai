@@ -6,6 +6,7 @@ import { posts as seedPosts } from "@/data/community"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisual"
+import { LevelBadge } from "@/components/LevelBadge"
 import Link from "next/link"
 import { Heart, MessageCircle, Pin, Search } from "lucide-react"
 
@@ -38,6 +39,9 @@ export default function CommunityPage() {
     if (!a.pinned && b.pinned) return 1
     return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   })
+
+  const authorName = (p:any) => p.author_name || p.author || "匿名用户"
+  const authorXP = (p:any) => Number(p.author_xp ?? p.authorXp ?? (authorName(p) === "小白站长" ? 30000 : 0))
 
   return (
     <div style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
@@ -94,7 +98,7 @@ export default function CommunityPage() {
                     <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10,flexWrap:'wrap'}}>
                       {p.pinned && <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#e8c96a',border:'1px solid #7a6230',padding:'2px 8px',borderRadius:4,display:'flex',alignItems:'center',gap:4}}><Pin size={10} />置顶</span>}
                       <span className="tag tag-gold" style={{fontWeight:700,fontSize:11}}>{p.category}</span>
-                      <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#aaa'}}>{p.author}</span>
+                      <LevelBadge compact name={authorName(p)} xp={authorXP(p)} />
                       <span style={{color:'#444'}}>·</span>
                       <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#666'}}>{p.publishedAt}</span>
                     </div>

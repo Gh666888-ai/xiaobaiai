@@ -2,12 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { CalendarCheck, CheckCircle2, Compass, Flame, Rocket, Sparkles, Target, Trophy } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { XiaobaiMascot } from "@/components/XiaobaiMascot"
 import { stages } from "@/data/learning-path"
 import { progressId, readLearningProgress } from "@/lib/learning-progress"
+import { useAuth } from "@/lib/AuthContext"
+import { supabase } from "@/lib/supabase"
 
 type GrowthState = {
   xp: number
@@ -29,18 +32,22 @@ function todayKey() {
   return new Date().toISOString().slice(0, 10)
 }
 
-function readGrowth(): GrowthState {
+function storageKey(userId?: string) {
+  return userId ? `${GROWTH_KEY}:${userId}` : `${GROWTH_KEY}:guest`
+}
+
+function readGrowth(userId?: string): GrowthState {
   if (typeof window === "undefined") return { xp: 0, streak: 0, lastCheckIn: "", doneMissions: {} }
   try {
-    const raw = window.localStorage.getItem(GROWTH_KEY)
+    const raw = window.localStorage.getItem(storageKey(userId))
     return raw ? JSON.parse(raw) : { xp: 0, streak: 0, lastCheckIn: "", doneMissions: {} }
   } catch {
     return { xp: 0, streak: 0, lastCheckIn: "", doneMissions: {} }
   }
 }
 
-function writeGrowth(state: GrowthState) {
-  window.localStorage.setItem(GROWTH_KEY, JSON.stringify(state))
+function writeGrowth(state: GrowthState, userId?: string) {
+  window.localStorage.setItem(storageKey(userId), JSON.stringify(state))
 }
 
 function levelName(xp: number) {
@@ -60,14 +67,19 @@ function levelBadge(xp: number) {
 }
 
 export default function GrowthClient() {
+  const router = useRouter()
+  const { user, loading, refresh } = useAuth()
   const [state, setState] = useState<GrowthState>({ xp: 0, streak: 0, lastCheckIn: "", doneMissions: {} })
   const [learnDone, setLearnDone] = useState(0)
+  const [claiming, setClaiming] = useState("")
+  const [notice, setNotice] = useState("")
 
   useEffect(() => {
-    setState(readGrowth())
+    const growth = readGrowth(user?.userId)
+    setState({ ...growth, xp: user ? user.xp : growth.xp })
     const progress = readLearningProgress()
     setLearnDone(Object.values(progress).filter(Boolean).length)
-  }, [])
+  }, [user?.userId, user?.xp])
 
   const today = todayKey()
   const checkedToday = state.lastCheckIn === today
@@ -88,19 +100,63 @@ export default function GrowthClient() {
     return best
   }, [learnDone])
 
-  const checkIn = () => {
-    if (checkedToday) return
-    const next = { ...state, xp: state.xp + 15, streak: state.streak + 1, lastCheckIn: today }
-    setState(next)
-    writeGrowth(next)
+  const requireLogin = () => {
+    router.push("/login?redirect=/growth")
   }
 
-  const finishMission = (missionId: string, xp: number) => {
+  const awardXP = async (amount: number) => {
+    if (!user) {
+      requireLogin()
+      return false
+    }
+    const { data: profile, error: readError } = await supabase.from("profiles").select("xp").eq("id", user.userId).single()
+    if (readError || !profile) throw new Error("没有找到你的成长档案，请重新登录后再试。")
+    const nextXP = Number(profile.xp || 0) + amount
+    const { error: updateError } = await supabase.from("profiles").update({ xp: nextXP }).eq("id", user.userId)
+    if (updateError) throw new Error("经验写入失败，请稍后再试。")
+    await refresh()
+    return true
+  }
+
+  const checkIn = async () => {
+    if (!user) return requireLogin()
+    if (checkedToday || claiming) return
+    setNotice("")
+    setClaiming("check-in")
+    try {
+      const ok = await awardXP(15)
+      if (!ok) return
+      const current = readGrowth(user.userId)
+      const next = { ...current, xp: current.xp + 15, streak: current.streak + 1, lastCheckIn: today }
+      setState({ ...next, xp: user.xp + 15 })
+      writeGrowth(next, user.userId)
+      setNotice("今日打卡成功，15 XP 已进入你的账号等级。")
+    } catch (error: any) {
+      setNotice(error?.message || "打卡失败，请稍后再试。")
+    } finally {
+      setClaiming("")
+    }
+  }
+
+  const finishMission = async (missionId: string, xp: number) => {
+    if (!user) return requireLogin()
     const key = `${today}:${missionId}`
-    if (state.doneMissions[key]) return
-    const next = { ...state, xp: state.xp + xp, doneMissions: { ...state.doneMissions, [key]: true } }
-    setState(next)
-    writeGrowth(next)
+    if (state.doneMissions[key] || claiming) return
+    setNotice("")
+    setClaiming(missionId)
+    try {
+      const ok = await awardXP(xp)
+      if (!ok) return
+      const current = readGrowth(user.userId)
+      const next = { ...current, xp: current.xp + xp, doneMissions: { ...current.doneMissions, [key]: true } }
+      setState({ ...next, xp: user.xp + xp })
+      writeGrowth(next, user.userId)
+      setNotice(`领取成功，${xp} XP 已进入你的账号等级。`)
+    } catch (error: any) {
+      setNotice(error?.message || "领取失败，请稍后再试。")
+    } finally {
+      setClaiming("")
+    }
   }
 
   return (
@@ -113,7 +169,7 @@ export default function GrowthClient() {
           <div>
             <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.36em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 800 }}>Growth Deck</p>
             <h1 style={{ fontSize: 38, fontWeight: 950, color: "#fff", letterSpacing: "0.02em", marginBottom: 10 }}>AI 成长舱</h1>
-            <p style={{ fontSize: 15, color: "#cfcfcf", lineHeight: 1.9, maxWidth: 680 }}>每天给自己一个小任务，积累经验值、连续学习和下一步路线。这个进度保存在你的浏览器里，不需要登录也能用。</p>
+            <p style={{ fontSize: 15, color: "#cfcfcf", lineHeight: 1.9, maxWidth: 680 }}>每天给自己一个小任务，积累经验值、连续学习和下一步路线。登录后领取的经验会同步到账号等级和右上角徽章。</p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", justifyContent: "flex-end" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, border: "1px solid #2a1f10", borderRadius: 14, background: "rgba(201,168,76,0.055)", padding: "10px 13px" }}>
@@ -123,11 +179,27 @@ export default function GrowthClient() {
                 <p style={{ color: "#aaa", fontSize: 11, marginTop: 3 }}>{badge.subtitle}</p>
               </div>
             </div>
-            <button onClick={checkIn} disabled={checkedToday} style={{ display: "inline-flex", alignItems: "center", gap: 8, color: checkedToday ? "#3DA563" : "#111", background: checkedToday ? "rgba(61,165,99,0.1)" : "#e8c96a", border: checkedToday ? "1px solid #2f7d4d" : "1px solid #e8c96a", borderRadius: 10, padding: "11px 16px", fontSize: 13, fontWeight: 950, cursor: checkedToday ? "default" : "pointer" }}>
-              <CalendarCheck size={16} /> {checkedToday ? "今日已打卡" : "今日打卡 +15XP"}
+            <button onClick={checkIn} disabled={!!user && (checkedToday || claiming === "check-in")} style={{ display: "inline-flex", alignItems: "center", gap: 8, color: user ? (checkedToday ? "#3DA563" : "#111") : "#e8c96a", background: user ? (checkedToday ? "rgba(61,165,99,0.1)" : "#e8c96a") : "rgba(201,168,76,0.08)", border: user ? (checkedToday ? "1px solid #2f7d4d" : "1px solid #e8c96a") : "1px solid #7a6230", borderRadius: 10, padding: "11px 16px", fontSize: 13, fontWeight: 950, cursor: user && checkedToday ? "default" : "pointer" }}>
+              <CalendarCheck size={16} /> {!user ? "登录后打卡" : claiming === "check-in" ? "写入中..." : checkedToday ? "今日已打卡" : "今日打卡 +15XP"}
             </button>
           </div>
         </div>
+
+        {!loading && !user && (
+          <section style={{ border: "1px solid #7a6230", borderRadius: 12, background: "rgba(201,168,76,0.065)", padding: "16px 18px", marginBottom: 18, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, flexWrap: "wrap" }}>
+            <div>
+              <p style={{ color: "#fff", fontSize: 15, fontWeight: 950, marginBottom: 4 }}>登录后才能领取经验</p>
+              <p style={{ color: "#d6c28a", fontSize: 12, lineHeight: 1.7 }}>你可以先浏览任务和学习路线；领取 XP、连续打卡和等级徽章需要绑定到账号。</p>
+            </div>
+            <Link href="/login?redirect=/growth" className="btn-primary" style={{ textDecoration: "none" }}>去登录</Link>
+          </section>
+        )}
+
+        {notice && (
+          <section style={{ border: `1px solid ${notice.includes("失败") || notice.includes("没有找到") ? "#5a2222" : "#2a1f10"}`, borderRadius: 10, background: notice.includes("失败") || notice.includes("没有找到") ? "rgba(217,72,65,0.08)" : "rgba(201,168,76,0.045)", color: notice.includes("失败") || notice.includes("没有找到") ? "#ff9a8f" : "#e8c96a", padding: "10px 14px", marginBottom: 18, fontSize: 12, fontWeight: 800 }}>
+            {notice}
+          </section>
+        )}
 
         <section style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: 10, marginBottom: 18 }} className="max-sm:grid-cols-2">
           {[
@@ -174,7 +246,9 @@ export default function GrowthClient() {
                     </div>
                     <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
                       <Link href={mission.href} className="btn-outline" style={{ fontSize: 11, padding: "6px 13px", textDecoration: "none" }}>去完成</Link>
-                      <button onClick={() => finishMission(mission.id, mission.xp)} disabled={done} className={done ? "btn-outline" : "btn-primary"} style={{ fontSize: 11, padding: "6px 13px" }}>{done ? "已领取" : "领取经验"}</button>
+                      <button onClick={() => finishMission(mission.id, mission.xp)} disabled={!!user && (done || claiming === mission.id)} className={done ? "btn-outline" : "btn-primary"} style={{ fontSize: 11, padding: "6px 13px" }}>
+                        {!user ? "登录领取" : claiming === mission.id ? "写入中..." : done ? "已领取" : "领取经验"}
+                      </button>
                     </div>
                   </div>
                 )

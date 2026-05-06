@@ -71,7 +71,7 @@ export default function NewPostPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setAuthor(data.session.user.email || "")
+      if (data.session) setAuthor(data.session.user.user_metadata?.name || data.session.user.email || "")
     })
   }, [])
 
@@ -98,9 +98,14 @@ export default function NewPostPage() {
       return
     }
     try {
+      const { data: sessionData } = await supabase.auth.getSession()
+      const accessToken = sessionData.session?.access_token
       const res = await fetch("/api/posts", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
         body: JSON.stringify({
           title,
           content,

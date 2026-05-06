@@ -6,6 +6,7 @@ import { posts } from "@/data/community"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisual"
+import { LevelBadge } from "@/components/LevelBadge"
 import Link from "next/link"
 import { Heart, MessageCircle, Pin, ArrowLeft } from "lucide-react"
 
@@ -19,7 +20,7 @@ export default function PostDetailPage() {
     fetch("/api/posts?status=approved").then(r=>r.json()).then(d=>{if(Array.isArray(d))setApiPosts(d)}).catch(()=>{})
   },[])
   const allPosts=[...posts,...staticPosts,...apiPosts]
-  const post = allPosts.find(p => p.id === params.id)
+  const post = allPosts.find(p => String(p.id) === String(params.id))
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(post ? (post.likes || 0) : 0)
   const [showCommentBox, setShowCommentBox] = useState(false)
@@ -33,6 +34,9 @@ export default function PostDetailPage() {
     </div>
   )
 
+  const authorName = post.author_name || post.author || "匿名用户"
+  const authorXP = Number(post.author_xp ?? post.authorXp ?? (authorName === "小白站长" ? 30000 : 0))
+
   return (
     <div style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
       <MathRain />
@@ -43,7 +47,7 @@ export default function PostDetailPage() {
         <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16,flexWrap:'wrap'}}>
           {post.pinned && <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#e8c96a',border:'1px solid #7a6230',padding:'3px 10px',borderRadius:4,display:'flex',alignItems:'center',gap:4}}><Pin size={10} />置顶</span>}
           <span className="tag tag-gold" style={{fontWeight:700,fontSize:12}}>{post.category}</span>
-          <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#aaa'}}>{post.author}</span>
+          <LevelBadge compact name={authorName} xp={authorXP} />
           <span style={{color:'#444'}}>·</span>
           <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#888'}}>{post.publishedAt}</span>
         </div>
@@ -56,7 +60,7 @@ export default function PostDetailPage() {
         </div>
 
         <div style={{marginBottom:32}}>
-          <ContentVisual title={post.title} label={post.category} meta={`${post.author} · ${post.publishedAt}`} kind={inferContentVisualKind(`${post.category} ${post.title} ${post.tags.join(" ")}`,"community")} />
+          <ContentVisual title={post.title} label={post.category} meta={`${authorName} · ${post.publishedAt || post.published_at || ""}`} kind={inferContentVisualKind(`${post.category} ${post.title} ${(post.tags || []).join(" ")}`,"community")} />
         </div>
 
         {/* 正文 */}

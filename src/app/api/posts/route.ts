@@ -17,19 +17,44 @@ export async function GET(req: NextRequest) {
     .order("created_at", { ascending: false })
     .limit(50)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data || [])
+  const posts = data || []
+  const emails = Array.from(new Set(posts.map((post: any) => post.author_name).filter((name: any) => typeof name === "string" && name.includes("@"))))
+  if (emails.length === 0) return NextResponse.json(posts)
+
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("email,name,xp")
+    .in("email", emails)
+
+  const profileByEmail = new Map((profiles || []).map((profile: any) => [String(profile.email).toLowerCase(), profile]))
+  return NextResponse.json(posts.map((post: any) => {
+    const profile = typeof post.author_name === "string" ? profileByEmail.get(post.author_name.toLowerCase()) : null
+    return profile ? { ...post, author_name: profile.name || post.author_name, author_xp: profile.xp || 0 } : post
+  }))
 }
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
   const { title, content, category, tags, author_name } = body
   if (!title || !content) return NextResponse.json({ error: "Missing fields" }, { status: 400 })
+  let profile: any = null
+  const authHeader = req.headers.get("authorization") || ""
+  const token = authHeader.toLowerCase().startsWith("bearer ") ? authHeader.slice(7) : ""
+  if (token) {
+    const { data } = await supabase.auth.getUser(token)
+    if (data.user?.id) {
+      const { data: profileData } = await supabase.from("profiles").select("name,email,xp").eq("id", data.user.id).single()
+      profile = profileData
+    }
+  }
   const { error } = await supabase.from("community_posts").insert({
     title,
     content,
     category: category || "经验分享",
     tags: tags || [],
-    author_name: author_name || "匿名用户",
+    author_name: profile?.name || author_name || "匿名用户",
+    author_email: profile?.email || null,
+    author_xp: profile?.xp || 0,
     status: "pending",
     pinned: false,
     featured: false,
