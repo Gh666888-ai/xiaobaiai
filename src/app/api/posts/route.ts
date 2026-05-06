@@ -7,7 +7,7 @@ const supabase = createClient(
 )
 
 const MAX_LEVEL_EMAIL = "15171192200@163.com"
-const MAX_LEVEL_XP = 30000
+const MAX_LEVEL_XP = 100000
 
 function normalizeXP(email?: string | null, xp?: number | null) {
   return String(email || "").toLowerCase() === MAX_LEVEL_EMAIL ? MAX_LEVEL_XP : Number(xp || 0)

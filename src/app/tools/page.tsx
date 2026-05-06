@@ -4,6 +4,7 @@ import { tools, categories } from "@/data/tools"
 import { categoryPath, isDomesticTool } from "@/data/tool-meta"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
+import { CategoryIcon } from "@/components/CategoryIcon"
 
 export const metadata: Metadata = {
   title: "AI工具导航 - 分类入口",
@@ -53,7 +54,7 @@ export default function ToolsPage() {
             return (
               <Link key={cat.key} href={categoryPath(cat.key)} className="card-cat" style={{ display: "block", textDecoration: "none", background: "rgba(255,255,255,0.03)", border: "1px solid #1a1a1a", borderRadius: 12, padding: "22px 24px", minHeight: 220 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-                  <span style={{ width: 42, height: 42, borderRadius: 10, background: "rgba(201,168,76,0.08)", border: "1px solid #2a1f10", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>{cat.icon}</span>
+                  <CategoryIcon category={cat.key} size={22} />
                   <div style={{ flex: 1 }}>
                     <h2 style={{ fontSize: 18, color: "#fff", fontWeight: 900 }}>{cat.label}</h2>
                     <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, color: "#777", marginTop: 2 }}>{items.length} tools</p>

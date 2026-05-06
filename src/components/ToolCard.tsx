@@ -2,13 +2,12 @@
 
 import { Tool, stageLabels } from "@/data/tools"
 import { toolPath } from "@/data/tool-meta"
-import { brandLogoFromName, domainIcon } from "@/lib/visual-assets"
+import { ToolLogo } from "@/components/ToolLogo"
 import { ExternalLink, Zap } from "lucide-react"
 import Link from "next/link"
 
 export function ToolCard({ tool }: { tool: Tool }) {
   const stageLabel = stageLabels[tool.stage]
-  const logo = tool.logo || brandLogoFromName(tool.name) || domainIcon(tool.url)
 
   return (
     <Link
@@ -16,11 +15,7 @@ export function ToolCard({ tool }: { tool: Tool }) {
       className="card block p-4 no-underline group"
     >
       <div className="flex items-start justify-between gap-2 mb-2.5">
-        {logo && (
-          <span className="w-9 h-9 rounded-lg border border-gray-100 bg-white flex items-center justify-center overflow-hidden flex-shrink-0">
-            <img src={logo} alt={`${tool.name} logo`} className="w-6 h-6 object-contain" />
-          </span>
-        )}
+        <ToolLogo name={tool.name} url={tool.url} logo={tool.logo} size={36} radius={9} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
             <h3 className="text-sm font-semibold text-gray-900 truncate group-hover:text-primary-600 transition-colors">

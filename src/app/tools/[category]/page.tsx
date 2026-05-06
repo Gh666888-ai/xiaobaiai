@@ -3,9 +3,10 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { categories, tools } from "@/data/tools"
 import { getToolMeta, toolPath } from "@/data/tool-meta"
-import { brandLogoFromName, domainIcon } from "@/lib/visual-assets"
+import { ToolLogo } from "@/components/ToolLogo"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
+import { CategoryIcon } from "@/components/CategoryIcon"
 
 export async function generateStaticParams() {
   return categories.map((cat) => ({ category: cat.key }))
@@ -38,18 +39,20 @@ export default function ToolCategoryPage({ params }: { params: { category: strin
       <main style={{ maxWidth: 1080, margin: "0 auto", padding: "60px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.86)" }} className="max-sm:px-4">
         <Link href="/tools" style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: "#aaa", textDecoration: "none", marginBottom: 24, display: "inline-block" }}>← 返回分类</Link>
         <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.35em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 700 }}>Category</p>
-        <h1 style={{ fontSize: 34, color: "#fff", fontWeight: 900, marginBottom: 8 }}>{cat.icon} {cat.label}</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 8 }}>
+          <CategoryIcon category={cat.key} size={24} />
+          <h1 style={{ fontSize: 34, color: "#fff", fontWeight: 900 }}>{cat.label}</h1>
+        </div>
         <p style={{ fontSize: 14, color: "#ccc", marginBottom: 28 }}>{items.length} 个工具。点击任意工具进入站内详情页，不会直接跳走。</p>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 10 }}>
           {items.map((tool, index) => {
             const meta = getToolMeta(tool)
-            const logo = tool.logo || brandLogoFromName(tool.name) || domainIcon(tool.url)
             return (
               <Link key={tool.id} href={toolPath(tool)} style={{ display: "block", textDecoration: "none", border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: "20px 22px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
                   <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, color: index < 3 ? "#e8c96a" : "#666", fontWeight: 900, width: 28 }}>#{index + 1}</span>
-                  {logo && <img src={logo} alt={`${tool.name} logo`} style={{ width: 34, height: 34, borderRadius: 9, objectFit: "contain", background: "#fff", padding: 6, border: "1px solid #222" }} />}
+                  <ToolLogo name={tool.name} url={tool.url} logo={tool.logo} size={34} radius={9} />
                   <h2 style={{ fontSize: 17, color: "#fff", fontWeight: 900, flex: 1 }}>{tool.name}</h2>
                   {tool.featured && <span className="tag tag-gold" style={{ fontSize: 10 }}>推荐</span>}
                 </div>

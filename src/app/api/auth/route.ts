@@ -6,7 +6,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || ""
 const supabaseKey = supabaseServiceKey || supabaseAnonKey
 const MAX_LEVEL_EMAIL = "15171192200@163.com"
-const MAX_LEVEL_XP = 30000
+const MAX_LEVEL_XP = 100000
 
 function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status })

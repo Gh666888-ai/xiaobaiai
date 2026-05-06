@@ -30,6 +30,29 @@ export function brandLogoFromName(name: string) {
   return key ? `https://cdn.simpleicons.org/${slugMap[key]}` : ""
 }
 
+export function brandInitial(name: string) {
+  const trimmed = String(name || "AI").trim()
+  const first = trimmed.match(/[A-Za-z0-9]/)?.[0] || trimmed[0] || "AI"
+  return first.toUpperCase()
+}
+
+export function brandGradient(name: string) {
+  const palettes = [
+    ["#24c7db", "#2f6bff"],
+    ["#e8c96a", "#b87916"],
+    ["#7ee7d7", "#1d8f7d"],
+    ["#b692ff", "#5d35d6"],
+    ["#ff9f7e", "#dc4d6d"],
+    ["#7cc7ff", "#1f6feb"],
+    ["#d7f76f", "#3da563"],
+    ["#f5f7ff", "#8b9bb5"],
+  ]
+  let hash = 0
+  for (let i = 0; i < name.length; i += 1) hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  const [a, b] = palettes[Math.abs(hash) % palettes.length]
+  return `linear-gradient(145deg, ${a}, ${b})`
+}
+
 export function domainIcon(url: string) {
   try {
     const host = new URL(url).hostname

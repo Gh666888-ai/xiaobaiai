@@ -37,7 +37,7 @@ export default function PostDetailPage() {
   )
 
   const authorName = post.author_name || post.author || "匿名用户"
-  const authorXP = Number(post.author_xp ?? post.authorXp ?? (authorName === "小白站长" ? 30000 : 0))
+  const authorXP = Number(post.author_xp ?? post.authorXp ?? (authorName === "小白站长" ? 100000 : 0))
 
   return (
     <div style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
