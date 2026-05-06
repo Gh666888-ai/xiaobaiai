@@ -118,18 +118,18 @@ export async function GET(req: NextRequest) {
       .from("profiles")
       .select("name,email,xp")
       .eq("id", data.user.id)
-      .single()
+      .maybeSingle()
 
     const email = data.user.email || profile?.email || ""
     const isMaxLevelUser = email.toLowerCase() === MAX_LEVEL_EMAIL
     const xp = Math.max(Number(profile?.xp || 0), isMaxLevelUser ? MAX_LEVEL_XP : 0)
 
-    if (isMaxLevelUser && Number(profile?.xp || 0) < MAX_LEVEL_XP) {
+    if (!profile || (isMaxLevelUser && Number(profile?.xp || 0) < MAX_LEVEL_XP)) {
       await supabase.from("profiles").upsert({
         id: data.user.id,
         name: profile?.name || data.user.user_metadata?.name || data.user.email?.split("@")[0] || "用户",
         email,
-        xp: MAX_LEVEL_XP,
+        xp,
         joined_at: new Date().toISOString().slice(0, 10),
       }, { onConflict: "id" })
     }

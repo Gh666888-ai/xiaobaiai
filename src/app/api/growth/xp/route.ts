@@ -31,12 +31,24 @@ export async function POST(req: NextRequest) {
 
   const { data: profile, error: readError } = await supabase
     .from("profiles")
-    .select("xp")
+    .select("name,email,xp")
     .eq("id", userData.user.id)
-    .single()
-  if (readError || !profile) return jsonError("没有找到你的成长档案，请重新登录后再试。", 404)
+    .maybeSingle()
 
-  const xp = Number(profile.xp || 0) + amount
+  let currentXP = Number(profile?.xp || 0)
+  if (readError || !profile) {
+    const { error: createError } = await supabase.from("profiles").upsert({
+      id: userData.user.id,
+      email: userData.user.email || "",
+      name: userData.user.user_metadata?.name || userData.user.email?.split("@")[0] || "用户",
+      xp: 0,
+      joined_at: new Date().toISOString().slice(0, 10),
+    }, { onConflict: "id" })
+    if (createError) return jsonError("成长档案初始化失败，请稍后再试。", 500)
+    currentXP = 0
+  }
+
+  const xp = currentXP + amount
   const { error: updateError } = await supabase
     .from("profiles")
     .update({ xp })
