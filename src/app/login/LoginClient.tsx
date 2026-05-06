@@ -6,6 +6,40 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import Link from "next/link"
 
+function timeoutMessage(stage: string) {
+  return `${stage}响应超时，请检查网络后再试。`
+}
+
+async function withTimeout<T>(promise: Promise<T>, ms: number, stage: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(timeoutMessage(stage))), ms)
+  })
+  try {
+    return await Promise.race([promise, timeout])
+  } finally {
+    clearTimeout(timer!)
+  }
+}
+
+async function postAuth(payload: Record<string, string>) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 12000)
+  try {
+    return await fetch("/api/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    })
+  } catch (error: any) {
+    if (error?.name === "AbortError") throw new Error(timeoutMessage("登录服务"))
+    throw error
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 export default function LoginPage() {
   const { user, refresh } = useAuth()
   const router = useRouter()
@@ -31,30 +65,31 @@ export default function LoginPage() {
           return
         }
       }
-      const res = await fetch("/api/auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode, email, password: pwd, name }),
-      })
-      const data = await res.json()
+      const res = await postAuth({ mode, email: email.trim(), password: pwd, name: name.trim() })
+      const data = await res.json().catch(() => ({}))
       if (!res.ok) {
         setErr(data.error || "登录服务暂时不可用，请稍后再试。")
         setBusy(false)
         return
       }
-      const { error } = await supabase.auth.setSession({
+      if (!data?.session?.access_token || !data?.session?.refresh_token) {
+        setErr("登录服务没有返回完整会话，请稍后再试。")
+        setBusy(false)
+        return
+      }
+      const { error } = await withTimeout(supabase.auth.setSession({
         access_token: data.session.access_token,
         refresh_token: data.session.refresh_token,
-      })
+      }), 8000, "本地登录会话写入")
       if (error) {
         setErr("登录成功但本地会话写入失败，请刷新后再试。")
         setBusy(false)
         return
       }
-      await refresh()
+      await withTimeout(refresh(), 8000, "用户资料同步").catch(() => undefined)
       router.push(safeRedirect)
-    } catch {
-      setErr("网络连接不稳定，请稍后再试。")
+    } catch (error: any) {
+      setErr(error?.message || "网络连接不稳定，请稍后再试。")
     }
     setBusy(false)
   }
