@@ -6,6 +6,7 @@ import { posts } from "@/data/community"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisual"
+import { SmartImage } from "@/components/SmartImage"
 import { LevelBadge } from "@/components/LevelBadge"
 import { communityImage } from "@/lib/visual-assets"
 import Link from "next/link"
@@ -62,7 +63,7 @@ export default function PostDetailPage() {
 
         <div style={{marginBottom:32}}>
           {post.image || post.cover || communityImage(`${post.category} ${post.title} ${(post.tags || []).join(" ")}`) ? (
-            <img src={post.image || post.cover || communityImage(`${post.category} ${post.title} ${(post.tags || []).join(" ")}`)} alt="" style={{ width: "100%", maxHeight: 420, objectFit: "cover", borderRadius: 8, border: "1px solid #1f1f1f", marginBottom: 28, background: "#111" }} />
+            <SmartImage src={post.image || post.cover || communityImage(`${post.category} ${post.title} ${(post.tags || []).join(" ")}`)} title={post.title} label={post.category} meta={`${authorName} · ${post.publishedAt || post.published_at || ""}`} kind={inferContentVisualKind(`${post.category} ${post.title} ${(post.tags || []).join(" ")}`,"community")} style={{ maxHeight: 420, marginBottom: 28 }} />
           ) : (
             <ContentVisual title={post.title} label={post.category} meta={`${authorName} · ${post.publishedAt || post.published_at || ""}`} kind={inferContentVisualKind(`${post.category} ${post.title} ${(post.tags || []).join(" ")}`,"community")} />
           )}

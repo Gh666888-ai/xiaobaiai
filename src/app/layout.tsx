@@ -45,9 +45,13 @@ export const metadata: Metadata = {
   publisher: "小白AI",
   manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/xiaobai-icon-180.png",
+    icon: [
+      { url: "/xiaobai-icon-32.png?v=3", sizes: "32x32", type: "image/png" },
+      { url: "/xiaobai-icon-192.png?v=3", sizes: "192x192", type: "image/png" },
+      { url: "/favicon.ico?v=3" },
+    ],
+    shortcut: "/xiaobai-icon-32.png?v=3",
+    apple: "/xiaobai-icon-180.png?v=3",
   },
   alternates: {
     canonical: "/",
@@ -60,13 +64,13 @@ export const metadata: Metadata = {
     description:
       "面向 AI 新手的一站式入口：工具选择器、站内AI助手、学习路径、模型排行、社区案例和每日成长任务。",
     url: "https://www.xiaobaiai.cn",
-    images: [{ url: "/xiaobai-mascot.png", width: 1200, height: 1600, alt: "小白AI" }],
+    images: [{ url: "/xiaobai-mascot-cutout.png", width: 1071, height: 1468, alt: "小白AI" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "小白AI - 从零开始学 AI、选工具、用 Agent",
     description: "AI工具导航、学习路径、站内AI助手、模型排行和社区案例。",
-    images: ["/xiaobai-mascot.png"],
+    images: ["/xiaobai-mascot-cutout.png"],
   },
   robots: {
     index: true,
@@ -87,6 +91,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <meta name="baidu-site-verification" content="codeva-RTXCqCLk3P" />
         <meta name="baidu-site-verification" content="codeva-ZUKoSdLniD" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/xiaobai-icon-32.png?v=3" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/xiaobai-icon-192.png?v=3" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/xiaobai-icon-180.png?v=3" />
         <script
           dangerouslySetInnerHTML={{
             __html:

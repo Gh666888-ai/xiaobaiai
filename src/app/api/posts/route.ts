@@ -6,6 +6,13 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
 )
 
+const MAX_LEVEL_EMAIL = "15171192200@163.com"
+const MAX_LEVEL_XP = 30000
+
+function normalizeXP(email?: string | null, xp?: number | null) {
+  return String(email || "").toLowerCase() === MAX_LEVEL_EMAIL ? MAX_LEVEL_XP : Number(xp || 0)
+}
+
 export async function GET(req: NextRequest) {
   const status = req.nextUrl.searchParams.get("status") || "approved"
   const { data, error } = await supabase
@@ -29,7 +36,7 @@ export async function GET(req: NextRequest) {
   const profileByEmail = new Map((profiles || []).map((profile: any) => [String(profile.email).toLowerCase(), profile]))
   return NextResponse.json(posts.map((post: any) => {
     const profile = typeof post.author_name === "string" ? profileByEmail.get(post.author_name.toLowerCase()) : null
-    return profile ? { ...post, author_name: profile.name || post.author_name, author_xp: profile.xp || 0 } : post
+    return profile ? { ...post, author_name: profile.name || post.author_name, author_xp: normalizeXP(profile.email, profile.xp) } : post
   }))
 }
 
@@ -54,7 +61,7 @@ export async function POST(req: NextRequest) {
     tags: tags || [],
     author_name: profile?.name || author_name || "匿名用户",
     author_email: profile?.email || null,
-    author_xp: profile?.xp || 0,
+    author_xp: normalizeXP(profile?.email, profile?.xp),
     status: "pending",
     pinned: false,
     featured: false,

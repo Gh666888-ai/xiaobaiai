@@ -3,6 +3,8 @@ import { createClient } from "@supabase/supabase-js"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+const MAX_LEVEL_EMAIL = "15171192200@163.com"
+const MAX_LEVEL_XP = 30000
 
 function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status })
@@ -116,12 +118,26 @@ export async function GET(req: NextRequest) {
       .eq("id", data.user.id)
       .single()
 
+    const email = data.user.email || profile?.email || ""
+    const isMaxLevelUser = email.toLowerCase() === MAX_LEVEL_EMAIL
+    const xp = Math.max(Number(profile?.xp || 0), isMaxLevelUser ? MAX_LEVEL_XP : 0)
+
+    if (isMaxLevelUser && Number(profile?.xp || 0) < MAX_LEVEL_XP) {
+      await supabase.from("profiles").upsert({
+        id: data.user.id,
+        name: profile?.name || data.user.user_metadata?.name || data.user.email?.split("@")[0] || "用户",
+        email,
+        xp: MAX_LEVEL_XP,
+        joined_at: new Date().toISOString().slice(0, 10),
+      }, { onConflict: "id" })
+    }
+
     return NextResponse.json({
       user: {
         id: data.user.id,
-        email: data.user.email || profile?.email || "",
+        email,
         name: profile?.name || data.user.user_metadata?.name || data.user.email?.split("@")[0] || "用户",
-        xp: Number(profile?.xp || 0),
+        xp,
       },
     })
   } catch (error: any) {

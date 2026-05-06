@@ -6,6 +6,7 @@ import { posts as seedPosts } from "@/data/community"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisual"
+import { SmartImage } from "@/components/SmartImage"
 import { LevelBadge } from "@/components/LevelBadge"
 import { communityImage } from "@/lib/visual-assets"
 import Link from "next/link"
@@ -95,7 +96,7 @@ export default function CommunityPage() {
                 onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor='#1a1a1a'}}>
                 <div style={{display:'grid',gridTemplateColumns:'230px minmax(0,1fr)',gap:20,alignItems:'stretch'}} className="max-sm:grid-cols-1">
                   {p.image || p.cover || communityImage(`${p.category} ${p.title} ${(p.tags||[]).join(" ")}`) ? (
-                    <img src={p.image || p.cover || communityImage(`${p.category} ${p.title} ${(p.tags||[]).join(" ")}`)} alt="" style={{ width: "100%", height: 126, objectFit: "cover", borderRadius: 8, border: "1px solid #1f1f1f", display: "block", background: "#111" }} />
+                    <SmartImage compact src={p.image || p.cover || communityImage(`${p.category} ${p.title} ${(p.tags||[]).join(" ")}`)} title={p.title} label={p.category} meta={`${p.likes||0} likes`} kind={inferContentVisualKind(`${p.category} ${p.title} ${(p.tags||[]).join(" ")}`,"community")} />
                   ) : (
                     <ContentVisual compact title={p.title} label={p.category} meta={`${p.likes||0} likes`} kind={inferContentVisualKind(`${p.category} ${p.title} ${(p.tags||[]).join(" ")}`,"community")} />
                   )}

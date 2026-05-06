@@ -159,7 +159,7 @@ export function FloatingChat() {
         <section className="xiaobai-panel" aria-label="小白AI浮动问答">
           <header className="xiaobai-panel-head">
             <div className="xiaobai-head-left">
-              <XiaobaiMascot size={42} mood={sending ? "thinking" : user ? "happy" : "welcome"} />
+              <XiaobaiMascot size={48} mood={sending ? "thinking" : user ? "happy" : "welcome"} />
               <div>
                 <p className="xiaobai-title">小白AI助手</p>
                 <p className="xiaobai-subtitle">{mode === "ai" ? "AI 已接入" : mode === "site" ? "站内免费回答" : mode === "fallback" ? "本地兜底模式" : user ? "当前页面陪跑" : "站内问题可免费问"}</p>
@@ -267,7 +267,7 @@ export function FloatingChat() {
         }}
         aria-label="问小白AI"
       >
-        <XiaobaiMascot size={42} mood={open ? "happy" : launcherMood} />
+        <XiaobaiMascot size={66} mood={open ? "happy" : launcherMood} />
         <span>
           <strong>问小白AI</strong>
           <small>{launcherMood === "thinking" ? "正在思考路线" : launcherMood === "recommend" ? "帮你选工具" : "当前页面陪跑"}</small>
@@ -542,7 +542,7 @@ export function FloatingChat() {
           cursor: default;
         }
         .xiaobai-launcher {
-          min-width: 176px;
+          min-width: 204px;
           border: 1px solid #7a6230;
           border-radius: 17px;
           background: rgba(0,0,0,0.86);
@@ -551,7 +551,7 @@ export function FloatingChat() {
           display: flex;
           align-items: center;
           gap: 10px;
-          padding: 9px 12px;
+          padding: 11px 14px;
           cursor: pointer;
           backdrop-filter: blur(14px);
         }
@@ -566,12 +566,12 @@ export function FloatingChat() {
           flex: 1;
         }
         .xiaobai-launcher strong {
-          font-size: 12px;
+          font-size: 13px;
           font-weight: 950;
         }
         .xiaobai-launcher small {
           color: #c9a84c;
-          font-size: 10px;
+          font-size: 11px;
         }
         @keyframes xiaobaiSpin {
           to { transform: rotate(360deg); }
@@ -588,7 +588,7 @@ export function FloatingChat() {
           }
           .xiaobai-launcher {
             margin-left: auto;
-            min-width: 158px;
+            min-width: 186px;
           }
         }
       `}</style>

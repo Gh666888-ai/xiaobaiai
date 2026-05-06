@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Bot, Compass, GraduationCap, Menu, Newspaper, Search, Trophy, Users, Workflow, X } from "lucide-react"
+import { Bot, Building2, Compass, GraduationCap, Menu, Newspaper, Search, Trophy, Users, Workflow, X } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/lib/AuthContext"
 import { LevelBadge } from "@/components/LevelBadge"
@@ -17,6 +17,7 @@ const links = [
   { label: "资讯", href: "/news", icon: Newspaper },
   { label: "模型", href: "/models", icon: Bot },
   { label: "社区", href: "/community", icon: Users },
+  { label: "关于我们", href: "/about", icon: Building2 },
 ]
 
 export function NavBar() {

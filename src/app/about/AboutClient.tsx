@@ -30,6 +30,17 @@ export default function AboutPage() {
             我们相信：<strong style={{ color: "#e8c96a" }}>AI 不是程序员的专利，它是每个普通人都能掌握的新技能。</strong> 小白AI 会继续围绕“更好懂、更好用、更能落地”来更新。
           </p>
 
+          <div style={{ marginTop: 36, marginBottom: 24, padding: "24px", background: "linear-gradient(135deg, rgba(201,168,76,0.09), rgba(255,255,255,0.025))", border: "1px solid #2a1f10", borderRadius: 12 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 950, color: "#e8c96a", marginBottom: 14 }}>开放共创</h2>
+            <p style={{ marginBottom: 14 }}>
+              欢迎各路英雄豪杰联系我们，一起共创 AI 美好时代。
+            </p>
+            <p style={{ marginBottom: 0, color: "#bbb" }}>
+              如果你是关注 AI 赛道的投资人、愿意共建生态的合作方、行业内技术大牛，或拥有渠道、内容、产品、企业客户等资源的伙伴，小白AI 都期待与你连接。我们希望把工具导航、学习路径、智能问答和工作流能力真正落到普通人的日常使用里。
+            </p>
+            <p style={{ marginTop: 18, marginBottom: 0, color: "#fff", fontWeight: 900 }}>小白工作室</p>
+          </div>
+
           <div style={{ marginTop: 44, padding: "24px", background: "rgba(255,255,255,0.03)", border: "1px solid #1a1a1a", borderRadius: 12 }}>
             <h2 style={{ fontSize: 18, fontWeight: 900, color: "#e8c96a", marginBottom: 16 }}>联系方式</h2>
             <p style={{ marginBottom: 8 }}>邮箱：admin@xiaobaiai.cn</p>

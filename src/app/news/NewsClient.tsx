@@ -5,6 +5,7 @@ import { news, newsCategories, NewsCategory } from "@/data/news"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisual"
+import { SmartImage } from "@/components/SmartImage"
 import { screenshotImage, sourceLogo } from "@/lib/visual-assets"
 import Link from "next/link"
 
@@ -50,7 +51,7 @@ export default function NewsPage() {
                   onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor='#1a1a1a'}}>
                   <div style={{display:'flex',gap:18,alignItems:'stretch'}} className="max-sm:flex-col">
                     <div style={{width:210,flexShrink:0}} className="max-sm:w-full">
-                      {n.image || sourceLogo(n.source) || screenshotImage(n.url) ? <img src={n.image || sourceLogo(n.source) || screenshotImage(n.url)} alt="" style={{width:'100%',height:126,objectFit:n.image?'cover':'contain',background:'#fff',borderRadius:8,display:'block',border:'1px solid #1f1f1f',padding:n.image?0:18}}/> :
+                      {n.image || sourceLogo(n.source) || screenshotImage(n.url) ? <SmartImage compact src={n.image || sourceLogo(n.source) || screenshotImage(n.url)} title={n.title} label={n.category} meta={n.source} kind={inferContentVisualKind(`${n.category} ${n.title}`)} imageStyle={{objectFit:n.image?'cover':'contain',background:n.image?'#111':'#fff',padding:n.image?0:18}}/> :
                         <ContentVisual compact title={n.title} label={n.category} meta={n.source} kind={inferContentVisualKind(`${n.category} ${n.title}`)} />}
                     </div>
                     <div style={{flex:1}}>

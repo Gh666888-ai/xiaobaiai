@@ -31,6 +31,12 @@ function trimTitle(title: string, max = 18) {
   return title.length > max ? `${title.slice(0, max)}...` : title
 }
 
+function hashText(text: string) {
+  let hash = 0
+  for (let i = 0; i < text.length; i++) hash = (hash * 31 + text.charCodeAt(i)) >>> 0
+  return hash
+}
+
 function DashboardVisual({ accent, compact }: { accent: string; compact?: boolean }) {
   return (
     <div style={{display:"grid",gridTemplateColumns:"1.1fr 0.9fr",gap:10,height:"100%"}}>
@@ -120,7 +126,17 @@ export function inferContentVisualKind(title: string, fallback: VisualKind = "ne
 export function ContentVisual({ kind = "news", title, label, meta, compact }: ContentVisualProps) {
   const finalKind = kind === "news" ? visualKind(title, "news") : kind
   const palette = palettes[finalKind]
+  const variant = hashText(`${finalKind}-${title}`) % 4
   const height = compact ? 126 : 240
+  const pattern =
+    variant === 0
+      ? `linear-gradient(90deg, transparent 0 23px, ${palette.grid} 24px), linear-gradient(0deg, transparent 0 23px, ${palette.grid} 24px)`
+      : variant === 1
+        ? `radial-gradient(circle at 18% 24%, ${palette.grid} 0 2px, transparent 3px), radial-gradient(circle at 78% 64%, ${palette.grid} 0 2px, transparent 3px)`
+        : variant === 2
+          ? `linear-gradient(135deg, transparent 0 18px, ${palette.grid} 19px, transparent 21px)`
+          : `radial-gradient(circle at 50% 50%, ${palette.grid} 0 1px, transparent 2px), linear-gradient(90deg, transparent 0 31px, rgba(255,255,255,0.06) 32px)`
+  const patternSize = variant === 0 ? "24px 24px, 24px 24px" : variant === 1 ? "32px 32px, 46px 46px" : variant === 2 ? "34px 34px" : "18px 18px, 32px 32px"
 
   return (
     <div
@@ -133,9 +149,8 @@ export function ContentVisual({ kind = "news", title, label, meta, compact }: Co
         border: "1px solid rgba(255,255,255,0.1)",
         background:
           `linear-gradient(135deg, ${palette.deep}, rgba(255,255,255,0.035)), ` +
-          `linear-gradient(90deg, transparent 0 23px, ${palette.grid} 24px), ` +
-          `linear-gradient(0deg, transparent 0 23px, ${palette.grid} 24px)`,
-        backgroundSize: "auto, 24px 24px, 24px 24px",
+          pattern,
+        backgroundSize: `auto, ${patternSize}`,
         position: "relative",
         boxShadow: `inset 0 0 0 1px rgba(255,255,255,0.03), 0 18px 50px rgba(0,0,0,0.34)`,
       }}

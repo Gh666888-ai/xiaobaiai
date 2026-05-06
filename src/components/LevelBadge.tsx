@@ -27,6 +27,7 @@ export function LevelBadge({ name, xp, compact = false }: LevelBadgeProps) {
   const isMax = !next
   const visual = badgeStyles[level.level] || badgeStyles[0]
   const Icon = visual.icon
+  const isCrown = level.level === 6
 
   return (
     <span
@@ -52,8 +53,8 @@ export function LevelBadge({ name, xp, compact = false }: LevelBadgeProps) {
       <span
         aria-hidden="true"
         style={{
-          width: compact ? 25 : 30,
-          height: compact ? 25 : 30,
+          width: compact ? 26 : 34,
+          height: compact ? 26 : 34,
           borderRadius: visual.shape,
           display: "inline-flex",
           alignItems: "center",
@@ -62,11 +63,19 @@ export function LevelBadge({ name, xp, compact = false }: LevelBadgeProps) {
           color: level.level <= 1 ? "#211405" : "#071416",
           background: visual.bg,
           boxShadow: `0 0 18px ${visual.glow}, inset 0 1px 7px rgba(255,255,255,0.78), inset 0 -8px 12px rgba(0,0,0,0.2)`,
-          transform: level.level >= 4 ? "rotate(45deg)" : "none",
+          transform: level.level >= 4 && !isCrown ? "rotate(45deg)" : "none",
           border: "1px solid rgba(255,255,255,0.55)",
+          position: "relative",
         }}
       >
-        <Icon size={compact ? 14 : 16} strokeWidth={level.level === 6 ? 2.4 : 2.1} style={{ transform: level.level >= 4 ? "rotate(-45deg)" : "none" }} />
+        {isCrown ? (
+          <>
+            <span style={{ position: "absolute", inset: compact ? 5 : 6, borderRadius: 8, background: "linear-gradient(145deg,#ffffff,#8cefff 48%,#008fa3)", transform: "rotate(45deg)", boxShadow: "0 0 12px rgba(126,231,215,0.45), inset 0 1px 4px rgba(255,255,255,0.85)" }} />
+            <Crown size={compact ? 17 : 21} strokeWidth={2.7} fill="#ffd66b" color="#5c3500" style={{ position: "relative", zIndex: 1, filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.3))" }} />
+          </>
+        ) : (
+          <Icon size={compact ? 14 : 16} strokeWidth={2.1} style={{ transform: level.level >= 4 ? "rotate(-45deg)" : "none" }} />
+        )}
       </span>
       <span style={{ display: "flex", flexDirection: "column", minWidth: 0, lineHeight: 1.1 }}>
         <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
