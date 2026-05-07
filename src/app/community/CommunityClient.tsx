@@ -13,12 +13,13 @@ import Link from "next/link"
 import { Heart, MessageCircle, Pin, Search } from "lucide-react"
 
 const cats = ["全部","经验分享","踩坑记录","全自动实战","AI分析","问题求助"] as const
+const PAGE_SIZE = 60
 
 export default function CommunityPage() {
   const [cat, setCat] = useState<string>("全部")
   const [search, setSearch] = useState("")
   const [posts, setPosts] = useState<any[]>(seedPosts)
-  const [visibleCount, setVisibleCount] = useState(18)
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   useEffect(()=>{
     const loadRemotePosts = () => Promise.all([
       fetch("/api/posts?status=approved").then(r=>r.json()).catch(()=>[]),
@@ -38,7 +39,7 @@ export default function CommunityPage() {
     }
   },[])
 
-  useEffect(()=>{setVisibleCount(18)},[cat,search])
+  useEffect(()=>{setVisibleCount(PAGE_SIZE)},[cat,search])
 
   const filtered = posts.filter((p:any) => {
     if (cat !== "全部" && p.category !== cat) return false
@@ -137,8 +138,8 @@ export default function CommunityPage() {
             ))}
             {visibleCount < filtered.length && (
               <div style={{display:'flex',justifyContent:'center',paddingTop:14}}>
-                <button onClick={()=>setVisibleCount(v=>Math.min(v+18, filtered.length))} className="btn-outline" style={{minWidth:180,justifyContent:'center'}}>
-                  加载更多帖子 · {Math.min(18, filtered.length - visibleCount)}
+                <button onClick={()=>setVisibleCount(v=>Math.min(v+PAGE_SIZE, filtered.length))} className="btn-outline" style={{minWidth:180,justifyContent:'center'}}>
+                  加载更多帖子 · {Math.min(PAGE_SIZE, filtered.length - visibleCount)}
                 </button>
               </div>
             )}
