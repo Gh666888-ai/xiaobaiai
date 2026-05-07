@@ -6,6 +6,7 @@ import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisua
 
 type SmartImageProps = {
   src?: string
+  sources?: string[]
   title: string
   label?: string
   meta?: string
@@ -15,11 +16,13 @@ type SmartImageProps = {
   imageStyle?: CSSProperties
 }
 
-export function SmartImage({ src, title, label, meta, kind = "news", compact, style, imageStyle }: SmartImageProps) {
-  const [failed, setFailed] = useState(false)
+export function SmartImage({ src, sources = [], title, label, meta, kind = "news", compact, style, imageStyle }: SmartImageProps) {
+  const [sourceIndex, setSourceIndex] = useState(0)
   const finalKind = useMemo(() => inferContentVisualKind(`${label || ""} ${title}`, kind), [kind, label, title])
+  const candidates = useMemo(() => [src, ...sources].filter(Boolean) as string[], [src, sources])
+  const currentSrc = candidates[sourceIndex] || ""
 
-  if (!src || failed) {
+  if (!currentSrc) {
     return (
       <div style={style}>
         <ContentVisual compact={compact} title={title} label={label} meta={meta} kind={finalKind} />
@@ -29,11 +32,11 @@ export function SmartImage({ src, title, label, meta, kind = "news", compact, st
 
   return (
     <img
-      src={src}
+      src={currentSrc}
       alt=""
       loading="lazy"
       referrerPolicy="no-referrer"
-      onError={() => setFailed(true)}
+      onError={() => setSourceIndex((index) => index + 1)}
       style={{
         width: "100%",
         height: compact ? 126 : 240,

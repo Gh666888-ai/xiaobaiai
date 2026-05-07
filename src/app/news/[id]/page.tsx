@@ -6,9 +6,9 @@ import { news } from "@/data/news"
 import { buildNewsArticle } from "@/lib/content"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
-import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisual"
+import { inferContentVisualKind } from "@/components/ContentVisual"
 import { SmartImage } from "@/components/SmartImage"
-import { screenshotImage, sourceLogo } from "@/lib/visual-assets"
+import { screenshotImageSources, sourceLogoSources } from "@/lib/visual-assets"
 import Link from "next/link"
 
 export default function NewsDetailPage() {
@@ -24,8 +24,7 @@ export default function NewsDetailPage() {
       <MathRain /><NavBar />
       <div style={{maxWidth:900,margin:'0 auto',padding:'60px 60px 100px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.88)'}} className="max-sm:px-4">
         <Link href="/news" style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#aaa',textDecoration:'none',marginBottom:24,display:'inline-block'}}>← 返回资讯</Link>
-        {item.image || sourceLogo(item.source) || screenshotImage(item.url) ? <SmartImage src={item.image || sourceLogo(item.source) || screenshotImage(item.url)} title={item.title} label={item.category} meta={`${item.source} · ${item.publishedAt}`} kind={inferContentVisualKind(`${item.category} ${item.title}`)} style={{maxHeight:400,marginBottom:24}} imageStyle={{objectFit:item.image?'cover':'contain',background:item.image?'#111':'#fff',padding:item.image?0:28}}/> :
-          <div style={{marginBottom:28}}><ContentVisual title={item.title} label={item.category} meta={`${item.source} · ${item.publishedAt}`} kind={inferContentVisualKind(`${item.category} ${item.title}`)} /></div>}
+        <SmartImage sources={newsImageSources(item)} title={item.title} label={item.category} meta={`${item.source} · ${item.publishedAt}`} kind={inferContentVisualKind(`${item.category} ${item.title}`)} style={{maxHeight:400,marginBottom:24}} imageStyle={{objectFit:'cover',background:'#111',padding:0}}/>
         <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12,flexWrap:'wrap'}}>
           <span className="tag tag-gold" style={{fontWeight:700,fontSize:12}}>{item.category}</span>
           <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#888'}}>{item.publishedAt}</span>
@@ -45,4 +44,12 @@ export default function NewsDetailPage() {
       </div>
     </div>
   )
+}
+
+function newsImageSources(item: any) {
+  return [
+    item.image,
+    ...screenshotImageSources(item.url || ""),
+    ...sourceLogoSources(item.source || ""),
+  ].filter(Boolean)
 }

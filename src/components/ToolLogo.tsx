@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { brandGradient, brandInitial, brandLogoFromName, domainIcon } from "@/lib/visual-assets"
+import { brandGradient, brandInitial, toolLogoSources } from "@/lib/visual-assets"
 
 type ToolLogoProps = {
   name: string
@@ -12,8 +12,9 @@ type ToolLogoProps = {
 }
 
 export function ToolLogo({ name, url, logo, size = 36, radius = 10 }: ToolLogoProps) {
-  const [failed, setFailed] = useState(false)
-  const src = !failed ? (logo || brandLogoFromName(name) || domainIcon(url)) : ""
+  const [sourceIndex, setSourceIndex] = useState(0)
+  const sources = toolLogoSources(name, url, logo)
+  const src = sources[sourceIndex] || ""
 
   return (
     <span
@@ -35,7 +36,8 @@ export function ToolLogo({ name, url, logo, size = 36, radius = 10 }: ToolLogoPr
         <img
           src={src}
           alt={`${name} logo`}
-          onError={() => setFailed(true)}
+          referrerPolicy="no-referrer"
+          onError={() => setSourceIndex((index) => index + 1)}
           style={{ width: Math.round(size * 0.62), height: Math.round(size * 0.62), objectFit: "contain", display: "block" }}
         />
       ) : (

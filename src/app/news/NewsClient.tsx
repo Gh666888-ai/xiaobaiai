@@ -4,9 +4,9 @@ import { useState, useMemo, useEffect } from "react"
 import { news, newsCategories, NewsCategory } from "@/data/news"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
-import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisual"
+import { inferContentVisualKind } from "@/components/ContentVisual"
 import { SmartImage } from "@/components/SmartImage"
-import { screenshotImage, sourceLogo } from "@/lib/visual-assets"
+import { screenshotImageSources, sourceLogoSources } from "@/lib/visual-assets"
 import Link from "next/link"
 
 function fmt(d:string){const diff=Math.floor((Date.now()-new Date(d).getTime())/86400000);if(diff===0)return"今天";if(diff===1)return"昨天";if(diff<7)return`${diff}天前`;return d}
@@ -54,8 +54,7 @@ export default function NewsPage() {
                   onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor='#1a1a1a'}}>
                   <div style={{display:'flex',gap:18,alignItems:'stretch'}} className="max-sm:flex-col">
                     <div style={{width:210,flexShrink:0}} className="max-sm:w-full">
-                      {n.image || sourceLogo(n.source) || screenshotImage(n.url) ? <SmartImage compact src={n.image || sourceLogo(n.source) || screenshotImage(n.url)} title={n.title} label={n.category} meta={n.source} kind={inferContentVisualKind(`${n.category} ${n.title}`)} imageStyle={{objectFit:n.image?'cover':'contain',background:n.image?'#111':'#fff',padding:n.image?0:18}}/> :
-                        <ContentVisual compact title={n.title} label={n.category} meta={n.source} kind={inferContentVisualKind(`${n.category} ${n.title}`)} />}
+                      <SmartImage compact sources={newsImageSources(n)} title={n.title} label={n.category} meta={n.source} kind={inferContentVisualKind(`${n.category} ${n.title}`)} imageStyle={{objectFit:'cover',background:'#111',padding:0}}/>
                     </div>
                     <div style={{flex:1}}>
                       <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8,flexWrap:'wrap'}}>
@@ -83,4 +82,12 @@ export default function NewsPage() {
       </div>
     </div>
   )
+}
+
+function newsImageSources(item: any) {
+  return [
+    item.image,
+    ...screenshotImageSources(item.url || ""),
+    ...sourceLogoSources(item.source || ""),
+  ].filter(Boolean)
 }
