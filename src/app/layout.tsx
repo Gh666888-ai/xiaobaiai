@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import "./globals.css"
 import { AuthProvider } from "@/lib/AuthContext"
 import { FloatingChat } from "@/components/FloatingChat"
+import { OnlineXpTracker } from "@/components/OnlineXpTracker"
 import { Noto_Sans_SC, JetBrains_Mono } from "next/font/google"
 
 const noto = Noto_Sans_SC({
@@ -164,6 +165,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body style={{ background: "#000", color: "#f0f0f0", fontFamily: "'Noto Sans SC', sans-serif" }}>
         <AuthProvider>
+          <OnlineXpTracker />
           {children}
           <FloatingChat />
         </AuthProvider>

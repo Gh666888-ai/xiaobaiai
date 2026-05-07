@@ -11,6 +11,7 @@ import { stages } from "@/data/learning-path"
 import { progressId, readLearningProgress } from "@/lib/learning-progress"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
+import { LEVELS } from "@/data/user"
 
 type GrowthState = {
   xp: number
@@ -26,6 +27,17 @@ const missions = [
   { id: "choose-tool", title: "完成一次工具选择", desc: "用 AI 工具选择器选出今天最适合你的工具。", xp: 30, href: "/choose-tool" },
   { id: "learn-section", title: "学完一个章节", desc: "进入学习路径，标记任意一个章节为已学完。", xp: 40, href: "/learn" },
   { id: "read-community", title: "读一篇社区经验", desc: "看一篇真实案例，把能复用的一步记下来。", xp: 25, href: "/community" },
+]
+
+const levelBenefits = [
+  "解锁成长档案，记录每日任务和在线经验。",
+  "社区昵称显示星火等级，评论更容易被看见。",
+  "学习路径进度展示更完整，推荐更贴近新手。",
+  "社区身份升级，发帖和评论显示金核徽章。",
+  "Agent和工作流内容优先推荐，适合进阶用户。",
+  "星环身份展示，后续优先开放高级模板。",
+  "皇冠身份展示，社区高阶玩家标识。",
+  "小白AI共创者身份，参与内测和共创展示。",
 ]
 
 function todayKey() {
@@ -73,6 +85,7 @@ export default function GrowthClient() {
   const [learnDone, setLearnDone] = useState(0)
   const [claiming, setClaiming] = useState("")
   const [notice, setNotice] = useState("")
+  const [registeredUsers, setRegisteredUsers] = useState<number | null>(null)
 
   useEffect(() => {
     const growth = readGrowth(user?.userId)
@@ -80,6 +93,15 @@ export default function GrowthClient() {
     const progress = readLearningProgress()
     setLearnDone(Object.values(progress).filter(Boolean).length)
   }, [user?.userId, user?.xp])
+
+  useEffect(() => {
+    fetch("/api/stats")
+      .then((res) => res.json())
+      .then((data) => {
+        if (typeof data.registeredUsers === "number") setRegisteredUsers(data.registeredUsers)
+      })
+      .catch(() => undefined)
+  }, [])
 
   const today = todayKey()
   const checkedToday = state.lastCheckIn === today
@@ -213,7 +235,7 @@ export default function GrowthClient() {
             { icon: <Trophy size={18} />, label: "等级", value: level.name },
             { icon: <Sparkles size={18} />, label: "经验值", value: `${state.xp} XP` },
             { icon: <Flame size={18} />, label: "连续打卡", value: `${state.streak} 天` },
-            { icon: <CheckCircle2 size={18} />, label: "今日任务", value: `${doneCount}/${missions.length}` },
+            { icon: <CheckCircle2 size={18} />, label: registeredUsers === null ? "今日任务" : "注册用户", value: registeredUsers === null ? `${doneCount}/${missions.length}` : `${registeredUsers} 人` },
           ].map((item) => (
             <div key={item.label} style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 18 }}>
               <div style={{ color: "#e8c96a", marginBottom: 10 }}>{item.icon}</div>
@@ -288,6 +310,19 @@ export default function GrowthClient() {
             </div>
           </aside>
         </div>
+
+        <section style={{ marginTop: 18, border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 20 }}>
+          <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, marginBottom: 14 }}>升级有什么好处</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
+            {LEVELS.map((item, index) => (
+              <div key={item.level} style={{ border: `1px solid ${state.xp >= item.minXP ? item.color : "#242424"}`, borderRadius: 10, background: state.xp >= item.minXP ? `${item.color}12` : "rgba(0,0,0,0.24)", padding: "14px 15px" }}>
+                <p style={{ color: state.xp >= item.minXP ? item.accent : "#aaa", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>LV.{item.level} {item.name}</p>
+                <p style={{ color: "#bbb", fontSize: 12, lineHeight: 1.75, marginBottom: 8 }}>{levelBenefits[index]}</p>
+                <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10 }}>{item.minXP} XP 解锁</p>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   )

@@ -138,6 +138,15 @@ export default function LoginPage() {
           )}
         </div>
 
+        <div style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.045)", borderRadius: 12, padding: "14px 16px", marginBottom: 18 }}>
+          <p style={{ color: "#fff", fontSize: 13, fontWeight: 950, marginBottom: 8 }}>注册后会解锁</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            {["在线时长经验", "每日任务升级", "等级徽章展示", "社区身份标识"].map((item) => (
+              <span key={item} style={{ color: "#d6c28a", fontSize: 12, lineHeight: 1.5, border: "1px solid rgba(122,98,48,0.45)", borderRadius: 8, padding: "7px 9px", background: "rgba(0,0,0,0.22)" }}>{item}</span>
+            ))}
+          </div>
+        </div>
+
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 22 }}>
           <button type="button" disabled={busy} onClick={() => setMode("login")} className={mode === "login" ? "btn-primary" : "btn-outline"} style={{ justifyContent: "center", opacity: busy ? 0.62 : 1 }}>登录</button>
           <button type="button" disabled={busy} onClick={() => setMode("register")} className={mode === "register" ? "btn-primary" : "btn-outline"} style={{ justifyContent: "center", opacity: busy ? 0.62 : 1 }}>注册</button>
