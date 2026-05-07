@@ -108,6 +108,121 @@ CREATE POLICY "Users can read own growth events" ON growth_events FOR SELECT USI
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can read posts" ON posts FOR SELECT USING (true);
 
+-- 社区帖子主表。用于真实用户复盘、任务成果、案例沉淀和审核流。
+CREATE TABLE IF NOT EXISTS community_posts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  author_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  author_name TEXT NOT NULL DEFAULT '匿名用户',
+  author_email TEXT,
+  author_xp INTEGER DEFAULT 0,
+  author_ip_hash TEXT,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT '经验分享',
+  tags TEXT[] DEFAULT '{}',
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  source TEXT NOT NULL DEFAULT 'user',
+  mission_id TEXT,
+  tool_ids TEXT[] DEFAULT '{}',
+  moderation_reason TEXT,
+  reject_reason TEXT,
+  editor_note TEXT,
+  pinned BOOLEAN DEFAULT FALSE,
+  featured BOOLEAN DEFAULT FALSE,
+  published_at TEXT,
+  likes INTEGER DEFAULT 0,
+  comments_count INTEGER DEFAULT 0,
+  reviewed_at TIMESTAMPTZ,
+  reviewed_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS author_id UUID REFERENCES auth.users(id) ON DELETE SET NULL;
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS author_name TEXT NOT NULL DEFAULT '匿名用户';
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS author_email TEXT;
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS author_xp INTEGER DEFAULT 0;
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS author_ip_hash TEXT;
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS category TEXT NOT NULL DEFAULT '经验分享';
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}';
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'pending';
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS source TEXT NOT NULL DEFAULT 'user';
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS mission_id TEXT;
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS tool_ids TEXT[] DEFAULT '{}';
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS moderation_reason TEXT;
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS reject_reason TEXT;
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMPTZ;
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS reviewed_by UUID REFERENCES auth.users(id) ON DELETE SET NULL;
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+
+CREATE INDEX IF NOT EXISTS community_posts_status_created_idx ON community_posts(status, created_at DESC);
+CREATE INDEX IF NOT EXISTS community_posts_author_created_idx ON community_posts(author_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS community_posts_ip_created_idx ON community_posts(author_ip_hash, created_at DESC);
+CREATE INDEX IF NOT EXISTS community_posts_mission_idx ON community_posts(mission_id);
+CREATE INDEX IF NOT EXISTS community_posts_featured_idx ON community_posts(featured, pinned, created_at DESC);
+
+GRANT SELECT ON TABLE community_posts TO anon;
+GRANT SELECT, INSERT ON TABLE community_posts TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE community_posts TO service_role;
+
+ALTER TABLE community_posts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Anyone can read approved community posts" ON community_posts;
+DROP POLICY IF EXISTS "Users can read own community posts" ON community_posts;
+DROP POLICY IF EXISTS "Users can insert own community posts" ON community_posts;
+DROP POLICY IF EXISTS "Users can update own pending community posts" ON community_posts;
+DROP POLICY IF EXISTS "Users can delete own pending community posts" ON community_posts;
+CREATE POLICY "Anyone can read approved community posts" ON community_posts FOR SELECT USING (status = 'approved');
+CREATE POLICY "Users can read own community posts" ON community_posts FOR SELECT USING (auth.uid() = author_id);
+CREATE POLICY "Users can insert own community posts" ON community_posts FOR INSERT WITH CHECK (auth.uid() = author_id AND status = 'pending');
+CREATE POLICY "Users can update own pending community posts" ON community_posts FOR UPDATE USING (auth.uid() = author_id AND status = 'pending') WITH CHECK (auth.uid() = author_id AND status = 'pending');
+CREATE POLICY "Users can delete own pending community posts" ON community_posts FOR DELETE USING (auth.uid() = author_id AND status = 'pending');
+
+-- 社区点赞与举报，为后续案例库和审核风控预留。
+CREATE TABLE IF NOT EXISTS community_post_likes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  post_id TEXT NOT NULL,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(post_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS community_post_likes_post_idx ON community_post_likes(post_id);
+CREATE INDEX IF NOT EXISTS community_post_likes_user_idx ON community_post_likes(user_id, created_at DESC);
+
+GRANT SELECT ON TABLE community_post_likes TO anon;
+GRANT SELECT, INSERT, DELETE ON TABLE community_post_likes TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE community_post_likes TO service_role;
+
+ALTER TABLE community_post_likes ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Anyone can read community post likes" ON community_post_likes;
+DROP POLICY IF EXISTS "Users can insert own community post likes" ON community_post_likes;
+DROP POLICY IF EXISTS "Users can delete own community post likes" ON community_post_likes;
+CREATE POLICY "Anyone can read community post likes" ON community_post_likes FOR SELECT USING (true);
+CREATE POLICY "Users can insert own community post likes" ON community_post_likes FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own community post likes" ON community_post_likes FOR DELETE USING (auth.uid() = user_id);
+
+CREATE TABLE IF NOT EXISTS community_post_reports (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  post_id TEXT NOT NULL,
+  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  reason TEXT NOT NULL,
+  detail TEXT,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'reviewed', 'dismissed')),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  reviewed_at TIMESTAMPTZ,
+  reviewed_by UUID REFERENCES auth.users(id) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS community_post_reports_post_idx ON community_post_reports(post_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS community_post_reports_status_idx ON community_post_reports(status, created_at DESC);
+
+GRANT INSERT ON TABLE community_post_reports TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE community_post_reports TO service_role;
+
+ALTER TABLE community_post_reports ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can report community posts" ON community_post_reports;
+CREATE POLICY "Users can report community posts" ON community_post_reports FOR INSERT WITH CHECK (auth.uid() = user_id);
+
 -- 社区投稿审核增强字段。如果你已经有 community_posts 表，直接执行这一段即可。
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS pinned BOOLEAN DEFAULT FALSE;
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS featured BOOLEAN DEFAULT FALSE;
