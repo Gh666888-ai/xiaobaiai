@@ -100,6 +100,12 @@ const websiteJsonLd = {
   inLanguage: "zh-CN",
   description: "面向 AI 新手的工具导航大全、学习路径、AI 资讯、社区案例和站内 AI 助手平台。",
   about: ["AI工具导航", "AI工具大全", "Agent教程", "AI学习路径", "AI资讯"],
+  hasPart: [
+    { "@type": "WebPage", name: "DeepSeek怎么用", url: "https://www.xiaobaiai.cn/deepseek" },
+    { "@type": "WebPage", name: "Codex国内使用指南", url: "https://www.xiaobaiai.cn/codex" },
+    { "@type": "WebPage", name: "Agent教程", url: "https://www.xiaobaiai.cn/agent" },
+    { "@type": "WebPage", name: "AI编程工具推荐", url: "https://www.xiaobaiai.cn/ai-coding" },
+  ],
   audience: {
     "@type": "Audience",
     audienceType: "AI新手、普通办公用户、内容创作者、开发者、Agent自动化学习者",

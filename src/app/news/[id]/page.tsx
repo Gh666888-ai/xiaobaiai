@@ -8,6 +8,7 @@ import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { inferContentVisualKind } from "@/components/ContentVisual"
 import { SmartImage } from "@/components/SmartImage"
+import { SeoKeywordLinks } from "@/components/SeoKeywordLinks"
 import { screenshotImageSources, sourceLogoSources } from "@/lib/visual-assets"
 import Link from "next/link"
 
@@ -35,9 +36,9 @@ export default function NewsDetailPage() {
         <div style={{fontSize:16,color:'#ccc',lineHeight:2.1,whiteSpace:'pre-wrap'}}>
           <div style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.045)',borderRadius:8,padding:'18px 20px',marginBottom:24}}>
             <p style={{fontSize:13,fontWeight:900,color:'#e8c96a',marginBottom:8,fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.08em'}}>QUICK VIEW</p>
-            <p style={{color:'#f2e4b8',lineHeight:1.9}}>{item.summary}</p>
+            <p style={{color:'#f2e4b8',lineHeight:1.9}}><SeoKeywordLinks text={item.summary} maxLinks={5} /></p>
           </div>
-          <p>{buildNewsArticle(item)}</p>
+          <p><SeoKeywordLinks text={buildNewsArticle(item)} maxLinks={10} /></p>
           {item.url && item.url !== "#" && <p style={{fontSize:13,color:'#777',marginTop:24}}>本文已整理为站内可读版本，外部来源仅用于继续核对背景信息。</p>}
         </div>
         {item.url&&item.url!=="#"&&<a href={item.url} target="_blank" rel="noopener noreferrer" className="btn-outline" style={{marginTop:32}}>参考来源 →</a>}

@@ -7,6 +7,7 @@ import { tools } from "@/data/tools"
 import { toolPath } from "@/data/tool-meta"
 import { MathRain } from "@/components/MathRain"
 import { ContentVisual } from "@/components/ContentVisual"
+import { SeoKeywordLinks } from "@/components/SeoKeywordLinks"
 import Link from "next/link"
 import { CheckCircle2, ChevronLeft, ChevronRight, Circle } from "lucide-react"
 import { LearningProgress, progressId, readLearningProgress, writeLearningProgress } from "@/lib/learning-progress"
@@ -113,11 +114,11 @@ export default function StageDetailPage() {
                 </div>
                 <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:900,color:activeDone?'#e8c96a':'#777'}}>{activeDone ? "DONE" : "LEARNING"}</span>
               </div>
-              <p style={{fontSize:16,color:'#eee',lineHeight:1.95,whiteSpace:'pre-line'}}>{activeSection.content}</p>
+              <p style={{fontSize:16,color:'#eee',lineHeight:1.95,whiteSpace:'pre-line'}}><SeoKeywordLinks text={activeSection.content} maxLinks={10} /></p>
               {activeSection.tips && (
                 <div style={{marginTop:18,padding:'16px',background:'rgba(201,168,76,0.04)',border:'1px solid #2a1f10',borderRadius:6}}>
                   <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:12,color:'#e8c96a',letterSpacing:'0.1em',marginBottom:6}}>TIP</p>
-                  <p style={{fontSize:15,color:'#eee',lineHeight:1.75}}>{activeSection.tips}</p>
+                  <p style={{fontSize:15,color:'#eee',lineHeight:1.75}}><SeoKeywordLinks text={activeSection.tips} maxLinks={4} /></p>
                 </div>
               )}
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,marginTop:24,flexWrap:'wrap'}}>

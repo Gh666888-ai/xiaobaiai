@@ -117,6 +117,19 @@ export default function HomePage() {
             ))}
           </div>
 
+          <div style={{display:'flex',justifyContent:'center',gap:8,flexWrap:'wrap',marginTop:18,opacity:0,animation:'fadeUp 0.8s ease forwards 1.85s'}}>
+            {[
+              {label:'DeepSeek怎么用',href:'/deepseek'},
+              {label:'Codex国内使用',href:'/codex'},
+              {label:'Agent教程',href:'/agent'},
+              {label:'AI编程工具推荐',href:'/ai-coding'},
+            ].map(item=>(
+              <Link key={item.href} href={item.href} style={{fontSize:12,color:'#aaa',textDecoration:'none',border:'1px solid #202020',background:'rgba(255,255,255,0.025)',borderRadius:999,padding:'7px 12px'}}>
+                {item.label}
+              </Link>
+            ))}
+          </div>
+
         </div>
       </section>
 
