@@ -97,8 +97,8 @@ export default function PostDetailPage() {
     }
     const token = readAppAuth()?.session?.access_token
     if (!token) {
-      setCommentError("登录后才能评论，小白先带你去登录。")
-      router.push(`/login?next=${encodeURIComponent(`/community/${postId}`)}`)
+      setCommentError("登录后评论 +3XP，还能冲今日经验榜。")
+      router.push(`/login?redirect=${encodeURIComponent(`/community/${postId}`)}`)
       return
     }
     setCommentLoading(true)
@@ -196,7 +196,7 @@ export default function PostDetailPage() {
         <section style={{display:'grid',gridTemplateColumns:'1fr auto',gap:12,alignItems:'center',border:'1px solid rgba(201,168,76,0.34)',background:'rgba(201,168,76,0.045)',borderRadius:12,padding:'14px 16px',marginBottom:18}} className="max-sm:grid-cols-1">
           <div>
             <p style={{color:'#fff',fontSize:14,fontWeight:950,marginBottom:4}}>写一条有效评论 +3XP，今日经验榜实时刷新</p>
-            <p style={{color:'#d6c28a',fontSize:12,lineHeight:1.7}}>补充你的用法、踩坑点或替代工具，更容易被其他用户看到。登录后评论经验会进入账号等级。</p>
+            <p style={{color:'#d6c28a',fontSize:12,lineHeight:1.7}}>{user ? "补充你的用法、踩坑点或替代工具，更容易被其他用户看到。" : "登录后评论 +3XP，还能领取礼包、冲今日经验榜。"}</p>
           </div>
           <button onClick={()=>setShowCommentBox(true)} className="btn-outline" style={{whiteSpace:'nowrap'}}>去评论</button>
         </section>
@@ -219,13 +219,13 @@ export default function PostDetailPage() {
               <textarea
                 value={commentText}
                 onChange={e=>setCommentText(e.target.value)}
-                placeholder={user ? "写评论..." : "登录后参与讨论..."}
+                placeholder={user ? "写评论..." : "登录后评论 +3XP，今天也能冲榜..."}
                 className="form-input"
                 rows={3}
                 style={{flex:1,minHeight:78,resize:'vertical'}}
               />
               <button onClick={submitComment} disabled={commentLoading} className="btn-primary" style={{whiteSpace:'nowrap',opacity:commentLoading?0.65:1}}>
-                {commentLoading ? "发送中" : user ? "发送" : "去登录"}
+                {commentLoading ? "发送中" : user ? "发送" : "登录评论"}
               </button>
             </div>
             {commentError && <p style={{fontSize:12,color:'#ffb86b',marginBottom:12}}>{commentError}</p>}

@@ -119,8 +119,8 @@ export function NavBar() {
               )}
             </div>
           ) : (
-            <Link href="/login" className="site-login-link">
-              登录
+            <Link href="/login?redirect=/growth" className="site-login-link">
+              登录领 50XP
             </Link>
           )}
           <button type="button" className="site-menu-button" aria-label={menuOpen ? "关闭导航菜单" : "打开导航菜单"} onClick={() => setMenuOpen((open) => !open)}>

@@ -108,11 +108,11 @@ export default function HomePage() {
                 {user ? `欢迎回来，${user.name} · ${user.xp} XP` : registeredUsers === null ? '注册领 50XP 新手礼包' : `已有 ${registeredUsers} 位用户加入成长系统`}
               </p>
               <p style={{fontSize:12,color:'#cdbb80',lineHeight:1.65}}>
-                注册先领启动礼包，在线每天最多 {DAILY_ONLINE_XP_CAP}XP；做任务、发帖和评论都会升级，LV5 后社区优先展示。
+                注册先领启动礼包，在线每天最多 {DAILY_ONLINE_XP_CAP}XP；今日榜每天清零，新用户做任务、发帖和评论也能冲前排。
               </p>
             </div>
             <Link href={user ? "/growth" : "/login?redirect=/growth"} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',minHeight:38,padding:'8px 14px',borderRadius:9,border:'1px solid #e8c96a',background:'#e8c96a',color:'#111',fontSize:12,fontWeight:950,textDecoration:'none',whiteSpace:'nowrap'}}>
-              {user ? '去做任务' : '登录领 XP'}
+              {user ? '去做任务' : '登录领 50XP'}
             </Link>
           </div>
 
