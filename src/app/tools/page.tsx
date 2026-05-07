@@ -8,12 +8,12 @@ import { CategoryIcon } from "@/components/CategoryIcon"
 
 export const metadata: Metadata = {
   title: "AI工具导航大全 - ChatGPT、DeepSeek、AI绘图、AI编程工具分类推荐",
-  description: "小白AI工具导航大全收录 1000+ AI 工具，按对话AI、AI绘图、AI视频、AI写作、AI编程、AI办公、AI搜索、Agent平台和模型平台分类推荐，适合新手快速找到能用的 AI 工具。",
+  description: "小白AI工具导航大全精选数百个真实主流 AI 工具，按对话AI、AI绘图、AI视频、AI写作、AI编程、AI办公、AI搜索、Agent平台和模型平台分类推荐，适合新手快速找到能用的 AI 工具。",
   keywords: ["AI工具导航", "AI工具大全", "AI工具推荐", "ChatGPT", "DeepSeek", "AI绘图工具", "AI编程工具", "Agent平台"],
   alternates: { canonical: "/tools" },
   openGraph: {
     title: "AI工具导航大全 | 小白AI",
-    description: "按场景浏览 1000+ AI 工具，先选分类，再看详情、免费情况、中文支持和新手推荐。",
+    description: "按场景浏览真实主流 AI 工具，先选分类，再看详情、免费情况、中文支持和新手推荐。",
     url: "/tools",
     images: [{ url: "/xiaobai-mascot-cutout.png", width: 1071, height: 1468, alt: "小白AI 工具导航" }],
   },
@@ -67,7 +67,7 @@ export default function ToolsPage() {
       <main style={{ maxWidth: 1120, margin: "0 auto", padding: "60px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.86)" }} className="max-sm:px-4">
         <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.4em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 700 }}>Directory</p>
         <h1 style={{ fontSize: 36, fontWeight: 900, color: "#fff", letterSpacing: "0.02em", marginBottom: 8 }}>AI工具导航大全</h1>
-        <p style={{ fontSize: 15, color: "#ccc", marginBottom: 18 }}>收录对话AI、AI绘图、AI视频、AI编程、AI办公、Agent平台和模型平台等工具。先选分类，再看工具排行、免费情况、中文支持和新手推荐。</p>
+        <p style={{ fontSize: 15, color: "#ccc", marginBottom: 18 }}>精选对话AI、AI绘图、AI视频、AI编程、AI办公、Agent平台和模型平台等真实主流工具。先选分类，再看工具排行、免费情况、中文支持和新手推荐。</p>
 
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 36 }}>
           <Link href="/search" className="btn-outline" style={{ textDecoration: "none" }}>搜索全部工具</Link>

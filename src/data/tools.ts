@@ -1,5 +1,4 @@
 // AI 工具导航数据 · 小白AI
-import { buildExpandedTools } from "./tool-expansion"
 export interface Tool {
   id: string; name: string; url: string; description: string; logo: string
   category: ToolCategory; stage: number; pricing: "免费"|"免费+付费"|"付费"|"有免费额度"
@@ -739,6 +738,14 @@ const hotToolOverrides: Record<string, Partial<Pick<Tool, "featured" | "rank">>>
   hermes: { featured: false, rank: 38 },
 }
 
-const curatedBaseTools = baseTools.map((tool) => ({ ...tool, ...hotToolOverrides[tool.id] }))
+const curatedBaseTools = dedupeTools(baseTools.map((tool) => ({ ...tool, ...hotToolOverrides[tool.id] })))
 
-export const tools: Tool[] = buildExpandedTools(curatedBaseTools)
+export const tools: Tool[] = curatedBaseTools
+
+function dedupeTools(items: Tool[]) {
+  const byId = new Map<string, Tool>()
+  for (const item of items) {
+    byId.set(item.id, item)
+  }
+  return Array.from(byId.values())
+}
