@@ -24,6 +24,7 @@ const quickStart = [
   { href: "/learn/0", title: "完全零基础，从这里开始", desc: "适合第一次接触 AI 的用户，先搞清楚 AI 能做什么、不能做什么。" },
   { href: "/learn/1", title: "AI工具入门", desc: "从 ChatGPT、DeepSeek、Kimi、豆包、通义千问开始，学会提问和验证结果。" },
   { href: "/choose-tool", title: "帮我选AI工具", desc: "不知道用哪个工具时，按场景筛选更快：写作、绘图、视频、办公、编程。" },
+  { href: "/cases", title: "直接看实战案例", desc: "从办公、Dify、AI编程和内容创作案例里，找一个能照着做的场景。" },
 ]
 
 const topicGroups = [
@@ -35,6 +36,7 @@ const topicGroups = [
       { href: "/deepseek", label: "DeepSeek怎么用", note: "中文问答、推理、代码和低成本使用" },
       { href: "/deepseek-api-key", label: "DeepSeek API Key怎么申请", note: "注册、模型选择、接入和常见报错" },
       { href: "/dify", label: "Dify教程", note: "知识库、AI客服、工作流和DeepSeek接入" },
+      { href: "/topics/dify", label: "Dify专题路线", note: "从教程、知识库、排查清单到社区实战案例" },
       { href: "/dify-knowledge-base", label: "Dify知识库怎么搭建", note: "RAG、文档上传、召回设置和答非所问" },
       { href: "/cursor", label: "Cursor怎么用", note: "AI编程、Next.js项目和安全改代码方法" },
     ],
@@ -62,6 +64,7 @@ const topicGroups = [
       { href: "/workflows", label: "AI工作流自动化", note: "日报、客服、线索、内容和监控流程" },
       { href: "/models", label: "AI模型排行榜", note: "模型能力、成本、场景和替代方案" },
       { href: "/community", label: "社区实战问答", note: "真实问题、踩坑经验和技术求助" },
+      { href: "/cases", label: "AI实战案例库", note: "按办公、Dify、AI编程、绘图和工作流整理案例" },
     ],
   },
 ]
@@ -163,6 +166,7 @@ export default function TutorialsPage() {
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link href="/learn" className="btn-primary" style={{ textDecoration: "none" }}>进入学习路径</Link>
             <Link href="/choose-tool" className="btn-outline" style={{ textDecoration: "none" }}>帮我选AI工具</Link>
+            <Link href="/cases" className="btn-outline" style={{ textDecoration: "none" }}>看实战案例库</Link>
             <Link href="/ai-tools" className="btn-outline" style={{ textDecoration: "none" }}>查看AI工具大全</Link>
           </div>
         </section>

@@ -148,11 +148,13 @@ export default function HomePage() {
             {[
               {label:'AI工具大全',href:'/ai-tools'},
               {label:'AI教程大全',href:'/tutorials'},
+              {label:'AI实战案例',href:'/cases'},
               {label:'免费AI工具',href:'/free-ai-tools'},
               {label:'ChatGPT怎么用',href:'/chatgpt'},
               {label:'DeepSeek怎么用',href:'/deepseek'},
               {label:'Codex国内使用',href:'/codex'},
               {label:'Dify教程',href:'/dify'},
+              {label:'Dify专题',href:'/topics/dify'},
               {label:'Cursor怎么用',href:'/cursor'},
               {label:'Agent教程',href:'/agent'},
               {label:'AI编程工具推荐',href:'/ai-coding'},

@@ -9,6 +9,7 @@ import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisua
 import { SmartImage } from "@/components/SmartImage"
 import { LevelBadge } from "@/components/LevelBadge"
 import { getUserLevel } from "@/data/user"
+import { inferPostScenarios, scenarioFilters, type ContentScenario } from "@/lib/content-taxonomy"
 import { communityImage } from "@/lib/visual-assets"
 import Link from "next/link"
 import { Heart, MessageCircle, Pin, Search, Trophy, Zap } from "lucide-react"
@@ -34,6 +35,7 @@ function levelSortPriority(xp: number) {
 
 export default function CommunityPage() {
   const [cat, setCat] = useState<string>("全部")
+  const [scene, setScene] = useState<"all" | ContentScenario>("all")
   const [search, setSearch] = useState("")
   const [posts, setPosts] = useState<any[]>(seedPosts)
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
@@ -58,11 +60,19 @@ export default function CommunityPage() {
 
   useEffect(()=>{setVisibleCount(PAGE_SIZE)},[cat,search])
 
+  useEffect(() => {
+    const value = new URLSearchParams(window.location.search).get("scene")
+    if (scenarioFilters.some((item) => item.key === value)) {
+      setScene(value as "all" | ContentScenario)
+    }
+  }, [])
+
   const authorName = (p:any) => p.author_name || p.author || "匿名用户"
   const authorXP = (p:any) => Number(p.author_xp ?? p.authorXp ?? (authorName(p) === "小白站长" ? 100000 : 0))
 
   const filtered = posts.filter((p:any) => {
     if (cat !== "全部" && p.category !== cat) return false
+    if (scene !== "all" && !inferPostScenarios(p).includes(scene)) return false
     if (search.trim() && !p.title.includes(search) && !p.content.includes(search) && !(p.tags||[]).some((t:any)=>t.includes(search))) return false
     return true
   }).sort((a,b) => {
@@ -119,6 +129,17 @@ export default function CommunityPage() {
         </div>
 
         {/* 分类 */}
+        <div style={{marginBottom:20}}>
+          <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:800,color:'#777',letterSpacing:'0.18em',textTransform:'uppercase',marginBottom:10}}>By Scenario</p>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+            {scenarioFilters.map(item=>{
+              const isSel = scene===item.key
+              return <button key={item.key} onClick={()=>setScene(item.key)} title={item.desc}
+                style={{fontSize:12,fontWeight:800,padding:'6px 13px',border:`1px solid ${isSel?'#7a6230':'#1a1a1a'}`,color:isSel?'#e8c96a':'#999',background:isSel?'rgba(201,168,76,0.08)':'rgba(255,255,255,0.015)',cursor:'pointer',transition:'0.2s',borderRadius:999,fontFamily:"'Noto Sans SC', sans-serif"}}>{item.label}</button>
+            })}
+          </div>
+        </div>
+
         <div style={{display:'flex',gap:6,marginBottom:32,flexWrap:'wrap'}}>
           {cats.map(c=>{
             const isSel = cat===c
