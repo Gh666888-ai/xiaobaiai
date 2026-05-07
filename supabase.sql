@@ -95,6 +95,31 @@ ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS comments_count INTEGER DEFA
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS author_email TEXT;
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS author_xp INTEGER DEFAULT 0;
 
+-- 社区帖子真实评论。post_id 用 TEXT，兼容站内种子帖 post-1/post-30 和云端帖子 UUID。
+CREATE TABLE IF NOT EXISTS community_comments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  post_id TEXT NOT NULL,
+  author_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  author_name TEXT NOT NULL DEFAULT '小白用户',
+  author_email TEXT,
+  author_xp INTEGER DEFAULT 0,
+  content TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'approved',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS community_comments_post_created_idx ON community_comments(post_id, created_at ASC);
+
+GRANT SELECT ON TABLE community_comments TO anon;
+GRANT SELECT, INSERT ON TABLE community_comments TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE community_comments TO service_role;
+
+ALTER TABLE community_comments ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Anyone can read approved community comments" ON community_comments;
+DROP POLICY IF EXISTS "Users can insert own community comments" ON community_comments;
+CREATE POLICY "Anyone can read approved community comments" ON community_comments FOR SELECT USING (status = 'approved');
+CREATE POLICY "Users can insert own community comments" ON community_comments FOR INSERT WITH CHECK (auth.uid() = author_id);
+
 -- AI 工作流云端库。登录用户保存后，换手机/电脑也能继续编辑。
 CREATE TABLE IF NOT EXISTS ai_workflows (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
