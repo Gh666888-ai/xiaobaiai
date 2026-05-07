@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createServerSupabase, hasSupabaseConfig, requireUser } from "@/lib/server-auth"
 import { getSeedCommunityComments } from "@/data/community-comments"
 
-const MAX_LEVEL_EMAILS = new Set(["15171192200@163.com", "109020070@qq.com"])
+const MAX_LEVEL_EMAILS = new Set(["15171192200@163.com", "109020070@qq.com", "771239559@qq.com"])
 const MAX_LEVEL_XP = 100000
 
 function normalizeXP(email?: string | null, xp?: number | null) {

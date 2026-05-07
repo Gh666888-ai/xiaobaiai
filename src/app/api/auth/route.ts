@@ -5,7 +5,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || ""
 const supabaseKey = supabaseServiceKey || supabaseAnonKey
-const MAX_LEVEL_EMAILS = new Set(["15171192200@163.com", "109020070@qq.com"])
+const MAX_LEVEL_EMAILS = new Set(["15171192200@163.com", "109020070@qq.com", "771239559@qq.com"])
 const MAX_LEVEL_XP = 100000
 
 function jsonError(message: string, status = 400) {

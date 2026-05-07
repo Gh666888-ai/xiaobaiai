@@ -6,7 +6,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
 )
 
-const MAX_LEVEL_EMAILS = new Set(["15171192200@163.com", "109020070@qq.com"])
+const MAX_LEVEL_EMAILS = new Set(["15171192200@163.com", "109020070@qq.com", "771239559@qq.com"])
 const MAX_LEVEL_XP = 100000
 
 function normalizeXP(email?: string | null, xp?: number | null) {
