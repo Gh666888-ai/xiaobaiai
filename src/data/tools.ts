@@ -125,7 +125,6 @@ const baseTools:Tool[]=[
   // ============ Agent 平台 ============
   {id:"codex-agent",name:"OpenAI Codex Agent",url:"https://openai.com/codex/",description:"OpenAI 官方编程 Agent，能读写仓库、运行命令、执行测试、处理长任务和多 Agent 并行。适合真正把需求推进到代码、文档、原型和发布流程。",logo:logo("openai"),category:"Agent平台",stage:6,pricing:fp,tags:["最强编程Agent","多Agent","命令执行","技能"],featured:true,rank:1,addedAt:"2026-05-07"},
   {id:"claude-code-agent",name:"Claude Code Agent",url:"https://code.claude.com/docs/en/overview",description:"Anthropic 官方 Agentic Coding 工具，可在终端、IDE、桌面和浏览器里读代码库、改文件、跑命令、创建提交和 PR。代码库理解与重构体验很强。",logo:"",category:"Agent平台",stage:6,pricing:paid,tags:["终端Agent","代码库理解","MCP","重构"],featured:true,rank:1,addedAt:"2026-05-07"},
-  {id:"deepseek-agent-api",name:"DeepSeek V4 Agent API",url:"https://api-docs.deepseek.com/guides/coding_agents",description:"DeepSeek 官方 V4 Pro/Flash 支持 OpenAI 与 Anthropic 兼容接口，可直接接入 Claude Code、OpenCode 等 Coding Agent。1M 上下文，价格低，适合国内低成本 Agent 后端。",logo:"",category:"Agent平台",stage:5,pricing:quota,tags:["DeepSeek V4","Claude Code","1M上下文","低成本"],featured:true,rank:1,addedAt:"2026-05-07"},
   {id:"dify",name:"Dify",url:"https://dify.ai",description:"最适合新手入门的Agent平台。拖拽式零代码构建AI应用，内置RAG和工作流。3天上线第一个Agent。",logo:"",category:"Agent平台",stage:5,pricing:fp,tags:["零代码","新手首选","RAG"],featured:true,rank:1,addedAt:"2026-01-01"},
   {id:"openclaw",name:"OpenClaw（龙虾）",url:"https://github.com/openclaw/openclaw",description:"2026最火开源Agent框架，GitHub 24万+星。可接管电脑执行任务，对接12+通讯平台，13000+技能包。",logo:"",category:"Agent平台",stage:6,pricing:free,tags:["开源","GitHub顶流","多平台","技能市场"],featured:true,rank:1,addedAt:"2026-02-01"},
   {id:"hermes",name:"Hermes Agent",url:"https://github.com/NousResearch/hermes-agent",description:"Nous Research 开源的Agent框架，GitHub 4.7万星。持久记忆+自我学习（从任务中自动生成可复用技能）+ 16+平台消息网关。一条命令安装，零配置上手。",logo:"",category:"Agent平台",stage:6,pricing:free,tags:["开源","自我进化","16+平台","一键安装"],featured:true,rank:1,addedAt:"2026-04-01"},
@@ -161,6 +160,7 @@ const baseTools:Tool[]=[
   {id:"replicate",name:"Replicate",url:"https://replicate.com",description:"云端运行开源AI模型，一行代码调用。不需要GPU，按使用量付费，适合快速测试和集成模型。",logo:"",category:"模型平台",stage:4,pricing:quota,tags:["云端运行","一行代码","按量付费"],featured:false,rank:0,addedAt:"2026-04-01"},
   {id:"ollama",name:"Ollama",url:"https://ollama.com",description:"本地运行开源大模型的工具。一条命令下载和运行Llama/DeepSeek/Qwen等模型，保护数据隐私。",logo:"",category:"模型平台",stage:4,pricing:free,tags:["本地运行","一条命令","隐私"],featured:false,rank:0,addedAt:"2026-04-01"},
   {id:"groq",name:"Groq",url:"https://groq.com",description:"最快的AI推理平台，基于自研LPU芯片。免费提供Llama/DeepSeek等开源模型的极速API。",logo:"",category:"模型平台",stage:4,pricing:quota,tags:["极速推理","LPU","免费API"],featured:false,rank:0,addedAt:"2026-04-01"},
+  {id:"deepseek-v4-api",name:"DeepSeek V4 API",url:"https://api-docs.deepseek.com/guides/coding_agents",description:"DeepSeek V4 Pro/Flash 模型 API，支持 OpenAI 与 Anthropic 兼容接口、1M 上下文和低成本调用。它不是 Agent 本身，而是 Codex、Claude Code、OpenCode 等 Agent 可选的国产模型后端。",logo:"",category:"模型平台",stage:4,pricing:quota,tags:["DeepSeek V4","模型API","1M上下文","低成本"],featured:true,rank:1,addedAt:"2026-05-07"},
   {id:"siliconflow",name:"硅基流动",url:"https://siliconflow.cn",description:"国内一站式模型API平台，聚合DeepSeek/Qwen/Llama等主流开源模型。中文友好，价格便宜。",logo:"",category:"模型平台",stage:4,pricing:quota,tags:["国产","模型聚合","便宜"],featured:false,rank:0,addedAt:"2026-04-01"},
   {id:"openrouter",name:"OpenRouter",url:"https://openrouter.ai",description:"统一API网关，一个接口调用200+模型。自动路由选择最优模型，方便对比不同模型的效果。",logo:"",category:"模型平台",stage:4,pricing:quota,tags:["API网关","200+模型","自动路由"],featured:false,rank:0,addedAt:"2026-04-01"},
 
@@ -731,7 +731,6 @@ const hotToolOverrides: Record<string, Partial<Pick<Tool, "featured" | "rank">>>
   "codex-agent": { featured: true, rank: 100 },
   "claude-code-agent": { featured: true, rank: 98 },
   hermes: { featured: true, rank: 96 },
-  "deepseek-agent-api": { featured: true, rank: 95 },
   "kimi-code": { featured: true, rank: 94 },
   manus: { featured: true, rank: 90 },
   langgraph: { featured: true, rank: 88 },
@@ -770,6 +769,7 @@ const hotToolOverrides: Record<string, Partial<Pick<Tool, "featured" | "rank">>>
   snapedit: { featured: true, rank: 90 },
   "framer-ai": { featured: true, rank: 88 },
   huggingface: { featured: true, rank: 100 },
+  "deepseek-v4-api": { featured: true, rank: 101 },
   siliconflow: { featured: true, rank: 98 },
   "siliconflow-deploy": { featured: false, rank: 0 },
   modelscope: { featured: true, rank: 96 },

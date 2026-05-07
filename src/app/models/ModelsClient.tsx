@@ -112,7 +112,7 @@ export default function ModelsPage() {
           <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:14,padding:'24px',textAlign:'center',display:'flex',flexDirection:'column',justifyContent:'center',gap:12}}>
             <Trophy size={24} style={{color:'#e8c96a',margin:'0 auto'}} />
             <p style={{fontSize:13,color:'#ccc'}}>新手推荐组合</p>
-            <p style={{fontSize:12,color:'#aaa',lineHeight:1.8}}>日常：DeepSeek V4 Flash（便宜）<br/>Agent：Codex / Claude Code<br/>国产接入：DeepSeek V4 / Kimi K2.6</p>
+            <p style={{fontSize:12,color:'#aaa',lineHeight:1.8}}>日常模型：DeepSeek V4 Flash<br/>工程 Agent：Codex / Claude Code<br/>国产模型后端：DeepSeek V4 / Kimi K2.6</p>
           </div>
         </div>
 

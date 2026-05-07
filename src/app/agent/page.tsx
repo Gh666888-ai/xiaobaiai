@@ -26,7 +26,6 @@ export default function AgentTopicPage() {
         { id: "codex-agent", note: "Codex 是当前最值得优先看的工程 Agent：读写仓库、跑命令、测代码、做长任务。" },
         { id: "claude-code-agent", note: "Claude Code 适合终端和 IDE 里的代码库理解、重构、Git 工作流和复杂项目协作。" },
         { id: "hermes", note: "Hermes 适合研究开源 Agent 的记忆、技能沉淀和跨平台消息网关。" },
-        { id: "deepseek-agent-api", note: "DeepSeek V4 适合给 Claude Code、OpenCode 等 Agent 做低成本国产模型后端。" },
         { id: "kimi-code", note: "Kimi K2.6 适合长程编码、多模态输入和 Claude Code/Roo/Cline 接入。" },
         { id: "manus", note: "Manus 适合体验通用任务型 Agent：给目标，让 AI 拆步骤、查资料、做报告或完成一组任务。" },
         { id: "dify", note: "Dify 适合零代码搭建知识库问答、AI客服和可视化工作流。" },
@@ -43,7 +42,7 @@ export default function AgentTopicPage() {
         {
           title: "新手先做什么Agent",
           body: "不要一上来做全自动公司大脑，先做低风险、高频率的小任务。",
-          bullets: ["想让 AI 真正改代码、跑命令、做工程任务：Codex / Claude Code。", "想用国产低成本模型驱动 Agent：DeepSeek V4 / Kimi K2.6。", "想研究可自进化开源 Agent：Hermes。", "想做资料问答助手：Dify / Coze / FastGPT。", "想做日报和流程自动化：n8n / Zapier AI / Make。", "想做复杂开发者 Agent 框架：LangGraph / OpenAI Agents SDK / Google ADK。"],
+          bullets: ["想让 AI 真正改代码、跑命令、做工程任务：Codex / Claude Code。", "想研究可自进化开源 Agent：Hermes。", "想做资料问答助手：Dify / Coze / FastGPT。", "想做日报和流程自动化：n8n / Zapier AI / Make。", "想做复杂开发者 Agent 框架：LangGraph / OpenAI Agents SDK / Google ADK。", "DeepSeek V4 / Kimi K2.6 是模型后端，不是 Agent 产品本身；可以接到 Claude Code、OpenCode、Cline 里使用。"],
         },
         {
           title: "Agent安全边界",
