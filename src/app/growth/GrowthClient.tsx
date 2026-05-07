@@ -101,7 +101,7 @@ export default function GrowthClient() {
   const [claiming, setClaiming] = useState("")
   const [notice, setNotice] = useState("")
   const [registeredUsers, setRegisteredUsers] = useState<number | null>(null)
-  const [allTimeLeaders, setAllTimeLeaders] = useState<LeaderboardUser[]>([])
+  const [dailyLeaders, setDailyLeaders] = useState<LeaderboardUser[]>([])
   const [weeklyLeaders, setWeeklyLeaders] = useState<LeaderboardUser[]>([])
 
   useEffect(() => {
@@ -124,7 +124,7 @@ export default function GrowthClient() {
     fetch("/api/growth/leaderboard")
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data.allTime)) setAllTimeLeaders(data.allTime)
+        if (Array.isArray(data.daily)) setDailyLeaders(data.daily)
         if (Array.isArray(data.weekly)) setWeeklyLeaders(data.weekly)
       })
       .catch(() => undefined)
@@ -298,14 +298,14 @@ export default function GrowthClient() {
             <div style={{ border: "1px solid #242424", borderRadius: 10, background: "rgba(0,0,0,0.24)", padding: 14 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
                 <Trophy size={15} style={{ color: "#e8c96a" }} />
-                <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>总 XP 榜</p>
+                <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>今日经验榜</p>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {(allTimeLeaders.length ? allTimeLeaders.slice(0, 6) : [{ rank: 1, name: "等你上榜", xp: state.xp }]).map((item) => (
+                {(dailyLeaders.length ? dailyLeaders.slice(0, 6) : [{ rank: 1, name: "今天等你上榜", xp: 0, totalXP: state.xp }]).map((item) => (
                   <div key={`${item.rank}-${item.name}`} style={{ display: "grid", gridTemplateColumns: "34px 1fr auto", gap: 10, alignItems: "center", minHeight: 40 }}>
                     <span style={{ fontFamily: "'JetBrains Mono',monospace", color: rankColor(item.rank), fontSize: 13, fontWeight: 950 }}>#{item.rank}</span>
-                    <LevelBadge compact name={item.name} xp={item.xp} />
-                    <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 11, fontWeight: 900 }}>{item.xp} XP</span>
+                    <LevelBadge compact name={item.name} xp={Number(item.totalXP || item.xp || 0)} />
+                    <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 11, fontWeight: 900 }}>+{item.xp} XP</span>
                   </div>
                 ))}
               </div>
