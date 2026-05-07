@@ -334,37 +334,55 @@ async function callAIEditor(item, pageDescription) {
   })
 
   return new Promise((resolve) => {
-    const req = https.request(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Length": Buffer.byteLength(body),
-      },
-      timeout: 25000,
-    }, (res) => {
-      let data = ""
-      res.setEncoding("utf8")
-      res.on("data", (chunk) => data += chunk)
-      res.on("end", () => {
-        try {
-          const json = JSON.parse(data)
-          const content = json.choices?.[0]?.message?.content || ""
-          const cleaned = content.replace(/^```json\s*/i, "").replace(/```$/i, "").trim()
-          const parsed = JSON.parse(cleaned)
-          if (parsed?.summary && parsed?.content) resolve(parsed)
-          else resolve(null)
-        } catch {
-          resolve(null)
-        }
+    let settled = false
+    const done = (value = null) => {
+      if (settled) return
+      settled = true
+      resolve(value)
+    }
+
+    let req
+    try {
+      req = https.request(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Length": Buffer.byteLength(body),
+        },
+        timeout: 25000,
+      }, (res) => {
+        let data = ""
+        res.setEncoding("utf8")
+        res.on("data", (chunk) => data += chunk)
+        res.on("end", () => {
+          try {
+            const json = JSON.parse(data)
+            const content = json.choices?.[0]?.message?.content || ""
+            const cleaned = content.replace(/^```json\s*/i, "").replace(/```$/i, "").trim()
+            const parsed = JSON.parse(cleaned)
+            if (parsed?.summary && parsed?.content) done(parsed)
+            else done(null)
+          } catch {
+            done(null)
+          }
+        })
+        res.on("aborted", () => done(null))
+        res.on("error", () => done(null))
       })
-    })
-    req.on("error", () => resolve(null))
+    } catch {
+      done(null)
+      return
+    }
+
+    req.on("error", () => done(null))
     req.on("timeout", () => {
+      done(null)
       req.destroy()
-      resolve(null)
     })
-    req.write(body)
+    req.write(body, (error) => {
+      if (error) done(null)
+    })
     req.end()
   })
 }
@@ -453,7 +471,8 @@ async function main() {
   }
 
   const fresh = []
-  for (const item of unique) {
+  for (const [index, item] of unique.entries()) {
+    console.log(`  enriching ${index + 1}/${unique.length} ${item.title.slice(0, 36)}`)
     try {
       const enriched = await enrichCandidate(item)
       fresh.push(enriched)
