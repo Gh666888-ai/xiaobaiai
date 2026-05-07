@@ -16,10 +16,21 @@ export function generateMetadata({ params }: { params: { category: string } }): 
   const category = decodeURIComponent(params.category)
   const cat = categories.find((item) => item.key === category)
   if (!cat) return {}
+  const title = `${cat.label}工具推荐 - ${cat.label}工具排行、免费工具和新手指南`
+  const description = `小白AI整理${cat.label}工具推荐，查看${cat.label}分类下的 AI 工具排行、免费情况、中文支持、难度、新手推荐指数和工具详情。`
   return {
-    title: `${cat.label}工具`,
-    description: `查看${cat.label}分类下的 AI 工具排行、免费情况、中文支持、难度、新手推荐指数和工具详情。`,
+    title,
+    description,
+    keywords: [cat.label, `${cat.label}工具`, `${cat.label}工具推荐`, "AI工具导航", "AI工具大全", "免费AI工具"],
     alternates: { canonical: `/tools/${encodeURIComponent(category)}` },
+    openGraph: {
+      title,
+      description,
+      url: `/tools/${encodeURIComponent(category)}`,
+      type: "website",
+      siteName: "小白AI",
+      images: [{ url: "/xiaobai-mascot-cutout.png", alt: "小白AI" }],
+    },
   }
 }
 
@@ -31,9 +42,26 @@ export default function ToolCategoryPage({ params }: { params: { category: strin
   const items = tools
     .filter((tool) => tool.category === category)
     .sort((a, b) => Number(b.featured) - Number(a.featured) || b.rank - a.rank || a.stage - b.stage)
+  const itemListJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `${cat.label}工具推荐`,
+    description: `小白AI整理的${cat.label}工具排行、免费情况、中文支持和新手推荐。`,
+    itemListElement: items.slice(0, 50).map((tool, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: tool.name,
+      url: `https://www.xiaobaiai.cn${toolPath(tool)}`,
+      description: tool.description,
+    })),
+  }
 
   return (
     <div style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+      />
       <MathRain />
       <NavBar />
       <main style={{ maxWidth: 1080, margin: "0 auto", padding: "60px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.86)" }} className="max-sm:px-4">
@@ -43,7 +71,7 @@ export default function ToolCategoryPage({ params }: { params: { category: strin
           <CategoryIcon category={cat.key} size={24} />
           <h1 style={{ fontSize: 34, color: "#fff", fontWeight: 900 }}>{cat.label}</h1>
         </div>
-        <p style={{ fontSize: 14, color: "#ccc", marginBottom: 28 }}>{items.length} 个工具。点击任意工具进入站内详情页，不会直接跳走。</p>
+        <p style={{ fontSize: 14, color: "#ccc", marginBottom: 28 }}>{items.length} 个{cat.label}工具。点击任意工具进入站内详情页，查看免费情况、中文支持、上手难度和替代工具。</p>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 10 }}>
           {items.map((tool, index) => {
