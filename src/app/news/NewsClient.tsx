@@ -10,11 +10,13 @@ import { screenshotImageSources, sourceLogoSources } from "@/lib/visual-assets"
 import Link from "next/link"
 
 function fmt(d:string){const diff=Math.floor((Date.now()-new Date(d).getTime())/86400000);if(diff===0)return"今天";if(diff===1)return"昨天";if(diff<7)return`${diff}天前`;return d}
+const INITIAL_VISIBLE_NEWS = 8
+const NEWS_LOAD_STEP = 16
 
 export default function NewsPage() {
   const [cat,setCat]=useState<NewsCategory|null>(null)
   const [fetched,setFetched]=useState<any[]>([])
-  const [visibleCount,setVisibleCount]=useState(12)
+  const [visibleCount,setVisibleCount]=useState(INITIAL_VISIBLE_NEWS)
 
   useEffect(()=>{
     const params = new URLSearchParams(window.location.search)
@@ -22,13 +24,13 @@ export default function NewsPage() {
     if(c && newsCategories.some(x=>x.key===c)) setCat(c as NewsCategory)
     const loadFetched = () => fetch("/fetched-news.json").then(r=>r.json()).then(d=>{if(Array.isArray(d))setFetched(d)}).catch(()=>{})
     if ("requestIdleCallback" in window) {
-      ;(window as any).requestIdleCallback(loadFetched, { timeout: 1600 })
+      ;(window as any).requestIdleCallback(loadFetched, { timeout: 2600 })
     } else {
-      setTimeout(loadFetched, 500)
+      setTimeout(loadFetched, 1200)
     }
   },[])
 
-  useEffect(()=>{setVisibleCount(12)},[cat])
+  useEffect(()=>{setVisibleCount(INITIAL_VISIBLE_NEWS)},[cat])
 
   const sorted = useMemo(()=>{
     let r = [...news, ...fetched];if(cat)r=r.filter((n:any)=>n.category===cat)
@@ -77,7 +79,7 @@ export default function NewsPage() {
             ))}
             {visibleCount < sorted.length && (
               <div style={{display:'flex',justifyContent:'center',paddingTop:16}}>
-                <button onClick={()=>setVisibleCount(c=>Math.min(c+24,sorted.length))} className="btn-outline" style={{minWidth:180,justifyContent:'center'}}>
+                <button onClick={()=>setVisibleCount(c=>Math.min(c+NEWS_LOAD_STEP,sorted.length))} className="btn-outline" style={{minWidth:180,justifyContent:'center'}}>
                   加载更多资讯
                 </button>
               </div>

@@ -109,6 +109,8 @@ CREATE TABLE IF NOT EXISTS community_comments (
 );
 
 CREATE INDEX IF NOT EXISTS community_comments_post_created_idx ON community_comments(post_id, created_at ASC);
+CREATE INDEX IF NOT EXISTS community_comments_author_created_idx ON community_comments(author_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS community_comments_status_created_idx ON community_comments(status, created_at DESC);
 
 GRANT SELECT ON TABLE community_comments TO anon;
 GRANT SELECT, INSERT ON TABLE community_comments TO authenticated;

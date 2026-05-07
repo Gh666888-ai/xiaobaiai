@@ -9,6 +9,13 @@ import { CategoryIcon } from "@/components/CategoryIcon"
 export const metadata: Metadata = {
   title: "AI工具导航 - 分类入口",
   description: "按对话、绘图、视频、写作、编程、办公、搜索、Agent、模型平台等分类浏览 AI 工具，进入分类后查看具体工具和详情。",
+  alternates: { canonical: "/tools" },
+  openGraph: {
+    title: "AI工具导航 | 小白AI",
+    description: "按场景浏览 1000+ AI 工具，先选分类，再看详情和新手推荐。",
+    url: "/tools",
+    images: [{ url: "/xiaobai-mascot-cutout.png", width: 1071, height: 1468, alt: "小白AI 工具导航" }],
+  },
 }
 
 const categoryIntro: Record<string, string> = {

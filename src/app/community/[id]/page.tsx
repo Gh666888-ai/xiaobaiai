@@ -19,6 +19,7 @@ type CommunityComment = {
   author_name: string
   author_xp?: number
   content: string
+  status?: string
   created_at?: string
 }
 
@@ -101,7 +102,11 @@ export default function PostDetailPage() {
       })
       const data = await res.json().catch(() => null)
       if (!res.ok) throw new Error(data?.error || "评论发送失败")
-      setComments(prev => [...prev, data])
+      if (data?.status === "pending") {
+        setCommentError("评论已提交，包含链接或敏感信息，小白审核后再展示。")
+      } else {
+        setComments(prev => [...prev, data])
+      }
       setCommentText("")
     } catch (error: any) {
       setCommentError(error?.message || "评论发送失败，稍后再试。")

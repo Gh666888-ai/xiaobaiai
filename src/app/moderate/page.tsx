@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Check, RefreshCw, Sparkles, Star, X } from "lucide-react"
 import { loadSubmissions, updateSubmission, Submission } from "@/data/submissions"
 import { addApprovedContribution, getContributor, getLevel } from "@/data/contributors"
+import { readAppAuth } from "@/lib/app-auth"
 
 type PostStatus = "pending" | "approved" | "rejected"
 
@@ -31,8 +32,9 @@ export default function ModeratePage() {
 
   const refresh = () => setSubs(loadSubmissions())
   const loadPosts = (status = postStatus) => {
+    const token = readAppAuth()?.session?.access_token
     setLoadingPosts(true)
-    fetch(`/api/posts?status=${status}`)
+    fetch(`/api/posts?status=${status}`, token ? { headers: { Authorization: `Bearer ${token}` } } : undefined)
       .then((res) => res.json())
       .then((data) => setPosts(Array.isArray(data) ? data : []))
       .finally(() => setLoadingPosts(false))
@@ -62,7 +64,15 @@ export default function ModeratePage() {
   }
 
   const patchPost = async (body: Record<string, unknown>) => {
-    await fetch("/api/posts", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+    const token = readAppAuth()?.session?.access_token
+    await fetch("/api/posts", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(body),
+    })
     loadPosts()
   }
 

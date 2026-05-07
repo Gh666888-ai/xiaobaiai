@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { requireUser } from "@/lib/server-auth"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "",
@@ -8,13 +9,27 @@ const supabase = createClient(
 
 const MAX_LEVEL_EMAILS = new Set(["15171192200@163.com", "109020070@qq.com", "771239559@qq.com"])
 const MAX_LEVEL_XP = 100000
+const ADMIN_EMAILS = MAX_LEVEL_EMAILS
 
 function normalizeXP(email?: string | null, xp?: number | null) {
   return MAX_LEVEL_EMAILS.has(String(email || "").toLowerCase()) ? MAX_LEVEL_XP : Number(xp || 0)
 }
 
+async function requireAdmin(req: NextRequest) {
+  const auth = await requireUser(req)
+  if (!auth.ok) return auth
+  if (!ADMIN_EMAILS.has(String(auth.user.email || "").toLowerCase())) {
+    return { ok: false as const, error: "没有审核权限", status: 403 }
+  }
+  return auth
+}
+
 export async function GET(req: NextRequest) {
   const status = req.nextUrl.searchParams.get("status") || "approved"
+  if (status !== "approved") {
+    const admin = await requireAdmin(req)
+    if (!admin.ok) return NextResponse.json({ error: admin.error }, { status: admin.status })
+  }
   const { data, error } = await supabase
     .from("community_posts")
     .select("*")
@@ -72,6 +87,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const admin = await requireAdmin(req)
+  if (!admin.ok) return NextResponse.json({ error: admin.error }, { status: admin.status })
   const { id, status, pinned, featured, editor_note } = await req.json()
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 })
   const update: Record<string, unknown> = {}
