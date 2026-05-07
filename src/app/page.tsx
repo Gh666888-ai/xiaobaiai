@@ -5,7 +5,7 @@ import { useRef, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { NavBar } from "@/components/NavBar"
-import { MessageCircle, Search, Route, Sparkles, Workflow, Wrench } from "lucide-react"
+import { Flag, MessageCircle, Search, Route, Sparkles, Workflow } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext"
 import { DAILY_ONLINE_XP_CAP } from "@/data/growth"
 
@@ -127,8 +127,8 @@ export default function HomePage() {
           <div style={{display:'grid',gridTemplateColumns:'repeat(5, minmax(0, 1fr))',gap:10,maxWidth:980,margin:'28px auto 0',opacity:0,animation:'fadeUp 0.8s ease forwards 1.7s'}} className="max-sm:grid-cols-1">
             {[
               {icon:<Route size={17}/>,label:'我完全不会 AI，从这里开始',href:'/learn/0'},
-              {icon:<Wrench size={17}/>,label:'帮我选一个 AI 工具',href:'/choose-tool'},
-              {icon:<Sparkles size={17}/>,label:'生成我的学习路线',href:'/search?q=生成我的学习路线'},
+              {icon:<Flag size={17}/>,label:'我想先做成一件事',href:'/start'},
+              {icon:<Sparkles size={17}/>,label:'从0到1开始',href:'/start'},
               {icon:<MessageCircle size={17}/>,label:'直接问小白AI',action:'chat'},
               {icon:<Workflow size={17}/>,label:'搭建 AI 工作流',href:'/workflows'},
             ].map(cta=> cta.action === 'chat' ? (
@@ -147,6 +147,7 @@ export default function HomePage() {
           <div style={{display:'flex',justifyContent:'center',gap:8,flexWrap:'wrap',marginTop:18,opacity:0,animation:'fadeUp 0.8s ease forwards 1.85s'}}>
             {[
               {label:'AI工具大全',href:'/ai-tools'},
+              {label:'AI从0到1起步',href:'/start'},
               {label:'系统学习路线',href:'/learn'},
               {label:'AI教程大全',href:'/tutorials'},
               {label:'AI实战案例',href:'/cases'},

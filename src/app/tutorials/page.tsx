@@ -24,7 +24,7 @@ const quickStart = [
   { href: "/learn", title: "先看完整学习主线", desc: "从认识 AI、会用工具、完成任务，到 Agent、API、AI 编程和自动化实战。" },
   { href: "/learn/0", title: "完全零基础，从这里开始", desc: "适合第一次接触 AI 的用户，先搞清楚 AI 能做什么、不能做什么。" },
   { href: "/learn/1", title: "AI工具入门", desc: "从 ChatGPT、DeepSeek、Kimi、豆包、通义千问开始，学会提问和验证结果。" },
-  { href: "/choose-tool", title: "帮我选AI工具", desc: "不知道用哪个工具时，按场景筛选更快：写作、绘图、视频、办公、编程。" },
+  { href: "/start", title: "从0到1做成一个环节", desc: "不先选工具，先说你想做成什么事，再拆出今天能完成的第一个环节。" },
   { href: "/cases", title: "直接看实战案例", desc: "从办公、Dify、AI编程和内容创作案例里，找一个能照着做的场景。" },
 ]
 
@@ -118,7 +118,7 @@ export default function TutorialsPage() {
         <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.35em", color: "#7a6230", textTransform: "uppercase", marginBottom: 12, fontWeight: 900 }}>AI Tutorials</p>
         <h1 style={{ fontSize: 42, color: "#fff", fontWeight: 900, lineHeight: 1.22, marginBottom: 16 }}>AI教程大全：零基础学AI、AI工具教程和实战指南</h1>
         <p style={{ fontSize: 16, color: "#ccc", lineHeight: 1.9, maxWidth: 840, marginBottom: 28 }}>
-          这里把小白AI站内最适合新手的教程集中起来：先从零基础和工具选择开始，再进入 DeepSeek、Dify、Gamma、即梦、AI办公、AI绘图、AI编程和 Agent 自动化。
+          这里把小白AI站内最适合新手的教程集中起来：先从零基础和真实目标开始，再进入 DeepSeek、Dify、Gamma、即梦、AI办公、AI绘图、AI编程和 Agent 自动化。
         </p>
 
         <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12, marginBottom: 42 }}>
@@ -166,11 +166,11 @@ export default function TutorialsPage() {
         <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 12, padding: "24px 26px" }}>
           <h2 style={{ fontSize: 20, color: "#fff", fontWeight: 900, marginBottom: 10 }}>不知道从哪篇开始？</h2>
           <p style={{ fontSize: 14, color: "#ccc", lineHeight: 1.9, marginBottom: 18 }}>
-            如果你是第一次系统学习 AI，先走学习路径；如果你已经有具体任务，直接进工具选择器，让小白按场景帮你挑。
+            如果你是第一次系统学习 AI，先走学习路径；如果你已经有具体想做成的事，直接从 0 到 1 拆出第一个可执行环节。
           </p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link href="/learn" className="btn-primary" style={{ textDecoration: "none" }}>进入学习路径</Link>
-            <Link href="/choose-tool" className="btn-outline" style={{ textDecoration: "none" }}>帮我选AI工具</Link>
+            <Link href="/start" className="btn-outline" style={{ textDecoration: "none" }}>从0到1开始</Link>
             <Link href="/cases" className="btn-outline" style={{ textDecoration: "none" }}>看实战案例库</Link>
             <Link href="/ai-tools" className="btn-outline" style={{ textDecoration: "none" }}>查看AI工具大全</Link>
           </div>

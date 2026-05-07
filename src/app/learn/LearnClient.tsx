@@ -98,7 +98,10 @@ export default function LearnPage() {
               <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.2em',color:'#7a6230',fontWeight:900,marginBottom:6}}>FROM BASIC TO ADVANCED</p>
               <h2 style={{fontSize:24,fontWeight:950,color:'#fff',lineHeight:1.35}}>从低级到高级的完整学习主线</h2>
             </div>
-            <Link href="/tutorials" className="btn-outline" style={{textDecoration:'none'}}>查看全部教程</Link>
+            <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+              <Link href="/start" className="btn-primary" style={{textDecoration:'none'}}>我想先做成一件事</Link>
+              <Link href="/tutorials" className="btn-outline" style={{textDecoration:'none'}}>查看全部教程</Link>
+            </div>
           </div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(7,minmax(0,1fr))',gap:10,marginBottom:18}} className="max-sm:grid-cols-1">
             {curriculumFlow.map((item, index)=>(

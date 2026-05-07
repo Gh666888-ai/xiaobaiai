@@ -235,8 +235,8 @@ export default function StageDetailPage() {
             ))}
           </div>
           <div style={{display:'flex',gap:10,flexWrap:'wrap',marginTop:20}}>
-            <Link href="/search?q=生成我的学习路线" className="btn-primary" style={{textDecoration:'none'}}>生成我的学习路线</Link>
-            <Link href="/search?q=帮我选一个 AI 工具" className="btn-outline" style={{textDecoration:'none'}}>帮我选工具</Link>
+            <Link href="/start" className="btn-primary" style={{textDecoration:'none'}}>从0到1开始做事</Link>
+            <Link href="/cases" className="btn-outline" style={{textDecoration:'none'}}>看真实案例</Link>
           </div>
         </div>
 
