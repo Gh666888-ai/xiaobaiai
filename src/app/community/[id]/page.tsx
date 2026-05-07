@@ -104,6 +104,8 @@ export default function PostDetailPage() {
       if (!res.ok) throw new Error(data?.error || "评论发送失败")
       if (data?.status === "pending") {
         setCommentError("评论已提交，包含链接或敏感信息，小白审核后再展示。")
+      } else if (data?.status === "hidden") {
+        setCommentError("评论已提交，但命中风险词，暂不公开展示。")
       } else {
         setComments(prev => [...prev, data])
       }

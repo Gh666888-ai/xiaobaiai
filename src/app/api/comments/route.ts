@@ -5,15 +5,19 @@ import { getSeedCommunityComments } from "@/data/community-comments"
 const MAX_LEVEL_EMAILS = new Set(["15171192200@163.com", "109020070@qq.com", "771239559@qq.com"])
 const MAX_LEVEL_XP = 100000
 const COMMENT_COOLDOWN_MS = 30_000
-const LINK_PATTERN = /(https?:\/\/|www\.|\.com\b|\.cn\b|\.net\b|\.org\b)/i
-const BLOCKED_COMMENT_PATTERNS = [
-  /加\s*(微|v|vx|微信)/i,
-  /私\s*聊/i,
-  /代\s*(开|办|刷)/i,
-  /刷\s*(粉|赞|单|量)/i,
-  /办\s*(证|卡)/i,
-  /返\s*利/i,
-  /博彩|赌博|棋牌|贷款|裸聊|约炮/i,
+const LINK_PATTERN = /(https?:\/\/|www\.|\.com\b|\.cn\b|\.net\b|\.org\b|\.top\b|\.xyz\b|\.vip\b)/i
+const HARD_BLOCK_RULES = [
+  { pattern: /博彩|赌博|棋牌|赌球|下注|彩票|老虎机/i, reason: "gambling" },
+  { pattern: /裸聊|约炮|援交|色情|黄色|成人片|成人视频/i, reason: "adult" },
+  { pattern: /办\s*(证|卡)|假\s*(证|发票)|代\s*开\s*发票/i, reason: "illegal_service" },
+  { pattern: /贷款|网贷|套现|信用卡提额|刷流水/i, reason: "financial_spam" },
+  { pattern: /返\s*利|刷\s*(粉|赞|单|量)|代\s*(刷|开|办)|薅羊毛群/i, reason: "spam_service" },
+]
+const REVIEW_RULES = [
+  { pattern: LINK_PATTERN, reason: "contains_link" },
+  { pattern: /加\s*(微|v|vx|微信)|私\s*聊|联系我|看主页/i, reason: "contact_request" },
+  { pattern: /群|二维码|邀请码|邀请码|开户链接/i, reason: "external_invite" },
+  { pattern: /招聘|兼职|副业|日结|在家赚钱/i, reason: "job_or_income_claim" },
 ]
 
 function normalizeXP(email?: string | null, xp?: number | null) {
@@ -24,10 +28,13 @@ function cleanContent(value: unknown) {
   return String(value || "").trim().replace(/\n{4,}/g, "\n\n\n")
 }
 
-function commentStatusFor(content: string) {
-  if (BLOCKED_COMMENT_PATTERNS.some(pattern => pattern.test(content))) return "blocked"
-  if (LINK_PATTERN.test(content)) return "pending"
-  return "approved"
+function autoModerateComment(content: string) {
+  const normalized = content.replace(/\s+/g, "")
+  const hardRule = HARD_BLOCK_RULES.find(rule => rule.pattern.test(normalized))
+  if (hardRule) return { status: "hidden", reason: hardRule.reason }
+  const reviewRule = REVIEW_RULES.find(rule => rule.pattern.test(normalized))
+  if (reviewRule) return { status: "pending", reason: reviewRule.reason }
+  return { status: "approved", reason: "auto_approved" }
 }
 
 export async function GET(req: NextRequest) {
@@ -62,8 +69,7 @@ export async function POST(req: NextRequest) {
   if (!postId) return NextResponse.json({ error: "缺少帖子 ID" }, { status: 400 })
   if (content.length < 2) return NextResponse.json({ error: "评论至少写 2 个字，小白才好接话。" }, { status: 400 })
   if (content.length > 800) return NextResponse.json({ error: "评论最多 800 字，长文建议单独发帖。" }, { status: 400 })
-  const status = commentStatusFor(content)
-  if (status === "blocked") return NextResponse.json({ error: "这条评论像广告或风险内容，小白先拦一下。" }, { status: 400 })
+  const moderation = autoModerateComment(content)
 
   const { data: latestComment } = await auth.adminSupabase
     .from("community_comments")
@@ -97,20 +103,21 @@ export async function POST(req: NextRequest) {
     author_email: email,
     author_xp: normalizeXP(email, profile?.xp),
     content,
-    status,
+    status: moderation.status,
+    moderation_reason: moderation.reason,
   }
 
   let result = await auth.adminSupabase
     .from("community_comments")
     .insert(insertPayload)
-    .select("id,post_id,author_name,author_xp,content,status,created_at")
+    .select("id,post_id,author_name,author_xp,content,status,moderation_reason,created_at")
     .single()
 
   if (result.error) {
     result = await auth.supabase
       .from("community_comments")
       .insert(insertPayload)
-      .select("id,post_id,author_name,author_xp,content,status,created_at")
+      .select("id,post_id,author_name,author_xp,content,status,moderation_reason,created_at")
       .single()
   }
 
@@ -122,7 +129,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 })
   }
 
-  if (status === "approved") {
+  if (moderation.status === "approved") {
     const { data: post } = await auth.adminSupabase
       .from("community_posts")
       .select("comments_count")

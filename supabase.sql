@@ -105,8 +105,11 @@ CREATE TABLE IF NOT EXISTS community_comments (
   author_xp INTEGER DEFAULT 0,
   content TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'approved',
+  moderation_reason TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE community_comments ADD COLUMN IF NOT EXISTS moderation_reason TEXT;
 
 CREATE INDEX IF NOT EXISTS community_comments_post_created_idx ON community_comments(post_id, created_at ASC);
 CREATE INDEX IF NOT EXISTS community_comments_author_created_idx ON community_comments(author_id, created_at DESC);

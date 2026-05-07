@@ -8,6 +8,7 @@ import { addApprovedContribution, getContributor, getLevel } from "@/data/contri
 import { readAppAuth } from "@/lib/app-auth"
 
 type PostStatus = "pending" | "approved" | "rejected"
+type CommentStatus = "pending" | "hidden"
 
 function reviewAdvice(post: any) {
   const content = post.content || ""
@@ -25,8 +26,11 @@ function polishPreview(post: any) {
 export default function ModeratePage() {
   const [subs, setSubs] = useState<Submission[]>([])
   const [posts, setPosts] = useState<any[]>([])
+  const [comments, setComments] = useState<any[]>([])
   const [postStatus, setPostStatus] = useState<PostStatus>("pending")
+  const [commentStatus, setCommentStatus] = useState<CommentStatus>("pending")
   const [loadingPosts, setLoadingPosts] = useState(false)
+  const [loadingComments, setLoadingComments] = useState(false)
   const [filter, setFilter] = useState<"all" | "pending" | "auto_rejected" | "approved" | "rejected">("pending")
   const [preview, setPreview] = useState("")
 
@@ -39,10 +43,19 @@ export default function ModeratePage() {
       .then((data) => setPosts(Array.isArray(data) ? data : []))
       .finally(() => setLoadingPosts(false))
   }
+  const loadComments = (status = commentStatus) => {
+    const token = readAppAuth()?.session?.access_token
+    setLoadingComments(true)
+    fetch(`/api/comments/moderate?status=${status}`, token ? { headers: { Authorization: `Bearer ${token}` } } : undefined)
+      .then((res) => res.json())
+      .then((data) => setComments(Array.isArray(data) ? data : []))
+      .finally(() => setLoadingComments(false))
+  }
 
   useEffect(() => {
     refresh()
     loadPosts("pending")
+    loadComments("pending")
   }, [])
 
   const filtered = subs.filter((item) => filter === "all" || item.status === filter)
@@ -74,6 +87,18 @@ export default function ModeratePage() {
       body: JSON.stringify(body),
     })
     loadPosts()
+  }
+  const patchComment = async (body: Record<string, unknown>) => {
+    const token = readAppAuth()?.session?.access_token
+    await fetch("/api/comments/moderate", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(body),
+    })
+    loadComments()
   }
 
   return (
@@ -133,6 +158,37 @@ export default function ModeratePage() {
               ))}
             </div>
           )}
+        </section>
+
+        <section style={{ marginBottom: 48 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 14, flexWrap: "wrap" }}>
+            <h2 style={{ fontSize: 19, fontWeight: 950, color: "#fff" }}>评论自动审核</h2>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {(["pending", "hidden"] as CommentStatus[]).map((status) => (
+                <button key={status} onClick={() => { setCommentStatus(status); loadComments(status) }} style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, padding: "6px 12px", border: `1px solid ${commentStatus === status ? "#7a6230" : "#1a1a1a"}`, color: commentStatus === status ? "#c9a84c" : "#666", background: "transparent", cursor: "pointer", borderRadius: 6 }}>{status.toUpperCase()}</button>
+              ))}
+              <button onClick={() => loadComments()} className="btn-outline" style={{ fontSize: 11, padding: "6px 14px" }}>{loadingComments ? "加载中..." : "刷新"}</button>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {comments.length === 0 && <p style={{ color: "#555", border: "1px solid #1a1a1a", padding: 36, textAlign: "center" }}>暂无评论</p>}
+            {comments.map((comment) => (
+              <article key={comment.id} style={{ background: "rgba(255,255,255,0.025)", border: "1px solid #1a1a1a", borderRadius: 12, padding: 18 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+                  <span className={comment.status === "pending" ? "tag tag-gold" : "tag tag-red"}>{comment.status}</span>
+                  <span className="tag tag-gray">{comment.moderation_reason || "auto_review"}</span>
+                  <span style={{ fontSize: 11, color: "#777" }}>{comment.author_name || "匿名"} · {comment.author_email || "no email"}</span>
+                  <Link href={`/community/${comment.post_id}`} style={{ color: "#c9a84c", fontSize: 11, textDecoration: "none" }}>查看帖子</Link>
+                </div>
+                <p style={{ color: "#ddd", fontSize: 14, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{comment.content}</p>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 13 }}>
+                  <button onClick={() => patchComment({ id: comment.id, status: "approved" })} className="btn-primary" style={{ fontSize: 11, padding: "6px 13px" }}><Check size={13} /> 通过</button>
+                  <button onClick={() => patchComment({ id: comment.id, status: "hidden" })} className="btn-outline" style={{ fontSize: 11, padding: "6px 13px", color: "#D94841", borderColor: "#3a1a1a" }}><X size={13} /> 隐藏</button>
+                </div>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section>
