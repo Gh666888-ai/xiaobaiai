@@ -5,7 +5,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || ""
 const supabaseKey = supabaseServiceKey || supabaseAnonKey
-const MAX_LEVEL_EMAIL = "15171192200@163.com"
+const MAX_LEVEL_EMAILS = new Set(["15171192200@163.com", "109020070@qq.com"])
 const MAX_LEVEL_XP = 100000
 
 function jsonError(message: string, status = 400) {
@@ -121,7 +121,7 @@ export async function GET(req: NextRequest) {
       .maybeSingle()
 
     const email = data.user.email || profile?.email || ""
-    const isMaxLevelUser = email.toLowerCase() === MAX_LEVEL_EMAIL
+    const isMaxLevelUser = MAX_LEVEL_EMAILS.has(email.toLowerCase())
     const xp = Math.max(Number(profile?.xp || 0), isMaxLevelUser ? MAX_LEVEL_XP : 0)
 
     if (!profile || (isMaxLevelUser && Number(profile?.xp || 0) < MAX_LEVEL_XP)) {

@@ -76,6 +76,11 @@ DROP POLICY IF EXISTS "Users can insert own profile" ON profiles;
 CREATE POLICY "Users can insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
 CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
 
+-- 共创者账号：执行后会立刻显示为“小白共创”等级
+UPDATE profiles
+SET xp = GREATEST(COALESCE(xp, 0), 100000)
+WHERE lower(email) IN ('15171192200@163.com', '109020070@qq.com');
+
 -- 帖子：所有人可读
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can read posts" ON posts FOR SELECT USING (true);
