@@ -83,6 +83,16 @@ function seededWeeklyLeaderboard(seed: string, startRank = 1): LeaderboardItem[]
     .map((item, index) => ({ ...item, rank: startRank + index }))
 }
 
+function rankLeaderboard(items: LeaderboardItem[], limit = 10) {
+  return items
+    .sort((a, b) => {
+      if (b.xp !== a.xp) return b.xp - a.xp
+      return b.totalXP - a.totalXP
+    })
+    .slice(0, limit)
+    .map((item, index) => ({ ...item, rank: index + 1 }))
+}
+
 async function buildEventLeaderboard(
   supabase: ReturnType<typeof createSupabaseClient>,
   eventsQuery: any,
@@ -161,10 +171,10 @@ export async function GET() {
     "weekly-events",
   )
 
-  const weeklySeeds = seededWeeklyLeaderboard(today, realWeekly.length + 1)
+  const weeklySeeds = seededWeeklyLeaderboard(today)
   const weekly = realWeekly.length >= 6
-    ? realWeekly
-    : [...realWeekly, ...weeklySeeds.slice(0, 6 - realWeekly.length)].map((item, index) => ({ ...item, rank: index + 1 }))
+    ? rankLeaderboard(realWeekly)
+    : rankLeaderboard([...realWeekly, ...weeklySeeds.slice(0, 6 - realWeekly.length)], 6)
 
   return NextResponse.json({ daily, weekly })
 }
