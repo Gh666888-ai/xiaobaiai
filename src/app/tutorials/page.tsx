@@ -3,6 +3,9 @@ import Link from "next/link"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
 export const metadata: Metadata = {
   title: "AI教程大全 - 零基础学AI、AI工具教程、DeepSeek、Dify、Gamma和即梦教程",
   description:
