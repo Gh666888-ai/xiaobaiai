@@ -60,8 +60,8 @@ function polishDraft(title: string, content: string, cat: TemplateKey) {
 export default function NewPostPage() {
   const router = useRouter()
   const { user, refresh } = useAuth()
-  const [title, setTitle] = useState("")
-  const [content, setContent] = useState("")
+  const [title, setTitle] = useState(templates["经验分享"].title)
+  const [content, setContent] = useState(templates["经验分享"].content)
   const [cat, setCat] = useState<TemplateKey>("经验分享")
   const [tags, setTags] = useState(templates["经验分享"].tags)
   const [author, setAuthor] = useState("")
@@ -69,6 +69,7 @@ export default function NewPostPage() {
   const [err, setErr] = useState("")
   const [done, setDone] = useState(false)
   const [polished, setPolished] = useState("")
+  const [awarded, setAwarded] = useState(0)
 
   const selectedTemplate = useMemo(() => templates[cat], [cat])
   const userLevel = getUserLevel(Number(user?.xp || 0))
@@ -79,10 +80,12 @@ export default function NewPostPage() {
   }, [])
 
   const applyTemplate = (nextCat: TemplateKey) => {
+    const titleLooksUntouched = Object.values(templates).some((template) => template.title === title)
+    const contentLooksUntouched = Object.values(templates).some((template) => template.content === content)
     setCat(nextCat)
     setTags(templates[nextCat].tags)
-    if (!title.trim()) setTitle(templates[nextCat].title)
-    if (!content.trim()) setContent(templates[nextCat].content)
+    if (!title.trim() || titleLooksUntouched) setTitle(templates[nextCat].title)
+    if (!content.trim() || contentLooksUntouched) setContent(templates[nextCat].content)
     setPolished("")
   }
 
@@ -116,12 +119,13 @@ export default function NewPostPage() {
           author_name: author || "匿名用户",
         }),
       })
+      const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        const data = await res.json()
         setErr(data.error || "发布失败")
         setBusy(false)
         return
       }
+      setAwarded(Number(data.awarded || 0))
       await refresh().catch(() => undefined)
       setDone(true)
     } catch {
@@ -136,8 +140,11 @@ export default function NewPostPage() {
         <div style={{ textAlign: "center", maxWidth: 460, border: "1px solid #1a1a1a", borderRadius: 14, padding: 34, background: "rgba(255,255,255,0.03)" }}>
           <FileText size={42} style={{ color: "#e8c96a", marginBottom: 16 }} />
           <h2 style={{ fontSize: 22, color: "#fff", marginBottom: 10 }}>投稿已提交，等待审核</h2>
-          <p style={{ fontSize: 14, color: "#aaa", lineHeight: 1.8, marginBottom: 24 }}>{user ? "已领取发帖 10XP，会进入今日经验榜。" : "帖子已提交；登录后发帖才会领取 10XP。"}通过后会展示在社区，越真实、越可复用，越容易被设为精华。</p>
-          <button onClick={() => router.push("/community")} className="btn-primary">返回社区</button>
+          <p style={{ fontSize: 14, color: "#aaa", lineHeight: 1.8, marginBottom: 18 }}>{user ? `已领取发帖 ${awarded || 10}XP，会进入今日经验榜。` : "帖子已提交；登录后发帖才会领取 10XP。"}通过后会展示在社区，越真实、越可复用，越容易被设为精华。</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }} className="max-sm:grid-cols-1">
+            <button onClick={() => router.push("/growth")} className="btn-primary">看今日排名</button>
+            <button onClick={() => router.push("/community")} className="btn-outline">返回社区</button>
+          </div>
         </div>
       </div>
     )

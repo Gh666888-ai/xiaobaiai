@@ -119,7 +119,7 @@ export default function PostDetailPage() {
         setCommentError("评论已提交，但命中风险词，暂不公开展示。")
       } else {
         setComments(prev => [...prev, data])
-        setCommentError("评论已发布，+3XP 会进入今日经验榜。")
+        setCommentError(`评论已发布，+${Number(data?.awarded || 3)}XP 会进入今日经验榜。再发一篇模板帖可以继续 +10XP。`)
         await refresh().catch(() => undefined)
       }
       setCommentText("")

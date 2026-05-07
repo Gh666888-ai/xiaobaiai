@@ -46,7 +46,8 @@ export default function LoginPage() {
   const searchParams = useSearchParams()
   const redirect = searchParams.get("redirect") || "/"
   const safeRedirect = redirect.startsWith("/") && !redirect.startsWith("//") ? redirect : "/"
-  const [mode, setMode] = useState<"login" | "register">("login")
+  const shouldRegisterFirst = searchParams.get("mode") === "register" || safeRedirect === "/growth" || safeRedirect === "/community/new"
+  const [mode, setMode] = useState<"login" | "register">(() => shouldRegisterFirst ? "register" : "login")
   const [email, setEmail] = useState("")
   const [pwd, setPwd] = useState("")
   const [name, setName] = useState("")

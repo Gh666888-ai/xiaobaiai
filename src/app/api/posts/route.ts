@@ -107,14 +107,16 @@ export async function POST(req: NextRequest) {
     published_at: new Date().toISOString().slice(0, 10),
   }).select("id").single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  let awarded = 0
   if (userId && !MAX_LEVEL_EMAILS.has(String(profile?.email || "").toLowerCase())) {
     await supabase
       .from("profiles")
       .update({ xp: Number(profile?.xp || 0) + 10 })
       .eq("id", userId)
     await recordGrowthEvent(userId, `post:${insertedPost?.id || Date.now()}`, "post", 10)
+    awarded = 10
   }
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ success: true, awarded })
 }
 
 export async function PATCH(req: NextRequest) {

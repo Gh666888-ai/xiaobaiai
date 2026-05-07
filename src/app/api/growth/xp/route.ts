@@ -45,7 +45,7 @@ function resolveAward(body: any, now = new Date()) {
   const today = dayKey(now)
 
   if (reason === "welcome") {
-    return { ok: true as const, reason, eventKey: "welcome", dayKey: "", amount: 50 }
+    return { ok: true as const, reason, eventKey: "welcome", dayKey: today, amount: 50 }
   }
 
   if (reason === "check-in") {

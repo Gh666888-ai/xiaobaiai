@@ -151,6 +151,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 })
   }
 
+  let awarded = 0
   if (moderation.status === "approved") {
     const { data: post } = await auth.adminSupabase
       .from("community_posts")
@@ -169,8 +170,9 @@ export async function POST(req: NextRequest) {
         .update({ xp: Number(profile?.xp || 0) + 3 })
         .eq("id", auth.user.id)
       await recordGrowthEvent(auth.adminSupabase, auth.user.id, `comment:${result.data?.id || Date.now()}`, "comment", 3)
+      awarded = 3
     }
   }
 
-  return NextResponse.json(result.data)
+  return NextResponse.json({ ...result.data, awarded })
 }

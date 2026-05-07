@@ -147,6 +147,38 @@ export default function GrowthClient() {
   const level = levelName(state.xp)
   const badge = levelBadge(state.xp)
   const levelPercent = Math.min(100, Math.round((state.xp / level.next) * 100))
+  const currentDailyXP = viewerHint?.dailyXP || 0
+  const topDailyXP = dailyLeaders[0]?.xp || 68
+  const needToTop = Math.max(0, topDailyXP - currentDailyXP + 1)
+  const welcomeMission = missions.find((mission) => mission.id === "welcome")
+  const welcomeDone = !!welcomeMission && !!state.doneMissions[missionDoneKey(welcomeMission, today)]
+  const starterSteps = [
+    {
+      title: "领新手礼包",
+      desc: "先拿 50XP，今天就有机会进入榜单前排。",
+      xp: 50,
+      done: welcomeDone || state.xp >= 50,
+      href: "/growth",
+      action: user ? "领取礼包" : "注册领取",
+      onClick: () => user ? finishMission("welcome") : requireLogin(),
+    },
+    {
+      title: "评论一条经验",
+      desc: "补充用法、踩坑点或替代工具，低门槛拿到第一份贡献感。",
+      xp: 3,
+      done: currentDailyXP >= 53,
+      href: "/community",
+      action: "去评论",
+    },
+    {
+      title: "发一篇模板帖",
+      desc: "用发帖模板把真实经历整理出来，发帖成功 +10XP。",
+      xp: 10,
+      done: currentDailyXP >= 60,
+      href: "/community/new",
+      action: "去发帖",
+    },
+  ]
 
   const suggestedStage = useMemo(() => {
     let best = stages[0]
@@ -271,6 +303,46 @@ export default function GrowthClient() {
             {notice}
           </section>
         )}
+
+        <section style={{ border: "1px solid #2a1f10", borderRadius: 12, background: "rgba(201,168,76,0.055)", padding: 20, marginBottom: 18 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, flexWrap: "wrap", marginBottom: 15 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 7 }}>
+                <Rocket size={17} style={{ color: "#e8c96a" }} />
+                <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950 }}>新手 3 步冲今日榜</h2>
+              </div>
+              <p style={{ color: "#d6c28a", fontSize: 12, lineHeight: 1.75 }}>
+                今日榜每天清零，新用户不是追老玩家总分，而是拼今天的行动。
+              </p>
+            </div>
+            <div style={{ border: "1px solid rgba(201,168,76,0.38)", borderRadius: 10, background: "rgba(0,0,0,0.22)", padding: "10px 12px", minWidth: 190 }}>
+              <p style={{ color: "#aaa", fontSize: 11, marginBottom: 4 }}>今日进度</p>
+              <p style={{ color: "#fff", fontSize: 15, fontWeight: 950 }}>{user ? `${currentDailyXP} XP` : "注册后从 50XP 起步"}</p>
+              <p style={{ color: needToTop <= 0 ? "#3DA563" : "#d6c28a", fontSize: 11, lineHeight: 1.65, marginTop: 4 }}>
+                {!user ? "领完礼包就能冲前排" : needToTop <= 0 ? "你今天已经有机会冲第一" : `再拿 ${needToTop} XP 可冲今日第 1`}
+              </p>
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 10 }} className="max-sm:grid-cols-1">
+            {starterSteps.map((step, index) => (
+              <div key={step.title} style={{ border: `1px solid ${step.done ? "#2f7d4d" : "#242424"}`, borderRadius: 10, background: step.done ? "rgba(61,165,99,0.075)" : "rgba(0,0,0,0.24)", padding: 15, minHeight: 150, display: "flex", flexDirection: "column" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", marginBottom: 9 }}>
+                  <span style={{ width: 26, height: 26, borderRadius: 999, display: "inline-flex", alignItems: "center", justifyContent: "center", background: step.done ? "rgba(61,165,99,0.16)" : "rgba(201,168,76,0.1)", color: step.done ? "#3DA563" : "#e8c96a", fontFamily: "'JetBrains Mono',monospace", fontSize: 11, fontWeight: 950 }}>{step.done ? "✓" : index + 1}</span>
+                  <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 11, fontWeight: 900, whiteSpace: "nowrap" }}>+{step.xp}XP</span>
+                </div>
+                <p style={{ color: "#fff", fontSize: 15, fontWeight: 950, marginBottom: 6 }}>{step.title}</p>
+                <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7, flex: 1 }}>{step.desc}</p>
+                {index === 0 ? (
+                  <button type="button" onClick={step.onClick} disabled={!!user && (step.done || claiming === "welcome")} className={step.done ? "btn-outline" : "btn-primary"} style={{ marginTop: 12, justifyContent: "center", fontSize: 12 }}>
+                    {!user ? step.action : claiming === "welcome" ? "写入中..." : step.done ? "已完成" : step.action}
+                  </button>
+                ) : (
+                  <Link href={step.href} className="btn-outline" style={{ marginTop: 12, justifyContent: "center", fontSize: 12, textDecoration: "none" }}>{step.action}</Link>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
 
         <section style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: 10, marginBottom: 18 }} className="max-sm:grid-cols-2">
           {[
