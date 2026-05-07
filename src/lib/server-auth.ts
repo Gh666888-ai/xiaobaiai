@@ -10,6 +10,10 @@ export function hasSupabaseConfig() {
   return Boolean(supabaseUrl && supabaseKey)
 }
 
+export function hasSupabaseServiceConfig() {
+  return Boolean(supabaseUrl && supabaseServiceKey)
+}
+
 export function createServerSupabase() {
   return createClient(supabaseUrl, supabaseKey, {
     auth: { persistSession: false, autoRefreshToken: false },
