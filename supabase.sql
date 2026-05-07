@@ -81,6 +81,28 @@ UPDATE profiles
 SET xp = GREATEST(COALESCE(xp, 0), 100000)
 WHERE lower(email) IN ('15171192200@163.com', '109020070@qq.com', '771239559@qq.com');
 
+-- 成长经验事件表：防止签到、任务、在线挂机经验被重复领取。
+CREATE TABLE IF NOT EXISTS growth_events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  event_key TEXT NOT NULL,
+  reason TEXT NOT NULL,
+  amount INTEGER NOT NULL DEFAULT 0,
+  day_key TEXT,
+  awarded_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, event_key)
+);
+
+CREATE INDEX IF NOT EXISTS growth_events_user_awarded_idx ON growth_events(user_id, awarded_at DESC);
+CREATE INDEX IF NOT EXISTS growth_events_user_day_reason_idx ON growth_events(user_id, day_key, reason);
+
+GRANT SELECT ON TABLE growth_events TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE growth_events TO service_role;
+
+ALTER TABLE growth_events ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can read own growth events" ON growth_events;
+CREATE POLICY "Users can read own growth events" ON growth_events FOR SELECT USING (auth.uid() = user_id);
+
 -- 帖子：所有人可读
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can read posts" ON posts FOR SELECT USING (true);

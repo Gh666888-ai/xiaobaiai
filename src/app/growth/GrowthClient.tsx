@@ -12,6 +12,7 @@ import { progressId, readLearningProgress } from "@/lib/learning-progress"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
 import { LEVELS } from "@/data/user"
+import { CHECK_IN_XP, GROWTH_MISSIONS } from "@/data/growth"
 
 type GrowthState = {
   xp: number
@@ -22,12 +23,7 @@ type GrowthState = {
 
 const GROWTH_KEY = "xiaobaiai:growth:v1"
 
-const missions = [
-  { id: "ask-ai", title: "问 AI 一个真实问题", desc: "不要问泛泛的问题，直接拿今天的工作、学习或生活需求试一次。", xp: 20, href: "/search?q=我想让 AI 帮我分析一个需求" },
-  { id: "choose-tool", title: "完成一次工具选择", desc: "用 AI 工具选择器选出今天最适合你的工具。", xp: 30, href: "/choose-tool" },
-  { id: "learn-section", title: "学完一个章节", desc: "进入学习路径，标记任意一个章节为已学完。", xp: 40, href: "/learn" },
-  { id: "read-community", title: "读一篇社区经验", desc: "看一篇真实案例，把能复用的一步记下来。", xp: 25, href: "/community" },
-]
+const missions = GROWTH_MISSIONS
 
 const levelBenefits = [
   "解锁成长档案，记录每日任务和在线经验。",
@@ -60,6 +56,10 @@ function readGrowth(userId?: string): GrowthState {
 
 function writeGrowth(state: GrowthState, userId?: string) {
   window.localStorage.setItem(storageKey(userId), JSON.stringify(state))
+}
+
+function missionDoneKey(mission: { id: string; cadence?: string }, today: string) {
+  return mission.cadence === "once" ? `once:${mission.id}` : `${today}:${mission.id}`
 }
 
 function levelName(xp: number) {
@@ -105,7 +105,7 @@ export default function GrowthClient() {
 
   const today = todayKey()
   const checkedToday = state.lastCheckIn === today
-  const doneCount = missions.filter((mission) => state.doneMissions[`${today}:${mission.id}`]).length
+  const doneCount = missions.filter((mission) => state.doneMissions[missionDoneKey(mission, today)]).length
   const level = levelName(state.xp)
   const badge = levelBadge(state.xp)
   const levelPercent = Math.min(100, Math.round((state.xp / level.next) * 100))
@@ -126,7 +126,7 @@ export default function GrowthClient() {
     router.push("/login?redirect=/growth")
   }
 
-  const awardXP = async (amount: number) => {
+  const awardXP = async (payload: Record<string, unknown>) => {
     if (!user) {
       requireLogin()
       return false
@@ -139,12 +139,12 @@ export default function GrowthClient() {
     const res = await fetch("/api/growth/xp", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ amount }),
+      body: JSON.stringify(payload),
     })
     const data = await res.json().catch(() => ({}))
     if (!res.ok) throw new Error(data.error || "经验写入失败，请稍后再试。")
     await refresh()
-    return true
+    return data
   }
 
   const checkIn = async () => {
@@ -153,13 +153,14 @@ export default function GrowthClient() {
     setNotice("")
     setClaiming("check-in")
     try {
-      const ok = await awardXP(15)
-      if (!ok) return
+      const result = await awardXP({ reason: "check-in" })
+      if (!result) return
       const current = readGrowth(user.userId)
-      const next = { ...current, xp: current.xp + 15, streak: current.streak + 1, lastCheckIn: today }
-      setState({ ...next, xp: user.xp + 15 })
+      const awarded = Number(result.awarded || 0)
+      const next = { ...current, xp: Number(result.xp || current.xp + awarded), streak: current.streak + (awarded > 0 ? 1 : 0), lastCheckIn: today }
+      setState({ ...next, xp: Number(result.xp || user.xp + awarded) })
       writeGrowth(next, user.userId)
-      setNotice("今日打卡成功，15 XP 已进入你的账号等级。")
+      setNotice(awarded > 0 ? `今日打卡成功，${CHECK_IN_XP} XP 已进入你的账号等级。` : "今天已经打过卡，明天再来继续连击。")
     } catch (error: any) {
       setNotice(error?.message || "打卡失败，请稍后再试。")
     } finally {
@@ -167,20 +168,23 @@ export default function GrowthClient() {
     }
   }
 
-  const finishMission = async (missionId: string, xp: number) => {
+  const finishMission = async (missionId: string) => {
     if (!user) return requireLogin()
-    const key = `${today}:${missionId}`
+    const mission = missions.find((item) => item.id === missionId)
+    if (!mission) return
+    const key = missionDoneKey(mission, today)
     if (state.doneMissions[key] || claiming) return
     setNotice("")
     setClaiming(missionId)
     try {
-      const ok = await awardXP(xp)
-      if (!ok) return
+      const result = await awardXP(missionId === "welcome" ? { reason: "welcome" } : { reason: "mission", missionId })
+      if (!result) return
       const current = readGrowth(user.userId)
-      const next = { ...current, xp: current.xp + xp, doneMissions: { ...current.doneMissions, [key]: true } }
-      setState({ ...next, xp: user.xp + xp })
+      const awarded = Number(result.awarded || 0)
+      const next = { ...current, xp: Number(result.xp || current.xp + awarded), doneMissions: { ...current.doneMissions, [key]: true } }
+      setState({ ...next, xp: Number(result.xp || user.xp + awarded) })
       writeGrowth(next, user.userId)
-      setNotice(`领取成功，${xp} XP 已进入你的账号等级。`)
+      setNotice(awarded > 0 ? `领取成功，${awarded} XP 已进入你的账号等级。` : "这个奖励已经领过啦，换个任务继续升级。")
     } catch (error: any) {
       setNotice(error?.message || "领取失败，请稍后再试。")
     } finally {
@@ -263,7 +267,7 @@ export default function GrowthClient() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {missions.map((mission) => {
-                const done = !!state.doneMissions[`${today}:${mission.id}`]
+                const done = !!state.doneMissions[missionDoneKey(mission, today)]
                 return (
                   <div key={mission.id} style={{ border: `1px solid ${done ? "#2f7d4d" : "#242424"}`, borderRadius: 10, background: done ? "rgba(61,165,99,0.07)" : "rgba(0,0,0,0.22)", padding: 15 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", gap: 14, alignItems: "flex-start" }}>
@@ -271,11 +275,11 @@ export default function GrowthClient() {
                         <p style={{ color: "#fff", fontSize: 15, fontWeight: 950 }}>{mission.title}</p>
                         <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginTop: 5 }}>{mission.desc}</p>
                       </div>
-                      <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 11, fontWeight: 900, whiteSpace: "nowrap" }}>+{mission.xp}XP</span>
+                      <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 11, fontWeight: 900, whiteSpace: "nowrap" }}>{mission.cadence === "once" ? "一次性 " : ""}+{mission.xp}XP</span>
                     </div>
                     <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
                       <Link href={mission.href} className="btn-outline" style={{ fontSize: 11, padding: "6px 13px", textDecoration: "none" }}>去完成</Link>
-                      <button onClick={() => finishMission(mission.id, mission.xp)} disabled={!!user && (done || claiming === mission.id)} className={done ? "btn-outline" : "btn-primary"} style={{ fontSize: 11, padding: "6px 13px" }}>
+                      <button onClick={() => finishMission(mission.id)} disabled={!!user && (done || claiming === mission.id)} className={done ? "btn-outline" : "btn-primary"} style={{ fontSize: 11, padding: "6px 13px" }}>
                         {!user ? "登录领取" : claiming === mission.id ? "写入中..." : done ? "已领取" : "领取经验"}
                       </button>
                     </div>

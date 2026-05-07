@@ -7,6 +7,7 @@ import Link from "next/link"
 import { NavBar } from "@/components/NavBar"
 import { MessageCircle, Search, Route, Sparkles, Workflow, Wrench } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext"
+import { DAILY_ONLINE_XP_CAP } from "@/data/growth"
 
 const SYMBOLS = [
   '0','1','2','3','4','5','6','7','8','9',
@@ -104,10 +105,10 @@ export default function HomePage() {
           <div style={{maxWidth:680,margin:'18px auto 0',display:'grid',gridTemplateColumns:'1fr auto',gap:12,alignItems:'center',border:'1px solid rgba(201,168,76,0.34)',background:'rgba(6,6,6,0.9)',borderRadius:12,padding:'13px 15px',opacity:0,animation:'fadeUp 0.8s ease forwards 1.45s',position:'relative',zIndex:20}} className="home-growth-cta">
             <div style={{textAlign:'left'}}>
               <p style={{fontSize:13,fontWeight:950,color:'#fff',marginBottom:4}}>
-                {user ? `欢迎回来，${user.name} · ${user.xp} XP` : registeredUsers === null ? '登录后开始累计 XP 和等级身份' : `已有 ${registeredUsers} 位用户加入成长系统`}
+                {user ? `欢迎回来，${user.name} · ${user.xp} XP` : registeredUsers === null ? '注册领 50XP 新手礼包' : `已有 ${registeredUsers} 位用户加入成长系统`}
               </p>
               <p style={{fontSize:12,color:'#cdbb80',lineHeight:1.65}}>
-                在线每 5 分钟 +2XP，每天任务、发帖和评论都会升级；LV5 后社区优先展示，LV7 有共创者标志。
+                注册先领启动礼包，在线每天最多 {DAILY_ONLINE_XP_CAP}XP；做任务、发帖和评论都会升级，LV5 后社区优先展示。
               </p>
             </div>
             <Link href={user ? "/growth" : "/login?redirect=/growth"} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',minHeight:38,padding:'8px 14px',borderRadius:9,border:'1px solid #e8c96a',background:'#e8c96a',color:'#111',fontSize:12,fontWeight:950,textDecoration:'none',whiteSpace:'nowrap'}}>
