@@ -19,10 +19,28 @@ function findTool(categoryParam: string, id: string) {
 export function generateMetadata({ params }: { params: { category: string; id: string } }): Metadata {
   const tool = findTool(params.category, params.id)
   if (!tool) return {}
+  const meta = getToolMeta(tool)
+  const title = `${tool.name} 怎么用？${tool.category}工具详情`
+  const description = `${tool.name}：${tool.description} 小白AI整理了免费情况、中文支持、上手难度、新手推荐指数和替代工具。`
   return {
-    title: `${tool.name} 工具详情`,
-    description: `${tool.name} 适合阶段、免费情况、网络要求、中文支持、难度、新手推荐指数和替代品。`,
+    title,
+    description,
+    keywords: [tool.name, tool.category, ...tool.tags, "AI工具", "AI工具导航", meta.difficulty],
     alternates: { canonical: toolPath(tool) },
+    openGraph: {
+      title,
+      description,
+      url: toolPath(tool),
+      type: "article",
+      siteName: "小白AI",
+      images: tool.logo ? [{ url: tool.logo, alt: tool.name }] : [{ url: "/xiaobai-mascot-cutout.png", alt: "小白AI" }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: tool.logo ? [tool.logo] : ["/xiaobai-mascot-cutout.png"],
+    },
   }
 }
 
@@ -32,6 +50,28 @@ export default function ToolDetailPage({ params }: { params: { category: string;
   const category = categories.find((item) => item.key === tool.category)
   const meta = getToolMeta(tool)
   const alternatives = getToolAlternatives(tool)
+  const toolJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: tool.name,
+    applicationCategory: tool.category,
+    operatingSystem: "Web",
+    description: tool.description,
+    url: `https://www.xiaobaiai.cn${toolPath(tool)}`,
+    sameAs: tool.url,
+    image: tool.logo || "https://www.xiaobaiai.cn/xiaobai-mascot-cutout.png",
+    offers: {
+      "@type": "Offer",
+      price: tool.pricing === "免费" ? "0" : undefined,
+      priceCurrency: "CNY",
+      availability: "https://schema.org/InStock",
+    },
+    isPartOf: {
+      "@type": "WebSite",
+      name: "小白AI",
+      url: "https://www.xiaobaiai.cn",
+    },
+  }
   const compare = [
     ["适合阶段", stageLabels[tool.stage] || `阶段 ${tool.stage}`],
     ["是否免费", tool.pricing],
@@ -43,6 +83,10 @@ export default function ToolDetailPage({ params }: { params: { category: string;
 
   return (
     <div style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(toolJsonLd) }}
+      />
       <MathRain />
       <NavBar />
       <main style={{ maxWidth: 960, margin: "0 auto", padding: "60px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.86)" }} className="max-sm:px-4">

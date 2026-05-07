@@ -85,6 +85,29 @@ export const metadata: Metadata = {
   },
 }
 
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "小白AI",
+  alternateName: ["小白AI导航", "AI第一站"],
+  url: "https://www.xiaobaiai.cn",
+  description: "面向 AI 新手的工具导航、学习路径、AI 资讯、社区案例和站内 AI 助手平台。",
+  publisher: {
+    "@type": "Organization",
+    name: "小白AI",
+    url: "https://www.xiaobaiai.cn",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://www.xiaobaiai.cn/xiaobai-icon-192.png?v=3",
+    },
+  },
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://www.xiaobaiai.cn/search?q={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN" className={`${noto.variable} ${jetbrains.variable}`}>
@@ -94,6 +117,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" type="image/png" sizes="32x32" href="/xiaobai-icon-32.png?v=3" />
         <link rel="icon" type="image/png" sizes="192x192" href="/xiaobai-icon-192.png?v=3" />
         <link rel="apple-touch-icon" sizes="180x180" href="/xiaobai-icon-180.png?v=3" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html:
