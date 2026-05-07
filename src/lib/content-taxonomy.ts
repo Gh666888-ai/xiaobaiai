@@ -28,7 +28,7 @@ const scenarioKeywords: Record<ContentScenario, string[]> = {
   creator: ["小红书", "公众号", "文案", "短视频", "脚本", "标题", "运营", "内容创作", "改稿"],
   image: ["AI动漫", "AI绘图", "绘图", "即梦", "头像", "壁纸", "Prompt", "提示词", "国风", "赛博", "分镜"],
   dify: ["Dify", "知识库", "RAG", "客服", "Bot", "Coze", "扣子", "召回", "切分"],
-  coding: ["Cursor", "Codex", "AI编程", "编程", "Next.js", "代码", "SQL", "Cline", "Claude Code", "DeepSeek V4", "V4-Pro", "V4-Flash", "Anthropic", "ANTHROPIC_BASE_URL"],
+  coding: ["Cursor", "Codex", "AI编程", "编程", "Next.js", "代码", "SQL", "Cline", "Claude Code", "DeepSeek V4", "V4-Pro", "V4-Flash", "Anthropic", "ANTHROPIC_BASE_URL", "中转站", "base_url"],
   workflow: ["Agent", "工作流", "自动化", "n8n", "飞书", "QClaw", "OpenClaw", "Hermes", "定时"],
   data: ["数据", "数据分析", "CSV", "BI", "DeepSeek", "字段", "指标", "看板", "SQL"],
   security: ["安全", "隐私", "脱敏", "API Key", "限额", "权限", "人工确认", "风险"],

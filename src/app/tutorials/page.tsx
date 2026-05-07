@@ -35,7 +35,8 @@ const topicGroups = [
       { href: "/chatgpt", label: "ChatGPT怎么用", note: "对话、写作、文件分析和替代工具" },
       { href: "/deepseek", label: "DeepSeek怎么用", note: "中文问答、推理、代码和低成本使用" },
       { href: "/deepseek-api-key", label: "DeepSeek API Key怎么申请", note: "注册、模型选择、接入和常见报错" },
-      { href: "/topics/claude-code-deepseek", label: "Claude Code接入DeepSeek V4", note: "官方接口、国内中转站、模型选择和报错排查" },
+      { href: "/claude-code-deepseek", label: "Claude Code接入DeepSeek V4", note: "官方接口、Windows/Mac 配置、模型选择和报错排查" },
+      { href: "/claude-code-proxy", label: "Claude Code中转站教程", note: "国内使用、Anthropic兼容接口、base_url和安全判断" },
       { href: "/dify", label: "Dify教程", note: "知识库、AI客服、工作流和DeepSeek接入" },
       { href: "/topics/dify", label: "Dify专题路线", note: "从教程、知识库、排查清单到社区实战案例" },
       { href: "/dify-knowledge-base", label: "Dify知识库怎么搭建", note: "RAG、文档上传、召回设置和答非所问" },
@@ -61,6 +62,7 @@ const topicGroups = [
     links: [
       { href: "/agent", label: "Agent教程", note: "智能体概念、工作流、工具调用和真实任务" },
       { href: "/ai-coding", label: "AI编程工具推荐", note: "Codex、Cursor、Claude Code和Copilot" },
+      { href: "/topics/claude-code-deepseek", label: "Claude Code + DeepSeek专题", note: "教程、国内中转站、社区案例和项目提示词模板" },
       { href: "/codex", label: "Codex国内使用指南", note: "Agent编程、项目修改和工程任务" },
       { href: "/workflows", label: "AI工作流自动化", note: "日报、客服、线索、内容和监控流程" },
       { href: "/models", label: "AI模型排行榜", note: "模型能力、成本、场景和替代方案" },

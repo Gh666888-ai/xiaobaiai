@@ -23,6 +23,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: url("/free-ai-tools"), lastModified, changeFrequency: "weekly", priority: 0.92 },
     { url: url("/chatgpt"), lastModified, changeFrequency: "weekly", priority: 0.92 },
     { url: url("/deepseek"), lastModified, changeFrequency: "weekly", priority: 0.92 },
+    { url: url("/claude-code-deepseek"), lastModified, changeFrequency: "weekly", priority: 0.92 },
+    { url: url("/claude-code-proxy"), lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: url("/codex"), lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: url("/dify"), lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: url("/topics/dify"), lastModified, changeFrequency: "weekly", priority: 0.88 },

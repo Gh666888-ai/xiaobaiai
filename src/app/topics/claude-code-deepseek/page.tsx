@@ -112,9 +112,9 @@ export default function ClaudeCodeDeepSeekTopicPage() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 12 }}>
             {[
-              { title: "先安装 Claude Code", desc: "Node.js 18+，确认 claude --version 能正常输出。", href: "/ai-coding" },
-              { title: "先跑官方 DeepSeek", desc: "用官方 Anthropic 兼容接口验证模型名、Key 和基础能力。", href: "/deepseek-api-key" },
-              { title: "再评估国内中转站", desc: "只在网络、充值或团队结算确实需要时使用，先小额测试。", href: "/community/post-54" },
+              { title: "先跑官方教程", desc: "用官方 Anthropic 兼容接口验证模型名、Key 和基础能力。", href: "/claude-code-deepseek" },
+              { title: "再评估国内中转站", desc: "只在网络、充值或团队结算确实需要时使用，先小额测试。", href: "/claude-code-proxy" },
+              { title: "补 DeepSeek API 基础", desc: "如果 Key、余额、模型名还没搞清楚，先回到 API Key 教程。", href: "/deepseek-api-key" },
               { title: "最后放进真实项目", desc: "从只读分析、小范围改动、明确边界开始，不要上来全仓重构。", href: "/community?scene=coding" },
             ].map((step, index) => (
               <Link key={step.href} href={step.href} style={{ textDecoration: "none", border: "1px solid #242424", background: "rgba(0,0,0,0.24)", borderRadius: 10, padding: "16px 18px", display: "block" }}>
@@ -232,6 +232,8 @@ export default function ClaudeCodeDeepSeekTopicPage() {
           </p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link href="/community/post-51" className="btn-primary" style={{ textDecoration: "none" }}>看最小配置</Link>
+            <Link href="/claude-code-deepseek" className="btn-outline" style={{ textDecoration: "none" }}>看完整教程</Link>
+            <Link href="/claude-code-proxy" className="btn-outline" style={{ textDecoration: "none" }}>看中转站教程</Link>
             <Link href="/community/post-52" className="btn-outline" style={{ textDecoration: "none" }}>看报错排查</Link>
             <Link href="/community/post-54" className="btn-outline" style={{ textDecoration: "none" }}>看中转站判断</Link>
             <Link href="/ai-coding" className="btn-outline" style={{ textDecoration: "none" }}>回到 AI 编程工具</Link>

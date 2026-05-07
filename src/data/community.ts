@@ -665,4 +665,28 @@ export const posts: Post[] = [
     comments: 58,
     publishedAt: "2026-05-07",
   },
+  {
+    id: "post-55",
+    author: "接口排查员",
+    title: "Claude Code 接中转站能聊天但不能改代码，是哪里错了？",
+    content:
+      "最近看到一个很典型的问题：同一个中转站，网页聊天能用，普通 API 调用也能用，但 Claude Code 一跑项目就报错，或者只能回答，不能正常读文件、列计划、执行工具。\n\n我一般按这个顺序查：\n\n1. 看它是不是真的支持 Anthropic 兼容接口\n很多站写“支持 OpenAI 格式”，这只代表它能兼容 /v1/chat/completions，不代表能兼容 Claude Code 需要的 Anthropic Messages 路由。\n\n2. 看 base_url 有没有写错\nClaude Code 这条链路通常要填 ANTHROPIC_BASE_URL。中转站如果给的是 /v1 或 /openai 路径，不一定能用。要找文档里明确给 Claude Code 或 Anthropic 的地址。\n\n3. 看模型名是不是中转站自己的别名\n官方可能叫 deepseek-v4-pro[1m]，中转站可能只支持 deepseek-v4-pro，甚至改成 ds-v4-pro。模型名错了就会 model not found。\n\n4. 看 Key 有没有混用\n官方 DeepSeek Key 请求官方地址；中转站 Key 请求中转站地址。两边混着用，最常见就是 401。\n\n5. 看它有没有屏蔽工具调用相关能力\n有些便宜中转只适合聊天，不适合 Claude Code 这种长上下文、多轮、工具型请求。\n\n我的结论：能聊天只是第一关，能稳定跑 Claude Code 才算真正可用。测试时别拿大项目试，先让它只读一个小目录并总结结构，再给一个小改动，看日志、扣费和返回是否正常。",
+    category: "踩坑记录",
+    tags: ["Claude Code", "中转站", "base_url", "报错排查"],
+    likes: 219,
+    comments: 46,
+    publishedAt: "2026-05-07",
+  },
+  {
+    id: "post-56",
+    author: "Next小修工",
+    title: "我用 Claude Code + DeepSeek 改 Next.js 项目时，会先丢这段提示词",
+    content:
+      "Claude Code 接上 DeepSeek 后，真正决定效果的不是一句“帮我优化项目”，而是任务边界。我现在改 Next.js 项目会先给它这段：\n\n你是一个谨慎的 Next.js 工程助手。请先阅读 package.json、src/app 目录和我指定的页面文件，然后输出：\n1. 你理解的页面职责。\n2. 你准备修改的文件列表。\n3. 每个文件准备改什么。\n4. 可能影响构建或 SEO 的风险。\n在我确认前，不要编辑任何文件。\n\n确认计划后，我会再给第二段：\n只允许修改下面这些文件：xxx。不要格式化其他文件，不要改全局样式，不要调整数据结构。改完后输出 git diff 摘要、验证命令和人工检查点。\n\n为什么这样写？\n- Next.js 项目很容易牵一发动全身。\n- AI 喜欢顺手重构，diff 一大就很难 review。\n- 先让它说计划，可以发现它是否真的读懂了代码。\n\n如果是线上项目，我还会加一句：不要改认证、支付、数据库权限、缓存策略，除非我明确要求。\n\nAI 编程不是把方向盘全交出去，而是让它在你画好的车道里开。",
+    category: "经验分享",
+    tags: ["Claude Code", "DeepSeek V4", "Next.js", "提示词"],
+    likes: 237,
+    comments: 51,
+    publishedAt: "2026-05-07",
+  },
 ]
