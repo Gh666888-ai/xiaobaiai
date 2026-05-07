@@ -146,6 +146,7 @@ CREATE INDEX IF NOT EXISTS ai_workflows_user_updated_idx ON ai_workflows(user_id
 CREATE INDEX IF NOT EXISTS ai_workflows_enabled_idx ON ai_workflows(enabled);
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE ai_workflows TO authenticated;
+GRANT SELECT, UPDATE ON TABLE ai_workflows TO service_role;
 
 ALTER TABLE ai_workflows ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can read own workflows" ON ai_workflows;
@@ -175,6 +176,7 @@ CREATE INDEX IF NOT EXISTS workflow_runs_user_started_idx ON workflow_runs(user_
 CREATE INDEX IF NOT EXISTS workflow_runs_workflow_idx ON workflow_runs(workflow_id, started_at DESC);
 
 GRANT SELECT, INSERT ON TABLE workflow_runs TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE workflow_runs TO service_role;
 
 ALTER TABLE workflow_runs ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can read own workflow runs" ON workflow_runs;
