@@ -102,6 +102,7 @@ const websiteJsonLd = {
   about: ["AI工具导航", "AI工具大全", "Agent教程", "AI学习路径", "AI资讯"],
   hasPart: [
     { "@type": "WebPage", name: "AI工具大全", url: "https://www.xiaobaiai.cn/ai-tools" },
+    { "@type": "WebPage", name: "AI教程大全", url: "https://www.xiaobaiai.cn/tutorials" },
     { "@type": "WebPage", name: "免费AI工具推荐", url: "https://www.xiaobaiai.cn/free-ai-tools" },
     { "@type": "WebPage", name: "ChatGPT怎么用", url: "https://www.xiaobaiai.cn/chatgpt" },
     { "@type": "WebPage", name: "DeepSeek怎么用", url: "https://www.xiaobaiai.cn/deepseek" },

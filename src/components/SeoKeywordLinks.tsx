@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 const keywordLinks = [
+  { terms: ["AI教程", "AI教程大全", "AI工具教程", "零基础学AI", "AI小白教程"], href: "/tutorials" },
   { terms: ["DeepSeek API Key", "DeepSeek API", "DeepSeek API申请"], href: "/deepseek-api-key" },
   { terms: ["Dify知识库", "Dify RAG", "知识库问答"], href: "/dify-knowledge-base" },
   { terms: ["Gamma怎么做PPT", "Gamma教程", "Gamma做PPT"], href: "/gamma-ppt" },

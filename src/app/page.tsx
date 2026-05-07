@@ -120,6 +120,7 @@ export default function HomePage() {
           <div style={{display:'flex',justifyContent:'center',gap:8,flexWrap:'wrap',marginTop:18,opacity:0,animation:'fadeUp 0.8s ease forwards 1.85s'}}>
             {[
               {label:'AI工具大全',href:'/ai-tools'},
+              {label:'AI教程大全',href:'/tutorials'},
               {label:'免费AI工具',href:'/free-ai-tools'},
               {label:'ChatGPT怎么用',href:'/chatgpt'},
               {label:'DeepSeek怎么用',href:'/deepseek'},

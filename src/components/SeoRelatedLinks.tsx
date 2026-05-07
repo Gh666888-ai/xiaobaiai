@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 const seoTopics = [
+  { href: "/tutorials", label: "AI教程大全", terms: ["AI教程", "AI教程大全", "AI工具教程", "零基础学AI", "AI小白教程"] },
   { href: "/deepseek-api-key", label: "DeepSeek API Key申请", terms: ["DeepSeek API", "API Key", "deepseek-v4", "DeepSeek V4"] },
   { href: "/dify-knowledge-base", label: "Dify知识库搭建", terms: ["Dify知识库", "Dify RAG", "RAG", "知识库问答", "AI客服"] },
   { href: "/gamma-ppt", label: "Gamma做PPT教程", terms: ["Gamma", "AI PPT", "AI做PPT", "PPT生成"] },

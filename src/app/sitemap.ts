@@ -18,6 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: url("/tools"), lastModified, changeFrequency: "daily", priority: 0.95 },
     { url: url("/choose-tool"), lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: url("/ai-tools"), lastModified, changeFrequency: "weekly", priority: 0.94 },
+    { url: url("/tutorials"), lastModified, changeFrequency: "weekly", priority: 0.93 },
     { url: url("/free-ai-tools"), lastModified, changeFrequency: "weekly", priority: 0.92 },
     { url: url("/chatgpt"), lastModified, changeFrequency: "weekly", priority: 0.92 },
     { url: url("/deepseek"), lastModified, changeFrequency: "weekly", priority: 0.92 },
