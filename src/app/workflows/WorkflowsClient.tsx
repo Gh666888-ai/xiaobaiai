@@ -8,6 +8,7 @@ import { NavBar } from "@/components/NavBar"
 import { ContentVisual } from "@/components/ContentVisual"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
+import { getUserLevel } from "@/data/user"
 import { buildWorkflowPlan, workflowStepLibrary, workflowTemplates, WorkflowStep, WorkflowStepType, WorkflowTemplate } from "@/data/workflows"
 
 type FlowStep = WorkflowStep
@@ -44,6 +45,7 @@ const typeMeta: Record<WorkflowStepType, { label: string; icon: any; color: stri
 }
 
 const draftKey = "xiaobaiai:workflow-draft:v1"
+const advancedTemplateIds = new Set(["customer-service", "content-pipeline"])
 
 function makeId() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`
@@ -84,6 +86,9 @@ export default function WorkflowsClient() {
   const [loadingCloud, setLoadingCloud] = useState(false)
 
   const plan = useMemo(() => buildWorkflowPlan(name, goal, steps), [name, goal, steps])
+  const userLevel = getUserLevel(Number(user?.xp || 0))
+  const selectedIsAdvanced = advancedTemplateIds.has(selected.id)
+  const selectedUnlocked = !selectedIsAdvanced || userLevel.level >= 4
 
   const applyTemplate = (template: WorkflowTemplate) => {
     setSelected(template)
@@ -237,14 +242,27 @@ export default function WorkflowsClient() {
         <section style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 10, marginBottom: 18 }} className="workflow-template-grid max-sm:grid-cols-1">
           {workflowTemplates.map((template) => {
             const active = selected.id === template.id
+            const isAdvanced = advancedTemplateIds.has(template.id)
+            const unlocked = !isAdvanced || userLevel.level >= 4
             return (
-              <button key={template.id} onClick={() => applyTemplate(template)} style={{ textAlign: "left", border: `1px solid ${active ? "#16c4d8" : "#202020"}`, borderRadius: 10, background: active ? "rgba(22,196,216,0.08)" : "rgba(255,255,255,0.03)", padding: 15, cursor: "pointer" }}>
-                <p style={{ color: active ? "#7ee7f0" : "#fff", fontSize: 15, fontWeight: 950, marginBottom: 7 }}>{template.name}</p>
+              <button key={template.id} onClick={() => applyTemplate(template)} style={{ textAlign: "left", border: `1px solid ${active ? "#16c4d8" : isAdvanced ? "rgba(201,168,76,0.45)" : "#202020"}`, borderRadius: 10, background: active ? "rgba(22,196,216,0.08)" : isAdvanced ? "rgba(201,168,76,0.045)" : "rgba(255,255,255,0.03)", padding: 15, cursor: "pointer" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 7 }}>
+                  <p style={{ color: active ? "#7ee7f0" : "#fff", fontSize: 15, fontWeight: 950 }}>{template.name}</p>
+                  {isAdvanced && <span style={{ color: unlocked ? "#7ee7f0" : "#e8c96a", border: `1px solid ${unlocked ? "rgba(126,231,255,0.5)" : "rgba(201,168,76,0.45)"}`, borderRadius: 999, padding: "2px 7px", fontSize: 10, fontWeight: 950, whiteSpace: "nowrap" }}>{unlocked ? "LV4 已解锁" : "LV4 高级"}</span>}
+                </div>
                 <p style={{ color: "#999", fontSize: 12, lineHeight: 1.65 }}>{template.scene} · {template.difficulty} · {template.time}</p>
               </button>
             )
           })}
         </section>
+        {selectedIsAdvanced && (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "center", border: `1px solid ${selectedUnlocked ? "rgba(126,231,255,0.4)" : "rgba(201,168,76,0.42)"}`, borderRadius: 12, background: selectedUnlocked ? "rgba(126,231,255,0.045)" : "rgba(201,168,76,0.055)", padding: "13px 15px", marginBottom: 18 }} className="max-sm:grid-cols-1">
+            <p style={{ color: "#d8d8d8", fontSize: 13, lineHeight: 1.7 }}>
+              {selectedUnlocked ? `你已达到 LV${userLevel.level}，高级工作流模板已解锁，适合保存到云端反复改。` : `这是 LV4 高级模板。现在可以预览和学习，升到 LV4 后会显示已解锁状态，并优先推荐给高等级用户。`}
+            </p>
+            {!selectedUnlocked && <Link href="/growth" className="btn-outline" style={{ textDecoration: "none", whiteSpace: "nowrap" }}>去升级</Link>}
+          </div>
+        )}
 
         <div style={{ display: "grid", gridTemplateColumns: "250px minmax(0,1fr) 350px", gap: 16 }} className="workflow-layout max-sm:grid-cols-1">
           <aside style={{ display: "flex", flexDirection: "column", gap: 12 }} className="workflow-sidebar">

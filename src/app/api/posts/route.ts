@@ -60,11 +60,13 @@ export async function POST(req: NextRequest) {
   const { title, content, category, tags, author_name } = body
   if (!title || !content) return NextResponse.json({ error: "Missing fields" }, { status: 400 })
   let profile: any = null
+  let userId = ""
   const authHeader = req.headers.get("authorization") || ""
   const token = authHeader.toLowerCase().startsWith("bearer ") ? authHeader.slice(7) : ""
   if (token) {
     const { data } = await supabase.auth.getUser(token)
     if (data.user?.id) {
+      userId = data.user.id
       const { data: profileData } = await supabase.from("profiles").select("name,email,xp").eq("id", data.user.id).single()
       profile = profileData
     }
@@ -83,6 +85,12 @@ export async function POST(req: NextRequest) {
     published_at: new Date().toISOString().slice(0, 10),
   })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (userId && !MAX_LEVEL_EMAILS.has(String(profile?.email || "").toLowerCase())) {
+    await supabase
+      .from("profiles")
+      .update({ xp: Number(profile?.xp || 0) + 10 })
+      .eq("id", userId)
+  }
   return NextResponse.json({ success: true })
 }
 

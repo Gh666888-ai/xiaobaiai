@@ -141,6 +141,12 @@ export async function POST(req: NextRequest) {
         .update({ comments_count: Number(post.comments_count || 0) + 1 })
         .eq("id", postId)
     }
+    if (!MAX_LEVEL_EMAILS.has(String(email || "").toLowerCase())) {
+      await auth.adminSupabase
+        .from("profiles")
+        .update({ xp: Number(profile?.xp || 0) + 3 })
+        .eq("id", auth.user.id)
+    }
   }
 
   return NextResponse.json(result.data)

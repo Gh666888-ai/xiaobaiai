@@ -10,6 +10,7 @@ import { SmartImage } from "@/components/SmartImage"
 import { LevelBadge } from "@/components/LevelBadge"
 import { SeoKeywordLinks } from "@/components/SeoKeywordLinks"
 import { SeoRelatedLinks } from "@/components/SeoRelatedLinks"
+import { getUserLevel } from "@/data/user"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
 import { communityImage } from "@/lib/visual-assets"
@@ -34,6 +35,14 @@ function formatCommentTime(value?: string) {
   if (diff < 3_600_000) return `${Math.max(1, Math.floor(diff / 60_000))} 分钟前`
   if (diff < 86_400_000) return `${Math.max(1, Math.floor(diff / 3_600_000))} 小时前`
   return date.toISOString().slice(0, 10)
+}
+
+function levelPerkLabel(xp: number) {
+  const level = getUserLevel(xp).level
+  if (level >= 7) return "共创者"
+  if (level >= 5) return "优先评论"
+  if (level >= 3) return "高阶玩家"
+  return ""
 }
 
 export default function PostDetailPage() {
@@ -119,6 +128,18 @@ export default function PostDetailPage() {
     }
   }
 
+  const sortedComments = [...comments].sort((a, b) => {
+    const aXP = Number(a.author_xp || 0)
+    const bXP = Number(b.author_xp || 0)
+    const aLevel = getUserLevel(aXP).level
+    const bLevel = getUserLevel(bXP).level
+    const aPriority = aLevel >= 5 ? 1 : 0
+    const bPriority = bLevel >= 5 ? 1 : 0
+    if (aPriority !== bPriority) return bPriority - aPriority
+    if (aPriority && aXP !== bXP) return bXP - aXP
+    return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
+  })
+
   const displayCommentCount = Math.max(Number(post?.comments_count ?? post?.comments ?? 0), comments.length)
 
   if (!post) return (
@@ -199,12 +220,15 @@ export default function PostDetailPage() {
             </div>
             {commentError && <p style={{fontSize:12,color:'#ffb86b',marginBottom:12}}>{commentError}</p>}
             <div style={{display:'flex',flexDirection:'column',gap:12}}>
-              {comments.length === 0 ? (
+              {sortedComments.length === 0 ? (
                 <p style={{fontSize:12,color:'#666',textAlign:'center',padding:'14px 0'}}>还没有评论，第一条神评席位空着呢。</p>
-              ) : comments.map(comment => (
-                <div key={comment.id} style={{border:'1px solid #202020',background:'rgba(0,0,0,0.28)',borderRadius:10,padding:'14px 16px'}}>
+              ) : sortedComments.map(comment => (
+                <div key={comment.id} style={{border:`1px solid ${getUserLevel(Number(comment.author_xp || 0)).level>=5?'rgba(126,231,255,0.45)':'#202020'}`,background:getUserLevel(Number(comment.author_xp || 0)).level>=5?'rgba(126,231,255,0.045)':'rgba(0,0,0,0.28)',borderRadius:10,padding:'14px 16px'}}>
                   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,marginBottom:10,flexWrap:'wrap'}}>
-                    <LevelBadge compact name={comment.author_name || "匿名用户"} xp={Number(comment.author_xp || 0)} />
+                    <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                      <LevelBadge compact name={comment.author_name || "匿名用户"} xp={Number(comment.author_xp || 0)} />
+                      {levelPerkLabel(Number(comment.author_xp || 0)) && <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:getUserLevel(Number(comment.author_xp || 0)).level>=7?'#7ee7ff':'#e8c96a',border:`1px solid ${getUserLevel(Number(comment.author_xp || 0)).level>=7?'rgba(126,231,255,0.55)':'rgba(201,168,76,0.45)'}`,background:getUserLevel(Number(comment.author_xp || 0)).level>=7?'rgba(126,231,255,0.08)':'rgba(201,168,76,0.08)',padding:'2px 8px',borderRadius:999,fontWeight:900}}>{levelPerkLabel(Number(comment.author_xp || 0))}</span>}
+                    </div>
                     <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#666'}}>{formatCommentTime(comment.created_at)}</span>
                   </div>
                   <p style={{fontSize:14,color:'#ddd',lineHeight:1.8,whiteSpace:'pre-line',margin:0}}><SeoKeywordLinks text={comment.content} maxLinks={4} /></p>

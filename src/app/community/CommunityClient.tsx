@@ -8,12 +8,29 @@ import { NavBar } from "@/components/NavBar"
 import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisual"
 import { SmartImage } from "@/components/SmartImage"
 import { LevelBadge } from "@/components/LevelBadge"
+import { getUserLevel } from "@/data/user"
 import { communityImage } from "@/lib/visual-assets"
 import Link from "next/link"
 import { Heart, MessageCircle, Pin, Search } from "lucide-react"
 
 const cats = ["全部","经验分享","踩坑记录","全自动实战","AI分析","问题求助"] as const
 const PAGE_SIZE = 60
+
+function levelPerkLabel(xp: number) {
+  const level = getUserLevel(xp).level
+  if (level >= 7) return "共创者"
+  if (level >= 5) return "优先展示"
+  if (level >= 3) return "高阶玩家"
+  return ""
+}
+
+function levelSortPriority(xp: number) {
+  const level = getUserLevel(xp).level
+  if (level >= 7) return 3
+  if (level >= 5) return 2
+  if (level >= 3) return 1
+  return 0
+}
 
 export default function CommunityPage() {
   const [cat, setCat] = useState<string>("全部")
@@ -41,6 +58,9 @@ export default function CommunityPage() {
 
   useEffect(()=>{setVisibleCount(PAGE_SIZE)},[cat,search])
 
+  const authorName = (p:any) => p.author_name || p.author || "匿名用户"
+  const authorXP = (p:any) => Number(p.author_xp ?? p.authorXp ?? (authorName(p) === "小白站长" ? 100000 : 0))
+
   const filtered = posts.filter((p:any) => {
     if (cat !== "全部" && p.category !== cat) return false
     if (search.trim() && !p.title.includes(search) && !p.content.includes(search) && !(p.tags||[]).some((t:any)=>t.includes(search))) return false
@@ -48,11 +68,12 @@ export default function CommunityPage() {
   }).sort((a,b) => {
     if (a.pinned && !b.pinned) return -1
     if (!a.pinned && b.pinned) return 1
+    if (a.featured && !b.featured) return -1
+    if (!a.featured && b.featured) return 1
+    const levelDelta = levelSortPriority(authorXP(b)) - levelSortPriority(authorXP(a))
+    if (levelDelta) return levelDelta
     return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   })
-
-  const authorName = (p:any) => p.author_name || p.author || "匿名用户"
-  const authorXP = (p:any) => Number(p.author_xp ?? p.authorXp ?? (authorName(p) === "小白站长" ? 100000 : 0))
 
   return (
     <div style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
@@ -100,9 +121,9 @@ export default function CommunityPage() {
         ):(
           <div style={{display:'flex',flexDirection:'column',gap:12}}>
             {filtered.slice(0, visibleCount).map(p=>(
-              <div key={p.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:12,padding:'22px',transition:'all 0.3s'}}
-                onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.04)';e.currentTarget.style.borderColor='#7a6230'}}
-                onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor='#1a1a1a'}}>
+              <div key={p.id} style={{background:getUserLevel(authorXP(p)).level>=3?'rgba(201,168,76,0.045)':'rgba(255,255,255,0.03)',border:`1px solid ${getUserLevel(authorXP(p)).level>=3?'rgba(201,168,76,0.48)':'#1a1a1a'}`,borderRadius:12,padding:'22px',transition:'all 0.3s',boxShadow:getUserLevel(authorXP(p)).level>=5?'0 0 0 1px rgba(126,231,255,0.08), 0 12px 34px rgba(0,0,0,0.28)':'none'}}
+                onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.07)';e.currentTarget.style.borderColor='#7a6230'}}
+                onMouseLeave={e=>{e.currentTarget.style.background=getUserLevel(authorXP(p)).level>=3?'rgba(201,168,76,0.045)':'rgba(255,255,255,0.03)';e.currentTarget.style.borderColor=getUserLevel(authorXP(p)).level>=3?'rgba(201,168,76,0.48)':'#1a1a1a'}}>
                 <div style={{display:'grid',gridTemplateColumns:'230px minmax(0,1fr)',gap:20,alignItems:'stretch'}} className="max-sm:grid-cols-1">
                   {p.image || p.cover || communityImage(`${p.category} ${p.title} ${(p.tags||[]).join(" ")}`) ? (
                     <SmartImage compact src={p.image || p.cover || communityImage(`${p.category} ${p.title} ${(p.tags||[]).join(" ")}`)} title={p.title} label={p.category} meta={`${p.likes||0} likes`} kind={inferContentVisualKind(`${p.category} ${p.title} ${(p.tags||[]).join(" ")}`,"community")} />
@@ -114,6 +135,7 @@ export default function CommunityPage() {
                       {p.pinned && <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#e8c96a',border:'1px solid #7a6230',padding:'2px 8px',borderRadius:4,display:'flex',alignItems:'center',gap:4}}><Pin size={10} />置顶</span>}
                       <span className="tag tag-gold" style={{fontWeight:700,fontSize:11}}>{p.category}</span>
                       <LevelBadge compact name={authorName(p)} xp={authorXP(p)} />
+                      {levelPerkLabel(authorXP(p)) && <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:getUserLevel(authorXP(p)).level>=7?'#7ee7ff':'#e8c96a',border:`1px solid ${getUserLevel(authorXP(p)).level>=7?'rgba(126,231,255,0.55)':'rgba(201,168,76,0.45)'}`,background:getUserLevel(authorXP(p)).level>=7?'rgba(126,231,255,0.08)':'rgba(201,168,76,0.08)',padding:'2px 8px',borderRadius:999,fontWeight:900}}>{levelPerkLabel(authorXP(p))}</span>}
                       <span style={{color:'#444'}}>·</span>
                       <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#666'}}>{p.publishedAt}</span>
                     </div>

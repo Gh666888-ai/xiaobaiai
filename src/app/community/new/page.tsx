@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { FileText, Lightbulb, Send, Sparkles } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
+import { getUserLevel } from "@/data/user"
+import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
 
 type TemplateKey = "经验分享" | "踩坑记录" | "自动化实战" | "AI 分析" | "问题求助"
@@ -57,6 +59,7 @@ function polishDraft(title: string, content: string, cat: TemplateKey) {
 
 export default function NewPostPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [cat, setCat] = useState<TemplateKey>("经验分享")
@@ -68,6 +71,7 @@ export default function NewPostPage() {
   const [polished, setPolished] = useState("")
 
   const selectedTemplate = useMemo(() => templates[cat], [cat])
+  const userLevel = getUserLevel(Number(user?.xp || 0))
 
   useEffect(() => {
     const auth = readAppAuth()
@@ -146,6 +150,12 @@ export default function NewPostPage() {
         <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.35em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 800 }}>Community Draft</p>
         <h1 style={{ fontSize: 34, fontWeight: 950, color: "#fff", marginBottom: 10 }}>发布社区帖子</h1>
         <p style={{ fontSize: 14, color: "#bbb", lineHeight: 1.9, marginBottom: 28 }}>选择模板、填入你的真实经历，再用本地 AI 润色器整理结构。不要发布 API Key、账号密码、客户隐私和未授权内容。</p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "center", border: "1px solid rgba(201,168,76,0.35)", borderRadius: 12, background: "rgba(201,168,76,0.055)", padding: "14px 16px", marginBottom: 18 }} className="max-sm:grid-cols-1">
+          <p style={{ color: "#ddd", fontSize: 13, lineHeight: 1.75 }}>
+            当前等级：<b style={{ color: "#e8c96a" }}>LV{userLevel.level} {userLevel.name}</b>。升到 LV3 后帖子会带高阶身份高亮，LV5 评论和帖子优先展示，LV7 显示共创者身份。
+          </p>
+          <button type="button" onClick={() => router.push("/growth")} className="btn-outline" style={{ whiteSpace: "nowrap" }}>去升级</button>
+        </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "0.85fr 1.15fr", gap: 16 }} className="max-sm:grid-cols-1">
           <aside style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 18 }}>
