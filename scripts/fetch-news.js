@@ -416,6 +416,28 @@ function normalizeItem(item) {
   }
 }
 
+function mergeNewsItems(fresh, existing, limit = 120) {
+  const merged = []
+  const mergedKeys = new Set()
+  for (const item of [...fresh, ...existing]) {
+    const key = `${item.source}:${item.title}`.toLowerCase()
+    if (mergedKeys.has(key)) continue
+    mergedKeys.add(key)
+    merged.push(item)
+    if (merged.length >= limit) break
+  }
+  return merged
+}
+
+function writeNewsItems(fresh, existing, reason) {
+  if (fresh.length === 0) return []
+  const merged = mergeNewsItems(fresh, existing)
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true })
+  fs.writeFileSync(outputPath, JSON.stringify(merged, null, 2), "utf8")
+  console.log(`[xiaobai-news-editor] ${reason} wrote ${fresh.length} fresh, ${merged.length} total -> ${outputPath}`)
+  return merged
+}
+
 async function enrichCandidate(candidate) {
   const html = await requestText(candidate.url, 12000)
   const pageDescription = extractMetaDescription(html)
@@ -471,12 +493,14 @@ async function main() {
   }
 
   const fresh = []
+  const existing = readExisting()
   for (const [index, item] of unique.entries()) {
     console.log(`  enriching ${index + 1}/${unique.length} ${item.title.slice(0, 36)}`)
     try {
       const enriched = await enrichCandidate(item)
       fresh.push(enriched)
       console.log(`  edited ${enriched.title.slice(0, 36)}`)
+      writeNewsItems(fresh, existing, "checkpoint")
     } catch (error) {
       console.log(`  failed ${item.title.slice(0, 28)} ${error.message}`)
     }
@@ -488,20 +512,7 @@ async function main() {
     return
   }
 
-  const existing = readExisting()
-  const merged = []
-  const mergedKeys = new Set()
-  for (const item of [...fresh, ...existing]) {
-    const key = `${item.source}:${item.title}`.toLowerCase()
-    if (mergedKeys.has(key)) continue
-    mergedKeys.add(key)
-    merged.push(item)
-    if (merged.length >= 120) break
-  }
-
-  fs.mkdirSync(path.dirname(outputPath), { recursive: true })
-  fs.writeFileSync(outputPath, JSON.stringify(merged, null, 2), "utf8")
-  console.log(`[xiaobai-news-editor] wrote ${fresh.length} fresh, ${merged.length} total -> ${outputPath}`)
+  writeNewsItems(fresh, existing, "final")
 }
 
 main().catch((error) => {
