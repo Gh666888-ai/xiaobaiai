@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { NavBar } from "@/components/NavBar"
 import { MessageCircle, Search, Route, Sparkles, Workflow, Wrench } from "lucide-react"
+import { useAuth } from "@/lib/AuthContext"
 
 const SYMBOLS = [
   '0','1','2','3','4','5','6','7','8','9',
@@ -21,8 +22,10 @@ function avatarColor(n:string){const c=["#c9a84c","#7a6230","#e8c96a","#5a8a5a"]
 
 export default function HomePage() {
   const router = useRouter()
+  const { user } = useAuth()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [registeredUsers, setRegisteredUsers] = useState<number | null>(null)
 
   function handleSearch(q: string) {
     setSearchQuery(q)
@@ -32,6 +35,15 @@ export default function HomePage() {
     if (!searchQuery.trim()) return
     router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
   }
+
+  useEffect(() => {
+    fetch("/api/stats")
+      .then((res) => res.json())
+      .then((data) => {
+        if (typeof data.registeredUsers === "number") setRegisteredUsers(data.registeredUsers)
+      })
+      .catch(() => undefined)
+  }, [])
 
   useEffect(() => {
     const canvas = canvasRef.current; if(!canvas)return
@@ -87,6 +99,20 @@ export default function HomePage() {
                 style={{flex:1,background:'transparent',border:'none',outline:'none',padding:'12px 14px',fontSize:14,fontWeight:500,color:'#fff',fontFamily:"'Noto Sans SC', sans-serif"}} />
               <button onClick={()=>goSearch()} disabled={!searchQuery.trim()} style={{marginRight:6,height:34,padding:'0 14px',borderRadius:8,border:'1px solid #7a6230',background:'rgba(201,168,76,0.12)',color:'#e8c96a',fontSize:12,fontWeight:900,cursor:searchQuery.trim()?'pointer':'default',opacity:searchQuery.trim()?1:.45}}>搜索</button>
             </div>
+          </div>
+
+          <div style={{maxWidth:680,margin:'18px auto 0',display:'grid',gridTemplateColumns:'1fr auto',gap:12,alignItems:'center',border:'1px solid rgba(201,168,76,0.34)',background:'rgba(6,6,6,0.9)',borderRadius:12,padding:'13px 15px',opacity:0,animation:'fadeUp 0.8s ease forwards 1.45s',position:'relative',zIndex:20}} className="home-growth-cta">
+            <div style={{textAlign:'left'}}>
+              <p style={{fontSize:13,fontWeight:950,color:'#fff',marginBottom:4}}>
+                {user ? `欢迎回来，${user.name} · ${user.xp} XP` : registeredUsers === null ? '登录后开始累计 XP 和等级身份' : `已有 ${registeredUsers} 位用户加入成长系统`}
+              </p>
+              <p style={{fontSize:12,color:'#cdbb80',lineHeight:1.65}}>
+                在线每 5 分钟 +2XP，每天任务、发帖和评论都会升级；LV5 后社区优先展示，LV7 有共创者标志。
+              </p>
+            </div>
+            <Link href={user ? "/growth" : "/login?redirect=/growth"} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',minHeight:38,padding:'8px 14px',borderRadius:9,border:'1px solid #e8c96a',background:'#e8c96a',color:'#111',fontSize:12,fontWeight:950,textDecoration:'none',whiteSpace:'nowrap'}}>
+              {user ? '去做任务' : '登录领 XP'}
+            </Link>
           </div>
 
           {/* 计数条 */}
@@ -151,6 +177,15 @@ export default function HomePage() {
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes expandWidth { to { width: 120px; } }
+        @media (max-width: 640px) {
+          .home-growth-cta {
+            grid-template-columns: 1fr !important;
+            text-align: left !important;
+          }
+          .home-growth-cta a {
+            width: 100%;
+          }
+        }
       `}</style>
     </div>
   )

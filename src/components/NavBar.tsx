@@ -40,6 +40,9 @@ export function NavBar() {
   const level = useMemo(() => getUserLevel(user?.xp || 0), [user?.xp])
   const next = useMemo(() => getNextLevel(user?.xp || 0), [user?.xp])
   const progress = next ? Math.min(100, Math.round((((user?.xp || 0) - level.minXP) / (next.level.minXP - level.minXP)) * 100)) : 100
+  const xpNeed = next?.need || 0
+  const idleMinutesNeed = xpNeed ? Math.ceil((xpNeed / 2) * 5) : 0
+  const missionDaysNeed = xpNeed ? Math.ceil(xpNeed / 110) : 0
 
   useEffect(() => {
     setMenuOpen(false)
@@ -90,6 +93,12 @@ export function NavBar() {
                     <span style={{ width: `${progress}%` }} />
                   </div>
                   <p className="profile-next">{next ? `距离 ${next.level.name} 还差 ${next.need} XP` : "已达最高身份，小白共创者"}</p>
+                  {next && (
+                    <div className="profile-upgrade-hint">
+                      <span>约挂机 {idleMinutesNeed} 分钟</span>
+                      <span>或做 {missionDaysNeed} 天任务</span>
+                    </div>
+                  )}
                   <p className="profile-benefit">当前权益：{levelBenefits[level.level] || levelBenefits[0]}</p>
                   <div className="profile-levels" aria-label="等级图标">
                     {LEVELS.map((item) => (
@@ -251,6 +260,22 @@ export function NavBar() {
         .profile-benefit {
           color: #e8c96a;
           margin-top: 6px;
+        }
+        .profile-upgrade-hint {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          margin-top: 8px;
+        }
+        .profile-upgrade-hint span {
+          display: inline-flex;
+          border: 1px solid #2a1f10;
+          background: rgba(201,168,76,0.055);
+          color: #d6c28a;
+          border-radius: 999px;
+          padding: 3px 8px;
+          font-size: 11px;
+          font-weight: 850;
         }
         .profile-levels {
           display: grid;
