@@ -14,6 +14,7 @@ function fmt(d:string){const diff=Math.floor((Date.now()-new Date(d).getTime())/
 export default function NewsPage() {
   const [cat,setCat]=useState<NewsCategory|null>(null)
   const [fetched,setFetched]=useState<any[]>([])
+  const [visibleCount,setVisibleCount]=useState(24)
 
   useEffect(()=>{
     const params = new URLSearchParams(window.location.search)
@@ -21,6 +22,8 @@ export default function NewsPage() {
     if(c && newsCategories.some(x=>x.key===c)) setCat(c as NewsCategory)
     fetch("/fetched-news.json").then(r=>r.json()).then(d=>{if(Array.isArray(d))setFetched(d)}).catch(()=>{})
   },[])
+
+  useEffect(()=>{setVisibleCount(24)},[cat])
 
   const sorted = useMemo(()=>{
     let r = [...news, ...fetched];if(cat)r=r.filter((n:any)=>n.category===cat)
@@ -44,7 +47,7 @@ export default function NewsPage() {
 
         {sorted.length===0?<div style={{textAlign:'center',padding:80,color:'#aaa'}}>没有资讯</div>:(
           <div style={{display:'flex',flexDirection:'column',gap:10}}>
-            {sorted.map((n,i)=>(
+            {sorted.slice(0,visibleCount).map((n,i)=>(
               <Link key={n.id} href={`/news/${n.id}`} style={{textDecoration:'none'}}>
                 <div style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:16,padding:'24px',transition:'all 0.3s'}}
                   onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.04)';e.currentTarget.style.borderColor='#7a6230'}}
@@ -68,6 +71,13 @@ export default function NewsPage() {
                 </div>
               </Link>
             ))}
+            {visibleCount < sorted.length && (
+              <div style={{display:'flex',justifyContent:'center',paddingTop:16}}>
+                <button onClick={()=>setVisibleCount(c=>Math.min(c+24,sorted.length))} className="btn-outline" style={{minWidth:180,justifyContent:'center'}}>
+                  加载更多资讯
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

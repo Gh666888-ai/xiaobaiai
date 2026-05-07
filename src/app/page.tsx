@@ -3,13 +3,9 @@
 
 import { useRef, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { tools } from "@/data/tools"
-import { news } from "@/data/news"
-import { searchSite, SearchResult } from "@/lib/search"
 import Link from "next/link"
 import { NavBar } from "@/components/NavBar"
 import { MessageCircle, Search, Route, Sparkles, Workflow, Wrench } from "lucide-react"
-import { XiaobaiMascot } from "@/components/XiaobaiMascot"
 
 const SYMBOLS = [
   '0','1','2','3','4','5','6','7','8','9',
@@ -27,21 +23,13 @@ export default function HomePage() {
   const router = useRouter()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [searchQuery, setSearchQuery] = useState("")
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
-  const [showResults, setShowResults] = useState(false)
-  const newsData = news.slice(0, 6)
 
   function handleSearch(q: string) {
     setSearchQuery(q)
-    if (!q.trim()) { setSearchResults([]); setShowResults(false); return }
-    const results = searchSite(q, 8)
-    setSearchResults(results)
-    setShowResults(true)
   }
   function goSearch(e?: React.KeyboardEvent) {
     if (e && e.key !== "Enter") return
     if (!searchQuery.trim()) return
-    setShowResults(false)
     router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
   }
 
@@ -92,43 +80,19 @@ export default function HomePage() {
           <p style={{fontSize:'clamp(13px, 1.5vw, 15px)',fontWeight:300,lineHeight:2,color:'rgba(255,255,255,0.3)',letterSpacing:'0.05em',maxWidth:560,margin:'0 auto 48px',opacity:0,animation:'fadeUp 0.8s ease forwards 1.1s'}}>工具导航 + 学习平台 + 新闻聚合 · Agent 维护 + 社区共建</p>
           {/* 全局搜索 */}
           <div style={{maxWidth:520,margin:'24px auto 0',opacity:0,animation:'fadeUp 0.8s ease forwards 1.3s',position:'relative',zIndex:80,isolation:'isolate'}}>
-            <div style={{display:'flex',alignItems:'center',background:'rgba(8,8,8,0.96)',border:'1px solid #2a2a2a',borderRadius:10,boxShadow:showResults?'0 0 0 1px rgba(201,168,76,0.14), 0 16px 50px rgba(0,0,0,0.55)':'none'}}>
+            <div style={{display:'flex',alignItems:'center',background:'rgba(8,8,8,0.96)',border:'1px solid #2a2a2a',borderRadius:10}}>
               <Search size={14} style={{marginLeft:14,color:'#777',flexShrink:0}} />
               <input type="text" placeholder="搜工具、模型、技能、教程..."
                 value={searchQuery} onChange={e=>handleSearch(e.target.value)} onKeyDown={goSearch}
-                onFocus={()=>searchResults.length>0&&setShowResults(true)}
-                onBlur={()=>setTimeout(()=>setShowResults(false),300)}
                 style={{flex:1,background:'transparent',border:'none',outline:'none',padding:'12px 14px',fontSize:14,fontWeight:500,color:'#fff',fontFamily:"'Noto Sans SC', sans-serif"}} />
+              <button onClick={()=>goSearch()} disabled={!searchQuery.trim()} style={{marginRight:6,height:34,padding:'0 14px',borderRadius:8,border:'1px solid #7a6230',background:'rgba(201,168,76,0.12)',color:'#e8c96a',fontSize:12,fontWeight:900,cursor:searchQuery.trim()?'pointer':'default',opacity:searchQuery.trim()?1:.45}}>搜索</button>
             </div>
-            {showResults && searchResults.length > 0 && (
-              <div style={{position:'absolute',top:'calc(100% + 8px)',left:0,right:0,background:'#050505',border:'1px solid #3a321d',borderRadius:10,zIndex:1000,overflowY:'auto',maxHeight:360,boxShadow:'0 30px 110px rgba(0,0,0,0.98), 0 0 0 1px rgba(201,168,76,0.12)',backdropFilter:'blur(18px)'}}
-                onMouseDown={e=>e.preventDefault()}>
-                {searchResults.map(item=>(
-                  <Link key={item.id} href={item.href}
-                    style={{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',textDecoration:'none',borderBottom:'1px solid #1a1a1a',transition:'background 0.2s'}}
-                    onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.08)'}}
-                    onMouseLeave={e=>{e.currentTarget.style.background='transparent'}}>
-                    <span className="tag tag-gold" style={{fontSize:9,flexShrink:0}}>{item.kind}</span>
-                    <div style={{flex:1}}>
-                      <p style={{fontSize:13,fontWeight:600,color:'#fff'}}>{item.title}</p>
-                      <p style={{fontSize:11,color:'#888',lineHeight:1.3}}>{item.description.slice(0,58)}...</p>
-                    </div>
-                    <span style={{fontSize:10,color:'#666',border:'1px solid #333',padding:'1px 6px',borderRadius:3}}>{item.meta.split("·")[0]}</span>
-                  </Link>
-                ))}
-                <div style={{textAlign:'center',padding:'8px'}}>
-                  <span style={{fontSize:11,color:'#c9a84c',cursor:'pointer'}} onClick={()=>goSearch()}>
-                    查看全部结果 → 按 Enter
-                  </span>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* 计数条 */}
           <div style={{display:'flex',justifyContent:'center',gap:32,marginTop:32,flexWrap:'wrap',opacity:0,animation:'fadeUp 0.8s ease forwards 1.5s',position:'relative',zIndex:1}}>
-            <div style={{textAlign:'center'}}><p style={{fontSize:24,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>{tools.length}</p><p style={{fontSize:10,color:'#888'}}>AI工具</p></div>
-            <div style={{textAlign:'center'}}><p style={{fontSize:24,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>{news.length}</p><p style={{fontSize:10,color:'#888'}}>AI资讯</p></div>
+            <div style={{textAlign:'center'}}><p style={{fontSize:24,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>1000+</p><p style={{fontSize:10,color:'#888'}}>AI工具</p></div>
+            <div style={{textAlign:'center'}}><p style={{fontSize:24,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>100+</p><p style={{fontSize:10,color:'#888'}}>AI资讯</p></div>
             <div style={{textAlign:'center'}}><p style={{fontSize:24,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>5</p><p style={{fontSize:10,color:'#888'}}>学习阶段</p></div>
             <div style={{textAlign:'center'}}><p style={{fontSize:24,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>5000+</p><p style={{fontSize:10,color:'#888'}}>Agent技能</p></div>
           </div>
