@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { CalendarCheck, CheckCircle2, Compass, Flame, Rocket, Sparkles, Target, Trophy } from "lucide-react"
+import { CalendarCheck, CheckCircle2, Compass, Flame, Medal, Rocket, Sparkles, Target, Trophy, TrendingUp } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
+import { LevelBadge } from "@/components/LevelBadge"
 import { XiaobaiMascot } from "@/components/XiaobaiMascot"
 import { stages } from "@/data/learning-path"
 import { progressId, readLearningProgress } from "@/lib/learning-progress"
@@ -19,6 +20,13 @@ type GrowthState = {
   streak: number
   lastCheckIn: string
   doneMissions: Record<string, boolean>
+}
+
+type LeaderboardUser = {
+  rank: number
+  name: string
+  xp: number
+  totalXP?: number
 }
 
 const GROWTH_KEY = "xiaobaiai:growth:v1"
@@ -78,6 +86,13 @@ function levelBadge(xp: number) {
   return { title: "新手徽章", subtitle: "从第一步开始发光", color: "#c9a84c", mood: "welcome" as const }
 }
 
+function rankColor(rank: number) {
+  if (rank === 1) return "#ffd86b"
+  if (rank === 2) return "#dce7f5"
+  if (rank === 3) return "#d08a42"
+  return "#777"
+}
+
 export default function GrowthClient() {
   const router = useRouter()
   const { user, loading, refresh } = useAuth()
@@ -86,6 +101,8 @@ export default function GrowthClient() {
   const [claiming, setClaiming] = useState("")
   const [notice, setNotice] = useState("")
   const [registeredUsers, setRegisteredUsers] = useState<number | null>(null)
+  const [allTimeLeaders, setAllTimeLeaders] = useState<LeaderboardUser[]>([])
+  const [weeklyLeaders, setWeeklyLeaders] = useState<LeaderboardUser[]>([])
 
   useEffect(() => {
     const growth = readGrowth(user?.userId)
@@ -102,6 +119,16 @@ export default function GrowthClient() {
       })
       .catch(() => undefined)
   }, [])
+
+  useEffect(() => {
+    fetch("/api/growth/leaderboard")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data.allTime)) setAllTimeLeaders(data.allTime)
+        if (Array.isArray(data.weekly)) setWeeklyLeaders(data.weekly)
+      })
+      .catch(() => undefined)
+  }, [user?.xp])
 
   const today = todayKey()
   const checkedToday = state.lastCheckIn === today
@@ -256,6 +283,48 @@ export default function GrowthClient() {
           </div>
           <div style={{ height: 9, background: "#111", border: "1px solid #242424", borderRadius: 999, overflow: "hidden" }}>
             <div style={{ height: "100%", width: `${levelPercent}%`, background: "linear-gradient(90deg,#7a6230,#e8c96a)", transition: "width 0.3s" }} />
+          </div>
+        </section>
+
+        <section style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 20, marginBottom: 18 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <Medal size={18} style={{ color: "#e8c96a" }} />
+              <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950 }}>成长榜</h2>
+            </div>
+            <Link href="/community/new" style={{ color: "#e8c96a", textDecoration: "none", fontSize: 12, fontWeight: 950 }}>发帖 +10XP 冲榜</Link>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }} className="max-sm:grid-cols-1">
+            <div style={{ border: "1px solid #242424", borderRadius: 10, background: "rgba(0,0,0,0.24)", padding: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
+                <Trophy size={15} style={{ color: "#e8c96a" }} />
+                <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>总 XP 榜</p>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {(allTimeLeaders.length ? allTimeLeaders.slice(0, 6) : [{ rank: 1, name: "等你上榜", xp: state.xp }]).map((item) => (
+                  <div key={`${item.rank}-${item.name}`} style={{ display: "grid", gridTemplateColumns: "34px 1fr auto", gap: 10, alignItems: "center", minHeight: 40 }}>
+                    <span style={{ fontFamily: "'JetBrains Mono',monospace", color: rankColor(item.rank), fontSize: 13, fontWeight: 950 }}>#{item.rank}</span>
+                    <LevelBadge compact name={item.name} xp={item.xp} />
+                    <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 11, fontWeight: 900 }}>{item.xp} XP</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ border: "1px solid #2a1f10", borderRadius: 10, background: "rgba(201,168,76,0.045)", padding: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
+                <TrendingUp size={15} style={{ color: "#3DA563" }} />
+                <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>近 7 天活跃榜</p>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {(weeklyLeaders.length ? weeklyLeaders.slice(0, 6) : [{ rank: 1, name: "今天第一个冲榜的人", xp: 0, totalXP: 0 }]).map((item) => (
+                  <div key={`${item.rank}-${item.name}`} style={{ display: "grid", gridTemplateColumns: "34px 1fr auto", gap: 10, alignItems: "center", minHeight: 40 }}>
+                    <span style={{ fontFamily: "'JetBrains Mono',monospace", color: rankColor(item.rank), fontSize: 13, fontWeight: 950 }}>#{item.rank}</span>
+                    <LevelBadge compact name={item.name} xp={Number(item.totalXP || item.xp || 0)} />
+                    <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#3DA563", fontSize: 11, fontWeight: 900 }}>+{item.xp} XP</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
