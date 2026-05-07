@@ -114,6 +114,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <meta name="baidu-site-verification" content="codeva-RTXCqCLk3P" />
         <meta name="baidu-site-verification" content="codeva-ZUKoSdLniD" />
+        <meta name="baidu-site-verification" content="codeva-EkbNCVrcx6" />
         <link rel="icon" type="image/png" sizes="32x32" href="/xiaobai-icon-32.png?v=3" />
         <link rel="icon" type="image/png" sizes="192x192" href="/xiaobai-icon-192.png?v=3" />
         <link rel="apple-touch-icon" sizes="180x180" href="/xiaobai-icon-180.png?v=3" />
