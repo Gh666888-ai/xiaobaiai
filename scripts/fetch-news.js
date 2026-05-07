@@ -45,31 +45,50 @@ function loadEnv(filePath) {
 
 function requestText(url, timeout = 10000) {
   return new Promise((resolve) => {
-    const req = https.get(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 XiaobaiAI-NewsBot/1.0",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      },
-      timeout,
-    }, (res) => {
-      if ([301, 302, 307, 308].includes(res.statusCode) && res.headers.location) {
-        const nextUrl = new URL(res.headers.location, url).toString()
-        res.resume()
-        requestText(nextUrl, timeout).then(resolve)
-        return
-      }
-      let data = ""
-      res.setEncoding("utf8")
-      res.on("data", (chunk) => {
-        data += chunk
-        if (data.length > 900000) req.destroy()
+    let settled = false
+    const done = (value = "") => {
+      if (settled) return
+      settled = true
+      resolve(value)
+    }
+
+    let req
+    try {
+      req = https.get(url, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 XiaobaiAI-NewsBot/1.0",
+          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        },
+        timeout,
+      }, (res) => {
+        if ([301, 302, 307, 308].includes(res.statusCode) && res.headers.location) {
+          const nextUrl = new URL(res.headers.location, url).toString()
+          res.resume()
+          requestText(nextUrl, timeout).then(done)
+          return
+        }
+        let data = ""
+        res.setEncoding("utf8")
+        res.on("data", (chunk) => {
+          data += chunk
+          if (data.length > 900000) {
+            done(data)
+            req.destroy()
+          }
+        })
+        res.on("end", () => done(data))
+        res.on("aborted", () => done(data))
+        res.on("error", () => done(data))
       })
-      res.on("end", () => resolve(data))
-    })
-    req.on("error", () => resolve(""))
+    } catch {
+      done("")
+      return
+    }
+
+    req.on("error", () => done(""))
     req.on("timeout", () => {
+      done("")
       req.destroy()
-      resolve("")
     })
   })
 }
@@ -400,15 +419,19 @@ async function main() {
 
   const candidates = []
   for (const source of sources) {
-    const url = `https://${source.host}${source.path}`
-    const html = await requestText(url)
-    if (!html || html.length < 120) {
-      console.log(`  miss ${source.name}`)
-      continue
+    try {
+      const url = `https://${source.host}${source.path}`
+      const html = await requestText(url)
+      if (!html || html.length < 120) {
+        console.log(`  miss ${source.name}`)
+        continue
+      }
+      const items = extractCandidates(html, source)
+      candidates.push(...items)
+      console.log(`  ${source.name} +${items.length}`)
+    } catch (error) {
+      console.log(`  failed source ${source.name} ${error.message}`)
     }
-    const items = extractCandidates(html, source)
-    candidates.push(...items)
-    console.log(`  ${source.name} +${items.length}`)
     await new Promise((resolve) => setTimeout(resolve, 900))
   }
 
@@ -421,6 +444,8 @@ async function main() {
     unique.push(item)
     if (unique.length >= 18) break
   }
+
+  console.log(`[xiaobai-news-editor] candidates ${candidates.length}, unique ${unique.length}`)
 
   if (unique.length === 0) {
     console.log("[xiaobai-news-editor] no fresh candidates, keep existing file")
@@ -437,6 +462,11 @@ async function main() {
       console.log(`  failed ${item.title.slice(0, 28)} ${error.message}`)
     }
     await new Promise((resolve) => setTimeout(resolve, 600))
+  }
+
+  if (fresh.length === 0) {
+    console.log("[xiaobai-news-editor] no enriched candidates, keep existing file")
+    return
   }
 
   const existing = readExisting()
