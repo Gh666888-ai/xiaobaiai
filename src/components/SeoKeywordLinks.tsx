@@ -1,6 +1,10 @@
 import Link from "next/link"
 
 const keywordLinks = [
+  { terms: ["DeepSeek API Key", "DeepSeek API", "DeepSeek API申请"], href: "/deepseek-api-key" },
+  { terms: ["Dify知识库", "Dify RAG", "知识库问答"], href: "/dify-knowledge-base" },
+  { terms: ["Gamma怎么做PPT", "Gamma教程", "Gamma做PPT"], href: "/gamma-ppt" },
+  { terms: ["即梦AI提示词", "即梦AI绘图", "即梦提示词"], href: "/jimeng-prompts" },
   { terms: ["AI工具大全", "AI工具导航", "AI工具推荐"], href: "/ai-tools" },
   { terms: ["免费AI工具", "免费ChatGPT替代"], href: "/free-ai-tools" },
   { terms: ["AI绘图工具", "AI绘画工具", "AI画图软件"], href: "/ai-image-tools" },

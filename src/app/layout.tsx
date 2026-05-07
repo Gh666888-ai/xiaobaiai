@@ -115,6 +115,10 @@ const websiteJsonLd = {
     { "@type": "WebPage", name: "AI视频工具推荐", url: "https://www.xiaobaiai.cn/ai-video-tools" },
     { "@type": "WebPage", name: "AI办公工具推荐", url: "https://www.xiaobaiai.cn/ai-office-tools" },
     { "@type": "WebPage", name: "AI PPT工具推荐", url: "https://www.xiaobaiai.cn/ai-ppt-tools" },
+    { "@type": "WebPage", name: "DeepSeek API Key申请教程", url: "https://www.xiaobaiai.cn/deepseek-api-key" },
+    { "@type": "WebPage", name: "Dify知识库搭建教程", url: "https://www.xiaobaiai.cn/dify-knowledge-base" },
+    { "@type": "WebPage", name: "Gamma做PPT教程", url: "https://www.xiaobaiai.cn/gamma-ppt" },
+    { "@type": "WebPage", name: "即梦AI绘图提示词教程", url: "https://www.xiaobaiai.cn/jimeng-prompts" },
   ],
   audience: {
     "@type": "Audience",

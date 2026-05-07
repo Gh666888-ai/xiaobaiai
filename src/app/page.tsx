@@ -133,6 +133,10 @@ export default function HomePage() {
               {label:'AI视频工具',href:'/ai-video-tools'},
               {label:'AI办公工具',href:'/ai-office-tools'},
               {label:'AI PPT工具',href:'/ai-ppt-tools'},
+              {label:'DeepSeek API Key',href:'/deepseek-api-key'},
+              {label:'Dify知识库',href:'/dify-knowledge-base'},
+              {label:'Gamma做PPT',href:'/gamma-ppt'},
+              {label:'即梦提示词',href:'/jimeng-prompts'},
             ].map(item=>(
               <Link key={item.href} href={item.href} style={{fontSize:12,color:'#aaa',textDecoration:'none',border:'1px solid #202020',background:'rgba(255,255,255,0.025)',borderRadius:999,padding:'7px 12px'}}>
                 {item.label}
