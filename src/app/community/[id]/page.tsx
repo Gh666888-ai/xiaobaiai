@@ -8,6 +8,7 @@ import { NavBar } from "@/components/NavBar"
 import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisual"
 import { SmartImage } from "@/components/SmartImage"
 import { LevelBadge } from "@/components/LevelBadge"
+import { SeoKeywordLinks } from "@/components/SeoKeywordLinks"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
 import { communityImage } from "@/lib/visual-assets"
@@ -163,7 +164,7 @@ export default function PostDetailPage() {
 
         {/* 正文 */}
         <div style={{fontSize:16,color:'#eee',lineHeight:2.15,whiteSpace:'pre-line',marginBottom:40,border:'1px solid #181818',background:'rgba(255,255,255,0.018)',borderRadius:8,padding:'24px 26px'}}>
-          {post.content}
+          <SeoKeywordLinks text={post.content} maxLinks={12} />
         </div>
 
         {/* 互动行 */}
@@ -203,7 +204,7 @@ export default function PostDetailPage() {
                     <LevelBadge compact name={comment.author_name || "匿名用户"} xp={Number(comment.author_xp || 0)} />
                     <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#666'}}>{formatCommentTime(comment.created_at)}</span>
                   </div>
-                  <p style={{fontSize:14,color:'#ddd',lineHeight:1.8,whiteSpace:'pre-line',margin:0}}>{comment.content}</p>
+                  <p style={{fontSize:14,color:'#ddd',lineHeight:1.8,whiteSpace:'pre-line',margin:0}}><SeoKeywordLinks text={comment.content} maxLinks={4} /></p>
                 </div>
               ))}
             </div>
