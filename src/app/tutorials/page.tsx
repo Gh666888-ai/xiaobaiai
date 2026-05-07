@@ -63,6 +63,15 @@ const topicGroups = [
   },
 ]
 
+const caseStudies = [
+  { href: "/community/post-48", title: "AI 新手第一周学习安排表", tag: "零基础", desc: "从注册工具、上传文档、写周报、做 PPT 到尝试 Bot，一周跑完整个入门路径。" },
+  { href: "/community/post-39", title: "用 AI 写周报的稳定流程", tag: "办公", desc: "先列事实，再分类，再润色，避免 AI 写出空话和不存在的成绩。" },
+  { href: "/community/post-40", title: "Excel 交给 AI 前的清洗动作", tag: "表格", desc: "取消合并单元格、统一字段和单位，让 AI 分析更稳。" },
+  { href: "/community/post-41", title: "Dify 知识库答非所问排查", tag: "Dify", desc: "从切分、标题、Top K 和引用规则入手，减少客服 Bot 乱答。" },
+  { href: "/community/post-42", title: "Cursor 新手的改动边界", tag: "编程", desc: "指定文件范围、禁止无关重构、先列计划，让 AI 编程更可控。" },
+  { href: "/community/post-47", title: "资料发给 AI 前如何脱敏", tag: "安全", desc: "客户、合同、报价、手机号和 API Key 的脱敏处理清单。" },
+]
+
 const tutorialJsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
@@ -126,6 +135,22 @@ export default function TutorialsPage() {
             </div>
           </section>
         ))}
+
+        <section style={{ marginBottom: 44 }}>
+          <div style={{ marginBottom: 16 }}>
+            <h2 style={{ fontSize: 23, color: "#fff", fontWeight: 900, marginBottom: 8 }}>实战案例精选</h2>
+            <p style={{ fontSize: 14, color: "#aaa", lineHeight: 1.8 }}>不想先看概念，可以直接从这些真实场景开始：照着做一遍，再回到学习路径补基础。</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
+            {caseStudies.map((item) => (
+              <Link key={item.href} href={item.href} style={{ display: "block", textDecoration: "none", border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.025)", borderRadius: 10, padding: "18px 20px" }}>
+                <span style={{ display: "inline-flex", border: "1px solid #7a6230", color: "#e8c96a", borderRadius: 999, padding: "2px 8px", fontSize: 10, fontWeight: 900, marginBottom: 10 }}>{item.tag}</span>
+                <h3 style={{ fontSize: 16, color: "#fff", fontWeight: 900, marginBottom: 8 }}>{item.title}</h3>
+                <p style={{ fontSize: 13, color: "#bbb", lineHeight: 1.75 }}>{item.desc}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
 
         <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 12, padding: "24px 26px" }}>
           <h2 style={{ fontSize: 20, color: "#fff", fontWeight: 900, marginBottom: 10 }}>不知道从哪篇开始？</h2>
