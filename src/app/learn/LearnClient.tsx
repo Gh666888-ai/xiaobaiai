@@ -69,6 +69,39 @@ const learningLoop = [
   { title: "发复盘", desc: "把自己的流程沉淀成社区内容。" },
 ]
 
+const immersionSystem = [
+  {
+    name: "今日 15 分钟",
+    borrowedFrom: "Duolingo / Brilliant",
+    desc: "每天只推一个小动作，降低开始成本，让用户觉得“现在就能做”。",
+    xiaobai: "今天不要求学完一门课，只要求完成一个 AI 环节。",
+  },
+  {
+    name: "掌握度回路",
+    borrowedFrom: "Khan Academy",
+    desc: "不只记录看过，还要记录能不能复用、能不能迁移。",
+    xiaobai: "章节完成只是进度，阶段通关要交付一个可检查产物。",
+  },
+  {
+    name: "路径 + 项目",
+    borrowedFrom: "Codecademy / freeCodeCamp",
+    desc: "学习路径告诉顺序，项目让学习变成作品。",
+    xiaobai: "每个 L 级别都绑定一个 0-1 交付物，而不是空泛知识点。",
+  },
+  {
+    name: "徽章 + 作品架",
+    borrowedFrom: "Trailhead / DataCamp",
+    desc: "奖励不是装饰，而是把用户做过的东西沉淀出来。",
+    xiaobai: "阶段 XP、社区复盘和案例库一起形成个人成长痕迹。",
+  },
+]
+
+const todayActions = [
+  { title: "选一个目标", desc: "不是选工具，而是说清楚你想做成什么事。", href: "/start" },
+  { title: "做一个环节", desc: "只交付表格、脚本、提示词、流程图或一个小 diff。", href: "/start" },
+  { title: "发一条复盘", desc: "写下你做到了什么、卡在哪里、下一步是什么。", href: "/community/new" },
+]
+
 export default function LearnPage() {
   const [progress, setProgress] = useState<LearningProgress>({})
 
@@ -103,7 +136,7 @@ export default function LearnPage() {
               <Link href="/tutorials" className="btn-outline" style={{textDecoration:'none'}}>查看全部教程</Link>
             </div>
           </div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(7,minmax(0,1fr))',gap:10,marginBottom:18}} className="max-sm:grid-cols-1">
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(128px,1fr))',gap:10,marginBottom:18}}>
             {curriculumFlow.map((item, index)=>(
               <Link key={item.level} href={item.href} style={{position:'relative',display:'block',textDecoration:'none',border:'1px solid #242424',background:'rgba(0,0,0,0.28)',borderRadius:10,padding:'15px 14px',minHeight:190}}>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,marginBottom:10}}>
@@ -117,7 +150,7 @@ export default function LearnPage() {
               </Link>
             ))}
           </div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(5,minmax(0,1fr))',gap:8}} className="max-sm:grid-cols-1">
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:8}}>
             {learningLoop.map((item,index)=>(
               <div key={item.title} style={{border:'1px solid #1a1a1a',background:'rgba(255,255,255,0.025)',borderRadius:8,padding:'12px 13px'}}>
                 <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950,color:'#7a6230',marginBottom:5}}>LOOP {index+1}</p>
@@ -125,6 +158,45 @@ export default function LearnPage() {
                 <p style={{fontSize:12,color:'#aaa',lineHeight:1.6}}>{item.desc}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section style={{border:'1px solid #1f1f1f',background:'rgba(255,255,255,0.025)',borderRadius:12,padding:'22px 24px',marginBottom:28}}>
+          <div style={{display:'flex',alignItems:'flex-end',justifyContent:'space-between',gap:16,flexWrap:'wrap',marginBottom:18}}>
+            <div>
+              <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.2em',color:'#7a6230',fontWeight:900,marginBottom:6}}>XIAOBAI IMMERSION LOOP</p>
+              <h2 style={{fontSize:24,fontWeight:950,color:'#fff',lineHeight:1.35}}>小白AI专属沉浸飞轮</h2>
+              <p style={{fontSize:14,color:'#aaa',lineHeight:1.8,marginTop:8,maxWidth:760}}>借鉴成熟教学网站，但不照搬：我们的目标不是让用户刷课，而是让用户每天把 AI 用进一个真实目标，哪怕只完成其中一个环节。</p>
+            </div>
+            <Link href="/start" className="btn-primary" style={{textDecoration:'none'}}>今天开始一个环节</Link>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:14}}>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:10}}>
+              {immersionSystem.map((item)=>(
+                <div key={item.name} style={{border:'1px solid #1a1a1a',background:'rgba(0,0,0,0.22)',borderRadius:10,padding:'16px 17px'}}>
+                  <p style={{fontSize:15,fontWeight:950,color:'#fff',marginBottom:6}}>{item.name}</p>
+                  <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#7a6230',fontWeight:900,marginBottom:8}}>参考：{item.borrowedFrom}</p>
+                  <p style={{fontSize:12,color:'#aaa',lineHeight:1.7,marginBottom:9}}>{item.desc}</p>
+                  <p style={{fontSize:12,color:'#cdbb80',lineHeight:1.7,borderTop:'1px solid #242424',paddingTop:9}}>小白AI做法：{item.xiaobai}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.045)',borderRadius:10,padding:'18px 19px'}}>
+              <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950,color:'#7a6230',letterSpacing:'0.14em',marginBottom:8}}>TODAY QUEST</p>
+              <h3 style={{fontSize:19,fontWeight:950,color:'#fff',lineHeight:1.35,marginBottom:12}}>今天只做三件小事</h3>
+              <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:16}}>
+                {todayActions.map((item,index)=>(
+                  <Link key={item.title} href={item.href} style={{display:'grid',gridTemplateColumns:'28px 1fr',gap:10,textDecoration:'none',border:'1px solid #242424',background:'rgba(0,0,0,0.24)',borderRadius:8,padding:'11px 12px'}}>
+                    <span style={{width:28,height:28,borderRadius:'50%',display:'inline-flex',alignItems:'center',justifyContent:'center',background:'rgba(201,168,76,0.12)',color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950}}>{index+1}</span>
+                    <span>
+                      <span style={{display:'block',fontSize:13,fontWeight:950,color:'#fff',marginBottom:3}}>{item.title}</span>
+                      <span style={{display:'block',fontSize:12,color:'#aaa',lineHeight:1.6}}>{item.desc}</span>
+                    </span>
+                  </Link>
+                ))}
+              </div>
+              <p style={{fontSize:12,color:'#bbb',lineHeight:1.8}}>做完以后，回到阶段页标记章节、领取阶段 XP。真正的沉浸感来自“今天我推进了我的事”，而不是“今天我又看了很多内容”。</p>
+            </div>
           </div>
         </section>
 
@@ -139,7 +211,7 @@ export default function LearnPage() {
           <p style={{fontSize:12,color:'#aaa',lineHeight:1.8,marginTop:10}}>进度保存在当前浏览器里。换电脑或清理浏览器数据后，需要重新标记。</p>
         </div>
 
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:48}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:10,marginBottom:48}}>
           {[
             {v:stages.length,l:'STAGES'},{v:stages.reduce((s,st)=>s+st.sections.length,0),l:'CHAPTERS'},{v:tools.length,l:'TOOLS'}
           ].map(x=>(
@@ -157,8 +229,7 @@ export default function LearnPage() {
             const percent = stage.sections.length ? Math.round(completed / stage.sections.length * 100) : 0
             return (
               <Link key={stage.id} href={`/learn/${stage.id}`}
-                style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:12,padding:'22px',textDecoration:'none',transition:'all 0.3s',display:'grid',gridTemplateColumns:'230px minmax(0,1fr)',alignItems:'stretch',gap:20}}
-                className="max-sm:grid-cols-1"
+                style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:12,padding:'22px',textDecoration:'none',transition:'all 0.3s',display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',alignItems:'stretch',gap:20}}
                 onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.06)';e.currentTarget.style.borderColor='#7a6230';e.currentTarget.style.transform='translateX(4px)'}}
                 onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor='#1a1a1a';e.currentTarget.style.transform='translateX(0)'}}>
                 <ContentVisual compact title={stage.title} label={`STAGE ${String(stage.id).padStart(2,"0")}`} meta={stage.timeEstimate} kind={stage.id===4?"agent":stage.id>=2?"code":"learn"} />
