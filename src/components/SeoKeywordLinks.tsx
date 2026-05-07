@@ -1,6 +1,13 @@
 import Link from "next/link"
 
 const keywordLinks = [
+  { terms: ["AI工具大全", "AI工具导航", "AI工具推荐"], href: "/ai-tools" },
+  { terms: ["免费AI工具", "免费ChatGPT替代"], href: "/free-ai-tools" },
+  { terms: ["AI绘图工具", "AI绘画工具", "AI画图软件"], href: "/ai-image-tools" },
+  { terms: ["AI写作工具", "AI文案工具", "小红书AI文案"], href: "/ai-writing-tools" },
+  { terms: ["AI视频工具", "AI视频生成", "文生视频", "图生视频"], href: "/ai-video-tools" },
+  { terms: ["AI办公工具", "AI办公", "AI会议纪要"], href: "/ai-office-tools" },
+  { terms: ["AI PPT工具", "AI做PPT", "AI生成PPT"], href: "/ai-ppt-tools" },
   { terms: ["Claude Code"], href: `/tools/${encodeURIComponent("AI编程")}/claude-code` },
   { terms: ["GitHub Copilot", "Copilot"], href: `/tools/${encodeURIComponent("AI编程")}/github-copilot` },
   { terms: ["OpenAI Codex", "Codex"], href: `/tools/${encodeURIComponent("AI编程")}/codex` },

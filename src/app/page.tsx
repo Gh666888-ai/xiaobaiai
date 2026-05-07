@@ -120,6 +120,7 @@ export default function HomePage() {
           <div style={{display:'flex',justifyContent:'center',gap:8,flexWrap:'wrap',marginTop:18,opacity:0,animation:'fadeUp 0.8s ease forwards 1.85s'}}>
             {[
               {label:'AI工具大全',href:'/ai-tools'},
+              {label:'免费AI工具',href:'/free-ai-tools'},
               {label:'ChatGPT怎么用',href:'/chatgpt'},
               {label:'DeepSeek怎么用',href:'/deepseek'},
               {label:'Codex国内使用',href:'/codex'},
@@ -127,6 +128,11 @@ export default function HomePage() {
               {label:'Cursor怎么用',href:'/cursor'},
               {label:'Agent教程',href:'/agent'},
               {label:'AI编程工具推荐',href:'/ai-coding'},
+              {label:'AI绘图工具',href:'/ai-image-tools'},
+              {label:'AI写作工具',href:'/ai-writing-tools'},
+              {label:'AI视频工具',href:'/ai-video-tools'},
+              {label:'AI办公工具',href:'/ai-office-tools'},
+              {label:'AI PPT工具',href:'/ai-ppt-tools'},
             ].map(item=>(
               <Link key={item.href} href={item.href} style={{fontSize:12,color:'#aaa',textDecoration:'none',border:'1px solid #202020',background:'rgba(255,255,255,0.025)',borderRadius:999,padding:'7px 12px'}}>
                 {item.label}

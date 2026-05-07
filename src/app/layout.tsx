@@ -102,6 +102,7 @@ const websiteJsonLd = {
   about: ["AI工具导航", "AI工具大全", "Agent教程", "AI学习路径", "AI资讯"],
   hasPart: [
     { "@type": "WebPage", name: "AI工具大全", url: "https://www.xiaobaiai.cn/ai-tools" },
+    { "@type": "WebPage", name: "免费AI工具推荐", url: "https://www.xiaobaiai.cn/free-ai-tools" },
     { "@type": "WebPage", name: "ChatGPT怎么用", url: "https://www.xiaobaiai.cn/chatgpt" },
     { "@type": "WebPage", name: "DeepSeek怎么用", url: "https://www.xiaobaiai.cn/deepseek" },
     { "@type": "WebPage", name: "Codex国内使用指南", url: "https://www.xiaobaiai.cn/codex" },
@@ -109,6 +110,11 @@ const websiteJsonLd = {
     { "@type": "WebPage", name: "Cursor怎么用", url: "https://www.xiaobaiai.cn/cursor" },
     { "@type": "WebPage", name: "Agent教程", url: "https://www.xiaobaiai.cn/agent" },
     { "@type": "WebPage", name: "AI编程工具推荐", url: "https://www.xiaobaiai.cn/ai-coding" },
+    { "@type": "WebPage", name: "AI绘图工具推荐", url: "https://www.xiaobaiai.cn/ai-image-tools" },
+    { "@type": "WebPage", name: "AI写作工具推荐", url: "https://www.xiaobaiai.cn/ai-writing-tools" },
+    { "@type": "WebPage", name: "AI视频工具推荐", url: "https://www.xiaobaiai.cn/ai-video-tools" },
+    { "@type": "WebPage", name: "AI办公工具推荐", url: "https://www.xiaobaiai.cn/ai-office-tools" },
+    { "@type": "WebPage", name: "AI PPT工具推荐", url: "https://www.xiaobaiai.cn/ai-ppt-tools" },
   ],
   audience: {
     "@type": "Audience",
