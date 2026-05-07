@@ -98,7 +98,7 @@ const immersionSystem = [
 
 const todayActions = [
   { title: "选一个目标", desc: "不是选工具，而是说清楚你想做成什么事。", href: "/start" },
-  { title: "做一个环节", desc: "只交付表格、脚本、提示词、流程图或一个小 diff。", href: "/start" },
+  { title: "做一个环节", desc: "只交付表格、脚本、提示词、流程图或一个小 diff。", href: "/missions" },
   { title: "发一条复盘", desc: "写下你做到了什么、卡在哪里、下一步是什么。", href: "/community/new" },
 ]
 

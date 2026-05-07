@@ -128,7 +128,7 @@ export default function HomePage() {
             {[
               {icon:<Route size={17}/>,label:'我完全不会 AI，从这里开始',href:'/learn/0'},
               {icon:<Flag size={17}/>,label:'我想先做成一件事',href:'/start'},
-              {icon:<Sparkles size={17}/>,label:'从0到1开始',href:'/start'},
+              {icon:<Sparkles size={17}/>,label:'AI实战任务库',href:'/missions'},
               {icon:<MessageCircle size={17}/>,label:'直接问小白AI',action:'chat'},
               {icon:<Workflow size={17}/>,label:'搭建 AI 工作流',href:'/workflows'},
             ].map(cta=> cta.action === 'chat' ? (
@@ -148,6 +148,7 @@ export default function HomePage() {
             {[
               {label:'AI工具大全',href:'/ai-tools'},
               {label:'AI从0到1起步',href:'/start'},
+              {label:'AI实战任务库',href:'/missions'},
               {label:'系统学习路线',href:'/learn'},
               {label:'AI教程大全',href:'/tutorials'},
               {label:'AI实战案例',href:'/cases'},
