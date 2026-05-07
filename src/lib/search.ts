@@ -60,6 +60,105 @@ const workflowResultsSeed = [
   },
 ]
 
+const seoTutorialResultsSeed = [
+  {
+    id: "tutorials",
+    title: "AI教程大全",
+    description: "零基础学AI、AI工具教程、DeepSeek、Dify、Gamma、即梦、AI办公和Agent教程集合。",
+    href: "/tutorials",
+    meta: "教程聚合 · 零基础 · AI工具",
+    keywords: "AI教程 AI教程大全 AI工具教程 零基础学AI AI小白教程 DeepSeek Dify Gamma 即梦 Agent",
+  },
+  {
+    id: "free-ai-tools",
+    title: "免费AI工具推荐",
+    description: "免费ChatGPT替代、AI绘图、AI写作、AI办公和Agent工具整理。",
+    href: "/free-ai-tools",
+    meta: "工具教程 · 免费 · 新手",
+    keywords: "免费AI工具 免费ChatGPT替代 免费AI绘图 免费AI写作 免费AI办公 AI工具免费版",
+  },
+  {
+    id: "ai-tools",
+    title: "AI工具大全",
+    description: "对话AI、AI绘图、AI编程、AI办公、AI视频和Agent工具推荐。",
+    href: "/ai-tools",
+    meta: "工具导航 · 分类 · 推荐",
+    keywords: "AI工具大全 AI工具导航 AI工具推荐 ChatGPT DeepSeek Kimi Midjourney Cursor Dify",
+  },
+  {
+    id: "deepseek-api-key",
+    title: "DeepSeek API Key怎么申请",
+    description: "DeepSeek API注册、模型选择、Dify/Codex接入和401、402、timeout常见报错。",
+    href: "/deepseek-api-key",
+    meta: "API教程 · DeepSeek · 接入",
+    keywords: "DeepSeek API Key DeepSeek API申请 DeepSeek API教程 DeepSeek V4 API Dify接入DeepSeek",
+  },
+  {
+    id: "dify-knowledge-base",
+    title: "Dify知识库怎么搭建",
+    description: "Dify RAG、文档上传、召回设置、DeepSeek接入和知识库答非所问解决。",
+    href: "/dify-knowledge-base",
+    meta: "Agent教程 · Dify · RAG",
+    keywords: "Dify知识库 Dify RAG Dify教程 知识库问答 Dify AI客服 Dify答非所问",
+  },
+  {
+    id: "gamma-ppt",
+    title: "Gamma怎么做PPT",
+    description: "Gamma AI PPT生成、中文提示词、导出和正式汇报修改教程。",
+    href: "/gamma-ppt",
+    meta: "办公教程 · Gamma · PPT",
+    keywords: "Gamma怎么做PPT Gamma教程 AI做PPT AI PPT生成 Gamma中文提示词 Gamma导出PPT",
+  },
+  {
+    id: "jimeng-prompts",
+    title: "即梦AI绘图提示词怎么写",
+    description: "即梦文生图、图生图、海报头像、电商主图和短视频素材提示词教程。",
+    href: "/jimeng-prompts",
+    meta: "绘图教程 · 即梦 · 提示词",
+    keywords: "即梦AI提示词 即梦AI绘图 即梦文生图 即梦图生图 AI绘图提示词 即梦AI教程",
+  },
+  {
+    id: "ai-image-tools",
+    title: "AI绘图工具推荐",
+    description: "AI画图软件、Midjourney、即梦、DALL·E、通义万相和提示词入门。",
+    href: "/ai-image-tools",
+    meta: "工具教程 · AI绘图",
+    keywords: "AI绘图工具 AI画图软件 AI绘画工具 Midjourney教程 即梦AI教程 AI生成图片",
+  },
+  {
+    id: "ai-writing-tools",
+    title: "AI写作工具推荐",
+    description: "AI文案、公众号、小红书、论文润色和SEO写作工具整理。",
+    href: "/ai-writing-tools",
+    meta: "工具教程 · AI写作",
+    keywords: "AI写作工具 AI文案工具 AI写文章 小红书AI文案 公众号AI写作 AI论文润色",
+  },
+  {
+    id: "ai-video-tools",
+    title: "AI视频工具推荐",
+    description: "AI视频生成、文生视频、图生视频、可灵、即梦和Runway整理。",
+    href: "/ai-video-tools",
+    meta: "工具教程 · AI视频",
+    keywords: "AI视频工具 AI视频生成 文生视频 图生视频 可灵AI教程 即梦视频 Runway教程",
+  },
+  {
+    id: "ai-office-tools",
+    title: "AI办公工具推荐",
+    description: "AI做PPT、文档总结、会议纪要、表格分析和自动化办公整理。",
+    href: "/ai-office-tools",
+    meta: "工具教程 · AI办公",
+    keywords: "AI办公工具 AI做PPT AI会议纪要 AI文档总结 AI表格分析 自动化办公",
+  },
+  {
+    id: "ai-ppt-tools",
+    title: "AI PPT工具推荐",
+    description: "AI做PPT、Gamma、Canva、PPT Master和汇报生成教程。",
+    href: "/ai-ppt-tools",
+    meta: "工具教程 · AI PPT",
+    keywords: "AI PPT工具 AI做PPT AI生成PPT Gamma教程 Canva AI PPT PPT Master",
+  },
+]
+
 export function searchSite(query: string, limit = 40): SearchResult[] {
   const q = query.trim()
   if (!q) return []
@@ -106,6 +205,16 @@ export function searchSite(query: string, limit = 40): SearchResult[] {
     })),
   )
 
+  const seoTutorialResults = seoTutorialResultsSeed.map((item) => ({
+    id: `seo-${item.id}`,
+    kind: "教程" as const,
+    title: item.title,
+    description: item.description,
+    href: item.href,
+    meta: item.meta,
+    score: scoreText(q, [item.title, item.description, item.meta, item.keywords]) + 18,
+  }))
+
   const newsResults = news.map((item) => ({
     id: `news-${item.id}`,
     kind: "资讯" as const,
@@ -126,7 +235,7 @@ export function searchSite(query: string, limit = 40): SearchResult[] {
     score: scoreText(q, [workflow.title, workflow.description, workflow.meta, workflow.keywords]) + 12,
   }))
 
-  return [...toolResults, ...modelResults, ...skillResults, ...tutorialResults, ...newsResults, ...workflowResults]
+  return [...toolResults, ...modelResults, ...skillResults, ...tutorialResults, ...seoTutorialResults, ...newsResults, ...workflowResults]
     .filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
