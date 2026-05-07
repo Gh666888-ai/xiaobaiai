@@ -191,6 +191,14 @@ export default function PostDetailPage() {
 
         <SeoRelatedLinks text={`${post.title}\n${post.content}\n${(post.tags || []).join(" ")}`} title="相关教程" limit={6} />
 
+        <section style={{display:'grid',gridTemplateColumns:'1fr auto',gap:12,alignItems:'center',border:'1px solid rgba(201,168,76,0.34)',background:'rgba(201,168,76,0.045)',borderRadius:12,padding:'14px 16px',marginBottom:18}} className="max-sm:grid-cols-1">
+          <div>
+            <p style={{color:'#fff',fontSize:14,fontWeight:950,marginBottom:4}}>写一条有效评论 +3XP，今日经验榜实时刷新</p>
+            <p style={{color:'#d6c28a',fontSize:12,lineHeight:1.7}}>补充你的用法、踩坑点或替代工具，更容易被其他用户看到。登录后评论经验会进入账号等级。</p>
+          </div>
+          <button onClick={()=>setShowCommentBox(true)} className="btn-outline" style={{whiteSpace:'nowrap'}}>去评论</button>
+        </section>
+
         {/* 互动行 */}
         <div style={{display:'flex',alignItems:'center',gap:10,padding:'20px 0',borderTop:'1px solid #1a1a1a',borderBottom:'1px solid #1a1a1a'}}>
           <button onClick={()=>{if(!liked){setLiked(true);setLikeCount(likeCount+1)}}} className="btn-outline" style={{display:'inline-flex',alignItems:'center',gap:6,color:liked?'#e8c96a':'#ccc',fontSize:13,cursor:'pointer'}}>

@@ -11,7 +11,7 @@ import { LevelBadge } from "@/components/LevelBadge"
 import { getUserLevel } from "@/data/user"
 import { communityImage } from "@/lib/visual-assets"
 import Link from "next/link"
-import { Heart, MessageCircle, Pin, Search } from "lucide-react"
+import { Heart, MessageCircle, Pin, Search, Trophy, Zap } from "lucide-react"
 
 const cats = ["全部","经验分享","踩坑记录","全自动实战","AI分析","问题求助"] as const
 const PAGE_SIZE = 60
@@ -83,7 +83,20 @@ export default function CommunityPage() {
       <div style={{maxWidth:1080,margin:'0 auto',padding:'60px 60px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.88)'}} className="max-sm:px-4">
         <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.4em',color:'#7a6230',textTransform:'uppercase',marginBottom:10,fontWeight:700}}>Community</p>
         <h1 style={{fontSize:36,fontWeight:900,color:'#fff',letterSpacing:'0.02em',marginBottom:8}}>社区</h1>
-        <p style={{fontSize:15,fontWeight:500,color:'#ccc',marginBottom:40}}>Agent 实战经验 · 踩坑记录 · AI 可行性分析 · 真实案例看板</p>
+        <p style={{fontSize:15,fontWeight:500,color:'#ccc',marginBottom:18}}>Agent 实战经验 · 踩坑记录 · AI 可行性分析 · 真实案例看板</p>
+
+        <section style={{display:'grid',gridTemplateColumns:'1fr auto',gap:14,alignItems:'center',border:'1px solid rgba(201,168,76,0.36)',background:'rgba(201,168,76,0.055)',borderRadius:12,padding:'15px 16px',marginBottom:18}} className="max-sm:grid-cols-1">
+          <div style={{display:'flex',alignItems:'flex-start',gap:11}}>
+            <Trophy size={18} style={{color:'#e8c96a',marginTop:2,flexShrink:0}} />
+            <div>
+              <p style={{color:'#fff',fontSize:14,fontWeight:950,marginBottom:4}}>今日发帖 +10XP，评论 +3XP，冲今日经验榜</p>
+              <p style={{color:'#d6c28a',fontSize:12,lineHeight:1.7}}>真实使用经验、提示词案例、避坑记录和工作流过程更容易被审核通过，也更容易被推荐。</p>
+            </div>
+          </div>
+          <Link href="/growth" style={{display:'inline-flex',alignItems:'center',justifyContent:'center',gap:7,minHeight:36,padding:'8px 13px',borderRadius:9,border:'1px solid #7a6230',color:'#e8c96a',textDecoration:'none',fontSize:12,fontWeight:950,whiteSpace:'nowrap'}}>
+            <Zap size={14} /> 看今日榜
+          </Link>
+        </section>
 
         <div style={{display:'grid',gridTemplateColumns:'repeat(3, 1fr)',gap:8,marginBottom:28}} className="max-sm:grid-cols-1">
           {[

@@ -149,7 +149,11 @@ export default function NewPostPage() {
       <main style={{ maxWidth: 980, margin: "0 auto", padding: "60px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.86)" }} className="max-sm:px-4">
         <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.35em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 800 }}>Community Draft</p>
         <h1 style={{ fontSize: 34, fontWeight: 950, color: "#fff", marginBottom: 10 }}>发布社区帖子</h1>
-        <p style={{ fontSize: 14, color: "#bbb", lineHeight: 1.9, marginBottom: 28 }}>选择模板、填入你的真实经历，再用本地 AI 润色器整理结构。不要发布 API Key、账号密码、客户隐私和未授权内容。</p>
+        <p style={{ fontSize: 14, color: "#bbb", lineHeight: 1.9, marginBottom: 16 }}>选择模板、填入你的真实经历，再用本地 AI 润色器整理结构。不要发布 API Key、账号密码、客户隐私和未授权内容。</p>
+        <div style={{ border: "1px solid rgba(201,168,76,0.36)", borderRadius: 12, background: "rgba(201,168,76,0.055)", padding: "14px 16px", marginBottom: 18 }}>
+          <p style={{ color: "#fff", fontSize: 14, fontWeight: 950, marginBottom: 5 }}>发布 AI 使用经验 +10XP，今天也能冲经验榜</p>
+          <p style={{ color: "#d6c28a", fontSize: 12, lineHeight: 1.75 }}>越具体越容易通过：写清楚使用场景、工具名称、操作步骤、失败点、最终效果。优质内容后续会优先推荐。</p>
+        </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "center", border: "1px solid rgba(201,168,76,0.35)", borderRadius: 12, background: "rgba(201,168,76,0.055)", padding: "14px 16px", marginBottom: 18 }} className="max-sm:grid-cols-1">
           <p style={{ color: "#ddd", fontSize: 13, lineHeight: 1.75 }}>
             当前等级：<b style={{ color: "#e8c96a" }}>LV{userLevel.level} {userLevel.name}</b>。升到 LV3 后帖子会带高阶身份高亮，LV5 评论和帖子优先展示，LV7 显示共创者身份。

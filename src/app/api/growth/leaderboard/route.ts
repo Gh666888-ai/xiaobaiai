@@ -20,7 +20,6 @@ type LeaderboardItem = {
   name: string
   xp: number
   totalXP: number
-  seeded?: boolean
 }
 
 const seededWeeklyUsers = [
@@ -79,7 +78,6 @@ function seededWeeklyLeaderboard(seed: string, startRank = 1): LeaderboardItem[]
       name: user.name,
       xp: user.baseXP + seededOffset(seed, index),
       totalXP: user.totalXP + seededOffset(seed, index) * 4,
-      seeded: true,
     }))
     .sort((a, b) => b.xp - a.xp)
     .map((item, index) => ({ ...item, rank: startRank + index }))
