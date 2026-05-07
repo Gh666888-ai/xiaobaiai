@@ -48,7 +48,7 @@ function levelPerkLabel(xp: number) {
 export default function PostDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, refresh } = useAuth()
   const postId = Array.isArray(params.id) ? params.id[0] : String(params.id || "")
   const [staticPosts,setStaticPosts]=useState<any[]>([])
   const [apiPosts,setApiPosts]=useState<any[]>([])
@@ -119,6 +119,8 @@ export default function PostDetailPage() {
         setCommentError("评论已提交，但命中风险词，暂不公开展示。")
       } else {
         setComments(prev => [...prev, data])
+        setCommentError("评论已发布，+3XP 会进入今日经验榜。")
+        await refresh().catch(() => undefined)
       }
       setCommentText("")
     } catch (error: any) {

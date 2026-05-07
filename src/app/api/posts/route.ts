@@ -15,6 +15,28 @@ function normalizeXP(email?: string | null, xp?: number | null) {
   return MAX_LEVEL_EMAILS.has(String(email || "").toLowerCase()) ? MAX_LEVEL_XP : Number(xp || 0)
 }
 
+function dayKey(now = new Date()) {
+  return new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10)
+}
+
+async function recordGrowthEvent(userId: string, eventKey: string, reason: string, amount: number) {
+  const { error } = await supabase.from("growth_events").insert({
+    user_id: userId,
+    event_key: eventKey,
+    reason,
+    amount,
+    day_key: dayKey(),
+  })
+  if (error && String(error.code || "") !== "23505") {
+    console.error("[posts:growth-event]", {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    })
+  }
+}
+
 async function requireAdmin(req: NextRequest) {
   const auth = await requireUser(req)
   if (!auth.ok) return auth
@@ -71,7 +93,7 @@ export async function POST(req: NextRequest) {
       profile = profileData
     }
   }
-  const { error } = await supabase.from("community_posts").insert({
+  const { data: insertedPost, error } = await supabase.from("community_posts").insert({
     title,
     content,
     category: category || "经验分享",
@@ -83,13 +105,14 @@ export async function POST(req: NextRequest) {
     pinned: false,
     featured: false,
     published_at: new Date().toISOString().slice(0, 10),
-  })
+  }).select("id").single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   if (userId && !MAX_LEVEL_EMAILS.has(String(profile?.email || "").toLowerCase())) {
     await supabase
       .from("profiles")
       .update({ xp: Number(profile?.xp || 0) + 10 })
       .eq("id", userId)
+    await recordGrowthEvent(userId, `post:${insertedPost?.id || Date.now()}`, "post", 10)
   }
   return NextResponse.json({ success: true })
 }

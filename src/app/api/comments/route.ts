@@ -24,6 +24,28 @@ function normalizeXP(email?: string | null, xp?: number | null) {
   return MAX_LEVEL_EMAILS.has(String(email || "").toLowerCase()) ? MAX_LEVEL_XP : Number(xp || 0)
 }
 
+function dayKey(now = new Date()) {
+  return new Date(now.getTime() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10)
+}
+
+async function recordGrowthEvent(supabase: ReturnType<typeof createServerSupabase>, userId: string, eventKey: string, reason: string, amount: number) {
+  const { error } = await supabase.from("growth_events").insert({
+    user_id: userId,
+    event_key: eventKey,
+    reason,
+    amount,
+    day_key: dayKey(),
+  })
+  if (error && String(error.code || "") !== "23505") {
+    console.error("[comments:growth-event]", {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    })
+  }
+}
+
 function cleanContent(value: unknown) {
   return String(value || "").trim().replace(/\n{4,}/g, "\n\n\n")
 }
@@ -146,6 +168,7 @@ export async function POST(req: NextRequest) {
         .from("profiles")
         .update({ xp: Number(profile?.xp || 0) + 3 })
         .eq("id", auth.user.id)
+      await recordGrowthEvent(auth.adminSupabase, auth.user.id, `comment:${result.data?.id || Date.now()}`, "comment", 3)
     }
   }
 

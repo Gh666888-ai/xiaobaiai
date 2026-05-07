@@ -29,6 +29,12 @@ type LeaderboardUser = {
   totalXP?: number
 }
 
+type ViewerLeaderboardHint = {
+  dailyXP: number
+  rank: number | null
+  needXP: number
+}
+
 const GROWTH_KEY = "xiaobaiai:growth:v1"
 
 const missions = GROWTH_MISSIONS
@@ -103,6 +109,7 @@ export default function GrowthClient() {
   const [registeredUsers, setRegisteredUsers] = useState<number | null>(null)
   const [dailyLeaders, setDailyLeaders] = useState<LeaderboardUser[]>([])
   const [weeklyLeaders, setWeeklyLeaders] = useState<LeaderboardUser[]>([])
+  const [viewerHint, setViewerHint] = useState<ViewerLeaderboardHint | null>(null)
 
   useEffect(() => {
     const growth = readGrowth(user?.userId)
@@ -121,11 +128,15 @@ export default function GrowthClient() {
   }, [])
 
   useEffect(() => {
-    fetch("/api/growth/leaderboard")
+    const token = readAppAuth()?.session?.access_token
+    fetch("/api/growth/leaderboard", {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data.daily)) setDailyLeaders(data.daily)
         if (Array.isArray(data.weekly)) setWeeklyLeaders(data.weekly)
+        setViewerHint(data.viewer || null)
       })
       .catch(() => undefined)
   }, [user?.xp])
@@ -300,6 +311,11 @@ export default function GrowthClient() {
                 <Trophy size={15} style={{ color: "#e8c96a" }} />
                 <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>今日经验榜</p>
               </div>
+              {user && viewerHint && (
+                <p style={{ color: viewerHint.needXP <= 0 ? "#3DA563" : "#d6c28a", fontSize: 12, lineHeight: 1.7, marginBottom: 10 }}>
+                  {viewerHint.needXP <= 0 ? `你今天已拿 ${viewerHint.dailyXP} XP，正在榜内。` : `你今天已拿 ${viewerHint.dailyXP} XP，再拿 ${viewerHint.needXP} XP 就能冲进今日榜。`}
+                </p>
+              )}
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {(dailyLeaders.length ? dailyLeaders.slice(0, 6) : [{ rank: 1, name: "今天等你上榜", xp: 0, totalXP: state.xp }]).map((item) => (
                   <div key={`${item.rank}-${item.name}`} style={{ display: "grid", gridTemplateColumns: "34px 1fr auto", gap: 10, alignItems: "center", minHeight: 40 }}>

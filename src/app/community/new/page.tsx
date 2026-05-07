@@ -59,7 +59,7 @@ function polishDraft(title: string, content: string, cat: TemplateKey) {
 
 export default function NewPostPage() {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, refresh } = useAuth()
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [cat, setCat] = useState<TemplateKey>("经验分享")
@@ -122,6 +122,7 @@ export default function NewPostPage() {
         setBusy(false)
         return
       }
+      await refresh().catch(() => undefined)
       setDone(true)
     } catch {
       setErr("发布失败，请稍后再试")
@@ -135,7 +136,7 @@ export default function NewPostPage() {
         <div style={{ textAlign: "center", maxWidth: 460, border: "1px solid #1a1a1a", borderRadius: 14, padding: 34, background: "rgba(255,255,255,0.03)" }}>
           <FileText size={42} style={{ color: "#e8c96a", marginBottom: 16 }} />
           <h2 style={{ fontSize: 22, color: "#fff", marginBottom: 10 }}>投稿已提交，等待审核</h2>
-          <p style={{ fontSize: 14, color: "#aaa", lineHeight: 1.8, marginBottom: 24 }}>通过后会展示在社区。审核前你可以继续整理下一篇案例，越真实、越可复用，越容易被设为精华。</p>
+          <p style={{ fontSize: 14, color: "#aaa", lineHeight: 1.8, marginBottom: 24 }}>{user ? "已领取发帖 10XP，会进入今日经验榜。" : "帖子已提交；登录后发帖才会领取 10XP。"}通过后会展示在社区，越真实、越可复用，越容易被设为精华。</p>
           <button onClick={() => router.push("/community")} className="btn-primary">返回社区</button>
         </div>
       </div>

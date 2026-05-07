@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
 export const dynamic = "force-dynamic"
@@ -20,6 +20,7 @@ type LeaderboardItem = {
   name: string
   xp: number
   totalXP: number
+  userId?: string
 }
 
 const seededWeeklyUsers = [
@@ -31,6 +32,15 @@ const seededWeeklyUsers = [
   { name: "一页教程", baseXP: 104, totalXP: 540 },
   { name: "会问问题的人", baseXP: 96, totalXP: 420 },
   { name: "Agent练习生", baseXP: 88, totalXP: 360 },
+]
+
+const seededDailyUsers = [
+  { name: "今日打卡王", baseXP: 58, totalXP: 320 },
+  { name: "Prompt早鸟", baseXP: 46, totalXP: 560 },
+  { name: "评论小能手", baseXP: 37, totalXP: 260 },
+  { name: "新手冲榜中", baseXP: 29, totalXP: 170 },
+  { name: "刚学会提问", baseXP: 21, totalXP: 120 },
+  { name: "第一篇帖子", baseXP: 15, totalXP: 90 },
 ]
 
 function createSupabaseClient() {
@@ -83,6 +93,18 @@ function seededWeeklyLeaderboard(seed: string, startRank = 1): LeaderboardItem[]
     .map((item, index) => ({ ...item, rank: startRank + index }))
 }
 
+function seededDailyLeaderboard(seed: string): LeaderboardItem[] {
+  return seededDailyUsers
+    .map((user, index) => ({
+      rank: index + 1,
+      name: user.name,
+      xp: user.baseXP + (seededOffset(seed, index) % 7),
+      totalXP: user.totalXP + seededOffset(seed, index) * 2,
+    }))
+    .sort((a, b) => b.xp - a.xp)
+    .map((item, index) => ({ ...item, rank: index + 1 }))
+}
+
 function rankLeaderboard(items: LeaderboardItem[], limit = 10) {
   return items
     .sort((a, b) => {
@@ -91,6 +113,10 @@ function rankLeaderboard(items: LeaderboardItem[], limit = 10) {
     })
     .slice(0, limit)
     .map((item, index) => ({ ...item, rank: index + 1 }))
+}
+
+function publicLeaderboard(items: LeaderboardItem[]) {
+  return items.map(({ userId, ...item }) => item)
 }
 
 async function buildEventLeaderboard(
@@ -138,11 +164,40 @@ async function buildEventLeaderboard(
       name: publicName(profile),
       xp: xpByUser.get(userId) || 0,
       totalXP: Number(profile?.xp || 0),
+      userId,
     }
   })
 }
 
-export async function GET() {
+function bearerToken(req: NextRequest) {
+  const authHeader = req.headers.get("authorization") || ""
+  return authHeader.toLowerCase().startsWith("bearer ") ? authHeader.slice(7) : ""
+}
+
+async function getViewerDailyXP(supabase: ReturnType<typeof createSupabaseClient>, req: NextRequest, today: string) {
+  const token = bearerToken(req)
+  if (!token) return null
+  const { data: userData, error: userError } = await supabase.auth.getUser(token)
+  if (userError || !userData.user?.id) return null
+
+  const { data: events, error: eventsError } = await supabase
+    .from("growth_events")
+    .select("amount")
+    .eq("user_id", userData.user.id)
+    .eq("day_key", today)
+
+  if (eventsError) {
+    logLeaderboardError("viewer-daily", eventsError)
+    return null
+  }
+
+  return {
+    userId: userData.user.id,
+    dailyXP: (events || []).reduce((sum: number, event: any) => sum + Number(event.amount || 0), 0),
+  }
+}
+
+export async function GET(req: NextRequest) {
   if (!supabaseUrl || !supabaseKey) {
     return NextResponse.json({ daily: [], weekly: [], error: "Supabase not configured" }, { status: 500 })
   }
@@ -151,7 +206,7 @@ export async function GET() {
   const today = dayKey()
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
-  const daily = await buildEventLeaderboard(
+  const realDaily = await buildEventLeaderboard(
     supabase,
     supabase
       .from("growth_events")
@@ -160,6 +215,11 @@ export async function GET() {
       .limit(1000),
     "daily-events",
   )
+
+  const dailySeeds = seededDailyLeaderboard(today)
+  const daily = realDaily.length >= 6
+    ? rankLeaderboard(realDaily, 6)
+    : rankLeaderboard([...realDaily, ...dailySeeds.slice(0, 6 - realDaily.length)], 6)
 
   const realWeekly = await buildEventLeaderboard(
     supabase,
@@ -176,5 +236,16 @@ export async function GET() {
     ? rankLeaderboard(realWeekly)
     : rankLeaderboard([...realWeekly, ...weeklySeeds.slice(0, 6 - realWeekly.length)], 6)
 
-  return NextResponse.json({ daily, weekly })
+  const viewer = await getViewerDailyXP(supabase, req, today)
+  const viewerRank = viewer ? daily.find((item) => item.userId === viewer.userId)?.rank || null : null
+  const threshold = daily.length >= 6 ? daily[daily.length - 1].xp : 1
+  const viewerHint = viewer
+    ? {
+        dailyXP: viewer.dailyXP,
+        rank: viewerRank,
+        needXP: viewer.dailyXP > threshold ? 0 : Math.max(1, threshold - viewer.dailyXP + 1),
+      }
+    : null
+
+  return NextResponse.json({ daily: publicLeaderboard(daily), weekly: publicLeaderboard(weekly), viewer: viewerHint })
 }
