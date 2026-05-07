@@ -8,6 +8,7 @@ import { toolPath } from "@/data/tool-meta"
 import { MathRain } from "@/components/MathRain"
 import { ContentVisual } from "@/components/ContentVisual"
 import { SeoKeywordLinks } from "@/components/SeoKeywordLinks"
+import { SeoRelatedLinks } from "@/components/SeoRelatedLinks"
 import Link from "next/link"
 import { CheckCircle2, ChevronLeft, ChevronRight, Circle } from "lucide-react"
 import { LearningProgress, progressId, readLearningProgress, writeLearningProgress } from "@/lib/learning-progress"
@@ -121,6 +122,7 @@ export default function StageDetailPage() {
                   <p style={{fontSize:15,color:'#eee',lineHeight:1.75}}><SeoKeywordLinks text={activeSection.tips} maxLinks={4} /></p>
                 </div>
               )}
+              <SeoRelatedLinks text={`${stage.title}\n${activeSection.title}\n${activeSection.content}\n${activeSection.tips || ""}`} title="相关教程" limit={5} />
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,marginTop:24,flexWrap:'wrap'}}>
                 <button onClick={()=>setActiveIndex(Math.max(0, activeIndex-1))} disabled={activeIndex===0}
                   style={{display:'inline-flex',alignItems:'center',gap:6,border:'1px solid #333',background:'rgba(255,255,255,0.03)',color:activeIndex===0?'#444':'#bbb',borderRadius:8,padding:'10px 12px',fontSize:12,fontWeight:900,cursor:activeIndex===0?'not-allowed':'pointer'}}>

@@ -9,6 +9,7 @@ import { NavBar } from "@/components/NavBar"
 import { inferContentVisualKind } from "@/components/ContentVisual"
 import { SmartImage } from "@/components/SmartImage"
 import { SeoKeywordLinks } from "@/components/SeoKeywordLinks"
+import { SeoRelatedLinks } from "@/components/SeoRelatedLinks"
 import { screenshotImageSources, sourceLogoSources } from "@/lib/visual-assets"
 import Link from "next/link"
 
@@ -39,6 +40,7 @@ export default function NewsDetailPage() {
             <p style={{color:'#f2e4b8',lineHeight:1.9}}><SeoKeywordLinks text={item.summary} maxLinks={5} /></p>
           </div>
           <p><SeoKeywordLinks text={buildNewsArticle(item)} maxLinks={10} /></p>
+          <SeoRelatedLinks text={`${item.title}\n${item.summary}\n${buildNewsArticle(item)}`} title="相关教程" limit={6} />
           {item.url && item.url !== "#" && <p style={{fontSize:13,color:'#777',marginTop:24}}>本文已整理为站内可读版本，外部来源仅用于继续核对背景信息。</p>}
         </div>
         {item.url&&item.url!=="#"&&<a href={item.url} target="_blank" rel="noopener noreferrer" className="btn-outline" style={{marginTop:32}}>参考来源 →</a>}

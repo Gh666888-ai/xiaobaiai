@@ -9,6 +9,7 @@ import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisua
 import { SmartImage } from "@/components/SmartImage"
 import { LevelBadge } from "@/components/LevelBadge"
 import { SeoKeywordLinks } from "@/components/SeoKeywordLinks"
+import { SeoRelatedLinks } from "@/components/SeoRelatedLinks"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
 import { communityImage } from "@/lib/visual-assets"
@@ -166,6 +167,8 @@ export default function PostDetailPage() {
         <div style={{fontSize:16,color:'#eee',lineHeight:2.15,whiteSpace:'pre-line',marginBottom:40,border:'1px solid #181818',background:'rgba(255,255,255,0.018)',borderRadius:8,padding:'24px 26px'}}>
           <SeoKeywordLinks text={post.content} maxLinks={12} />
         </div>
+
+        <SeoRelatedLinks text={`${post.title}\n${post.content}\n${(post.tags || []).join(" ")}`} title="相关教程" limit={6} />
 
         {/* 互动行 */}
         <div style={{display:'flex',alignItems:'center',gap:10,padding:'20px 0',borderTop:'1px solid #1a1a1a',borderBottom:'1px solid #1a1a1a'}}>
