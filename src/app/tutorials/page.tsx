@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 }
 
 const quickStart = [
+  { href: "/learn", title: "先看完整学习主线", desc: "从认识 AI、会用工具、完成任务，到 Agent、API、AI 编程和自动化实战。" },
   { href: "/learn/0", title: "完全零基础，从这里开始", desc: "适合第一次接触 AI 的用户，先搞清楚 AI 能做什么、不能做什么。" },
   { href: "/learn/1", title: "AI工具入门", desc: "从 ChatGPT、DeepSeek、Kimi、豆包、通义千问开始，学会提问和验证结果。" },
   { href: "/choose-tool", title: "帮我选AI工具", desc: "不知道用哪个工具时，按场景筛选更快：写作、绘图、视频、办公、编程。" },

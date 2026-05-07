@@ -147,6 +147,7 @@ export default function HomePage() {
           <div style={{display:'flex',justifyContent:'center',gap:8,flexWrap:'wrap',marginTop:18,opacity:0,animation:'fadeUp 0.8s ease forwards 1.85s'}}>
             {[
               {label:'AI工具大全',href:'/ai-tools'},
+              {label:'系统学习路线',href:'/learn'},
               {label:'AI教程大全',href:'/tutorials'},
               {label:'AI实战案例',href:'/cases'},
               {label:'免费AI工具',href:'/free-ai-tools'},
