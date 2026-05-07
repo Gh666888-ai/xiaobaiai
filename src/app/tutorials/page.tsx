@@ -35,6 +35,7 @@ const topicGroups = [
       { href: "/chatgpt", label: "ChatGPT怎么用", note: "对话、写作、文件分析和替代工具" },
       { href: "/deepseek", label: "DeepSeek怎么用", note: "中文问答、推理、代码和低成本使用" },
       { href: "/deepseek-api-key", label: "DeepSeek API Key怎么申请", note: "注册、模型选择、接入和常见报错" },
+      { href: "/topics/claude-code-deepseek", label: "Claude Code接入DeepSeek V4", note: "官方接口、国内中转站、模型选择和报错排查" },
       { href: "/dify", label: "Dify教程", note: "知识库、AI客服、工作流和DeepSeek接入" },
       { href: "/topics/dify", label: "Dify专题路线", note: "从教程、知识库、排查清单到社区实战案例" },
       { href: "/dify-knowledge-base", label: "Dify知识库怎么搭建", note: "RAG、文档上传、召回设置和答非所问" },
@@ -74,6 +75,7 @@ const caseStudies = [
   { href: "/community/post-39", title: "用 AI 写周报的稳定流程", tag: "办公", desc: "先列事实，再分类，再润色，避免 AI 写出空话和不存在的成绩。" },
   { href: "/community/post-40", title: "Excel 交给 AI 前的清洗动作", tag: "表格", desc: "取消合并单元格、统一字段和单位，让 AI 分析更稳。" },
   { href: "/community/post-41", title: "Dify 知识库答非所问排查", tag: "Dify", desc: "从切分、标题、Top K 和引用规则入手，减少客服 Bot 乱答。" },
+  { href: "/community/post-51", title: "Claude Code 接入 DeepSeek V4 最小配置", tag: "AI编程", desc: "用官方 Anthropic 兼容接口先跑通，再处理模型名、中转站和任务边界。" },
   { href: "/community/post-42", title: "Cursor 新手的改动边界", tag: "编程", desc: "指定文件范围、禁止无关重构、先列计划，让 AI 编程更可控。" },
   { href: "/community/post-47", title: "资料发给 AI 前如何脱敏", tag: "安全", desc: "客户、合同、报价、手机号和 API Key 的脱敏处理清单。" },
 ]

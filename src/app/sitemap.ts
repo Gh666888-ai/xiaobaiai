@@ -26,6 +26,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: url("/codex"), lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: url("/dify"), lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: url("/topics/dify"), lastModified, changeFrequency: "weekly", priority: 0.88 },
+    { url: url("/topics/claude-code-deepseek"), lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: url("/cursor"), lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: url("/agent"), lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: url("/ai-coding"), lastModified, changeFrequency: "weekly", priority: 0.9 },

@@ -126,6 +126,7 @@ export default function CasesPage() {
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link href="/tutorials" className="btn-primary" style={{ textDecoration: "none" }}>看教程大全</Link>
             <Link href="/community" className="btn-outline" style={{ textDecoration: "none" }}>去社区讨论</Link>
+            <Link href="/topics/claude-code-deepseek" className="btn-outline" style={{ textDecoration: "none" }}>看 Claude Code 专题</Link>
             <Link href="/topics/dify" className="btn-outline" style={{ textDecoration: "none" }}>看 Dify 专题</Link>
           </div>
         </section>

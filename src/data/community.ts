@@ -617,4 +617,52 @@ export const posts: Post[] = [
     comments: 47,
     publishedAt: "2026-05-07",
   },
+  {
+    id: "post-51",
+    author: "终端里写代码",
+    title: "Claude Code 接入 DeepSeek V4：我跑通后的最小配置",
+    content:
+      "最近很多人都在试 Claude Code 接 DeepSeek V4。我的建议是先别上来就折腾一堆参数，先用最小配置把它跑通。\n\nMac / Linux 临时环境变量：\nexport ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic\nexport ANTHROPIC_AUTH_TOKEN=sk-你的DeepSeekKey\nexport ANTHROPIC_MODEL=deepseek-v4-pro[1m]\nexport ANTHROPIC_DEFAULT_OPUS_MODEL=deepseek-v4-pro\nexport ANTHROPIC_DEFAULT_SONNET_MODEL=deepseek-v4-pro\nexport ANTHROPIC_DEFAULT_HAIKU_MODEL=deepseek-v4-flash\nexport CLAUDE_CODE_SUBAGENT_MODEL=deepseek-v4-pro\nexport CLAUDE_CODE_EFFORT_LEVEL=max\nclaude\n\nWindows PowerShell：\n$env:ANTHROPIC_BASE_URL=\"https://api.deepseek.com/anthropic\"\n$env:ANTHROPIC_AUTH_TOKEN=\"sk-你的DeepSeekKey\"\n$env:ANTHROPIC_MODEL=\"deepseek-v4-pro[1m]\"\n$env:ANTHROPIC_DEFAULT_OPUS_MODEL=\"deepseek-v4-pro\"\n$env:ANTHROPIC_DEFAULT_SONNET_MODEL=\"deepseek-v4-pro\"\n$env:ANTHROPIC_DEFAULT_HAIKU_MODEL=\"deepseek-v4-flash\"\n$env:CLAUDE_CODE_SUBAGENT_MODEL=\"deepseek-v4-pro\"\n$env:CLAUDE_CODE_EFFORT_LEVEL=\"max\"\nclaude\n\n我自己的顺序是：\n1. 先让它读 README，总结项目结构。\n2. 再让它只分析一个目录，不准改文件。\n3. 确认它理解后，再给一个很小的改动任务。\n4. 改完看 git diff，不满意就让它解释，不要直接继续加任务。\n\n注意：模型名以 DeepSeek 控制台和官方文档当前展示为准。如果你的入口不支持 deepseek-v4-pro[1m]，就先换成 deepseek-v4-pro 测。API Key 千万不要写进仓库，也别截图发群里。",
+    category: "经验分享",
+    tags: ["Claude Code", "DeepSeek V4", "AI编程", "API Key"],
+    likes: 268,
+    comments: 54,
+    publishedAt: "2026-05-07",
+  },
+  {
+    id: "post-52",
+    author: "报错先别慌",
+    title: "Claude Code + DeepSeek V4 常见报错：401、模型名、base_url 怎么排查",
+    content:
+      "我把群里最近问得最多的几个 Claude Code 接 DeepSeek V4 报错整理一下。\n\n1. 401 Unauthorized\n先检查三件事：\n- Key 有没有前后空格。\n- 变量名是不是 ANTHROPIC_AUTH_TOKEN，不是 OPENAI_API_KEY。\n- 你用的是 DeepSeek 官方 Key，还是中转站给你的 Key。两者不要混用。\n\n2. base_url 写错\n官方 DeepSeek Anthropic 兼容接口是：\nhttps://api.deepseek.com/anthropic\n\n如果你用国内中转站，就要填中转站给你的 Anthropic 兼容地址，不是随便把域名换掉。很多中转站只支持 OpenAI 兼容接口，能聊天，不代表能跑 Claude Code。\n\n3. 模型不存在\n先把模型名改成服务商面板里明确支持的名字。DeepSeek 官方文档里会出现 deepseek-v4-pro、deepseek-v4-flash、deepseek-v4-pro[1m] 这类写法，中转站可能会改别名。\n\n4. 能启动但特别慢\n不要一上来让它重构全项目。先限制目录，比如“只看 src/app/login，不要改其他文件”。子代理能用 V4-Flash 的地方就别全走 Pro。\n\n5. 改了一堆不该改的文件\n这是任务边界问题，不一定是模型问题。给任务时写清楚：只改哪些文件、不改哪些文件、改完列出验证步骤。\n\n我的经验：报错排查顺序永远是 Key、base_url、模型名、任务范围。别一开始就怀疑模型不行。",
+    category: "踩坑记录",
+    tags: ["Claude Code", "DeepSeek V4", "报错排查", "AI编程"],
+    likes: 243,
+    comments: 49,
+    publishedAt: "2026-05-07",
+  },
+  {
+    id: "post-53",
+    author: "模型选择小账本",
+    title: "DeepSeek V4-Pro 和 V4-Flash 怎么选：Claude Code 编程场景的成本和速度",
+    content:
+      "接上 Claude Code 以后，很多人第一反应是所有任务都上最强模型。实际用下来没必要。\n\n我现在这样分：\n\n适合 V4-Pro 的任务：\n- 第一次读陌生项目。\n- 跨多个文件定位 bug。\n- 设计数据库、权限、缓存这类架构改动。\n- 需要它先给方案，再按方案改代码。\n\n适合 V4-Flash 的任务：\n- 搜索文件和解释局部代码。\n- 改文案、改样式、补小组件。\n- 跑子代理做简单检查。\n- 根据已有模式补重复代码。\n\n真正省钱的不是盲目切便宜模型，而是把任务拆小：\n1. 先问“你准备改哪些文件”。\n2. 再限定“只改这几个文件”。\n3. 改完让它输出验证命令。\n4. 自己看一眼 diff。\n\n大模型最贵的地方不是单价，是你给它一个模糊任务，然后它在全仓库里乱逛。把边界写清楚，V4-Pro 才会把钱花在关键思考上。",
+    category: "AI分析",
+    tags: ["DeepSeek V4", "Claude Code", "V4-Pro", "V4-Flash"],
+    likes: 226,
+    comments: 43,
+    publishedAt: "2026-05-07",
+  },
+  {
+    id: "post-54",
+    author: "Key别乱填",
+    title: "Claude Code 用国内中转站接 DeepSeek V4，我会先看这 6 件事",
+    content:
+      "国内中转站确实能解决一些问题，比如网络不稳、充值不方便、团队想统一账单。但我不建议新手随便找一个便宜站就把 Key 填进去。\n\n我会先看 6 件事：\n\n1. 是否明确支持 Anthropic 兼容接口\nClaude Code 不是普通聊天网页。只写“支持 OpenAI 格式”不够，最好明确写支持 Claude Code 或 Anthropic Messages。\n\n2. base_url 是不是单独给了 /anthropic 路径\n常见写法类似：\nhttps://你的中转站域名/anthropic\n具体以服务商文档为准。\n\n3. 模型名是不是清楚\n有的站保留 deepseek-v4-pro，有的站改成自己的别名。模型名不清楚，后面最容易报“model not found”。\n\n4. 有没有调用日志和余额记录\n没有日志就很难排查，也很难知道钱花在哪个任务上。\n\n5. 能不能设置额度上限\nClaude Code 一旦跑大任务，消耗可能比聊天快。新站先小额充值，先设限额。\n\n6. 是否适合放公司代码\n如果是公司项目、客户代码、未公开产品，优先官方 API 或公司认可的服务。第三方中转站再便宜，也不能替代安全边界。\n\n中转站配置大概长这样：\nexport ANTHROPIC_BASE_URL=https://你的中转站域名/anthropic\nexport ANTHROPIC_AUTH_TOKEN=中转站给你的Key\nexport ANTHROPIC_MODEL=中转站支持的模型名\nclaude\n\n我的结论：个人小项目可以小额试，生产项目先问安全和合规。AI 编程效率很香，但 Key、代码和账单都是真的。",
+    category: "踩坑记录",
+    tags: ["Claude Code", "中转站", "DeepSeek V4", "安全"],
+    likes: 252,
+    comments: 58,
+    publishedAt: "2026-05-07",
+  },
 ]
