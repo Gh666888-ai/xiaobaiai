@@ -17,9 +17,10 @@ const cats = ["全部","经验分享","踩坑记录","全自动实战","AI分析
 export default function CommunityPage() {
   const [cat, setCat] = useState<string>("全部")
   const [search, setSearch] = useState("")
-  const [posts, setPosts] = useState<any[]>([])
+  const [posts, setPosts] = useState<any[]>(seedPosts)
+  const [visibleCount, setVisibleCount] = useState(18)
   useEffect(()=>{
-    Promise.all([
+    const loadRemotePosts = () => Promise.all([
       fetch("/api/posts?status=approved").then(r=>r.json()).catch(()=>[]),
       fetch("/community-posts.json").then(r=>r.json()).catch(()=>[])
     ]).then(([apiPosts,staticPosts])=>{
@@ -30,7 +31,14 @@ export default function CommunityPage() {
       const seededIds=new Set(seeded.map((p:any)=>p.id))
       setPosts([...seeded,...seedPosts.filter((p:any)=>!seededIds.has(p.id))])
     }).catch(()=>{})
+    if ("requestIdleCallback" in window) {
+      ;(window as any).requestIdleCallback(loadRemotePosts, { timeout: 1800 })
+    } else {
+      setTimeout(loadRemotePosts, 500)
+    }
   },[])
+
+  useEffect(()=>{setVisibleCount(18)},[cat,search])
 
   const filtered = posts.filter((p:any) => {
     if (cat !== "全部" && p.category !== cat) return false
@@ -90,7 +98,7 @@ export default function CommunityPage() {
           <div style={{textAlign:'center',padding:80,color:'#aaa'}}>没有找到相关帖子</div>
         ):(
           <div style={{display:'flex',flexDirection:'column',gap:12}}>
-            {filtered.map(p=>(
+            {filtered.slice(0, visibleCount).map(p=>(
               <div key={p.id} style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:12,padding:'22px',transition:'all 0.3s'}}
                 onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.04)';e.currentTarget.style.borderColor='#7a6230'}}
                 onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor='#1a1a1a'}}>
@@ -127,6 +135,13 @@ export default function CommunityPage() {
                 </div>
               </div>
             ))}
+            {visibleCount < filtered.length && (
+              <div style={{display:'flex',justifyContent:'center',paddingTop:14}}>
+                <button onClick={()=>setVisibleCount(v=>Math.min(v+18, filtered.length))} className="btn-outline" style={{minWidth:180,justifyContent:'center'}}>
+                  加载更多帖子 · {Math.min(18, filtered.length - visibleCount)}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

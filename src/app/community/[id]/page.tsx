@@ -26,6 +26,7 @@ export default function PostDetailPage() {
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(post ? (post.likes || 0) : 0)
   const [showCommentBox, setShowCommentBox] = useState(false)
+  useEffect(()=>{ if(post) setLikeCount(post.likes || 0) }, [post?.id])
 
   if (!post) return (
     <div style={{background:'#000',minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center'}}>

@@ -14,16 +14,21 @@ function fmt(d:string){const diff=Math.floor((Date.now()-new Date(d).getTime())/
 export default function NewsPage() {
   const [cat,setCat]=useState<NewsCategory|null>(null)
   const [fetched,setFetched]=useState<any[]>([])
-  const [visibleCount,setVisibleCount]=useState(24)
+  const [visibleCount,setVisibleCount]=useState(12)
 
   useEffect(()=>{
     const params = new URLSearchParams(window.location.search)
     const c = params.get("category")
     if(c && newsCategories.some(x=>x.key===c)) setCat(c as NewsCategory)
-    fetch("/fetched-news.json").then(r=>r.json()).then(d=>{if(Array.isArray(d))setFetched(d)}).catch(()=>{})
+    const loadFetched = () => fetch("/fetched-news.json").then(r=>r.json()).then(d=>{if(Array.isArray(d))setFetched(d)}).catch(()=>{})
+    if ("requestIdleCallback" in window) {
+      ;(window as any).requestIdleCallback(loadFetched, { timeout: 1600 })
+    } else {
+      setTimeout(loadFetched, 500)
+    }
   },[])
 
-  useEffect(()=>{setVisibleCount(24)},[cat])
+  useEffect(()=>{setVisibleCount(12)},[cat])
 
   const sorted = useMemo(()=>{
     let r = [...news, ...fetched];if(cat)r=r.filter((n:any)=>n.category===cat)
@@ -87,7 +92,7 @@ export default function NewsPage() {
 function newsImageSources(item: any) {
   return [
     item.image,
-    ...screenshotImageSources(item.url || ""),
+    ...(item.importance >= 8 ? screenshotImageSources(item.url || "") : []),
     ...sourceLogoSources(item.source || ""),
   ].filter(Boolean)
 }
