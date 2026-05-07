@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireUser } from "@/lib/server-auth"
 
-const ADMIN_EMAILS = new Set(["15171192200@163.com", "109020070@qq.com", "771239559@qq.com"])
+const ADMIN_EMAILS = new Set(["15171192200@163.com"])
 
 async function requireAdmin(req: NextRequest) {
   const auth = await requireUser(req)
