@@ -7,14 +7,14 @@ export const dynamic = "force-dynamic"
 export const revalidate = 0
 
 export const metadata: Metadata = {
-  title: "AI教程大全 - 零基础学AI、AI工具教程、DeepSeek、Dify、Gamma和即梦教程",
+  title: "AI教程大全 - 零基础学AI、主流AI工具、Agent、AI视频和AI编程教程",
   description:
-    "小白AI整理AI教程大全，覆盖零基础学AI、AI工具教程、DeepSeek API Key、Dify知识库、Gamma做PPT、即梦AI提示词、AI绘图、AI写作、AI视频和AI办公教程。",
-  keywords: ["AI教程", "AI教程大全", "零基础学AI", "AI工具教程", "AI小白教程", "DeepSeek教程", "Dify教程", "Gamma教程", "即梦AI教程"],
+    "小白AI整理AI教程大全，覆盖零基础学AI、ChatGPT、DeepSeek、Kimi、豆包、Gemini、ChatGPT Image、Nano Banana、Sora、Veo、可灵、Codex、Claude Code、Dify、Coze、Manus、n8n 等主流AI工具教程。",
+  keywords: ["AI教程", "AI教程大全", "零基础学AI", "AI工具教程", "AI小白教程", "DeepSeek教程", "Agent教程", "AI视频教程", "AI编程教程"],
   alternates: { canonical: "/tutorials" },
   openGraph: {
     title: "AI教程大全 | 小白AI",
-    description: "零基础学AI、AI工具教程、DeepSeek、Dify、Gamma和即梦教程集合。",
+    description: "零基础学AI、主流AI工具、Agent、AI视频和AI编程教程集合。",
     url: "/tutorials",
     images: [{ url: "/xiaobai-mascot-cutout.png", alt: "小白AI AI教程大全" }],
   },
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 const quickStart = [
   { href: "/learn", title: "先看完整学习主线", desc: "从认识 AI、会用工具、完成任务，到 Agent、API、AI 编程和自动化实战。" },
   { href: "/learn/0", title: "完全零基础，从这里开始", desc: "适合第一次接触 AI 的用户，先搞清楚 AI 能做什么、不能做什么。" },
-  { href: "/learn/1", title: "AI工具入门", desc: "从 ChatGPT、DeepSeek、Kimi、豆包、通义千问开始，学会提问和验证结果。" },
+  { href: "/learn/1", title: "AI工具入门", desc: "从 ChatGPT、DeepSeek、Kimi、豆包、Gemini、元宝开始，学会提问、上传资料和验证结果。" },
   { href: "/start", title: "从0到1做成一个环节", desc: "不先选工具，先说你想做成什么事，再拆出今天能完成的第一个环节。" },
   { href: "/cases", title: "直接看实战案例", desc: "从办公、Dify、AI编程和内容创作案例里，找一个能照着做的场景。" },
 ]
@@ -31,10 +31,11 @@ const quickStart = [
 const topicGroups = [
   {
     title: "热门工具教程",
-    desc: "先学最常用、最容易产生价值的工具。",
+    desc: "先学现在用户最常用、最容易产生价值的主流工具。",
     links: [
-      { href: "/chatgpt", label: "ChatGPT怎么用", note: "对话、写作、文件分析和替代工具" },
+      { href: "/chatgpt", label: "ChatGPT怎么用", note: "对话、写作、文件分析、图像生成和多模态任务" },
       { href: "/deepseek", label: "DeepSeek怎么用", note: "中文问答、推理、代码和低成本使用" },
+      { href: "/ai-tools", label: "2026主流AI工具怎么选", note: "ChatGPT、DeepSeek、Kimi、豆包、Gemini、图像、视频、Agent和编程工具" },
       { href: "/deepseek-api-key", label: "DeepSeek API Key怎么申请", note: "注册、模型选择、接入和常见报错" },
       { href: "/claude-code-deepseek", label: "Claude Code接入DeepSeek V4", note: "官方接口、Windows/Mac 配置、模型选择和报错排查" },
       { href: "/claude-code-proxy", label: "Claude Code中转站教程", note: "国内使用、Anthropic兼容接口、base_url和安全判断" },
@@ -48,11 +49,11 @@ const topicGroups = [
     title: "创作与办公教程",
     desc: "适合内容创作、短视频、PPT、文档和日常办公提效。",
     links: [
-      { href: "/ai-image-tools", label: "AI绘图工具推荐", note: "Midjourney、即梦、DALL·E和提示词" },
+      { href: "/ai-image-tools", label: "AI绘图工具推荐", note: "ChatGPT Image、Nano Banana、Midjourney、即梦、FLUX和Firefly" },
       { href: "/jimeng-prompts", label: "即梦AI绘图提示词怎么写", note: "头像、海报、电商主图和短视频素材" },
-      { href: "/ai-writing-tools", label: "AI写作工具推荐", note: "文案、公众号、小红书、论文润色和SEO写作" },
-      { href: "/ai-video-tools", label: "AI视频工具推荐", note: "文生视频、图生视频、可灵、即梦和Runway" },
-      { href: "/ai-office-tools", label: "AI办公工具推荐", note: "文档总结、会议纪要、表格分析和自动化办公" },
+      { href: "/ai-writing-tools", label: "AI写作工具推荐", note: "ChatGPT、DeepSeek、Kimi、豆包、Claude、Gemini和营销写作工具" },
+      { href: "/ai-video-tools", label: "AI视频工具推荐", note: "Sora、Veo、可灵、Seedance、Runway、海螺和剪映" },
+      { href: "/ai-office-tools", label: "AI办公工具推荐", note: "Microsoft 365 Copilot、ChatGPT、Kimi、Gamma、Dify、n8n和Zapier" },
       { href: "/gamma-ppt", label: "Gamma怎么做PPT", note: "AI PPT生成、中文提示词、导出和修改" },
       { href: "/ai-ppt-tools", label: "AI PPT工具推荐", note: "Gamma、Canva、PPT Master和汇报生成" },
     ],
@@ -61,8 +62,8 @@ const topicGroups = [
     title: "进阶实战教程",
     desc: "从单个工具走向 Agent、自动化、编程和工作流。",
     links: [
-      { href: "/agent", label: "Agent教程", note: "智能体概念、工作流、工具调用和真实任务" },
-      { href: "/ai-coding", label: "AI编程工具推荐", note: "Codex、Cursor、Claude Code和Copilot" },
+      { href: "/agent", label: "Agent教程", note: "Manus、Dify、Coze、n8n、Zapier、LangGraph、OpenAI Agents SDK和Google ADK" },
+      { href: "/ai-coding", label: "AI编程工具推荐", note: "Codex、Claude Code、Cursor、Windsurf、Copilot、Lovable、v0和Bolt" },
       { href: "/topics/claude-code-deepseek", label: "Claude Code + DeepSeek专题", note: "教程、国内中转站、社区案例和项目提示词模板" },
       { href: "/codex", label: "Codex国内使用指南", note: "Agent编程、项目修改和工程任务" },
       { href: "/workflows", label: "AI工作流自动化", note: "日报、客服、线索、内容和监控流程" },
@@ -87,7 +88,7 @@ const tutorialJsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   name: "AI教程大全",
-  description: "零基础学AI、AI工具教程、DeepSeek、Dify、Gamma、即梦、AI办公和Agent教程集合。",
+  description: "零基础学AI、主流AI工具、DeepSeek、Agent、AI视频、AI编程、AI办公和实战教程集合。",
   url: "https://www.xiaobaiai.cn/tutorials",
   inLanguage: "zh-CN",
   isPartOf: {
@@ -118,7 +119,7 @@ export default function TutorialsPage() {
         <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.35em", color: "#7a6230", textTransform: "uppercase", marginBottom: 12, fontWeight: 900 }}>AI Tutorials</p>
         <h1 style={{ fontSize: 42, color: "#fff", fontWeight: 900, lineHeight: 1.22, marginBottom: 16 }}>AI教程大全：零基础学AI、AI工具教程和实战指南</h1>
         <p style={{ fontSize: 16, color: "#ccc", lineHeight: 1.9, maxWidth: 840, marginBottom: 28 }}>
-          这里把小白AI站内最适合新手的教程集中起来：先从零基础和真实目标开始，再进入 DeepSeek、Dify、Gamma、即梦、AI办公、AI绘图、AI编程和 Agent 自动化。
+          这里把小白AI站内最适合新手的教程集中起来：先从零基础和真实目标开始，再进入 ChatGPT、DeepSeek、Kimi、豆包、Gemini、AI绘图、AI视频、AI编程、Agent 和自动化。
         </p>
 
         <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12, marginBottom: 42 }}>

@@ -2,14 +2,14 @@ import type { Metadata } from "next"
 import { SeoTopicPage } from "@/components/SeoTopicPage"
 
 export const metadata: Metadata = {
-  title: "AI绘图工具推荐 - AI画图软件、Midjourney、即梦、DALL·E和提示词教程",
+  title: "AI绘图工具推荐 - ChatGPT Image、Nano Banana、Midjourney、即梦和FLUX",
   description:
-    "小白AI整理AI绘图工具推荐，覆盖 Midjourney、即梦、DALL·E、通义万相、Canva AI、Stable Diffusion 等AI画图软件，并提供提示词和商用注意事项。",
+    "小白AI整理2026主流AI绘图工具推荐，覆盖 ChatGPT Image、Gemini Nano Banana、Midjourney、即梦、FLUX、Ideogram、Adobe Firefly、Canva AI 等AI画图和改图工具。",
   keywords: ["AI绘图工具", "AI画图软件", "AI绘画工具", "Midjourney教程", "即梦AI教程", "AI绘图提示词", "AI生成图片"],
   alternates: { canonical: "/ai-image-tools" },
   openGraph: {
     title: "AI绘图工具推荐 | 小白AI",
-    description: "AI画图软件、Midjourney、即梦、DALL·E和提示词入门整理。",
+    description: "AI画图软件、ChatGPT Image、Nano Banana、Midjourney、即梦和FLUX整理。",
     url: "/ai-image-tools",
     images: [{ url: "/xiaobai-mascot-cutout.png", alt: "小白AI AI绘图工具推荐" }],
   },
@@ -19,23 +19,25 @@ export default function AiImageToolsTopicPage() {
   return (
     <SeoTopicPage
       eyebrow="AI Image Tools"
-      title="AI绘图工具推荐：AI画图软件、Midjourney、即梦、DALL·E和提示词教程"
-      description="AI绘图不是只输入一句话等结果。想稳定出好图，要选对工具、写清楚主体和风格、控制比例和参考图，并知道哪些场景适合免费工具，哪些场景需要专业模型。"
+      title="AI绘图工具推荐：ChatGPT Image、Nano Banana、Midjourney、即梦和FLUX"
+      description="AI绘图现在不只是文生图，更重要的是多轮改图、参考图一致性、商品图、海报和短视频关键帧。想稳定出好图，要按“生成、改图、设计、商用、本地工作流”来选工具。"
       primaryHref="/tools/AI%E7%BB%98%E5%9B%BE"
       primaryLabel="查看AI绘图工具"
       toolRefs={[
-        { id: "midjourney", note: "Midjourney 适合高质量海报、插画、概念图和风格化视觉，画面质感强。" },
-        { id: "jimeng", note: "即梦适合中文新手，提示词理解好，有免费额度，适合头像、海报和短视频素材。" },
-        { id: "dalle", note: "DALL·E 适合和 ChatGPT 联动做图像生成、修改和文字内容较多的图片。" },
-        { id: "wanxiang", note: "通义万相适合国内用户做中文提示词图片生成、风格迁移和电商视觉草图。" },
+        { id: "gpt-image", note: "ChatGPT Image 适合边聊边生成、边改图，适合封面、配图、商品图草案和多轮视觉创意。" },
+        { id: "nano-banana", note: "Nano Banana 适合参考图改图、角色一致性、商品图和需要多轮精修的图片任务。" },
+        { id: "midjourney", note: "Midjourney 仍适合高质量海报、插画、角色和概念视觉，画面质感强。" },
+        { id: "jimeng", note: "即梦适合国内中文新手，提示词理解好，适合头像、海报、短视频素材和关键帧。" },
+        { id: "flux", note: "FLUX 适合写实视觉、开源模型生态、本地/云端工作流和进阶批量生成。" },
+        { id: "ideogram", note: "Ideogram 适合带文字的海报、Logo、标题图和需要准确文字渲染的设计。" },
+        { id: "adobe-firefly", note: "Adobe Firefly 适合设计师在 Photoshop/Adobe 生态里做生成式填充和商用视觉。" },
         { id: "canva-ai", note: "Canva AI 适合非设计师做海报、社媒配图、封面和模板化设计。" },
-        { id: "invokeai", note: "InvokeAI 适合想学习 Stable Diffusion 工作流、本地绘图和批量生成的进阶用户。" },
       ]}
       sections={[
         {
           title: "新手怎么选AI绘图工具",
           body: "先按用途选，不要按热度选。",
-          bullets: ["想快速出中文海报：先试即梦或通义万相。", "想要艺术质感：优先 Midjourney。", "想做模板、封面和社媒图：Canva AI 更省时间。"],
+          bullets: ["想边聊边生成和改图：ChatGPT Image。", "想做参考图改图和角色一致性：Nano Banana。", "想要艺术质感和风格化：Midjourney。", "想做中文海报和短视频关键帧：即梦。", "想做本地/开源工作流：FLUX。"],
         },
         {
           title: "提示词公式",
@@ -49,11 +51,13 @@ export default function AiImageToolsTopicPage() {
         },
       ]}
       faq={[
-        { question: "AI绘图工具哪个适合新手？", answer: "中文新手建议先试即梦、通义万相或 Canva AI。它们注册和提示词门槛较低，适合先做头像、封面、海报和素材草图。" },
-        { question: "Midjourney和即梦怎么选？", answer: "追求画面质感和艺术风格优先 Midjourney；想要中文操作、免费额度和国内访问便利，优先即梦。" },
+        { question: "AI绘图工具哪个适合新手？", answer: "新手先试 ChatGPT Image、Nano Banana、即梦或 Canva AI。它们更适合多轮修改、中文表达和日常素材，不需要一开始就研究复杂参数。" },
+        { question: "Midjourney、ChatGPT Image和Nano Banana怎么选？", answer: "追求艺术质感优先 Midjourney；想边聊边改图优先 ChatGPT Image；想做参考图改图、角色一致性和商品图优先 Nano Banana。" },
         { question: "AI绘图提示词怎么写？", answer: "按主体、场景、动作、构图、风格、光线、比例来写。不要只写一个关键词，尽量描述最终画面。" },
       ]}
       related={[
+        { href: "/tools/AI%E7%BB%98%E5%9B%BE/gpt-image", label: "ChatGPT Image工具详情" },
+        { href: "/tools/AI%E7%BB%98%E5%9B%BE/nano-banana", label: "Nano Banana工具详情" },
         { href: "/tools/AI%E7%BB%98%E5%9B%BE/midjourney", label: "Midjourney工具详情" },
         { href: "/tools/AI%E7%BB%98%E5%9B%BE/jimeng", label: "即梦AI工具详情" },
         { href: "/free-ai-tools", label: "免费AI工具推荐" },
