@@ -1,6 +1,7 @@
 export const CHECK_IN_XP = 15
 export const ONLINE_XP_PER_HEARTBEAT = 2
 export const DAILY_ONLINE_XP_CAP = 60
+export const LEARNING_STAGE_XP = 80
 
 export type GrowthMission = {
   id: string

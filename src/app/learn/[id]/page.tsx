@@ -12,6 +12,9 @@ import { SeoRelatedLinks } from "@/components/SeoRelatedLinks"
 import Link from "next/link"
 import { CheckCircle2, ChevronLeft, ChevronRight, Circle } from "lucide-react"
 import { LearningProgress, progressId, readLearningProgress, writeLearningProgress } from "@/lib/learning-progress"
+import { LEARNING_STAGE_XP } from "@/data/growth"
+import { useAuth } from "@/lib/AuthContext"
+import { readAppAuth } from "@/lib/app-auth"
 
 function letter(n:string){return /^[a-zA-Z]/.test(n)?n[0].toUpperCase():n[0]}
 function avColor(n:string){const c=["#c9a84c","#e8c96a","#7a6230","#5a8a5a"];let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return c[Math.abs(h)%c.length]}
@@ -19,16 +22,27 @@ function avColor(n:string){const c=["#c9a84c","#e8c96a","#7a6230","#5a8a5a"];let
 export default function StageDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const { user, refresh } = useAuth()
   const stageId = Number(params.id)
   const stage = stages.find(s=>s.id===stageId)
   const stageTools = tools.filter(t=>t.stage===stageId).slice(0,3)
   const [progress, setProgress] = useState<LearningProgress>({})
   const [activeIndex, setActiveIndex] = useState(0)
+  const [stageRewardClaimed, setStageRewardClaimed] = useState(false)
+  const [stageRewardBusy, setStageRewardBusy] = useState(false)
+  const [stageRewardNotice, setStageRewardNotice] = useState("")
 
   useEffect(() => {
     setProgress(readLearningProgress())
     setActiveIndex(0)
+    setStageRewardNotice("")
   }, [stageId])
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const key = `xiaobaiai:learn-stage-reward:v1:${user?.userId || "guest"}:${stageId}`
+    setStageRewardClaimed(window.localStorage.getItem(key) === "1")
+  }, [stageId, user?.userId])
 
   const toggleSection = (sectionIndex: number) => {
     const id = progressId(stageId, sectionIndex)
@@ -51,6 +65,41 @@ export default function StageDetailPage() {
   const progressPercent = stage.sections.length ? Math.round(completedCount / stage.sections.length * 100) : 0
   const activeSection = stage.sections[Math.min(activeIndex, stage.sections.length - 1)]
   const activeDone = !!progress[progressId(stageId, activeIndex)]
+  const stageCompleted = completedCount === stage.sections.length
+
+  const claimStageReward = async () => {
+    if (!stageCompleted || stageRewardBusy || stageRewardClaimed) return
+    if (!user) {
+      router.push(`/login?redirect=/learn/${stageId}`)
+      return
+    }
+    const token = readAppAuth()?.session?.access_token
+    if (!token) {
+      router.push(`/login?redirect=/learn/${stageId}`)
+      return
+    }
+    setStageRewardBusy(true)
+    setStageRewardNotice("")
+    try {
+      const res = await fetch("/api/growth/xp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ reason: "learn-stage", stageId }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || "阶段奖励领取失败，请稍后再试。")
+      const awarded = Number(data.awarded || 0)
+      const key = `xiaobaiai:learn-stage-reward:v1:${user.userId}:${stageId}`
+      window.localStorage.setItem(key, "1")
+      setStageRewardClaimed(true)
+      await refresh().catch(() => undefined)
+      setStageRewardNotice(awarded > 0 ? `阶段通关成功，${awarded} XP 已进入你的账号等级。` : "这个阶段奖励已经领过啦，继续挑战下一阶段。")
+    } catch (error: any) {
+      setStageRewardNotice(error?.message || "阶段奖励领取失败，请稍后再试。")
+    } finally {
+      setStageRewardBusy(false)
+    }
+  }
 
   return (
     <div style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
@@ -83,6 +132,19 @@ export default function StageDetailPage() {
           </div>
           <div style={{height:8,background:'#111',border:'1px solid #242424',borderRadius:999,overflow:'hidden'}}>
             <div style={{height:'100%',width:`${progressPercent}%`,background:'linear-gradient(90deg,#7a6230,#e8c96a)',transition:'width 0.3s'}} />
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr auto',alignItems:'center',gap:12,marginTop:14}} className="max-sm:grid-cols-1">
+            <div>
+              <p style={{fontSize:13,fontWeight:900,color:stageCompleted?'#e8c96a':'#fff'}}>阶段通关奖励 · +{LEARNING_STAGE_XP}XP</p>
+              <p style={{fontSize:12,color:'#aaa',lineHeight:1.75,marginTop:4}}>
+                {stageCompleted ? "本阶段章节已全部完成，可以领取一次性奖励，经验会进入账号等级和今日榜。" : "学完本阶段全部章节后解锁奖励。"}
+              </p>
+              {stageRewardNotice && <p style={{fontSize:12,color:stageRewardNotice.includes("失败") ? "#ff9b9b" : "#cdbb80",lineHeight:1.7,marginTop:6}}>{stageRewardNotice}</p>}
+            </div>
+            <button onClick={claimStageReward} disabled={!stageCompleted || stageRewardBusy || stageRewardClaimed}
+              style={{border:`1px solid ${stageCompleted?'#e8c96a':'#333'}`,background:stageRewardClaimed?'rgba(61,165,99,0.1)':stageCompleted?'#e8c96a':'rgba(255,255,255,0.03)',color:stageRewardClaimed?'#3DA563':stageCompleted?'#111':'#666',borderRadius:9,padding:'10px 13px',fontSize:12,fontWeight:950,cursor:stageCompleted && !stageRewardClaimed && !stageRewardBusy?'pointer':'default',whiteSpace:'nowrap'}}>
+              {!stageCompleted ? "未解锁" : stageRewardClaimed ? "奖励已领取" : stageRewardBusy ? "写入中..." : user ? `领取 +${LEARNING_STAGE_XP}XP` : "登录领取奖励"}
+            </button>
           </div>
         </div>
 

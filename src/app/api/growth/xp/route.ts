@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import { CHECK_IN_XP, DAILY_ONLINE_XP_CAP, GROWTH_MISSIONS, ONLINE_XP_PER_HEARTBEAT } from "@/data/growth"
+import { CHECK_IN_XP, DAILY_ONLINE_XP_CAP, GROWTH_MISSIONS, LEARNING_STAGE_XP, ONLINE_XP_PER_HEARTBEAT } from "@/data/growth"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
@@ -58,6 +58,12 @@ function resolveAward(body: any, now = new Date()) {
     if (!mission || mission.id === "welcome") return { ok: false as const, error: "任务类型不合法。" }
     const eventKey = mission.cadence === "once" ? `mission:${mission.id}` : `mission:${today}:${mission.id}`
     return { ok: true as const, reason: `mission:${mission.id}`, eventKey, dayKey: mission.cadence === "daily" ? today : "", amount: mission.xp }
+  }
+
+  if (reason === "learn-stage") {
+    const stageId = Number(body?.stageId)
+    if (!Number.isInteger(stageId) || stageId < 0 || stageId > 4) return { ok: false as const, error: "学习阶段不合法。" }
+    return { ok: true as const, reason: `learn-stage:${stageId}`, eventKey: `learn-stage:${stageId}`, dayKey: today, amount: LEARNING_STAGE_XP }
   }
 
   if (reason === "online") {
