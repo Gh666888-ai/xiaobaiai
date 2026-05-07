@@ -4,6 +4,7 @@ import { ArrowRight, BookOpen, Layers, MessageCircle } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { posts } from "@/data/community"
+import { getMissionsForScenario } from "@/data/product-loop"
 import { primaryScenario, scenarioFilters, scenarioLabel, type ContentScenario } from "@/lib/content-taxonomy"
 
 export const dynamic = "force-dynamic"
@@ -35,6 +36,7 @@ const groups = scenarioFilters
   .filter((item): item is { key: ContentScenario; label: string; desc: string } => item.key !== "all")
   .map((scenario) => ({
     ...scenario,
+    missions: getMissionsForScenario(scenario.key).slice(0, 2),
     posts: casePosts
       .filter((post) => post.scenario === scenario.key)
       .sort((a, b) => Number(b.pinned || false) - Number(a.pinned || false) || Number(b.likes || 0) - Number(a.likes || 0))
@@ -112,6 +114,15 @@ export default function CasesPage() {
               <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, marginBottom: 7 }}>{group.label}</h2>
               <p style={{ color: "#aaa", fontSize: 14, lineHeight: 1.8 }}>{group.desc}</p>
             </div>
+            {group.missions.length > 0 && (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+                {group.missions.map((mission) => (
+                  <Link key={mission.id} href={`/missions/${mission.id}`} className="btn-outline" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 7 }}>
+                    从任务开始：{mission.shortTitle} <ArrowRight size={13} />
+                  </Link>
+                ))}
+              </div>
+            )}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(270px, 1fr))", gap: 12 }}>
               {group.posts.map((post) => <CaseCard key={post.id} post={post} />)}
             </div>

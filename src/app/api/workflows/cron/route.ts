@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServerSupabase, hasSupabaseServiceConfig } from "@/lib/server-auth"
 import { buildWorkflowPlan } from "@/data/workflows"
+import { postWorkflowWebhook } from "@/lib/workflow-webhook"
 
 function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status })
@@ -25,17 +26,6 @@ function dueBySchedule(schedule = "", now = new Date()) {
   if (text.includes("每周五")) return now.getDay() === 5
   if (text.includes("每周")) return true
   return text.includes("每天")
-}
-
-async function postWebhook(url: string, payload: unknown) {
-  if (!url || !/^https?:\/\//i.test(url)) return { skipped: true }
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-    signal: AbortSignal.timeout(12000),
-  })
-  return { ok: res.ok, status: res.status, text: await res.text().catch(() => "") }
 }
 
 export async function POST(req: NextRequest) {
@@ -72,16 +62,16 @@ export async function POST(req: NextRequest) {
       let message = `${workflow.name} 已生成。`
       let webhookResult: any = { skipped: true }
       try {
-        webhookResult = await postWebhook(config.webhookUrl || config.feishuWebhook || config.wecomWebhook || config.n8nWebhook, {
+        webhookResult = await postWorkflowWebhook(config.webhookUrl || config.feishuWebhook || config.wecomWebhook || config.n8nWebhook, {
           source: "xiaobaiai.cn",
           workflowId: workflow.id,
           workflowName: workflow.name,
           output,
           ranAt: now.toISOString(),
-        })
+        }, workflow.id)
         if (webhookResult.ok === false) {
           status = "failed"
-          message = `Webhook 返回 ${webhookResult.status}。`
+          message = webhookResult.blocked ? `Webhook 被安全策略拦截：${webhookResult.reason || "地址不安全"}。` : `Webhook 返回 ${webhookResult.status}。`
         }
       } catch (error: any) {
         status = "failed"

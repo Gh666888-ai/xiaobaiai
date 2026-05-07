@@ -104,6 +104,25 @@ ALTER TABLE growth_events ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can read own growth events" ON growth_events;
 CREATE POLICY "Users can read own growth events" ON growth_events FOR SELECT USING (auth.uid() = user_id);
 
+-- 通用服务端限流表。用于聊天、投稿、Webhook 等需要跨重启保留的限流窗口。
+CREATE TABLE IF NOT EXISTS rate_limits (
+  scope TEXT NOT NULL,
+  identity_key TEXT NOT NULL,
+  window_key TEXT NOT NULL,
+  count INTEGER NOT NULL DEFAULT 0,
+  reset_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY(scope, identity_key, window_key)
+);
+
+CREATE INDEX IF NOT EXISTS rate_limits_reset_idx ON rate_limits(reset_at);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE rate_limits TO service_role;
+
+ALTER TABLE rate_limits ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Service role manages rate limits" ON rate_limits;
+CREATE POLICY "Service role manages rate limits" ON rate_limits FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
+
 -- 帖子：所有人可读
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can read posts" ON posts FOR SELECT USING (true);

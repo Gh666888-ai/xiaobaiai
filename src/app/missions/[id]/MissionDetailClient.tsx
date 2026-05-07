@@ -7,6 +7,8 @@ import { ArrowRight, Check, CheckCircle2, Clipboard, MessageCircle, Sparkles, Tr
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import type { Mission } from "@/data/missions"
+import { posts } from "@/data/community"
+import { getCasePostsForMission } from "@/data/product-loop"
 import { tools } from "@/data/tools"
 import { toolPath } from "@/data/tool-meta"
 import { useAuth } from "@/lib/AuthContext"
@@ -38,6 +40,7 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
   const doneSteps = mission.steps.filter((_, index) => current.completedSteps[index]).length
   const percent = Math.round((doneSteps / mission.steps.length) * 100)
   const relatedTools = mission.toolIds.map((id) => tools.find((tool) => tool.id === id)).filter(Boolean)
+  const relatedCases = getCasePostsForMission(mission.id, posts).slice(0, 3)
 
   function persist(next: MissionProgressState) {
     setProgress(next)
@@ -190,6 +193,21 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
             </div>
           </aside>
         </section>
+
+        {relatedCases.length > 0 && (
+          <section style={{ border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.026)", borderRadius: 12, padding: "22px 24px", marginBottom: 16 }}>
+            <h2 style={{ color: "#fff", fontSize: 20, fontWeight: 950, marginBottom: 12 }}>先看别人怎么做</h2>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 10 }} className="max-sm:grid-cols-1">
+              {relatedCases.map((post) => (
+                <Link key={post.id} href={`/community/${post.id}`} style={{ border: "1px solid #242424", borderRadius: 10, background: "rgba(0,0,0,0.24)", padding: "15px 16px", textDecoration: "none", minHeight: 132 }}>
+                  <p style={{ color: "#c9a84c", fontSize: 10, fontWeight: 900, marginBottom: 7 }}>{post.category}</p>
+                  <h3 style={{ color: "#fff", fontSize: 14, lineHeight: 1.5, fontWeight: 950, marginBottom: 8 }}>{post.title}</h3>
+                  <p style={{ color: "#888", fontSize: 11 }}>{post.author} · {post.likes} 赞</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 12, padding: "22px 24px" }}>
           <h2 style={{ color: "#fff", fontSize: 20, fontWeight: 950, marginBottom: 12 }}>继续看</h2>

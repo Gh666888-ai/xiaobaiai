@@ -8,6 +8,7 @@ import { NavBar } from "@/components/NavBar"
 import { Tool, tools } from "@/data/tools"
 import { getToolMeta, toolPath } from "@/data/tool-meta"
 import { stages } from "@/data/learning-path"
+import { getMissionsForGoal } from "@/data/product-loop"
 
 type Goal = "写作" | "编程" | "做图" | "客服" | "自动化" | "办公" | "学习" | "视频"
 type Level = "完全小白" | "会用一点" | "进阶使用"
@@ -162,7 +163,8 @@ export default function ChooseToolClient() {
 
     const stageId = answers.level === "完全小白" ? Math.min(goal.stage, 1) : goal.stage
     const stage = stages.find((item) => item.id === stageId) || stages[0]
-    return { goal, ranked, stage }
+    const missions = getMissionsForGoal(answers.goal).slice(0, 2)
+    return { goal, ranked, stage, missions }
   }, [answers])
 
   return (
@@ -253,6 +255,25 @@ export default function ChooseToolClient() {
         </div>
 
         <section style={{ marginTop: 18 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+            <Route size={17} style={{ color: "#e8c96a" }} />
+            <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950 }}>接下来先做一个任务</h2>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: 10, marginBottom: 20 }} className="max-sm:grid-cols-1">
+            {result.missions.map((mission) => (
+              <Link key={mission.id} href={`/missions/${mission.id}`} style={{ border: "1px solid #2a1f10", borderRadius: 12, background: "rgba(201,168,76,0.045)", padding: 18, textDecoration: "none", minHeight: 164, display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start" }}>
+                  <h3 style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.45 }}>{mission.shortTitle}</h3>
+                  <span className="tag tag-gold" style={{ fontSize: 9 }}>+{mission.xp}XP</span>
+                </div>
+                <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.75, flex: 1 }}>{mission.tagline}</p>
+                <span style={{ color: "#c9a84c", fontSize: 12, fontWeight: 900, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                  从 0-1 开始 <ArrowRight size={13} />
+                </span>
+              </Link>
+            ))}
+          </div>
+
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
             <Sparkles size={17} style={{ color: "#e8c96a" }} />
             <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950 }}>优先推荐工具</h2>

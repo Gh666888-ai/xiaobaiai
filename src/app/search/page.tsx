@@ -107,7 +107,7 @@ export default function SearchPage({ searchParams }: { searchParams?: { q?: stri
           </>
         )}
 
-        {q && <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: "#aaa", marginBottom: 24 }}>{results.length} results for "{q}"</p>}
+        {q && <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: "#aaa", marginBottom: 24 }}>{results.length} results for &quot;{q}&quot;</p>}
 
         {q && results.length === 0 && (
           <div style={{ border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.02)", padding: 28, color: "#aaa", borderRadius: 10, marginBottom: 28 }}>

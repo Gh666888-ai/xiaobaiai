@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { tools, stageLabels, ToolCategory } from "@/data/tools"
 import { getToolMeta, toolPath } from "@/data/tool-meta"
+import { hashRateLimitKey, hitPersistentRateLimit } from "@/lib/persistent-rate-limit"
 
 type ChatMessage = {
   role: "system" | "user" | "assistant"
@@ -25,9 +26,6 @@ const systemPrompt = `你是小白AI网站里的站内助手，名字叫“小�
 6. 优先引导用户使用站内页面：/choose-tool 工具选择器，/learn 学习路径，/models 模型排行，/community 社区案例，/growth AI成长舱。
 7. 语气可以轻松、灵动、有一点调皮，但不要油腻；像一个可靠又会眨眼的小白AI伙伴。`
 
-const minuteBuckets = new Map<string, { count: number; resetAt: number }>()
-const dayBuckets = new Map<string, { count: number; resetAt: number }>()
-
 const PER_MINUTE_LIMIT = Number(process.env.AI_CHAT_IP_PER_MINUTE || 8)
 const DAILY_GUEST_LIMIT = Number(process.env.AI_CHAT_DAILY_GUEST_LIMIT || 3)
 const DAILY_USER_LIMIT = Number(process.env.AI_CHAT_DAILY_USER_LIMIT || 30)
@@ -37,24 +35,19 @@ function getClientIp(req: NextRequest) {
   return forwarded || req.headers.get("x-real-ip") || "unknown"
 }
 
-function getDayResetAt() {
-  const now = new Date()
-  const next = new Date(now)
-  next.setUTCHours(24, 0, 0, 0)
-  return next.getTime()
+function getMinuteWindow() {
+  const bucket = Math.floor(Date.now() / 60000)
+  return { key: String(bucket), resetAt: new Date((bucket + 1) * 60000) }
 }
 
-function hitBucket(map: Map<string, { count: number; resetAt: number }>, key: string, limit: number, resetAt: number) {
-  const now = Date.now()
-  const current = map.get(key)
-  const bucket = current && current.resetAt > now ? current : { count: 0, resetAt }
-  bucket.count += 1
-  map.set(key, bucket)
-  return {
-    allowed: bucket.count <= limit,
-    remaining: Math.max(0, limit - bucket.count),
-    resetAt: bucket.resetAt,
-  }
+function getShanghaiDayWindow() {
+  const now = new Date()
+  const shanghai = new Date(now.getTime() + 8 * 60 * 60 * 1000)
+  const year = shanghai.getUTCFullYear()
+  const month = shanghai.getUTCMonth()
+  const date = shanghai.getUTCDate()
+  const key = `${year}-${String(month + 1).padStart(2, "0")}-${String(date).padStart(2, "0")}`
+  return { key, resetAt: new Date(Date.UTC(year, month, date + 1, -8, 0, 0, 0)) }
 }
 
 async function getAuthUserId(req: NextRequest) {
@@ -320,7 +313,15 @@ export async function POST(req: NextRequest) {
   }
 
   const ip = getClientIp(req)
-  const minute = hitBucket(minuteBuckets, ip, PER_MINUTE_LIMIT, Date.now() + 60 * 1000)
+  const ipHash = hashRateLimitKey(ip)
+  const minuteWindow = getMinuteWindow()
+  const minute = await hitPersistentRateLimit({
+    scope: "chat-minute",
+    key: `ip:${ipHash}`,
+    limit: PER_MINUTE_LIMIT,
+    windowKey: minuteWindow.key,
+    resetAt: minuteWindow.resetAt,
+  })
   if (!minute.allowed) {
     return NextResponse.json({
       error: "rate_limited",
@@ -331,9 +332,16 @@ export async function POST(req: NextRequest) {
   }
 
   const userId = await getAuthUserId(req)
-  const dayKey = userId ? `user:${userId}` : `guest:${ip}`
+  const dayKey = userId ? `user:${userId}` : `guest:${ipHash}`
   const dayLimit = userId ? DAILY_USER_LIMIT : DAILY_GUEST_LIMIT
-  const daily = hitBucket(dayBuckets, dayKey, dayLimit, getDayResetAt())
+  const dayWindow = getShanghaiDayWindow()
+  const daily = await hitPersistentRateLimit({
+    scope: "chat-day",
+    key: dayKey,
+    limit: dayLimit,
+    windowKey: dayWindow.key,
+    resetAt: dayWindow.resetAt,
+  })
   if (!daily.allowed) {
     return NextResponse.json({
       error: "daily_limit",
