@@ -25,6 +25,10 @@ type Message = {
 type LauncherMood = "welcome" | "thinking" | "recommend"
 type ChatMode = "ai" | "fallback" | "site" | ""
 
+const START_INDUSTRY_PROMPT_KEY = "xiaobaiai:start-industry-prompt:v1"
+const START_INDUSTRY_PROMPT =
+  "你已经登录了。先告诉我两个信息：\n1. 你从事什么行业或岗位？\n2. 你最想用 AI 做成什么事？\n\n我会按你的行业推荐该学的 AI 工具，并把路线拆成能一步步完成的任务。"
+
 function isSiteQuestion(message: string) {
   const text = message.toLowerCase()
   return [
@@ -81,6 +85,7 @@ export function FloatingChat() {
   const [missionProgress, setMissionProgress] = useState<MissionProgressState>(() => emptyMissionProgress())
   const [hasSavedMissionProgress, setHasSavedMissionProgress] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
 
   const hideOnFullChat = pathname === "/chat" || pathname === "/login"
   const hideOnFocusedFlow =
@@ -104,6 +109,30 @@ export function FloatingChat() {
     setHasSavedMissionProgress(Boolean(window.localStorage.getItem(MISSION_PROGRESS_KEY)))
     setMissionProgress(readMissionProgress())
   }, [pathname, open])
+
+  useEffect(() => {
+    if (loading || !user || pathname !== "/start") return
+    if (window.sessionStorage.getItem(START_INDUSTRY_PROMPT_KEY)) return
+
+    window.sessionStorage.setItem(START_INDUSTRY_PROMPT_KEY, "1")
+    setOpen(true)
+    setMinimized(false)
+    setHasSavedMissionProgress(Boolean(window.localStorage.getItem(MISSION_PROGRESS_KEY)))
+    setMissionProgress(readMissionProgress())
+    setMessages((prev) => (
+      prev.some((message) => message.content === START_INDUSTRY_PROMPT)
+        ? prev
+        : [...prev, { role: "assistant", content: START_INDUSTRY_PROMPT }]
+    ))
+    setSpeaking(true)
+
+    const speakingTimer = window.setTimeout(() => setSpeaking(false), 2200)
+    const focusTimer = window.setTimeout(() => inputRef.current?.focus(), 240)
+    return () => {
+      window.clearTimeout(speakingTimer)
+      window.clearTimeout(focusTimer)
+    }
+  }, [loading, pathname, user])
 
   useEffect(() => {
     if (open && !minimized) bottomRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -179,7 +208,9 @@ export function FloatingChat() {
   const reminderTitle = hasProgress ? "小白继续提醒" : "按行业定制"
   const reminderText = hasProgress
     ? `上次任务：${activeMission.shortTitle}。接下来：${nextStep}。`
-    : "登录后告诉小白你的行业，我会推荐你该学的 AI 工具和一整条任务路线。"
+    : user
+      ? "先说你的行业和想做成的事，我会给你一条能实际执行的学习路线。"
+      : "注册登录后告诉小白你的行业，我会推荐你该学的 AI 工具和任务路线。"
   const reminderAction = hasProgress ? "继续" : user ? "告诉小白" : "登录"
   const reminderHref = hasProgress ? `/missions/${activeMission.id}` : user ? "/chat" : `/login?redirect=${encodeURIComponent(pathname || "/start")}`
 
@@ -226,7 +257,11 @@ export function FloatingChat() {
                   <p>{reminderTitle}</p>
                   <span>{reminderText}</span>
                 </div>
-                <Link href={reminderHref}>{reminderAction}</Link>
+                {hasProgress || !user ? (
+                  <Link href={reminderHref}>{reminderAction}</Link>
+                ) : (
+                  <button type="button" onClick={() => inputRef.current?.focus()}>{reminderAction}</button>
+                )}
               </div>
                 {messages.length <= 1 && (
                   <div className="xiaobai-empty">
@@ -268,6 +303,7 @@ export function FloatingChat() {
 
             <div className="xiaobai-input-row">
               <textarea
+                ref={inputRef}
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
                 onKeyDown={(event) => {
@@ -302,7 +338,7 @@ export function FloatingChat() {
         <XiaobaiMascot size={66} mood={open ? "happy" : launcherMood} />
         <span>
           <strong>问小白AI</strong>
-          <small>{hasProgress ? `上次 ${doneSteps}/${activeMission.steps.length}` : launcherMood === "thinking" ? "按行业问我" : launcherMood === "recommend" ? "定制学习工具" : "注册后定制"}</small>
+          <small>{hasProgress ? `上次 ${doneSteps}/${activeMission.steps.length}` : launcherMood === "thinking" ? "按行业问我" : launcherMood === "recommend" ? "定制学习工具" : user ? "先说行业" : "注册后定制"}</small>
         </span>
         <MessageCircle size={17} />
       </button>
@@ -444,6 +480,20 @@ export function FloatingChat() {
           font-size: 11px;
           font-weight: 950;
           text-decoration: none;
+        }
+        .xiaobai-continue-card button {
+          border: 0;
+          display: inline-flex;
+          align-items: center;
+          color: #111;
+          background: #e8c96a;
+          border-radius: 8px;
+          padding: 7px 9px;
+          font-size: 11px;
+          font-weight: 950;
+          font-family: inherit;
+          cursor: pointer;
+          white-space: nowrap;
         }
         .xiaobai-login-note p {
           margin: 0 0 3px;

@@ -107,9 +107,11 @@ export function StartClient() {
       <NavBar />
       <main style={mainStyle}>
         <section style={focusCardStyle}>
-          <p style={eyebrowStyle}>小白入口</p>
-          <h1 style={heroTitleStyle}>{selectedProgress.completed ? "这条做完了，发个复盘" : "先做这一个小结果"}</h1>
-          <p style={heroCopyStyle}>不用先选工具，也不用先看一堆教程。现在只看下面这一句，照着做完再回来点确认。</p>
+          <p style={eyebrowStyle}>从这里开始</p>
+          <h1 style={heroTitleStyle}>{selectedProgress.completed ? "第一步完成了" : "先做一个小结果"}</h1>
+          <p style={heroCopyStyle}>
+            先别管工具和教程。页面上只放一个当前任务；想换成你行业里的路线，就让右下角小白先问你行业和目标。
+          </p>
 
           <div style={currentTaskStyle}>
             <p style={microLabelStyle}>初始任务</p>
@@ -127,8 +129,8 @@ export function StartClient() {
 
           <div style={heroActionRowStyle}>
             {selectedProgress.completed ? (
-              <button type="button" onClick={() => copyText("recap", selected.recapTemplate)} className="btn-primary" style={primaryActionStyle}>
-                {copied === "recap" ? <Check size={16} /> : <MessageCircle size={16} />} {copied === "recap" ? "已复制" : "复制复盘"}
+              <button type="button" onClick={() => window.dispatchEvent(new Event("xiaobai:open-chat"))} className="btn-primary" style={primaryActionStyle}>
+                <MessageCircle size={16} /> 让小白定制下一步
               </button>
             ) : (
               <a href="#proof-check" className="btn-primary" style={primaryActionStyle}>
@@ -136,10 +138,10 @@ export function StartClient() {
               </a>
             )}
             <button type="button" onClick={() => window.dispatchEvent(new Event("xiaobai:open-chat"))} className="btn-outline" style={secondaryActionStyle}>
-              <MessageCircle size={14} /> 登录让小白定制
+              <MessageCircle size={14} /> 让小白定制
             </button>
           </div>
-          <p style={loginHintStyle}>想换成你行业需要的任务？点右下角小白 AI，登录后会按行业给你定制学习工具和路线。</p>
+          <p style={loginHintStyle}>右下角小白会先问你做什么行业、想用 AI 做成什么事，再给你对应的学习工具和任务路线。</p>
         </section>
 
         {!selectedProgress.completed && (
