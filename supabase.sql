@@ -123,6 +123,29 @@ ALTER TABLE rate_limits ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Service role manages rate limits" ON rate_limits;
 CREATE POLICY "Service role manages rate limits" ON rate_limits FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
 
+CREATE OR REPLACE FUNCTION public.hit_rate_limit(
+  p_scope TEXT,
+  p_identity_key TEXT,
+  p_window_key TEXT,
+  p_reset_at TIMESTAMPTZ
+)
+RETURNS TABLE(count INTEGER, reset_at TIMESTAMPTZ)
+LANGUAGE SQL
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  INSERT INTO public.rate_limits(scope, identity_key, window_key, count, reset_at, updated_at)
+  VALUES (p_scope, p_identity_key, p_window_key, 1, p_reset_at, NOW())
+  ON CONFLICT (scope, identity_key, window_key)
+  DO UPDATE SET
+    count = public.rate_limits.count + 1,
+    reset_at = EXCLUDED.reset_at,
+    updated_at = NOW()
+  RETURNING public.rate_limits.count, public.rate_limits.reset_at;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.hit_rate_limit(TEXT, TEXT, TEXT, TIMESTAMPTZ) TO service_role;
+
 -- 帖子：所有人可读
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can read posts" ON posts FOR SELECT USING (true);
@@ -293,6 +316,7 @@ CREATE TABLE IF NOT EXISTS ai_workflows (
   config JSONB NOT NULL DEFAULT '{}'::jsonb,
   schedule TEXT,
   enabled BOOLEAN DEFAULT FALSE,
+  next_run_at TIMESTAMPTZ,
   last_run_at TIMESTAMPTZ,
   last_status TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -301,6 +325,8 @@ CREATE TABLE IF NOT EXISTS ai_workflows (
 
 CREATE INDEX IF NOT EXISTS ai_workflows_user_updated_idx ON ai_workflows(user_id, updated_at DESC);
 CREATE INDEX IF NOT EXISTS ai_workflows_enabled_idx ON ai_workflows(enabled);
+ALTER TABLE ai_workflows ADD COLUMN IF NOT EXISTS next_run_at TIMESTAMPTZ;
+CREATE INDEX IF NOT EXISTS ai_workflows_enabled_next_run_idx ON ai_workflows(enabled, next_run_at);
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE ai_workflows TO authenticated;
 GRANT SELECT, UPDATE ON TABLE ai_workflows TO service_role;

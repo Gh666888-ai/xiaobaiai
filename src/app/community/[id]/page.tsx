@@ -65,7 +65,7 @@ export default function PostDetailPage() {
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(post ? (post.likes || 0) : 0)
   const [showCommentBox, setShowCommentBox] = useState(false)
-  useEffect(()=>{ if(post) setLikeCount(post.likes || 0) }, [post?.id])
+  useEffect(()=>{ if(post) setLikeCount(post.likes || 0) }, [post])
   useEffect(() => {
     if (!postId) return
     let cancelled = false

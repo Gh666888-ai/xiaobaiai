@@ -44,33 +44,22 @@ export async function hitPersistentRateLimit(input: HitRateLimitInput): Promise<
 
   try {
     const supabase = createServerSupabase()
-    const { data: existing, error: selectError } = await supabase
-      .from("rate_limits")
-      .select("count, reset_at")
-      .eq("scope", input.scope)
-      .eq("identity_key", input.key)
-      .eq("window_key", input.windowKey)
-      .maybeSingle()
+    const { data, error } = await supabase.rpc("hit_rate_limit", {
+      p_scope: input.scope,
+      p_identity_key: input.key,
+      p_window_key: input.windowKey,
+      p_reset_at: input.resetAt.toISOString(),
+    })
+    if (error) throw error
 
-    if (selectError) throw selectError
-
-    const nextCount = Number(existing?.count || 0) + 1
-    const row = {
-      scope: input.scope,
-      identity_key: input.key,
-      window_key: input.windowKey,
-      count: nextCount,
-      reset_at: input.resetAt.toISOString(),
-      updated_at: new Date().toISOString(),
-    }
-
-    const { error: writeError } = await supabase.from("rate_limits").upsert(row, { onConflict: "scope,identity_key,window_key" })
-    if (writeError) throw writeError
+    const row = Array.isArray(data) ? data[0] : data
+    const nextCount = Number(row?.count || 1)
+    const resetAt = new Date(row?.reset_at || input.resetAt).getTime()
 
     return {
       allowed: nextCount <= input.limit,
       remaining: Math.max(0, input.limit - nextCount),
-      resetAt: new Date(existing?.reset_at || input.resetAt).getTime(),
+      resetAt,
       source: "supabase",
     }
   } catch (error: any) {

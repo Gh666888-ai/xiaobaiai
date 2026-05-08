@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServerSupabase, hasSupabaseServiceConfig } from "@/lib/server-auth"
 import { buildWorkflowPlan } from "@/data/workflows"
+import { isWorkflowDue, nextWorkflowRunAt } from "@/lib/workflow-schedule"
 import { postWorkflowWebhook } from "@/lib/workflow-webhook"
 
 function jsonError(message: string, status = 400) {
@@ -16,18 +17,6 @@ function logCronError(scope: string, error: any) {
   })
 }
 
-function dueBySchedule(schedule = "", now = new Date()) {
-  const text = schedule.trim()
-  const hourMinute = text.match(/(\d{1,2})[:：](\d{2})/)
-  if (!hourMinute) return false
-  const hour = Number(hourMinute[1])
-  const minute = Number(hourMinute[2])
-  if (now.getHours() !== hour || now.getMinutes() !== minute) return false
-  if (text.includes("每周五")) return now.getDay() === 5
-  if (text.includes("每周")) return true
-  return text.includes("每天")
-}
-
 export async function POST(req: NextRequest) {
   try {
     if (!hasSupabaseServiceConfig()) {
@@ -35,7 +24,10 @@ export async function POST(req: NextRequest) {
     }
 
     const secret = process.env.WORKFLOW_CRON_SECRET || ""
-    if (secret && req.headers.get("x-cron-secret") !== secret) {
+    if (!secret) {
+      return jsonError("工作流定时任务缺少 WORKFLOW_CRON_SECRET。", 500)
+    }
+    if (req.headers.get("x-cron-secret") !== secret) {
       return jsonError("Cron secret 不正确。", 401)
     }
 
@@ -52,7 +44,7 @@ export async function POST(req: NextRequest) {
       return jsonError("读取工作流失败。", 500)
     }
 
-    const due = (workflows || []).filter((workflow: any) => dueBySchedule(workflow.schedule, now))
+    const due = (workflows || []).filter((workflow: any) => isWorkflowDue(workflow, now))
     const results = []
 
     for (const workflow of due) {
@@ -96,7 +88,11 @@ export async function POST(req: NextRequest) {
 
       const { error: updateError } = await supabase
         .from("ai_workflows")
-        .update({ last_run_at: now.toISOString(), last_status: status })
+        .update({
+          last_run_at: now.toISOString(),
+          last_status: status,
+          next_run_at: nextWorkflowRunAt(workflow.schedule, now)?.toISOString() || null,
+        })
         .eq("id", workflow.id)
       if (updateError) logCronError("update-workflow", updateError)
 

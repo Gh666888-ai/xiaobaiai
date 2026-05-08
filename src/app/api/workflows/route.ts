@@ -1,5 +1,6 @@
 ﻿import { NextRequest, NextResponse } from "next/server"
 import { requireUser } from "@/lib/server-auth"
+import { nextWorkflowRunAt } from "@/lib/workflow-schedule"
 
 function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status })
@@ -43,6 +44,7 @@ export async function POST(req: NextRequest) {
   const config = body?.config && typeof body.config === "object" ? body.config : {}
   const schedule = String(body?.schedule || "").trim()
   const enabled = Boolean(body?.enabled)
+  const now = new Date()
 
   if (!name) return jsonError("请填写工作流名称。")
   if (!steps.length) return jsonError("至少需要一个工作流步骤。")
@@ -57,7 +59,8 @@ export async function POST(req: NextRequest) {
     config,
     schedule,
     enabled,
-    updated_at: new Date().toISOString(),
+    next_run_at: enabled ? nextWorkflowRunAt(schedule, now)?.toISOString() || null : null,
+    updated_at: now.toISOString(),
   }
 
   const { data, error } = await auth.supabase

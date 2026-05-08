@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { Check, RefreshCw, Sparkles, Star, X } from "lucide-react"
 import { loadSubmissions, updateSubmission, Submission } from "@/data/submissions"
@@ -34,29 +34,29 @@ export default function ModeratePage() {
   const [filter, setFilter] = useState<"all" | "pending" | "auto_rejected" | "approved" | "rejected">("pending")
   const [preview, setPreview] = useState("")
 
-  const refresh = () => setSubs(loadSubmissions())
-  const loadPosts = (status = postStatus) => {
+  const refresh = useCallback(() => setSubs(loadSubmissions()), [])
+  const loadPosts = useCallback((status = postStatus) => {
     const token = readAppAuth()?.session?.access_token
     setLoadingPosts(true)
     fetch(`/api/posts?status=${status}`, token ? { headers: { Authorization: `Bearer ${token}` } } : undefined)
       .then((res) => res.json())
       .then((data) => setPosts(Array.isArray(data) ? data : []))
       .finally(() => setLoadingPosts(false))
-  }
-  const loadComments = (status = commentStatus) => {
+  }, [postStatus])
+  const loadComments = useCallback((status = commentStatus) => {
     const token = readAppAuth()?.session?.access_token
     setLoadingComments(true)
     fetch(`/api/comments/moderate?status=${status}`, token ? { headers: { Authorization: `Bearer ${token}` } } : undefined)
       .then((res) => res.json())
       .then((data) => setComments(Array.isArray(data) ? data : []))
       .finally(() => setLoadingComments(false))
-  }
+  }, [commentStatus])
 
   useEffect(() => {
     refresh()
     loadPosts("pending")
     loadComments("pending")
-  }, [])
+  }, [loadComments, loadPosts, refresh])
 
   const filtered = subs.filter((item) => filter === "all" || item.status === filter)
   const counts = useMemo(() => ({

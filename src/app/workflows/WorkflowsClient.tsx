@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { ArrowRight, Bot, CheckCircle2, Clipboard, Database, FileText, GitBranch, History, Loader2, Play, Plus, Save, Send, Settings2, ShieldCheck, Sparkles, Trash2, Workflow } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
@@ -114,8 +114,8 @@ export default function WorkflowsClient() {
     setRunMessage("")
   }
 
-  async function loadCloud() {
-    if (!user) return
+  const loadCloud = useCallback(async () => {
+    if (!user?.userId) return
     setLoadingCloud(true)
     try {
       const headers = authHeaders()
@@ -130,7 +130,7 @@ export default function WorkflowsClient() {
     } finally {
       setLoadingCloud(false)
     }
-  }
+  }, [user?.userId])
 
   useEffect(() => {
     setTemplateParam(new URLSearchParams(window.location.search).get("template") || "")
@@ -155,7 +155,7 @@ export default function WorkflowsClient() {
 
   useEffect(() => {
     loadCloud()
-  }, [user?.userId])
+  }, [loadCloud])
 
   const addStep = (step: FlowStep) => setSteps((current) => [...current, cloneStep(step)])
   const updateStep = (id: string, patch: Partial<FlowStep>) => setSteps((current) => current.map((step) => (step.id === id ? { ...step, ...patch } : step)))

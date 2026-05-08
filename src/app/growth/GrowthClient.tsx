@@ -113,7 +113,7 @@ export default function GrowthClient() {
 
   useEffect(() => {
     const growth = readGrowth(user?.userId)
-    setState({ ...growth, xp: user ? user.xp : growth.xp })
+    setState({ ...growth, xp: typeof user?.xp === "number" ? user.xp : growth.xp })
     const progress = readLearningProgress()
     setLearnDone(Object.values(progress).filter(Boolean).length)
   }, [user?.userId, user?.xp])
@@ -180,7 +180,7 @@ export default function GrowthClient() {
     },
   ]
 
-  const suggestedStage = useMemo(() => {
+  const suggestedStage = (() => {
     let best = stages[0]
     for (const stage of stages) {
       const completed = stage.sections.filter((_, index) => readLearningProgress()[progressId(stage.id, index)]).length
@@ -190,7 +190,7 @@ export default function GrowthClient() {
       }
     }
     return best
-  }, [learnDone])
+  })()
 
   const requireLogin = () => {
     router.push("/login?redirect=/growth")
