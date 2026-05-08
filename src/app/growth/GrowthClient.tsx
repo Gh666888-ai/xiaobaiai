@@ -66,11 +66,11 @@ function missionDoneKey(mission: { id: string; cadence?: string }, today: string
 }
 
 function levelBadge(xp: number) {
-  if (xp >= 1200) return { title: "高级身份已点亮", subtitle: "名牌、边框和主页装饰会逐步变亮", color: "#e8c96a", mood: "complete" as const }
-  if (xp >= 700) return { title: "个性装饰已解锁", subtitle: "社区身份会比普通用户更显眼", color: "#3DA563", mood: "recommend" as const }
-  if (xp >= 360) return { title: "金色名牌已解锁", subtitle: "评论和主页开始有等级辨识度", color: "#e8c96a", mood: "happy" as const }
-  if (xp >= 120) return { title: "基础头像框已解锁", subtitle: "开始有自己的成长身份", color: "#c9a84c", mood: "thinking" as const }
-  return { title: "新手徽章", subtitle: "从第一步开始发光", color: "#c9a84c", mood: "welcome" as const }
+  if (xp >= 1200) return { title: "高阶身份已点亮", subtitle: "名牌、边框和主页装饰开始压场", color: "#e8c96a", mood: "complete" as const }
+  if (xp >= 700) return { title: "装饰权益已开启", subtitle: "社区里会比普通用户更显眼", color: "#3DA563", mood: "recommend" as const }
+  if (xp >= 360) return { title: "第一波爽点已到手", subtitle: "继续通关，下一档装饰会叠加", color: "#e8c96a", mood: "happy" as const }
+  if (xp >= 120) return { title: "快到第一个爽点", subtitle: "冲到 LV3 先拿钻石头像框体验", color: "#c9a84c", mood: "thinking" as const }
+  return { title: "新手开局", subtitle: "第一天目标：冲 LV3，拿钻石头像框体验", color: "#c9a84c", mood: "welcome" as const }
 }
 
 function rankColor(rank: number) {
@@ -242,7 +242,7 @@ export default function GrowthClient() {
       const next = { ...current, xp: Number(result.xp || current.xp + awarded), doneMissions: { ...current.doneMissions, [key]: true } }
       setState({ ...next, xp: Number(result.xp || user.xp + awarded) })
       writeGrowth(next, user.userId)
-      setNotice(awarded > 0 ? `领取成功，${awarded} XP 已进入你的账号等级。` : "这个奖励已经领过啦，换个任务继续升级。")
+      setNotice(awarded > 0 ? `通关奖励到账：${awarded} XP。进度条推进了，下一档装饰更近了。` : "这个奖励已经领过啦，换个任务继续冲下一档。")
     } catch (error: any) {
       setNotice(error?.message || "领取失败，请稍后再试。")
     } finally {
@@ -349,7 +349,7 @@ export default function GrowthClient() {
 
         <section style={{ border: "1px solid #2a1f10", borderRadius: 12, padding: 18, background: "rgba(201,168,76,0.05)", marginBottom: 18 }}>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 10, alignItems: "center" }}>
-            <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>等级进度</p>
+            <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>下一关钩子</p>
             <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 12, fontWeight: 900 }}>
               {nextLevel ? `${state.xp}/${nextLevel.minXP}` : `${state.xp} XP`}
             </p>
@@ -358,7 +358,8 @@ export default function GrowthClient() {
                 <div style={{ height: "100%", width: `${levelPercent}%`, background: "linear-gradient(90deg,#7a6230,#e8c96a)", transition: "width 0.3s" }} />
               </div>
               <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7, marginTop: 10 }}>
-                当前权益：{currentLevel.reward.vanity}{nextLevel ? `。再拿 ${nextLevel.minXP - state.xp} XP 解锁 LV.${nextLevel.level} ${nextLevel.name}。` : "。你已经点亮最高身份。"}
+                当前战利品：{currentLevel.reward.vanity}
+                {nextLevel ? ` 下一关再拿 ${nextLevel.minXP - state.xp} XP，解锁 LV.${nextLevel.level} ${nextLevel.name}：${nextLevel.reward.title}。` : " 你已经点亮最高身份。"}
               </p>
         </section>
 
@@ -473,7 +474,7 @@ export default function GrowthClient() {
         </div>
 
         <section style={{ marginTop: 18, border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 20 }}>
-          <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, marginBottom: 14 }}>升级有什么好处</h2>
+          <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, marginBottom: 14 }}>段位奖励预告</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
             {LEVELS.map((item) => (
               <div key={item.level} style={{ border: `1px solid ${state.xp >= item.minXP ? item.color : "#242424"}`, borderRadius: 10, background: state.xp >= item.minXP ? `${item.color}12` : "rgba(0,0,0,0.24)", padding: "14px 15px" }}>

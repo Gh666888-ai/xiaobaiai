@@ -104,6 +104,44 @@ ALTER TABLE growth_events ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can read own growth events" ON growth_events;
 CREATE POLICY "Users can read own growth events" ON growth_events FOR SELECT USING (auth.uid() = user_id);
 
+-- 任务通关证明表。只保存短证明、勾选项和复盘摘要，不保存用户大文件原文。
+-- 用途：防止任务 XP 纯点击领取；后续可用于作品墙、复盘审核、等级权益发放。
+CREATE TABLE IF NOT EXISTS mission_submissions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  mission_id TEXT NOT NULL,
+  step_count INTEGER NOT NULL DEFAULT 0,
+  proof JSONB NOT NULL DEFAULT '{}'::jsonb,
+  recap TEXT,
+  status TEXT NOT NULL DEFAULT 'submitted' CHECK (status IN ('submitted', 'reviewed', 'rejected')),
+  proof_score INTEGER DEFAULT 0,
+  reviewed_at TIMESTAMPTZ,
+  reviewed_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, mission_id)
+);
+
+ALTER TABLE mission_submissions ADD COLUMN IF NOT EXISTS step_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE mission_submissions ADD COLUMN IF NOT EXISTS proof JSONB NOT NULL DEFAULT '{}'::jsonb;
+ALTER TABLE mission_submissions ADD COLUMN IF NOT EXISTS recap TEXT;
+ALTER TABLE mission_submissions ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'submitted';
+ALTER TABLE mission_submissions ADD COLUMN IF NOT EXISTS proof_score INTEGER DEFAULT 0;
+ALTER TABLE mission_submissions ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMPTZ;
+ALTER TABLE mission_submissions ADD COLUMN IF NOT EXISTS reviewed_by UUID REFERENCES auth.users(id) ON DELETE SET NULL;
+ALTER TABLE mission_submissions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+
+CREATE INDEX IF NOT EXISTS mission_submissions_user_created_idx ON mission_submissions(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS mission_submissions_mission_idx ON mission_submissions(mission_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS mission_submissions_status_idx ON mission_submissions(status, created_at DESC);
+
+GRANT SELECT ON TABLE mission_submissions TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE mission_submissions TO service_role;
+
+ALTER TABLE mission_submissions ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can read own mission submissions" ON mission_submissions;
+CREATE POLICY "Users can read own mission submissions" ON mission_submissions FOR SELECT USING (auth.uid() = user_id);
+
 -- 通用服务端限流表。用于聊天、投稿、Webhook 等需要跨重启保留的限流窗口。
 CREATE TABLE IF NOT EXISTS rate_limits (
   scope TEXT NOT NULL,

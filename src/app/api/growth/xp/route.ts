@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { CHECK_IN_XP, DAILY_ONLINE_XP_CAP, GROWTH_MISSIONS, LEARNING_STAGE_XP, ONLINE_XP_PER_HEARTBEAT } from "@/data/growth"
+import { missions } from "@/data/missions"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
@@ -8,6 +9,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || ""
 const supabaseKey = supabaseServiceKey || supabaseAnonKey
 const ONLINE_HEARTBEAT_MS = 5 * 60 * 1000
 const missionById = new Map(GROWTH_MISSIONS.map((mission) => [mission.id, mission]))
+const missionDetailById = new Map(missions.map((mission) => [mission.id, mission]))
 
 function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status })
@@ -38,6 +40,63 @@ function dayKey(now = new Date()) {
 
 function tableSetupError(error: any) {
   return String(error?.code || "") === "42P01" || String(error?.message || "").includes("growth_events")
+}
+
+function missionSubmissionSetupError(error: any) {
+  return String(error?.code || "") === "42P01" || String(error?.message || "").includes("mission_submissions")
+}
+
+function textLen(value: unknown) {
+  return typeof value === "string" ? value.trim().length : 0
+}
+
+function sanitizeProofText(value: unknown) {
+  return typeof value === "string" ? value.trim().slice(0, 1000) : ""
+}
+
+function validateMissionProof(body: any, missionId: string) {
+  const mission = missionDetailById.get(missionId)
+  if (!mission) return { ok: false as const, error: "任务不存在。" }
+  const proof = body?.proof && typeof body.proof === "object" ? body.proof : null
+  if (!proof) return { ok: false as const, error: "缺少任务通关证明，请按步骤完成后再领取。" }
+
+  const stepProofs = proof.stepProofs && typeof proof.stepProofs === "object" ? proof.stepProofs : {}
+  const sanitizedSteps: Record<string, any> = {}
+  let score = 0
+
+  for (let index = 0; index < mission.steps.length; index++) {
+    const item = stepProofs[index] || stepProofs[String(index)]
+    if (!item || typeof item !== "object") {
+      return { ok: false as const, error: `第 ${index + 1} 步还没有完成证明。` }
+    }
+    const method = item.method === "recap" || item.method === "artifact" || item.method === "self-check" ? item.method : "self-check"
+    const checked = Array.isArray(item.checked) ? item.checked.map(Boolean).slice(0, 8) : []
+    const checkedCount = checked.filter(Boolean).length
+    const minText = method === "self-check" ? 0 : method === "artifact" ? 10 : 20
+    const text = sanitizeProofText(item.text)
+
+    if (checkedCount < 1) return { ok: false as const, error: `第 ${index + 1} 步至少勾选一条完成标准。` }
+    if (textLen(text) < minText) return { ok: false as const, error: `第 ${index + 1} 步需要粘贴一句结果、文件名或复盘说明。` }
+
+    sanitizedSteps[String(index)] = {
+      method,
+      text,
+      checked,
+      updatedAt: typeof item.updatedAt === "string" ? item.updatedAt : new Date().toISOString(),
+    }
+    score += Math.min(checkedCount, 3) + Math.min(Math.floor(text.length / 30), 4)
+  }
+
+  return {
+    ok: true as const,
+    mission,
+    submission: {
+      step_count: mission.steps.length,
+      proof: { stepProofs: sanitizedSteps },
+      recap: sanitizeProofText(proof.recap),
+      proof_score: score,
+    },
+  }
 }
 
 function resolveAward(body: any, now = new Date()) {
@@ -129,6 +188,32 @@ export async function POST(req: NextRequest) {
   }
 
   let amount = award.amount
+  let missionSubmission: ReturnType<typeof validateMissionProof> | null = null
+
+  if (award.reason.startsWith("mission:")) {
+    const missionId = award.reason.slice("mission:".length)
+    missionSubmission = validateMissionProof(body, missionId)
+    if (!missionSubmission.ok) return jsonError(missionSubmission.error)
+
+    const { error: submissionError } = await adminSupabase
+      .from("mission_submissions")
+      .upsert({
+        user_id: user.id,
+        mission_id: missionId,
+        step_count: missionSubmission.submission.step_count,
+        proof: missionSubmission.submission.proof,
+        recap: missionSubmission.submission.recap || null,
+        status: "submitted",
+        proof_score: missionSubmission.submission.proof_score,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id,mission_id" })
+
+    if (submissionError) {
+      logSupabaseError("upsert-mission-submission", submissionError)
+      return jsonError(missionSubmissionSetupError(submissionError) ? "任务证明表还没建好，请先执行最新版 supabase.sql。" : "任务证明保存失败，请稍后再试。", 500)
+    }
+  }
+
   if (award.reason === "online") {
     const { data: onlineEvents, error: onlineError } = await adminSupabase
       .from("growth_events")

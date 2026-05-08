@@ -5,7 +5,15 @@ export const MISSION_PROGRESS_KEY = "xiaobaiai:mission-progress:v1"
 export type StoredMissionProgress = {
   currentStep: number
   completedSteps: boolean[]
+  stepProofs?: Record<number, MissionStepProof>
   completed: boolean
+  updatedAt: string
+}
+
+export type MissionStepProof = {
+  method: "self-check" | "artifact" | "recap"
+  text: string
+  checked: boolean[]
   updatedAt: string
 }
 
@@ -62,10 +70,19 @@ export function selectMission(state: MissionProgressState, missionId: string): M
     },
   }
 }
-export function markMissionStepDone(state: MissionProgressState, missionId: string, stepIndex: number, totalSteps: number): MissionProgressState {
+export function markMissionStepDone(
+  state: MissionProgressState,
+  missionId: string,
+  stepIndex: number,
+  totalSteps: number,
+  proof?: MissionStepProof,
+): MissionProgressState {
   const current = getStoredMission(state, missionId)
   const completedSteps = [...current.completedSteps]
   completedSteps[stepIndex] = true
+  const stepProofs = proof
+    ? { ...(current.stepProofs || {}), [stepIndex]: proof }
+    : current.stepProofs
   const nextStep = Math.min(totalSteps - 1, completedSteps.findIndex((done, index) => index > stepIndex && !done))
   const fallbackStep = Math.min(stepIndex + 1, Math.max(0, totalSteps - 1))
   const currentStep = nextStep >= 0 ? nextStep : fallbackStep
@@ -76,6 +93,7 @@ export function markMissionStepDone(state: MissionProgressState, missionId: stri
       ...state.missions,
       [missionId]: {
         completedSteps,
+        stepProofs,
         currentStep: completed ? Math.max(0, totalSteps - 1) : currentStep,
         completed,
         updatedAt: new Date().toISOString(),

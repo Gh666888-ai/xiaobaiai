@@ -16,6 +16,13 @@ export type MissionStep = {
   action: string
   deliverable: string
   prompt: string
+  proof?: {
+    method: "self-check" | "artifact" | "recap"
+    label: string
+    placeholder?: string
+    minLength?: number
+    requiredChecks?: number
+  }
   toolAction?: MissionToolAction
   clickPath?: string[]
   checklist?: string[]

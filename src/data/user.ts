@@ -16,10 +16,10 @@ export type LevelReward = {
 }
 
 const levelNames = [
-  "初入AI门",
-  "点火学员",
-  "青铜提问者",
-  "白银试炼者",
+  "初入山门",
+  "点火小白",
+  "青铜开悟者",
+  "白银破局者",
   "黄金提示师",
   "铂金执行官",
   "钻石任务家",
@@ -40,10 +40,12 @@ const levelNames = [
 
 function minXPForLevel(level: number) {
   if (level <= 0) return 0
-  if (level <= 10) return level * 60
-  if (level <= 15) return 600 + (level - 10) * 120
-  if (level <= 19) return 1200 + (level - 15) * 220
-  return 2080 + (level - 19) * 400
+  const early = [0, 60, 140, 260, 420, 620, 880, 1180]
+  if (level < early.length) return early[level]
+  if (level <= 12) return 1180 + (level - 7) * 260
+  if (level <= 16) return 2480 + (level - 12) * 420
+  if (level <= 19) return 4160 + (level - 16) * 680
+  return 6200 + (level - 19) * 900
 }
 
 function badgeForLevel(level: number) {
@@ -69,26 +71,34 @@ function colorForLevel(level: number) {
 }
 
 function descForLevel(level: number) {
-  if (level === 0) return "刚开始探索 AI，先完成第一个小步骤。"
-  if (level <= 3) return "正在建立 AI 使用手感，重点是敢问、敢试、敢改。"
-  if (level <= 7) return "已经能跟着小白完成基础任务，开始拿到真实产出。"
-  if (level <= 11) return "能把 AI 用进办公、内容和资料整理。"
-  if (level <= 14) return "开始沉淀提示词、复盘和可复用流程。"
-  if (level <= 17) return "能搭建知识库、自动化和多步任务。"
-  if (level <= 18) return "能指挥 Agent 完成项目级交付。"
-  return "小白AI核心共创身份，代表一起建设 AI 时代入口。"
+  if (level === 0) return "还在山门外，完成第一个小步骤就能点火。"
+  if (level <= 3) return "新手觉醒期，先拿到第一个真实成果和第一件装饰。"
+  if (level <= 7) return "开始连续通关，任务越多，名牌越亮。"
+  if (level <= 11) return "已经能把 AI 用进办公、内容和资料整理，开始有可见身份。"
+  if (level <= 14) return "复盘和流程开始沉淀，别人能看见你的方法。"
+  if (level <= 17) return "能搭建知识库、自动化和多步任务，进入高阶玩家区。"
+  if (level <= 18) return "能指挥 Agent 完成项目级交付，身份开始压场。"
+  return "小白AI核心共创身份，站内最高段位之一；未来共创收益计划优先候选席位，以正式规则为准。"
 }
 
 function rewardForLevel(level: number): LevelReward {
-  if (level >= 19) return { title: "共创神名牌", vanity: "专属共创神名牌、终极头像框、社区置顶身份、内测优先席位" }
+  if (level >= 19) return {
+    title: "终局钩子：小白AI共创神",
+    vanity: "专属共创神名牌、终极头像框、社区置顶身份、内测优先席位；小白AI网站后期若启动盈利后的共创收益计划，本身份将作为优先候选权益池，具体范围、条件和发放规则以后续正式公告为准",
+  }
   if (level >= 18) return { title: "天启Agent主装饰", vanity: "动态主页光效、Agent 指挥官名牌、评论区高亮边框" }
   if (level >= 17) return { title: "超神任务王边框", vanity: "钻石动态边框、任务王称号、复盘卡片高级装饰" }
   if (level >= 15) return { title: "皇冠导师身份", vanity: "皇冠名牌、导师标识、社区评论金色描边" }
   if (level >= 12) return { title: "曜石个性装饰", vanity: "曜石头像框、主页身份条、任务复盘卡片装饰" }
   if (level >= 8) return { title: "金色发光名牌", vanity: "金色等级名牌、评论区等级展示、个人主页进度条发光" }
-  if (level >= 4) return { title: "银翼头像框", vanity: "银色头像框、基础身份牌、社区昵称旁等级标识" }
-  if (level >= 1) return { title: "新手点火牌", vanity: "点火徽章、任务完成动效、成长页基础展示" }
-  return { title: "基础身份", vanity: "完成第一个任务后解锁名牌和头像框" }
+  if (level >= 7) return { title: "下一章：星耀名牌体验", vanity: "星耀名牌 7 天体验、评论区高亮试用、主页身份条预览" }
+  if (level >= 6) return { title: "爽点加码：钻石边框体验", vanity: "钻石头像框 5 天体验、任务完成动效增强、昵称旁等级闪光" }
+  if (level >= 5) return { title: "铂金执行官名牌", vanity: "铂金名牌 5 天体验、社区昵称旁身份牌、复盘卡片装饰试用" }
+  if (level >= 4) return { title: "双体验加成", vanity: "钻石头像框体验延长 2 天，再加评论区高亮 2 天体验" }
+  if (level >= 3) return { title: "第一波爽点：钻石头像框", vanity: "发放钻石头像框 2 天体验，先让你在社区里亮起来" }
+  if (level >= 2) return { title: "青铜开悟标识", vanity: "青铜身份牌 3 天体验，下一关解锁钻石头像框体验" }
+  if (level >= 1) return { title: "新手点火牌", vanity: "点火徽章、任务完成动效、成长页基础展示；再做一件事就能冲 LV3" }
+  return { title: "山门钩子", vanity: "完成第一个任务后点火，第一天目标是冲到 LV3 拿钻石头像框体验" }
 }
 
 // 更密的等级梯子：前期每完成一个完整任务基本都能升级或接近升级。

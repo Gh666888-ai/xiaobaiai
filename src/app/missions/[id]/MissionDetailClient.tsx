@@ -31,17 +31,18 @@ import {
   readMissionProgress,
   selectMission,
   writeMissionProgress,
+  type MissionStepProof,
   type MissionProgressState,
 } from "@/lib/mission-progress"
 import { getNextLevel, getUserLevel } from "@/data/user"
 
 const stepPraise = [
-  "很好，这一步你已经真的动手了。",
-  "稳住，已经不是在收藏教程，而是在推进结果。",
-  "这一步很关键，做完后后面会轻很多。",
-  "漂亮，离完整交付又近了一步。",
-  "可以，这就是从 0 到 1 的感觉。",
-  "做得对，先跑通再追求完美。",
+  "第一步已点亮，你已经不是围观教程的人了。",
+  "这一关过了，后面开始出成果。",
+  "进度推进成功，离完整交付又近了一格。",
+  "做得漂亮，这一步会变成你的复盘资产。",
+  "小关卡已通，继续往前就能拿完整任务奖励。",
+  "节奏对了，先通关，再变强。",
 ]
 
 function praiseFor(index: number) {
@@ -79,8 +80,8 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
     writeMissionProgress(next)
   }
 
-  function markDone(index: number) {
-    persist(markMissionStepDone(progress, mission.id, index, mission.steps.length))
+  function markDone(index: number, proof?: MissionStepProof) {
+    persist(markMissionStepDone(progress, mission.id, index, mission.steps.length, proof))
     setPraise(praiseFor(index))
     window.setTimeout(() => setPraise(""), 4200)
   }
@@ -108,18 +109,27 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
     }
     setClaiming(true)
     try {
+      const stepProofs = current.stepProofs || {}
+      const finalProof = stepProofs[mission.steps.length - 1]
       const res = await fetch("/api/growth/xp", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ reason: "mission", missionId: mission.id }),
+        body: JSON.stringify({
+          reason: "mission",
+          missionId: mission.id,
+          proof: {
+            stepProofs,
+            recap: finalProof?.text || "",
+          },
+        }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error || "领取失败，请稍后再试。")
       await refresh().catch(() => undefined)
       setNotice(
         Number(data.awarded || 0) > 0
-          ? `完整任务完成，获得 ${data.awarded} XP。小白已经把这次成长记下来了。`
-          : "这条任务奖励已经领取过啦。",
+          ? `通关奖励到账：${data.awarded} XP。你的等级进度已经推进，下一件装饰正在路上。`
+          : "这条通关奖励已经领取过啦，换个任务继续冲下一段。",
       )
     } catch (error: any) {
       setNotice(error?.message || "领取失败，请稍后再试。")
@@ -200,14 +210,15 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
                 stepIndex={currentStepIndex}
                 copied={copied}
                 onCopy={copyText}
-                onDone={() => markDone(currentStepIndex)}
+                savedProof={current.stepProofs?.[currentStepIndex]}
+                onDone={(proof) => markDone(currentStepIndex, proof)}
               />
             )}
 
             {praise && (
               <div style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.065)", borderRadius: 12, padding: "16px 18px", display: "flex", gap: 12, alignItems: "center" }}>
                 <span style={{ color: "#e8c96a" }}><Sparkles size={18} /></span>
-                <p style={{ color: "#fff", fontSize: 14, fontWeight: 900, lineHeight: 1.7 }}>小白：{praise}</p>
+                <p style={{ color: "#fff", fontSize: 14, fontWeight: 900, lineHeight: 1.7 }}>小白通关提示：{praise}</p>
               </div>
             )}
 
@@ -268,15 +279,35 @@ function StepCard({
   stepIndex,
   copied,
   onCopy,
+  savedProof,
   onDone,
 }: {
   mission: Mission
   stepIndex: number
   copied: "prompt" | "fix" | "recap" | null
   onCopy: (kind: "prompt" | "fix" | "recap", text: string) => void
-  onDone: () => void
+  savedProof?: MissionStepProof
+  onDone: (proof: MissionStepProof) => void
 }) {
   const step = mission.steps[stepIndex]
+  const proofRule = step.proof || defaultProofRule(stepIndex, mission.steps.length)
+  const proofItems = (step.validation && step.validation.length > 0 ? step.validation : step.checklist || []).slice(0, 3)
+  const minChecks = Math.min(proofRule.requiredChecks ?? 1, proofItems.length)
+  const minLength = proofRule.minLength ?? (proofRule.method === "self-check" ? 0 : proofRule.method === "artifact" ? 10 : 20)
+  const [proofText, setProofText] = useState(savedProof?.text || "")
+  const [proofChecks, setProofChecks] = useState<boolean[]>(savedProof?.checked || [])
+  const checkedCount = proofChecks.filter(Boolean).length
+  const proofReady = checkedCount >= minChecks && proofText.trim().length >= minLength
+
+  useEffect(() => {
+    setProofText(savedProof?.text || "")
+    setProofChecks(savedProof?.checked || [])
+  }, [mission.id, stepIndex, savedProof])
+  const quickActions = [
+    step.toolAction ? `打开：${step.toolAction.label}` : "看清这一步要做什么",
+    step.prompt && step.prompt !== "这一步不需要复制提示词。先把工具打开，确认可以进入创建演示稿页面。" ? "复制提示词给 AI / 工具" : "按页面路径操作",
+    "做到完成标准后点下一步",
+  ]
 
   return (
     <article style={{ border: "1px solid #2a1f10", background: "linear-gradient(180deg,rgba(201,168,76,0.075),rgba(255,255,255,0.025))", borderRadius: 14, padding: "24px clamp(18px,3vw,30px)" }}>
@@ -291,9 +322,18 @@ function StepCard({
         </span>
       </div>
 
-      <section style={{ border: "1px solid #242424", background: "rgba(0,0,0,0.28)", borderRadius: 12, padding: "18px 20px", marginBottom: 14 }}>
-        <p style={{ color: "#888", fontSize: 11, fontWeight: 950, marginBottom: 7 }}>你现在只做这一件事</p>
+      <section style={{ border: "1px solid #242424", background: "rgba(0,0,0,0.28)", borderRadius: 12, padding: "16px 18px", marginBottom: 12 }}>
+        <p style={{ color: "#888", fontSize: 11, fontWeight: 950, marginBottom: 7 }}>先别想太多，现在只做这一件事</p>
         <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.65 }}>{step.action}</p>
+      </section>
+
+      <section style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 8, marginBottom: 12 }} className="step-action-row">
+        {quickActions.map((item, index) => (
+          <div key={item} style={{ border: "1px solid #2a2a2a", background: "rgba(255,255,255,0.028)", borderRadius: 10, padding: "11px 12px", minHeight: 70 }}>
+            <p style={{ color: "#e8c96a", fontFamily: "'JetBrains Mono',monospace", fontSize: 10, fontWeight: 950, marginBottom: 6 }}>0{index + 1}</p>
+            <p style={{ color: "#ddd", fontSize: 12, lineHeight: 1.55, fontWeight: 900 }}>{item}</p>
+          </div>
+        ))}
       </section>
 
       {step.toolAction && (
@@ -322,9 +362,9 @@ function StepCard({
         </section>
       )}
 
-      <section style={blockStyle}>
+      <section style={primaryBlockStyle}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", marginBottom: 10 }}>
-          <h3 style={{ ...blockTitleStyle, marginBottom: 0 }}>复制给 AI / 工具的提示词</h3>
+          <h3 style={{ ...blockTitleStyle, marginBottom: 0 }}>直接复制这一段</h3>
           <button type="button" onClick={() => onCopy("prompt", step.prompt)} style={miniButtonStyle}>
             {copied === "prompt" ? <Check size={13} /> : <Clipboard size={13} />} {copied === "prompt" ? "已复制" : "复制"}
           </button>
@@ -332,36 +372,37 @@ function StepCard({
         <p style={{ color: "#bbb", fontSize: 12, lineHeight: 1.85, whiteSpace: "pre-line" }}>{step.prompt}</p>
       </section>
 
-      <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }} className="step-action-row">
-        {step.checklist && step.checklist.length > 0 && (
-          <div style={blockStyle}>
-            <h3 style={blockTitleStyle}>做之前确认</h3>
-            <div style={{ display: "grid", gap: 8 }}>{step.checklist.map((item) => <CheckLine key={item}>{item}</CheckLine>)}</div>
-          </div>
-        )}
+      <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }} className="step-action-row">
         {step.validation && step.validation.length > 0 && (
-          <div style={blockStyle}>
-            <h3 style={blockTitleStyle}>做到这样才算完成</h3>
+          <div style={primaryBlockStyle}>
+            <h3 style={blockTitleStyle}>做到这样就可以下一步</h3>
             <div style={{ display: "grid", gap: 8 }}>{step.validation.map((item) => <CheckLine key={item}>{item}</CheckLine>)}</div>
           </div>
+        )}
+        {step.checklist && step.checklist.length > 0 && (
+          <details style={detailsStyle}>
+            <summary style={summaryStyle}>更多提醒</summary>
+            <div style={{ display: "grid", gap: 8, marginTop: 10 }}>{step.checklist.map((item) => <CheckLine key={item}>{item}</CheckLine>)}</div>
+          </details>
         )}
       </section>
 
       {step.fixPrompt && (
-        <section style={blockStyle}>
+        <details style={detailsStyle}>
+          <summary style={summaryStyle}>结果不好？点这里复制补救提示词</summary>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", marginBottom: 10 }}>
-            <h3 style={{ ...blockTitleStyle, marginBottom: 0 }}>结果不好时这样补救</h3>
+            <h3 style={{ ...blockTitleStyle, marginBottom: 0 }}>补救提示词</h3>
             <button type="button" onClick={() => onCopy("fix", step.fixPrompt!)} style={miniButtonStyle}>
               {copied === "fix" ? <Check size={13} /> : <Clipboard size={13} />} {copied === "fix" ? "已复制" : "复制"}
             </button>
           </div>
           <p style={{ color: "#bbb", fontSize: 12, lineHeight: 1.85 }}>{step.fixPrompt}</p>
-        </section>
+        </details>
       )}
 
       {step.troubleTips && step.troubleTips.length > 0 && (
-        <section style={blockStyle}>
-          <h3 style={blockTitleStyle}>卡住了看这里</h3>
+        <details style={detailsStyle}>
+          <summary style={summaryStyle}>卡住了再看</summary>
           <div style={{ display: "grid", gap: 9 }}>
             {step.troubleTips.map((tip) => (
               <div key={tip.problem} style={{ border: "1px solid #222", borderRadius: 9, padding: "11px 12px", background: "rgba(0,0,0,0.18)" }}>
@@ -370,19 +411,90 @@ function StepCard({
               </div>
             ))}
           </div>
-        </section>
+        </details>
       )}
 
-      <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.055)", borderRadius: 12, padding: "16px 18px", marginBottom: 16 }}>
+      <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.055)", borderRadius: 12, padding: "16px 18px", marginBottom: 12 }}>
         <p style={{ color: "#888", fontSize: 11, fontWeight: 950, marginBottom: 7 }}>这一步交付物</p>
         <p style={{ color: "#e8c96a", fontSize: 14, fontWeight: 950, lineHeight: 1.7 }}>{step.deliverable}</p>
       </section>
 
-      <button type="button" onClick={onDone} className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12 }}>
+      <section style={{ border: "1px solid #29351f", background: "rgba(61,165,99,0.065)", borderRadius: 12, padding: "16px 18px", marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 10, flexWrap: "wrap" }}>
+          <div>
+            <p style={{ color: "#fff", fontSize: 14, fontWeight: 950, marginBottom: 5 }}>通关判定</p>
+            <p style={{ color: "#9fcfaf", fontSize: 12, lineHeight: 1.65 }}>{proofRule.label}</p>
+          </div>
+          <span style={{ color: proofReady ? "#3DA563" : "#888", fontSize: 11, fontWeight: 950 }}>{proofReady ? "可以进入下一步" : "先留下完成证明"}</span>
+        </div>
+        {proofItems.length > 0 && (
+          <div style={{ display: "grid", gap: 7, marginBottom: minLength > 0 ? 12 : 0 }}>
+            {proofItems.map((item, index) => (
+              <label key={item} style={{ display: "grid", gridTemplateColumns: "18px 1fr", gap: 8, alignItems: "start", color: "#cfcfcf", fontSize: 12, lineHeight: 1.6, cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={!!proofChecks[index]}
+                  onChange={() => setProofChecks((prev) => {
+                    const next = [...prev]
+                    next[index] = !next[index]
+                    return next
+                  })}
+                  style={{ width: 15, height: 15, marginTop: 2, accentColor: "#3DA563" }}
+                />
+                <span>{item}</span>
+              </label>
+            ))}
+          </div>
+        )}
+        {minLength > 0 && (
+          <textarea
+            value={proofText}
+            onChange={(event) => setProofText(event.target.value)}
+            placeholder={proofRule.placeholder || "粘贴一句结果、文件名、链接或你生成出来的关键内容。"}
+            rows={3}
+            style={{ width: "100%", resize: "vertical", border: "1px solid #28412e", background: "rgba(0,0,0,0.32)", color: "#e9f6ed", borderRadius: 10, padding: "11px 12px", fontSize: 12, lineHeight: 1.65, outline: "none" }}
+          />
+        )}
+      </section>
+
+      <button
+        type="button"
+        onClick={() => onDone({ method: proofRule.method, text: proofText.trim(), checked: proofChecks, updatedAt: new Date().toISOString() })}
+        disabled={!proofReady}
+        className="btn-primary"
+        style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12, opacity: proofReady ? 1 : 0.48, cursor: proofReady ? "pointer" : "not-allowed" }}
+      >
         我完成了这一步，进入下一步 <ArrowRight size={14} />
       </button>
     </article>
   )
+}
+
+function defaultProofRule(stepIndex: number, totalSteps: number) {
+  if (stepIndex === totalSteps - 1) {
+    return {
+      method: "recap" as const,
+      label: "最后一步要留下复盘或导出结果，方便领取完整任务经验。",
+      placeholder: "例如：已导出 PPTX，复盘里记录了工具、资料、最好用的提示词和下次改进点。",
+      minLength: 20,
+      requiredChecks: 2,
+    }
+  }
+  if (stepIndex >= 1) {
+    return {
+      method: "artifact" as const,
+      label: "这一步需要有一个看得见的产物，粘贴一句结果或文件名即可。",
+      placeholder: "例如：生成了 6 页 PPT 初稿 / 得到 3 个选题 / 完成 5 条测试记录。",
+      minLength: 10,
+      requiredChecks: 1,
+    }
+  }
+  return {
+    method: "self-check" as const,
+    label: "新手第一步只做轻量确认，先把工具或页面打开。",
+    minLength: 0,
+    requiredChecks: 1,
+  }
 }
 
 function CompleteCard({
@@ -403,16 +515,16 @@ function CompleteCard({
   return (
     <article style={{ border: "1px solid #2f7d4d", background: "linear-gradient(180deg,rgba(61,165,99,0.13),rgba(255,255,255,0.026))", borderRadius: 14, padding: "26px clamp(18px,3vw,32px)" }}>
       <div style={{ color: "#3DA563", marginBottom: 12 }}><CheckCircle2 size={28} /></div>
-      <h2 style={{ color: "#fff", fontSize: 32, fontWeight: 950, lineHeight: 1.25, marginBottom: 10 }}>完整事件完成了</h2>
+      <h2 style={{ color: "#fff", fontSize: 32, fontWeight: 950, lineHeight: 1.25, marginBottom: 10 }}>任务通关，战利品待领取</h2>
       <p style={{ color: "#cfcfcf", fontSize: 15, lineHeight: 1.85, marginBottom: 18 }}>
-        小白：这不是看完一篇教程，这是你真的做完了一件事。现在可以领取完整任务 XP，并把流程保存成复盘。
+        小白：这不是看完一篇教程，这是你真的做完了一件事。领取 XP，推进等级；发一篇复盘，把这次通关变成别人能看见的战绩。
       </p>
       <div style={{ border: "1px solid #242424", background: "rgba(0,0,0,0.26)", borderRadius: 10, padding: "14px 15px", marginBottom: 16 }}>
         <p style={{ color: "#bbb", fontSize: 12, lineHeight: 1.75, whiteSpace: "pre-line" }}>{mission.recapTemplate}</p>
       </div>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         <button type="button" onClick={onClaim} disabled={claiming} className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-          {claiming ? "领取中..." : `领取 ${mission.xp}XP 完整任务奖励`} <Trophy size={14} />
+          {claiming ? "领取中..." : `领取 ${mission.xp}XP 通关奖励`} <Trophy size={14} />
         </button>
         <button type="button" onClick={onCopy} className="btn-outline" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
           {copied ? <Check size={14} /> : <Clipboard size={14} />} {copied ? "已复制复盘" : "复制复盘模板"}
@@ -432,6 +544,30 @@ const blockStyle: CSSProperties = {
   borderRadius: 12,
   padding: "16px 18px",
   marginBottom: 14,
+}
+
+const primaryBlockStyle: CSSProperties = {
+  border: "1px solid #302711",
+  background: "rgba(201,168,76,0.045)",
+  borderRadius: 12,
+  padding: "15px 17px",
+  marginBottom: 12,
+}
+
+const detailsStyle: CSSProperties = {
+  border: "1px solid #202020",
+  background: "rgba(0,0,0,0.18)",
+  borderRadius: 12,
+  padding: "13px 15px",
+  marginBottom: 12,
+}
+
+const summaryStyle: CSSProperties = {
+  color: "#cdbb80",
+  fontSize: 13,
+  fontWeight: 950,
+  cursor: "pointer",
+  listStyle: "none",
 }
 
 const blockTitleStyle: CSSProperties = {

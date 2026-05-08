@@ -8,55 +8,88 @@ import { NavBar } from "@/components/NavBar"
 import { ContentVisual } from "@/components/ContentVisual"
 import Link from "next/link"
 import { progressId, readLearningProgress, LearningProgress } from "@/lib/learning-progress"
+import { readMissionProgress } from "@/lib/mission-progress"
 
 const curriculumFlow = [
   {
-    level: "L0",
-    title: "认识 AI",
-    desc: "先知道 AI 能做什么、不能做什么，理解幻觉、验证和提示词边界。",
-    output: "能用自己的话解释 AI / Agent / 模型 / 工具的区别。",
+    level: "新手村 1",
+    title: "打开 AI，问出第一句话",
+    difficulty: "简单",
+    desc: "只要求打开一个 AI 工具，问一个真实问题。先消除害怕，不讲复杂术语。",
+    output: "留下一个真实问题和 AI 的第一版回答。",
+    proof: "勾选打开工具，粘贴一句 AI 回答。",
     href: "/learn/0",
   },
   {
-    level: "L1",
-    title: "会用工具",
-    desc: "从 Kimi、DeepSeek、Gamma、即梦这类现成工具开始，完成真实小任务。",
-    output: "能让 AI 写一段文案、总结一份文档、做一页 PPT 或生成一张图。",
+    level: "新手村 2",
+    title: "复制提示词，得到第一个小结果",
+    difficulty: "简单",
+    desc: "照着模板复制，不要求会写提示词，只要求知道资料要放在哪里。",
+    output: "得到一段可复制的文案、摘要或需求单。",
+    proof: "粘贴 10 字以上结果。",
     href: "/learn/1",
   },
   {
-    level: "L2",
-    title: "完成任务",
-    desc: "不再只聊天，而是按办公、创作、数据、学习等场景形成固定流程。",
-    output: "能把一个任务拆成输入、处理、检查、交付四步。",
-    href: "/cases",
+    level: "入门 1",
+    title: "做出第一份 AI PPT",
+    difficulty: "简单",
+    desc: "从下载/打开工具、整理资料、生成初稿到导出复盘，完整跑通一件办公任务。",
+    output: "一份 6 页 PPT 初稿和一条复盘。",
+    proof: "任务页保存每一步证明后领取 XP。",
+    href: "/missions/ai-ppt-first-deck",
   },
   {
-    level: "L3",
-    title: "搭建 Agent",
-    desc: "学习 Dify、Coze、QClaw、OpenClaw 这类 Agent，让 AI 能按流程办事。",
-    output: "能搭一个知识库问答、客服 Bot 或定时提醒流程。",
-    href: "/learn/2",
+    level: "入门 2",
+    title: "分析一份长资料",
+    difficulty: "一般",
+    desc: "学会上传资料、限定目标、抽取事实、生成行动清单，开始有真实工作价值。",
+    output: "结构化摘要、风险点和行动清单。",
+    proof: "保存问题、摘要表和行动清单。",
+    href: "/missions/kimi-k26-long-doc",
   },
   {
-    level: "L4",
-    title: "连接模型和 API",
-    desc: "理解 API Key、模型名、base_url、费用和安全，能把 DeepSeek 接到工具里。",
-    output: "能排查 401、余额、模型名、接口兼容这类常见问题。",
-    href: "/deepseek-api-key",
+    level: "进阶 1",
+    title: "做一条内容流水线",
+    difficulty: "一般",
+    desc: "把选题、正文、配图、发布前检查串起来，避免 AI 只会写空话。",
+    output: "一条可发布内容和配图提示词。",
+    proof: "保存选题、正文草稿、配图 Prompt 和检查结果。",
+    href: "/missions/xiaohongshu-ai-content-loop",
   },
   {
-    level: "L5",
-    title: "AI 编程与自动化",
-    desc: "进入 Claude Code、Codex、Cursor、工作流自动化，把 AI 用进真实项目。",
-    output: "能限定文件范围，让 AI 改一个小功能，并用 build/test 验证。",
-    href: "/claude-code-deepseek",
+    level: "进阶 2",
+    title: "搭一个知识库 Bot",
+    difficulty: "进阶",
+    desc: "开始理解知识库、测试问题、边界提示词，让 AI 按资料回答而不是乱编。",
+    output: "一个 Dify/Coze/FastGPT 知识库 Bot。",
+    proof: "保存 10 条问答资料、5 条测试记录和上线边界。",
+    href: "/missions/dify-knowledge-base-bot",
   },
   {
-    level: "L6",
-    title: "行业实战与复盘",
-    desc: "把前面的能力放进业务：内容、客服、数据、工具站、自动化和社区反馈。",
-    output: "能沉淀一篇案例，知道下次怎么复用和优化。",
+    level: "高手 1",
+    title: "跑通自动化流程",
+    difficulty: "困难",
+    desc: "把触发、抓取、AI 摘要、人工审核、发送串成流程，进入半自动生产。",
+    output: "一个 n8n/Agent 自动化流程和测试记录。",
+    proof: "保存流程节点、试运行结果和失败处理。",
+    href: "/missions/n8n-ai-news-automation",
+  },
+  {
+    level: "高手 2",
+    title: "让 AI 改真实项目",
+    difficulty: "困难",
+    desc: "限定文件范围、让工程 Agent 修改小功能，并用类型检查或构建验证。",
+    output: "一个真实项目小 diff 和验证结果。",
+    proof: "保存改动说明、测试命令和结果。",
+    href: "/missions/codex-small-feature",
+  },
+  {
+    level: "共创段",
+    title: "沉淀案例，反哺小白AI",
+    difficulty: "高阶",
+    desc: "把你的任务流程、踩坑和复盘发到社区，形成别人也能照着做的案例资产。",
+    output: "一篇可审核、可展示、可复用的真实复盘。",
+    proof: "社区帖子、任务证明和后续审核状态。",
     href: "/community/new",
   },
 ]
@@ -104,9 +137,11 @@ const todayActions = [
 
 export default function LearnPage() {
   const [progress, setProgress] = useState<LearningProgress>({})
+  const [missionDoneCount, setMissionDoneCount] = useState(0)
 
   useEffect(() => {
     setProgress(readLearningProgress())
+    setMissionDoneCount(Object.values(readMissionProgress().missions).filter((mission) => mission.completed).length)
     const onStorage = () => setProgress(readLearningProgress())
     window.addEventListener("storage", onStorage)
     return () => window.removeEventListener("storage", onStorage)
@@ -136,17 +171,18 @@ export default function LearnPage() {
               <Link href="/tutorials" className="btn-outline" style={{textDecoration:'none'}}>查看全部教程</Link>
             </div>
           </div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(128px,1fr))',gap:10,marginBottom:18}}>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:10,marginBottom:18}}>
             {curriculumFlow.map((item, index)=>(
-              <Link key={item.level} href={item.href} style={{position:'relative',display:'block',textDecoration:'none',border:'1px solid #242424',background:'rgba(0,0,0,0.28)',borderRadius:10,padding:'15px 14px',minHeight:190}}>
+              <Link key={item.level} href={item.href} style={{position:'relative',display:'block',textDecoration:'none',border:'1px solid #242424',background:'rgba(0,0,0,0.28)',borderRadius:10,padding:'15px 14px',minHeight:240}}>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,marginBottom:10}}>
                   <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:950,color:'#e8c96a'}}>{item.level}</span>
-                  <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#555'}}>{String(index+1).padStart(2,'0')}</span>
+                  <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:item.difficulty==="简单"?"#3DA563":item.difficulty==="一般"?"#e8c96a":"#d08a42",fontWeight:950}}>{item.difficulty}</span>
                 </div>
                 <h3 style={{fontSize:15,fontWeight:950,color:'#fff',lineHeight:1.4,marginBottom:8}}>{item.title}</h3>
                 <p style={{fontSize:12,color:'#bbb',lineHeight:1.65,marginBottom:10}}>{item.desc}</p>
                 <p style={{fontSize:11,color:'#cdbb80',lineHeight:1.6,borderTop:'1px solid #1d1d1d',paddingTop:9}}>交付物：{item.output}</p>
-                <p style={{fontSize:11,color:'#777',lineHeight:1.5,marginTop:7}}>通关奖励：阶段页领取 XP</p>
+                <p style={{fontSize:11,color:'#8fd6a0',lineHeight:1.6,marginTop:7}}>判定：{item.proof}</p>
+                <p style={{position:'absolute',right:14,bottom:12,fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#555'}}>{String(index+1).padStart(2,'0')}</p>
               </Link>
             ))}
           </div>
@@ -208,7 +244,10 @@ export default function LearnPage() {
           <div style={{height:8,background:'#111',border:'1px solid #242424',borderRadius:999,overflow:'hidden'}}>
             <div style={{height:'100%',width:`${totalSections ? Math.round(doneSections / totalSections * 100) : 0}%`,background:'linear-gradient(90deg,#7a6230,#e8c96a)',transition:'width 0.3s'}} />
           </div>
-          <p style={{fontSize:12,color:'#aaa',lineHeight:1.8,marginTop:10}}>进度保存在当前浏览器里。换电脑或清理浏览器数据后，需要重新标记。</p>
+          <p style={{fontSize:12,color:'#aaa',lineHeight:1.8,marginTop:10}}>
+            章节阅读先保存在当前浏览器；任务通关证明会在领取 XP 时写入服务器。后续作品墙、等级名牌、共创身份都应该以服务端任务证明为准。
+          </p>
+          <p style={{fontSize:12,color:'#cdbb80',lineHeight:1.8,marginTop:4}}>已通关真实任务：{missionDoneCount} 个。真正的等级增长，优先来自可检查的任务交付。</p>
         </div>
 
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:10,marginBottom:48}}>

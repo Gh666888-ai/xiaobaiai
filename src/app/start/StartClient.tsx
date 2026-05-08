@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import type { CSSProperties } from "react"
 import Link from "next/link"
-import { ArrowRight, Check, CheckCircle2, Clipboard, Flag, MessageCircle, Route, Sparkles, Trophy } from "lucide-react"
+import { ArrowRight, Check, CheckCircle2, Clipboard, MessageCircle, Trophy } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { missions } from "@/data/missions"
@@ -114,22 +114,23 @@ export function StartClient() {
           </Link>
         </section>
 
-        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,190px),1fr))", gap: 12, marginBottom: 38 }}>
+        <section style={{ border: "1px solid #181818", background: "rgba(255,255,255,0.024)", borderRadius: 10, padding: "10px 12px", marginBottom: 22, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <span style={{ color: "#cdbb80", fontSize: 12, fontWeight: 950, marginRight: 2 }}>做事路径</span>
           {principles.map((item, index) => (
-            <div key={item} style={{ border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: "18px 20px" }}>
-              <div style={{ color: "#e8c96a", marginBottom: 10 }}>{index === 0 ? <Flag size={18} /> : index === 1 ? <Route size={18} /> : index === 2 ? <CheckCircle2 size={18} /> : <Sparkles size={18} />}</div>
-              <p style={{ color: "#ddd", fontSize: 13, lineHeight: 1.8, fontWeight: 850 }}>{item}</p>
-            </div>
+            <span key={item} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#aaa", border: "1px solid #222", background: "rgba(0,0,0,0.22)", borderRadius: 999, padding: "6px 9px", fontSize: 11, fontWeight: 850 }}>
+              <span style={{ color: "#e8c96a", fontFamily: "'JetBrains Mono',monospace", fontSize: 10 }}>0{index + 1}</span>
+              {item}
+            </span>
           ))}
         </section>
 
-        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,320px),1fr))", gap: 18, alignItems: "start", marginBottom: 44 }}>
+        <section style={{ display: "grid", gridTemplateColumns: "320px minmax(0,1fr)", gap: 18, alignItems: "start", marginBottom: 44 }} className="start-workspace">
           <div>
-            <div style={{ marginBottom: 16 }}>
-              <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, marginBottom: 7 }}>选一个你真正想推进的方向</h2>
-              <p style={{ color: "#aaa", fontSize: 14, lineHeight: 1.8 }}>任务不会按工具堆砌，而是按“今天能交付什么”来组织。</p>
+            <div style={{ marginBottom: 10 }}>
+              <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, marginBottom: 5 }}>选择任务</h2>
+              <p style={{ color: "#888", fontSize: 12, lineHeight: 1.65 }}>这里先选方向，右侧才是今天要做的主任务。</p>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,240px),1fr))", gap: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 8, maxHeight: 560, overflowY: "auto", paddingRight: 4 }} className="start-mission-list">
               {missions.map((mission) => {
                 const active = mission.id === selected.id
                 const missionProgress = getStoredMission(progress, mission.id)
@@ -144,15 +145,14 @@ export function StartClient() {
                       border: active ? "1px solid #8c7333" : "1px solid #1a1a1a",
                       background: active ? "rgba(201,168,76,0.08)" : "rgba(255,255,255,0.026)",
                       borderRadius: 10,
-                      padding: "17px 18px",
-                      minHeight: 214,
+                      padding: "11px 12px",
+                      minHeight: 82,
                       cursor: "pointer",
                     }}
                   >
-                    <h3 style={{ color: "#fff", fontSize: 16, fontWeight: 950, lineHeight: 1.45, marginBottom: 8 }}>{mission.title}</h3>
-                    <p style={{ color: "#bbb", fontSize: 12, lineHeight: 1.7, marginBottom: 10 }}>{mission.tagline}</p>
-                    <p style={{ color: "#888", fontSize: 11, lineHeight: 1.65, marginBottom: 9 }}>{mission.audience}</p>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: 8, borderTop: "1px solid #242424", paddingTop: 10 }}>
+                    <h3 style={{ color: "#fff", fontSize: 13, fontWeight: 950, lineHeight: 1.45, marginBottom: 5 }}>{mission.shortTitle}</h3>
+                    <p style={{ color: active ? "#cfcfcf" : "#8f8f8f", fontSize: 11, lineHeight: 1.55, marginBottom: 8, display: "-webkit-box", WebkitLineClamp: active ? 2 : 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{mission.tagline}</p>
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: 8, borderTop: "1px solid #202020", paddingTop: 8 }}>
                       <span style={{ color: "#cdbb80", fontSize: 11, fontWeight: 900 }}>{missionDoneSteps}/{mission.steps.length} 步</span>
                       <span style={{ color: "#777", fontSize: 11, fontWeight: 900 }}>{mission.minutes}</span>
                     </div>
@@ -162,7 +162,7 @@ export function StartClient() {
             </div>
           </div>
 
-          <aside style={{ border: "1px solid #2a1f10", background: "linear-gradient(180deg,rgba(201,168,76,0.08),rgba(255,255,255,0.025))", borderRadius: 12, padding: "22px 24px", position: "sticky", top: 18 }}>
+          <aside style={{ border: "1px solid #2a1f10", background: "linear-gradient(180deg,rgba(201,168,76,0.08),rgba(255,255,255,0.025))", borderRadius: 12, padding: "22px 24px", position: "sticky", top: 18, minHeight: 520 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
               <div>
                 <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.18em", color: "#7a6230", fontWeight: 950, marginBottom: 6 }}>TODAY 0-1 QUEST</p>
@@ -223,6 +223,36 @@ export function StartClient() {
             <Link href="/community/new" className="btn-outline" style={{ textDecoration: "none" }}>发我的0-1复盘</Link>
           </div>
         </section>
+
+        <style>{`
+          .start-mission-list::-webkit-scrollbar {
+            width: 6px;
+          }
+          .start-mission-list::-webkit-scrollbar-thumb {
+            background: #2a2a2a;
+            border-radius: 999px;
+          }
+          .start-mission-list::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.03);
+          }
+          @media (max-width: 980px) {
+            .start-workspace {
+              grid-template-columns: 1fr !important;
+            }
+            .start-mission-list {
+              max-height: none !important;
+              overflow: visible !important;
+              grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+              padding-right: 0 !important;
+            }
+          }
+          @media (max-width: 640px) {
+            .start-mission-list,
+            .max-sm\\:grid-cols-1 {
+              grid-template-columns: 1fr !important;
+            }
+          }
+        `}</style>
       </main>
     </div>
   )
