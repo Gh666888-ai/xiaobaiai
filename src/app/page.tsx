@@ -96,7 +96,6 @@ export default function HomePage() {
       <section style={{ position: "relative", minHeight: "calc(100vh - 56px)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", padding: "82px 24px 72px" }}>
         <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", zIndex: 0 }} />
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 50% 48%, rgba(201,168,76,0.12), transparent 34%), linear-gradient(180deg, rgba(0,0,0,0.25), #000 86%)", zIndex: 1 }} />
-        <div style={{ position: "absolute", left: "50%", top: "52%", width: "min(720px,86vw)", aspectRatio: "1", transform: "translate(-50%,-50%)", border: "1px solid rgba(201,168,76,0.18)", borderRadius: "50%", boxShadow: "0 0 90px rgba(201,168,76,0.1)", zIndex: 1 }} />
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent 0%, #7a6230 20%, #c9a84c 50%, #7a6230 80%, transparent 100%)", opacity: 0.48, zIndex: 1 }} />
 
         <div style={{ position: "relative", zIndex: 10, width: "min(100%, 920px)", textAlign: "center" }}>
