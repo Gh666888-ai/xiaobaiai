@@ -27,28 +27,28 @@ body {
 /* 按钮 */
 .btn-primary {
   display: inline-flex; align-items: center; gap: 12px;
-  padding: 12px 28px; border: 1px solid #7a6230;
+  min-height: 46px; padding: 12px 28px; border: 1px solid #7a6230;
   color: #e8c96a; text-decoration: none;
-  font-family: 'JetBrains Mono', monospace; font-size: 11px;
-  letter-spacing: 0.15em; text-transform: uppercase;
+  font-family: 'Noto Sans SC', sans-serif; font-size: 15px; font-weight: 950;
+  letter-spacing: 0; text-transform: none;
   background: rgba(201,168,76,0.06); cursor: pointer; transition: 0.3s;
 }
 .btn-primary:hover { background: rgba(201,168,76,0.15); }
 
 .btn-outline {
   display: inline-flex; align-items: center; gap: 10px;
-  padding: 10px 24px; border: 1px solid #222;
+  min-height: 46px; padding: 10px 24px; border: 1px solid #222;
   color: rgba(255,255,255,0.5); text-decoration: none;
-  font-family: 'JetBrains Mono', monospace; font-size: 11px;
-  letter-spacing: 0.1em; background: transparent; cursor: pointer; transition: 0.3s;
+  font-family: 'Noto Sans SC', sans-serif; font-size: 15px; font-weight: 900;
+  letter-spacing: 0; background: transparent; cursor: pointer; transition: 0.3s;
 }
 .btn-outline:hover { border-color: #7a6230; color: #c9a84c; }
 
 /* 标签 */
 .tag {
-  display: inline-flex; align-items: center; height: 24px; padding: 0 10px;
-  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
-  letter-spacing: 0.08em; border: 1px solid #1a1a1a;
+  display: inline-flex; align-items: center; min-height: 28px; height: auto; padding: 4px 11px;
+  font-family: 'Noto Sans SC', sans-serif; font-size: 13px; font-weight: 850;
+  letter-spacing: 0; border: 1px solid #1a1a1a;
   color: rgba(255,255,255,0.6); background: transparent;
 }
 .tag-green  { border-color: rgba(61,165,99,0.3); color: #3DA563; }
@@ -61,7 +61,7 @@ body {
 .form-input {
   width: 100%; padding: 10px 14px;
   background: rgba(255,255,255,0.02); border: 1px solid #1a1a1a;
-  font-size: 13px; color: #f0f0f0; outline: none;
+  font-size: 15px; color: #f0f0f0; outline: none;
   font-family: 'Noto Sans SC', sans-serif;
   transition: border-color 0.3s;
 }
@@ -84,6 +84,59 @@ input:-webkit-autofill:focus {
 .link { color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.2s; }
 .link:hover { color: #c9a84c; }
 
+/* 全站可读性：把旧页面里写死的小号中文控件字统一放大加粗 */
+.btn-primary,
+.btn-outline,
+button.btn-primary,
+button.btn-outline,
+a.btn-primary,
+a.btn-outline {
+  font-size: 15px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.25 !important;
+  font-family: 'Noto Sans SC', sans-serif !important;
+}
+
+.tag,
+.tag span {
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.35 !important;
+  font-family: 'Noto Sans SC', sans-serif !important;
+}
+
+body :is(p, span, a, button, label, summary, small)[style*="font-size: 10px"],
+body :is(p, span, a, button, label, summary, small)[style*="font-size:10px"] {
+  font-size: 13px !important;
+  font-weight: 850 !important;
+}
+
+body :is(p, span, a, button, label, summary, small)[style*="font-size: 11px"],
+body :is(p, span, a, button, label, summary, small)[style*="font-size:11px"] {
+  font-size: 14px !important;
+  font-weight: 850 !important;
+}
+
+body :is(p, span, a, button, label, summary, small)[style*="font-size: 12px"],
+body :is(p, span, a, button, label, summary, small)[style*="font-size:12px"] {
+  font-size: 15px !important;
+  font-weight: 850 !important;
+}
+
+pre[style*="font-size: 12px"],
+pre[style*="font-size:12px"] {
+  font-size: 14px !important;
+  line-height: 1.85 !important;
+}
+
+.text-xs {
+  font-size: 0.875rem !important;
+  line-height: 1.35rem !important;
+  font-weight: 850;
+}
+
 /* 分隔线 */
 .divider { height: 1px; background: #1a1a1a; border: none; margin: 24px 0; }
 
@@ -101,7 +154,7 @@ input:-webkit-autofill:focus {
   /* 导航 */
   nav { padding: 10px 16px !important; }
   nav > div:last-child { gap: 14px !important; }
-  nav a { font-size: 13px !important; }
+  nav a { font-size: 14px !important; }
 
   /* 页面内边距 */
   [style*="padding:"] section, [style*="padding:"] main > div {
@@ -142,7 +195,7 @@ input:-webkit-autofill:focus {
 
 @media (max-width: 480px) {
   nav > div:last-child { gap: 8px !important; }
-  nav a { font-size: 10px !important; }
+  nav a { font-size: 12px !important; }
   [style*="grid-template-columns"] {
     grid-template-columns: repeat(1, 1fr) !important;
   }

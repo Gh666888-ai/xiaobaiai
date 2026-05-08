@@ -171,7 +171,7 @@ export function StartClient() {
   }
 
   return (
-    <div style={{ background: "#050505", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative" }}>
+    <div style={{ background: "linear-gradient(180deg,#07100f 0%,#0b0d0c 46%,#070707 100%)", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative" }}>
       <NavBar />
       <main style={mainStyle}>
         <section style={panelStyle}>
@@ -199,15 +199,15 @@ export function StartClient() {
 
           <div style={actionRowStyle}>
             {completed ? (
-              <button type="button" onClick={openGoalRouter} className="btn-primary" style={buttonStyle}>
+              <button type="button" onClick={openGoalRouter} style={buttonStyle}>
                 让小白打开任务模板 <MessageCircle size={16} />
               </button>
             ) : (
-              <button type="button" onClick={confirmCurrentStep} className="btn-primary" style={buttonStyle}>
+              <button type="button" onClick={confirmCurrentStep} style={buttonStyle}>
                 我做完了，确认 <CheckCircle2 size={16} />
               </button>
             )}
-            <button type="button" onClick={copyPrompt} className="btn-outline" style={outlineButtonStyle}>
+            <button type="button" onClick={copyPrompt} style={outlineButtonStyle}>
               {copied ? "已复制" : "复制小白提示词"} <Clipboard size={14} />
             </button>
           </div>
@@ -223,11 +223,11 @@ export function StartClient() {
         </section>
 
         <section style={agentHintStyle}>
-          <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, marginBottom: 7 }}>想换成你的行业任务？</p>
-          <p style={{ color: "#aaa", fontSize: 13, lineHeight: 1.75, marginBottom: 14 }}>
+          <p style={{ color: "#f7f1df", fontSize: 21, fontWeight: 950, marginBottom: 8 }}>想换成你的行业任务？</p>
+          <p style={{ color: "#c8c8bd", fontSize: 16, lineHeight: 1.8, marginBottom: 16 }}>
             告诉小白一句行业和目标，它会直接跳到对应的固定任务模板，并记住你做到哪一步。
           </p>
-          <button type="button" onClick={openGoalRouter} className="btn-outline" style={agentButtonStyle}>
+          <button type="button" onClick={openGoalRouter} style={agentButtonStyle}>
             直接分配任务 <ArrowRight size={14} />
           </button>
         </section>
@@ -237,20 +237,21 @@ export function StartClient() {
 }
 
 const mainStyle: CSSProperties = {
-  maxWidth: 700,
+  maxWidth: 780,
   margin: "0 auto",
   minHeight: "calc(100vh - 76px)",
-  padding: "36px clamp(16px,5vw,40px) 72px",
+  padding: "38px clamp(16px,5vw,42px) 76px",
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
 }
 
 const panelStyle: CSSProperties = {
-  border: "1px solid #2a1f10",
-  background: "rgba(10,10,10,0.97)",
-  borderRadius: 12,
-  padding: "26px clamp(18px,5vw,34px)",
+  border: "1px solid rgba(233,215,165,0.16)",
+  background: "linear-gradient(180deg,rgba(22,27,24,0.96),rgba(13,16,15,0.98))",
+  borderRadius: 18,
+  padding: "34px clamp(22px,5vw,44px)",
+  boxShadow: "0 24px 70px rgba(0,0,0,0.36)",
 }
 
 const topRowStyle: CSSProperties = {
@@ -262,106 +263,126 @@ const topRowStyle: CSSProperties = {
 }
 
 const eyebrowStyle: CSSProperties = {
-  color: "#e8c96a",
-  fontSize: 12,
+  color: "#d8bf76",
+  fontSize: 15,
   fontWeight: 950,
-  marginBottom: 9,
+  marginBottom: 10,
 }
 
 const titleStyle: CSSProperties = {
-  color: "#fff",
-  fontSize: "clamp(32px,7vw,58px)",
+  color: "#f8f3e6",
+  fontSize: "clamp(36px,6.8vw,60px)",
   fontWeight: 950,
-  lineHeight: 1.08,
+  lineHeight: 1.12,
   margin: 0,
 }
 
 const missionTitleStyle: CSSProperties = {
-  color: "#cdbb80",
-  fontSize: 13,
+  color: "#cfc4a3",
+  fontSize: 16,
   fontWeight: 900,
-  lineHeight: 1.6,
-  marginTop: 10,
+  lineHeight: 1.65,
+  marginTop: 12,
 }
 
 const statusPillStyle: CSSProperties = {
-  border: "1px solid #3a321d",
-  background: "rgba(201,168,76,0.08)",
-  color: "#e8c96a",
+  border: "1px solid rgba(216,191,118,0.28)",
+  background: "rgba(216,191,118,0.1)",
+  color: "#ead68f",
   borderRadius: 999,
-  padding: "7px 10px",
-  fontSize: 12,
+  padding: "9px 13px",
+  fontSize: 15,
   fontWeight: 950,
   whiteSpace: "nowrap",
 }
 
 const progressTrackStyle: CSSProperties = {
-  height: 7,
+  height: 9,
   borderRadius: 999,
-  background: "#171717",
+  background: "rgba(255,255,255,0.08)",
   overflow: "hidden",
-  marginBottom: 18,
+  marginBottom: 22,
 }
 
 const progressBarStyle: CSSProperties = {
   display: "block",
   height: "100%",
   borderRadius: 999,
-  background: "linear-gradient(90deg,#7a6230,#e8c96a)",
+  background: "linear-gradient(90deg,#5d876f,#d8bf76)",
   transition: "width 0.35s ease",
 }
 
 const taskBoxStyle: CSSProperties = {
-  border: "1px solid #242424",
-  background: "rgba(255,255,255,0.035)",
-  borderRadius: 10,
-  padding: "16px 17px",
+  border: "1px solid rgba(255,255,255,0.1)",
+  background: "rgba(244,240,226,0.055)",
+  borderRadius: 14,
+  padding: "22px 24px",
 }
 
 const smallLabelStyle: CSSProperties = {
-  color: "#e8c96a",
-  fontSize: 12,
+  color: "#d8bf76",
+  fontSize: 16,
   fontWeight: 950,
-  marginBottom: 8,
+  marginBottom: 10,
 }
 
 const taskTextStyle: CSSProperties = {
-  color: "#fff",
-  fontSize: 18,
+  color: "#f7f1df",
+  fontSize: 22,
   lineHeight: 1.85,
   fontWeight: 900,
   margin: 0,
 }
 
 const deliverableStyle: CSSProperties = {
-  color: "#cdbb80",
-  fontSize: 13,
-  lineHeight: 1.75,
-  marginTop: 12,
+  color: "#d6caa8",
+  fontSize: 17,
+  lineHeight: 1.85,
+  marginTop: 15,
 }
 
 const actionRowStyle: CSSProperties = {
   display: "flex",
-  gap: 10,
+  gap: 12,
   flexWrap: "wrap",
-  marginTop: 20,
+  marginTop: 24,
 }
 
 const buttonStyle: CSSProperties = {
+  border: "1px solid rgba(216,191,118,0.42)",
+  background: "linear-gradient(180deg,rgba(216,191,118,0.22),rgba(151,126,58,0.16))",
+  color: "#fff4c9",
+  borderRadius: 12,
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
-  gap: 8,
-  minHeight: 48,
-  padding: "0 20px",
+  gap: 9,
+  minHeight: 56,
+  padding: "0 24px",
+  fontFamily: "'Noto Sans SC', sans-serif",
+  fontSize: 17,
+  fontWeight: 950,
+  letterSpacing: 0,
+  cursor: "pointer",
+  boxShadow: "0 12px 26px rgba(0,0,0,0.22)",
 }
 
 const outlineButtonStyle: CSSProperties = {
+  border: "1px solid rgba(255,255,255,0.13)",
+  background: "rgba(255,255,255,0.045)",
+  color: "#e6e2d8",
+  borderRadius: 12,
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
-  gap: 8,
-  minHeight: 48,
+  gap: 9,
+  minHeight: 56,
+  padding: "0 22px",
+  fontFamily: "'Noto Sans SC', sans-serif",
+  fontSize: 17,
+  fontWeight: 900,
+  letterSpacing: 0,
+  cursor: "pointer",
 }
 
 const footerRowStyle: CSSProperties = {
@@ -374,31 +395,32 @@ const footerRowStyle: CSSProperties = {
 }
 
 const syncTextStyle: CSSProperties = {
-  color: "#777",
-  fontSize: 12,
-  lineHeight: 1.6,
+  color: "#9c9c94",
+  fontSize: 15,
+  lineHeight: 1.7,
 }
 
 const resetButtonStyle: CSSProperties = {
   border: 0,
   background: "transparent",
-  color: "#8a8a8a",
+  color: "#aaa59a",
   display: "inline-flex",
   alignItems: "center",
   gap: 6,
-  fontSize: 12,
+  fontSize: 15,
   cursor: "pointer",
 }
 
 const agentHintStyle: CSSProperties = {
-  border: "1px solid #1f1f1f",
-  background: "rgba(12,12,12,0.9)",
-  borderRadius: 12,
-  padding: "18px 20px",
-  marginTop: 12,
+  border: "1px solid rgba(255,255,255,0.1)",
+  background: "rgba(19,24,22,0.82)",
+  borderRadius: 16,
+  padding: "22px 24px",
+  marginTop: 14,
 }
 
 const agentButtonStyle: CSSProperties = {
+  ...outlineButtonStyle,
   display: "inline-flex",
   alignItems: "center",
   gap: 8,
