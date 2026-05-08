@@ -44,6 +44,32 @@ const HOME_USER_PROMPT =
 const ONBOARDING_PROFILE_KEY = "xiaobaiai:onboarding-profile:v1"
 const FLOAT_AGENT_ANCHOR_KEY = "xiaobaiai:floating-agent-anchor:v1"
 const DEFAULT_FLOAT_ANCHOR: FloatAnchor = { right: 22, bottom: 22 }
+const SHORT_GOAL_KEYWORDS = [
+  "ai漫剧", "漫剧", "动漫", "动画", "漫画", "分镜", "短剧", "视频",
+  "ppt", "资料", "文档", "合同", "客服", "知识库", "自动化", "日报",
+  "网文", "小说", "编程", "网站", "本地模型", "openclaw", "claude code",
+]
+
+function looksLikeGoalShortcut(message: string) {
+  const text = message.toLowerCase().replace(/\s+/g, "")
+  return SHORT_GOAL_KEYWORDS.some((keyword) => text.includes(keyword.toLowerCase().replace(/\s+/g, "")))
+}
+
+function compactAssistantReply(reply: string) {
+  const cleaned = reply
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/\r/g, "")
+    .split("\n")
+    .map((line) => line.replace(/^#{1,6}\s*/, "").replace(/^[-*]\s*/, "").trim())
+    .filter(Boolean)
+    .join("\n")
+
+  if (cleaned.length <= 180 && cleaned.split("\n").length <= 4) return cleaned
+
+  const firstLines = cleaned.split("\n").slice(0, 4).join("\n")
+  const shortText = firstLines.length > 180 ? `${firstLines.slice(0, 176)}...` : firstLines
+  return `${shortText}\n\n我先不展开长教程。你要继续的话，直接说“下一步”。`
+}
 
 function isSiteQuestion(message: string) {
   const text = message.toLowerCase()
@@ -421,14 +447,14 @@ export function FloatingChat() {
     setInput("")
     setSending(true)
     setSpeaking(false)
-    if (user && looksLikeIndustryGoal(value)) {
+    if (user && (looksLikeIndustryGoal(value) || looksLikeGoalShortcut(value))) {
       const mission = await assignMissionFromGoal(value)
       setMode("site")
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: `我给你定好了：${mission.title}\n\n现在不继续聊建议了，直接进任务页。第一步只做一件事：${mission.steps[0]?.action || "先打开任务页开始。"}\n\n我会记住进度，下次点开始会回到这条路线。`,
+          content: `收到，直接带你进「${mission.shortTitle}」学习任务。\n\n第一步只做这个：${mission.steps[0]?.action || "先打开任务页开始。"}\n\n我会记住进度，下次继续从这里走。`,
         },
       ])
       setSpeaking(true)
@@ -453,7 +479,7 @@ export function FloatingChat() {
       const data = await res.json()
       setMode(data.mode || "")
       setRemaining(typeof data.remaining === "number" ? data.remaining : null)
-      setMessages((prev) => [...prev, { role: "assistant", content: data.reply || "我刚才没拿到有效回复，你可以换个问法再试一次。" }])
+      setMessages((prev) => [...prev, { role: "assistant", content: compactAssistantReply(data.reply || "我刚才没拿到有效回复，你可以换个问法再试一次。") }])
       setSpeaking(true)
       window.setTimeout(() => setSpeaking(false), 1800)
     } catch {
