@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { BookOpen, Bot, Building2, Compass, Flag, GraduationCap, LogOut, Menu, Newspaper, Search, Trophy, Users, Workflow, X } from "lucide-react"
+import { BookOpen, Bot, Building2, Compass, Flag, GraduationCap, LogOut, Menu, MessageCircle, Newspaper, Search, Trophy, Users, Workflow, X } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/lib/AuthContext"
 import { LevelBadge } from "@/components/LevelBadge"
@@ -10,10 +10,14 @@ import { XiaobaiLogo } from "@/components/XiaobaiLogo"
 import { LEVELS, getNextLevel, getUserLevel } from "@/data/user"
 
 const links = [
-  { label: "小白爱学习", href: "/learn", icon: GraduationCap },
+  { label: "开始", href: "/start", icon: Compass },
   { label: "任务", href: "/missions", icon: Flag },
   { label: "工具", href: "/tools", icon: Compass },
+  { label: "学习", href: "/learn", icon: GraduationCap },
   { label: "案例", href: "/cases", icon: BookOpen },
+]
+
+const moreLinks = [
   { label: "选择器", href: "/choose-tool", icon: Search },
   { label: "工作流", href: "/workflows", icon: Workflow },
   { label: "成长舱", href: "/growth", icon: Trophy },
@@ -69,6 +73,10 @@ export function NavBar() {
               </Link>
             )
           })}
+          <button type="button" className="site-nav-link site-nav-button" onClick={() => window.dispatchEvent(new Event("xiaobai:open-chat"))}>
+            <MessageCircle size={14} />
+            问小白
+          </button>
         </div>
 
         <div className="site-nav-auth">
@@ -133,7 +141,7 @@ export function NavBar() {
 
       {menuOpen && (
         <div className="site-mobile-menu">
-          {links.map((item) => {
+          {[...moreLinks, ...links].map((item) => {
             const Icon = item.icon
             const active = pathname === item.href || pathname?.startsWith(`${item.href}/`)
             return (
@@ -143,6 +151,10 @@ export function NavBar() {
               </Link>
             )
           })}
+          <button type="button" className="site-mobile-link site-mobile-button" onClick={() => window.dispatchEvent(new Event("xiaobai:open-chat"))}>
+            <MessageCircle size={15} />
+            <span>问小白</span>
+          </button>
         </div>
       )}
 
@@ -359,6 +371,13 @@ export function NavBar() {
           text-decoration: none;
           transition: color 0.2s, border-color 0.2s, background 0.2s;
         }
+        .site-nav-button,
+        .site-mobile-button {
+          border: 0;
+          background: transparent;
+          cursor: pointer;
+          font-family: inherit;
+        }
         .site-nav-link svg,
         .site-mobile-link svg {
           color: #7a6230;
@@ -390,7 +409,7 @@ export function NavBar() {
           background: rgba(201,168,76,0.05);
         }
         .site-menu-button {
-          display: none;
+          display: inline-flex;
           width: 38px;
           height: 38px;
           border-radius: 10px;
@@ -405,7 +424,25 @@ export function NavBar() {
           display: none;
         }
         .site-mobile-menu {
-          display: none;
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+          gap: 8px;
+          padding: 10px 24px 14px;
+          border-top: 1px solid #141414;
+          background: rgba(0,0,0,0.96);
+        }
+        .site-mobile-link {
+          min-height: 40px;
+          border: 1px solid #202020;
+          border-radius: 10px;
+          background: rgba(255,255,255,0.03);
+          padding: 9px 11px;
+          color: #ddd;
+          justify-content: flex-start;
+        }
+        .site-mobile-link.is-active {
+          border-color: #7a6230;
+          background: rgba(201,168,76,0.07);
         }
         @media (max-width: 860px) {
           .site-nav-row {
@@ -414,9 +451,6 @@ export function NavBar() {
           }
           .site-nav-links {
             display: none;
-          }
-          .site-menu-button {
-            display: inline-flex;
           }
           .desktop-level {
             display: none;
@@ -430,25 +464,8 @@ export function NavBar() {
             font-size: 12px;
           }
           .site-mobile-menu {
-            display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px;
             padding: 10px 12px 12px;
-            border-top: 1px solid #141414;
-            background: rgba(0,0,0,0.96);
-          }
-          .site-mobile-link {
-            min-height: 42px;
-            border: 1px solid #202020;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.03);
-            padding: 9px 11px;
-            color: #ddd;
-            justify-content: flex-start;
-          }
-          .site-mobile-link.is-active {
-            border-color: #7a6230;
-            background: rgba(201,168,76,0.07);
           }
         }
         @media (max-width: 420px) {
