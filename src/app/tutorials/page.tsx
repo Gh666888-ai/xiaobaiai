@@ -31,7 +31,7 @@ const quickStart = [
 
 const installFirst = [
   { href: "/claude-code-deepseek", label: "Claude Code 安装先看这里", note: "Windows npm.ps1 红字、Node.js、npm.cmd、版本号验证，一步一步复制。" },
-  { href: "/news/news-62", label: "只做到能看到版本号", note: "不先讲 API Key 和模型名，先把电脑里的 Claude Code 装成功。" },
+  { href: "/news/news-62", label: "1分钟直接跑通能用", note: "不先讲 API Key 和模型名，先把电脑里的 Claude Code 装成功。" },
   { href: "/codex", label: "Codex 安装与配置", note: "桌面版、终端启动、API Key、中转站配置和常见卡住问题。" },
   { href: "/deepseek-api-key", label: "DeepSeek API Key 申请", note: "注册、创建密钥、充值额度、填到工具里的最短路径。" },
   { href: "/learn/2", label: "OpenClaw 接 DeepSeek V4", note: "WSL2、Ubuntu、初始化向导、OpenAI Compatible 填法和模型报错处理。" },
