@@ -310,7 +310,7 @@ function beginnerClaudeCodeReply(message: string) {
   if (!aboutClaudeCode || !aboutInstall) return ""
 
   if (hasAnthropicServiceError) {
-    return "这不是安装失败。Claude Code 已经启动成功了，版本号也出来了。\n\n现在卡住的是：它默认去连接 Anthropic 官方服务 api.anthropic.com，但当前网络/地区/账号环境连不上，所以出现：\nUnable to connect to Anthropic services\n\n国内新手先不要走官方连接，先配置 DeepSeek 的 Anthropic 兼容接口。在同一个 PowerShell 里复制下面这几行，把 sk-你的Key 换成自己的 DeepSeek API Key：\n$env:ANTHROPIC_BASE_URL=\"https://api.deepseek.com/anthropic\"\n$env:ANTHROPIC_AUTH_TOKEN=\"sk-你的DeepSeek_API_Key\"\n$env:ANTHROPIC_MODEL=\"deepseek-v4-flash\"\nclaude\n\n如果你还没有 DeepSeek API Key，先去 platform.deepseek.com 创建一个。\n\n如果你想用 Anthropic 官方 Claude，就需要确认你的账号、地区和网络能正常访问官方服务。"
+    return "这不是安装失败。Claude Code 已经启动成功了，版本号也出来了。\n\n现在卡住的是：它默认去连接 Anthropic 官方服务 api.anthropic.com，但当前网络/地区/账号环境连不上，所以出现：\nUnable to connect to Anthropic services\n\n国内新手先不要走官方连接，直接对接 DeepSeek V4 的 Anthropic 兼容接口。\n\nWindows PowerShell 复制下面这一整段，把 sk-你的DeepSeek_API_Key 换成自己的 Key：\n$env:ANTHROPIC_BASE_URL=\"https://api.deepseek.com/anthropic\"\n$env:ANTHROPIC_AUTH_TOKEN=\"sk-你的DeepSeek_API_Key\"\n$env:ANTHROPIC_MODEL=\"deepseek-v4-pro[1m]\"\n$env:ANTHROPIC_DEFAULT_OPUS_MODEL=\"deepseek-v4-pro[1m]\"\n$env:ANTHROPIC_DEFAULT_SONNET_MODEL=\"deepseek-v4-pro[1m]\"\n$env:ANTHROPIC_DEFAULT_HAIKU_MODEL=\"deepseek-v4-flash\"\n$env:CLAUDE_CODE_SUBAGENT_MODEL=\"deepseek-v4-flash\"\n$env:CLAUDE_CODE_EFFORT_LEVEL=\"max\"\nclaude\n\n如果模型名不支持 deepseek-v4-pro[1m]，先把三处 deepseek-v4-pro[1m] 改成 deepseek-v4-pro；还不行就先用 deepseek-v4-flash 跑通。\n\n如果还没有 DeepSeek API Key，先去 platform.deepseek.com 创建一个。"
   }
 
   if (hasNpxPolicyError) {
@@ -328,6 +328,17 @@ function beginnerClaudeCodeReply(message: string) {
   return "先别管 API Key 和模型名，我们只做安装和启动。\n\n第 1 步：打开浏览器，去 nodejs.org，下载 LTS 版本，双击安装。\n\n第 2 步：打开终端。\nWindows：搜索 PowerShell。\nMac：打开 Terminal。\n\n第 3 步：复制这一行，粘贴到终端，按回车：\nnode -v\n\n看到 v 开头的版本号，就继续。\n\n第 4 步：Windows PowerShell 复制这一行，粘贴到终端，按回车：\nnpm.cmd install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com\n\nMac 复制这一行：\nnpm install -g @anthropic-ai/claude-code\n\n第 5 步：等它跑完，再复制这一行，按回车：\nclaude --version\n\n看到版本号，就算安装完成。\n\n第 6 步：启动 Claude Code，复制这一行：\nclaude\n\n第一次打开后，先输入：\n请先告诉我你能做什么，不要修改我的文件。\n\n如果要在自己的项目里用，先进入项目文件夹，再输入 claude。"
 }
 
+function beginnerAgentDeepSeekReply(message: string) {
+  const text = message.toLowerCase()
+  const aboutOpenClaw = text.includes("openclaw") || text.includes("open claw")
+  const aboutHermes = text.includes("hermes")
+  const aboutDeepSeek = text.includes("deepseek") || text.includes("deepseek v4") || text.includes("api") || text.includes("模型")
+  if ((!aboutOpenClaw && !aboutHermes) || !aboutDeepSeek) return ""
+
+  const toolName = aboutOpenClaw ? "OpenClaw" : "Hermes"
+  return `${toolName} 接 DeepSeek V4，先用 OpenAI Compatible 这套，最容易跑通。\n\n在 ${toolName} 的模型配置/初始化向导里这样填：\nProvider / Model Provider：OpenAI Compatible 或 Custom\nBase URL：https://api.deepseek.com\nAPI Key：sk-你的DeepSeek_API_Key\nModel：deepseek-v4-flash\n强一点的模型：deepseek-v4-pro\n如果工具支持长上下文模型：deepseek-v4-pro[1m]\n\n小白先别一上来用最复杂模型。先用 deepseek-v4-flash 测试一句：\n你好，请用中文告诉我你现在连接的是哪个模型。\n\n能回答后，再把模型改成 deepseek-v4-pro。\n\n如果出现 404 / model not found：把模型名改回 deepseek-v4-flash。\n如果出现 401：API Key 填错了，检查有没有多复制空格。\n如果出现余额不足：去 platform.deepseek.com 检查余额和计费状态。\n\n如果 ${toolName} 当前版本提供 Anthropic Compatible Provider，再用这套：\nBase URL：https://api.deepseek.com/anthropic\nAPI Key：sk-你的DeepSeek_API_Key\nModel：deepseek-v4-pro[1m]\nHaiku / Fast / Subagent Model：deepseek-v4-flash`
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json()
   const userMessage = String(body.message || "").trim()
@@ -339,6 +350,16 @@ export async function POST(req: NextRequest) {
   if (freeBeginnerClaudeCodeReply) {
     return NextResponse.json({
       reply: freeBeginnerClaudeCodeReply,
+      mode: "site",
+      free: true,
+      remaining: null,
+    })
+  }
+
+  const freeBeginnerAgentDeepSeekReply = beginnerAgentDeepSeekReply(userMessage)
+  if (freeBeginnerAgentDeepSeekReply) {
+    return NextResponse.json({
+      reply: freeBeginnerAgentDeepSeekReply,
       mode: "site",
       free: true,
       remaining: null,

@@ -208,6 +208,16 @@ export default function ClaudeCodeDeepSeekPage() {
           <p style={{ color: "#bfa795", fontSize: 12, lineHeight: 1.75, marginTop: 10 }}>
             把 sk-你的DeepSeek_API_Key 换成你自己的 DeepSeek Key。如果你要使用 Anthropic 官方 Claude，需要确认账号、地区和网络能正常访问官方服务。
           </p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 16 }} className="max-sm:grid-cols-1">
+            <div>
+              <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 8 }}>Windows PowerShell 完整版</p>
+              <CodeBlock code={windowsConfig} />
+            </div>
+            <div>
+              <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 8 }}>Mac / Linux / WSL 完整版</p>
+              <CodeBlock code={macConfig} />
+            </div>
+          </div>
         </section>
 
         <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.045)", borderRadius: 12, padding: 22, marginBottom: 42 }}>

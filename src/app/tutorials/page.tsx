@@ -34,6 +34,8 @@ const installFirst = [
   { href: "/news/news-62", label: "只做到能看到版本号", note: "不先讲 API Key 和模型名，先把电脑里的 Claude Code 装成功。" },
   { href: "/codex", label: "Codex 安装与配置", note: "桌面版、终端启动、API Key、中转站配置和常见卡住问题。" },
   { href: "/deepseek-api-key", label: "DeepSeek API Key 申请", note: "注册、创建密钥、充值额度、填到工具里的最短路径。" },
+  { href: "/learn/2", label: "OpenClaw 接 DeepSeek V4", note: "WSL2、Ubuntu、初始化向导、OpenAI Compatible 填法和模型报错处理。" },
+  { href: "/learn/2", label: "Hermes 接 DeepSeek V4", note: "先确认官方安装来源，再按 OpenAI/Anthropic Compatible 两种方式接入。" },
   { href: "/news/news-67", label: "Ollama 本地模型安装", note: "Windows/Mac 下载、打开命令提示符、复制 ollama run 命令和报错处理。" },
   { href: "/dify", label: "Dify 网页版入门", note: "不用装软件，先注册登录，再搭一个能回答文档问题的助手。" },
 ]

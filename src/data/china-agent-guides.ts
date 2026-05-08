@@ -1,5 +1,60 @@
 import type { Section } from "./learning-path"
 
+const deepseekAnthropicWindowsLines = [
+  "Windows PowerShell 完整版，复制这一整段，把 sk-你的DeepSeek_API_Key 换成自己的 Key：",
+  "    $env:ANTHROPIC_BASE_URL=\"https://api.deepseek.com/anthropic\"",
+  "    $env:ANTHROPIC_AUTH_TOKEN=\"sk-你的DeepSeek_API_Key\"",
+  "    $env:ANTHROPIC_MODEL=\"deepseek-v4-pro[1m]\"",
+  "    $env:ANTHROPIC_DEFAULT_OPUS_MODEL=\"deepseek-v4-pro[1m]\"",
+  "    $env:ANTHROPIC_DEFAULT_SONNET_MODEL=\"deepseek-v4-pro[1m]\"",
+  "    $env:ANTHROPIC_DEFAULT_HAIKU_MODEL=\"deepseek-v4-flash\"",
+  "    $env:CLAUDE_CODE_SUBAGENT_MODEL=\"deepseek-v4-flash\"",
+  "    $env:CLAUDE_CODE_EFFORT_LEVEL=\"max\"",
+  "    claude",
+]
+
+const deepseekAnthropicMacLines = [
+  "Mac / Linux / WSL 完整版，复制这一整段：",
+  "    export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic",
+  "    export ANTHROPIC_AUTH_TOKEN=sk-你的DeepSeek_API_Key",
+  "    export ANTHROPIC_MODEL=deepseek-v4-pro[1m]",
+  "    export ANTHROPIC_DEFAULT_OPUS_MODEL=deepseek-v4-pro[1m]",
+  "    export ANTHROPIC_DEFAULT_SONNET_MODEL=deepseek-v4-pro[1m]",
+  "    export ANTHROPIC_DEFAULT_HAIKU_MODEL=deepseek-v4-flash",
+  "    export CLAUDE_CODE_SUBAGENT_MODEL=deepseek-v4-flash",
+  "    export CLAUDE_CODE_EFFORT_LEVEL=max",
+  "    claude",
+]
+
+const deepseekV4FallbackLines = [
+  "如果模型名不支持 deepseek-v4-pro[1m]，先把三处 deepseek-v4-pro[1m] 改成 deepseek-v4-pro；还不行就先用 deepseek-v4-flash 跑通。",
+  "如果你还没有 DeepSeek API Key，先去 platform.deepseek.com 创建一个。",
+]
+
+const deepseekOpenAiCompatibleBlock = [
+  "DeepSeek V4 接入填写模板：",
+  "    Provider / Model Provider：OpenAI Compatible 或 Custom",
+  "    Base URL：https://api.deepseek.com",
+  "    API Key：sk-你的DeepSeek_API_Key",
+  "    Model：deepseek-v4-flash",
+  "    强一点的模型：deepseek-v4-pro",
+  "    如果工具支持长上下文模型：deepseek-v4-pro[1m]",
+  "",
+  "小白先用 deepseek-v4-flash 跑通。能正常回答后，再把模型改成 deepseek-v4-pro 或 deepseek-v4-pro[1m]。",
+  "如果出现 404 / model not found，就是模型名不被当前工具或账号支持，先换回 deepseek-v4-flash。",
+].join("\n")
+
+const deepseekAnthropicCompatibleBlock = [
+  "如果工具支持 Anthropic Compatible Provider，复制下面这套：",
+  "    Provider：Anthropic Compatible",
+  "    Base URL：https://api.deepseek.com/anthropic",
+  "    API Key：sk-你的DeepSeek_API_Key",
+  "    Model：deepseek-v4-pro[1m]",
+  "    Haiku / Fast / Subagent Model：deepseek-v4-flash",
+  "",
+  ...deepseekV4FallbackLines,
+].join("\n")
+
 const claudeCodeChinaGuide = [
   "Claude Code 是 Anthropic 官方终端编程 Agent。它很强，但国内用户要先知道：官方版默认需要 Anthropic 支持的账号、地区和网络环境。小白如果只是想写代码，OpenClaw / Cline / Continue + DeepSeek V4 往往更稳。",
   "",
@@ -61,11 +116,11 @@ const claudeCodeChinaGuide = [
   "如果启动后提示 Unable to connect to Anthropic services：",
   "这不是安装失败，而是 Claude Code 默认连接 Anthropic 官方服务失败。国内新手先配置 DeepSeek 的 Anthropic 兼容接口。",
   "",
-  "Windows PowerShell 复制：",
-  "    $env:ANTHROPIC_BASE_URL=\"https://api.deepseek.com/anthropic\"",
-  "    $env:ANTHROPIC_AUTH_TOKEN=\"sk-你的DeepSeek_API_Key\"",
-  "    $env:ANTHROPIC_MODEL=\"deepseek-v4-flash\"",
-  "    claude",
+  ...deepseekAnthropicWindowsLines,
+  "",
+  ...deepseekAnthropicMacLines,
+  "",
+  ...deepseekV4FallbackLines,
   "",
   "如果你要使用 Anthropic 官方 Claude，需要确认账号、地区和网络能正常访问官方服务。",
   "",
@@ -85,17 +140,11 @@ const claudeCodeChinaGuide = [
   "",
   "临时测试方式：",
   "",
-  "Mac / Linux / WSL：",
-  "    export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic",
-  "    export ANTHROPIC_AUTH_TOKEN=你的DeepSeek_API_Key",
-  "    export ANTHROPIC_MODEL=deepseek-v4-flash",
-  "    claude",
+  ...deepseekAnthropicWindowsLines,
   "",
-  "Windows PowerShell：",
-  "    $env:ANTHROPIC_BASE_URL=\"https://api.deepseek.com/anthropic\"",
-  "    $env:ANTHROPIC_AUTH_TOKEN=\"你的DeepSeek_API_Key\"",
-  "    $env:ANTHROPIC_MODEL=\"deepseek-v4-flash\"",
-  "    claude",
+  ...deepseekAnthropicMacLines,
+  "",
+  ...deepseekV4FallbackLines,
   "",
   "注意：Windows 不要复制 export，Mac / Linux / WSL 才复制 export。",
   "",
@@ -146,19 +195,235 @@ export const chinaAgentInstallSections: Section[] = [
   },
   {
     title: "DeepSeek V4 API Key 获取与通用配置",
-    content: "OpenClaw、Claude Code、Hermes、本地 WebUI 都可以接模型。中国用户建议先接 DeepSeek V4，因为访问、付费和中文体验更友好。\n\n第一步：注册 DeepSeek 开发者平台\n\n① 打开浏览器\n② 访问 platform.deepseek.com\n③ 用手机号或邮箱注册\n④ 登录后找到 API Keys / 密钥管理\n⑤ 点击创建 API Key\n⑥ 复制 sk- 开头的密钥\n\n注意：密钥通常只完整显示一次。复制后保存到你自己的密码管理器或本地记事本。\n\n第二步：记住 4 个关键配置\n\nOpenAI 兼容地址：\n    https://api.deepseek.com\n\nAnthropic 兼容地址：\n    https://api.deepseek.com/anthropic\n\n推荐模型：\n    deepseek-v4-flash\n\n更强模型：\n    deepseek-v4-pro\n\n旧模型名：\n    deepseek-chat\n    deepseek-reasoner\n\n官方说明里旧模型名会在 2026-07-24 后废弃，所以新教程统一推荐 deepseek-v4-flash 或 deepseek-v4-pro。\n\n第三步：新手怎么选\n\n日常聊天、总结、客服、写文案：\n    deepseek-v4-flash\n\n复杂推理、代码修复、Agent 多步任务：\n    deepseek-v4-pro\n\n省钱原则：\n    先用 flash，效果不够再切 pro。\n\n第四步：常见报错\n\n401：\nAPI Key 错了，检查有没有复制少字符、前后有没有空格。\n\n402 或 insufficient balance：\n余额不足或没有开通计费。\n\n404 model not found：\n模型名写错，改成 deepseek-v4-flash。\n\ntimeout：\n网络不稳定，稍后重试，或换到你有权使用的稳定网络环境。",
+    content: `OpenClaw、Claude Code、Hermes、本地 WebUI 都可以接模型。中国用户建议先接 DeepSeek V4，因为访问、付费和中文体验更友好。
+
+第一步：注册 DeepSeek 开发者平台
+
+① 打开浏览器
+② 访问 platform.deepseek.com
+③ 用手机号或邮箱注册
+④ 登录后找到 API Keys / 密钥管理
+⑤ 点击创建 API Key
+⑥ 复制 sk- 开头的密钥
+
+注意：密钥通常只完整显示一次。复制后保存到你自己的密码管理器或本地记事本。
+
+第二步：记住 4 个关键配置
+
+OpenAI 兼容地址：
+    https://api.deepseek.com
+
+Anthropic 兼容地址：
+    https://api.deepseek.com/anthropic
+
+推荐模型：
+    deepseek-v4-flash
+
+更强模型：
+    deepseek-v4-pro
+
+长上下文模型：
+    deepseek-v4-pro[1m]
+
+旧模型名：
+    deepseek-chat
+    deepseek-reasoner
+
+官方说明里旧模型名会在 2026-07-24 后废弃，所以新教程统一推荐 deepseek-v4-flash、deepseek-v4-pro 或 deepseek-v4-pro[1m]。
+
+第三步：新手怎么选
+
+日常聊天、总结、客服、写文案：
+    deepseek-v4-flash
+
+复杂推理、代码修复、Agent 多步任务：
+    deepseek-v4-pro
+
+长文档、长代码库、需要更长上下文：
+    deepseek-v4-pro[1m]
+
+省钱原则：
+    先用 flash，效果不够再切 pro。
+
+第四步：OpenClaw / Hermes 直接照填
+
+${deepseekOpenAiCompatibleBlock}
+
+第五步：Claude Code / Anthropic 兼容工具直接照填
+
+${deepseekAnthropicCompatibleBlock}
+
+第六步：常见报错
+
+401：
+API Key 错了，检查有没有复制少字符、前后有没有空格。
+
+402 或 insufficient balance：
+余额不足或没有开通计费。
+
+404 model not found：
+模型名写错，先改成 deepseek-v4-flash。
+
+timeout：
+网络不稳定，稍后重试，或换到你有权使用的稳定网络环境。`,
     tools: ["deepseek"],
     tips: "复制 API Key 时最容易多复制一个空格。填配置前先粘到记事本里看一眼。",
   },
   {
     title: "Windows 10/11 安装 OpenClaw + 接入 DeepSeek V4",
-    content: "OpenClaw 官方支持 Windows，但更推荐 Windows 用户用 WSL2，也就是在 Windows 里安装一个 Ubuntu 小系统。这样最稳定。\n\n第一部分：安装 WSL2 + Ubuntu\n\n① 右键开始菜单\n② 点击「终端管理员」或「Windows PowerShell 管理员」\n③ 输入：\n    wsl --install\n④ 等它自动安装\n⑤ 如果提示重启，就重启电脑\n⑥ 重启后打开 Ubuntu\n⑦ 第一次打开会让你设置用户名和密码\n\n密码输入时屏幕不会显示，这是正常的。输入完按回车即可。\n\n第二部分：更新 Ubuntu\n\n打开 Ubuntu，复制：\n    sudo apt update\n\n再复制：\n    sudo apt upgrade -y\n\n第三部分：安装 OpenClaw\n\n官方推荐 Node 24 或 Node 22.14+，安装脚本通常会自动处理。\n\n在 Ubuntu 里执行：\n    curl -fsSL https://openclaw.ai/install.sh | bash\n\n如果提示 curl 不存在：\n    sudo apt install -y curl\n\n然后再执行安装命令。\n\n第四部分：初始化 OpenClaw\n\n安装完成后执行：\n    openclaw onboard --install-daemon\n\n向导里按下面填：\n    Model Provider：OpenAI Compatible 或 Custom\n    Base URL：https://api.deepseek.com\n    API Key：你的 DeepSeek API Key\n    Model：deepseek-v4-flash\n\n如果有高级模型 / Reasoning Model：\n    deepseek-v4-pro\n\n第五部分：启动和测试\n\n执行：\n    openclaw\n\n输入：\n    你好，请用中文告诉我你现在连接的是哪个模型。\n\n如果能正常中文回答，说明成功。\n\n第六部分：打开 Web 界面\n\n如果 OpenClaw 提示本地地址，复制到浏览器打开。常见地址可能是：\n    http://localhost:3000\n    http://localhost:8642\n\n第七部分：常见问题\n\nnode version too low：\nNode 版本太低。执行 node -v 看版本，低于 22 就升级。\n\nnpm install 很慢：\n    npm config set registry https://registry.npmmirror.com\n\nopenclaw: command not found：\n关闭 Ubuntu 重新打开，或者执行：\n    source ~/.bashrc\n\n浏览器打不开 localhost：\n确认 OpenClaw 还在运行，并使用终端里提示的端口。",
+    content: `OpenClaw 官方支持 Windows，但更推荐 Windows 用户用 WSL2，也就是在 Windows 里安装一个 Ubuntu 小系统。这样最稳定。
+
+第一部分：安装 WSL2 + Ubuntu
+
+① 右键开始菜单
+② 点击「终端管理员」或「Windows PowerShell 管理员」
+③ 输入：
+    wsl --install
+④ 等它自动安装
+⑤ 如果提示重启，就重启电脑
+⑥ 重启后打开 Ubuntu
+⑦ 第一次打开会让你设置用户名和密码
+
+密码输入时屏幕不会显示，这是正常的。输入完按回车即可。
+
+第二部分：更新 Ubuntu
+
+打开 Ubuntu，复制：
+    sudo apt update
+
+再复制：
+    sudo apt upgrade -y
+
+第三部分：安装 OpenClaw
+
+官方推荐 Node 24 或 Node 22.14+，安装脚本通常会自动处理。
+
+在 Ubuntu 里执行：
+    curl -fsSL https://openclaw.ai/install.sh | bash
+
+如果提示 curl 不存在：
+    sudo apt install -y curl
+
+然后再执行安装命令。
+
+第四部分：初始化 OpenClaw
+
+安装完成后执行：
+    openclaw onboard --install-daemon
+
+向导里不要只填一个模型名，按下面这一整套填：
+
+${deepseekOpenAiCompatibleBlock}
+
+如果 OpenClaw 的向导里还有 Reasoning Model / Advanced Model，就填：
+    deepseek-v4-pro
+
+如果有 Long Context Model，就填：
+    deepseek-v4-pro[1m]
+
+第五部分：启动和测试
+
+执行：
+    openclaw
+
+输入：
+    你好，请用中文告诉我你现在连接的是哪个模型。
+
+如果能正常中文回答，说明成功。
+
+第六部分：打开 Web 界面
+
+如果 OpenClaw 提示本地地址，复制到浏览器打开。常见地址可能是：
+    http://localhost:3000
+    http://localhost:8642
+
+第七部分：常见问题
+
+node version too low：
+Node 版本太低。执行 node -v 看版本，低于 22 就升级。
+
+npm install 很慢：
+    npm config set registry https://registry.npmmirror.com
+
+openclaw: command not found：
+关闭 Ubuntu 重新打开，或者执行：
+    source ~/.bashrc
+
+浏览器打不开 localhost：
+确认 OpenClaw 还在运行，并使用终端里提示的端口。
+
+模型无响应 / 404 model not found：
+先把模型改成 deepseek-v4-flash，跑通后再换 deepseek-v4-pro。`,
     tools: ["openclaw", "deepseek"],
     tips: "Windows 小白不要优先选 Docker。先用 WSL2 + 官方安装脚本，成功率最高。",
   },
   {
     title: "Mac / Linux / 阿里云服务器安装 OpenClaw + DeepSeek V4",
-    content: "这个教程适合 Mac、Ubuntu 桌面、阿里云 ECS 服务器。服务器推荐 Ubuntu 22.04 或 24.04。\n\n第一步：打开终端\n\nMac：打开「终端」应用。\n\nUbuntu：按 Ctrl + Alt + T。\n\n阿里云服务器：用 SSH 登录服务器：\n    ssh root@你的服务器IP\n\n第二步：检查系统和内存\n\n执行：\n    node -v\n    npm -v\n    free -h\n\n如果 node 命令不存在，没关系，OpenClaw 官方安装脚本通常会处理 Node。\n\n第三步：安装 OpenClaw\n\n执行：\n    curl -fsSL https://openclaw.ai/install.sh | bash\n\n如果服务器在国内，npm 下载慢时先试：\n    npm config set registry https://registry.npmmirror.com\n\n第四步：初始化\n\n执行：\n    openclaw onboard --install-daemon\n\n按下面填：\n    Provider：OpenAI Compatible / Custom\n    Base URL：https://api.deepseek.com\n    API Key：你的 DeepSeek API Key\n    Model：deepseek-v4-flash\n\n第五步：服务器部署时放行端口\n\n如果 OpenClaw Web UI 跑在 3000 端口，你需要在阿里云安全组放行 3000。\n\n正式部署更推荐 Nginx 反代，只暴露 80/443：\n    用户访问 https://agent.你的域名\n    Nginx 转发到 localhost:3000\n\n第六步：后台运行\n\n如果只是自己试用：\n    openclaw\n\n如果要长期运行，优先看 OpenClaw 官方 daemon / service 配置。小白可先用 pm2：\n    npm install -g pm2\n    pm2 start openclaw --name openclaw\n    pm2 save\n\n第七步：更新\n\n执行：\n    openclaw update\n\n如果是源码安装：\n    cd ~/.openclaw\n    git pull\n    npm install\n    npm run build",
+    content: `这个教程适合 Mac、Ubuntu 桌面、阿里云 ECS 服务器。服务器推荐 Ubuntu 22.04 或 24.04。
+
+第一步：打开终端
+
+Mac：打开「终端」应用。
+
+Ubuntu：按 Ctrl + Alt + T。
+
+阿里云服务器：用 SSH 登录服务器：
+    ssh root@你的服务器IP
+
+第二步：检查系统和内存
+
+执行：
+    node -v
+    npm -v
+    free -h
+
+如果 node 命令不存在，没关系，OpenClaw 官方安装脚本通常会处理 Node。
+
+第三步：安装 OpenClaw
+
+执行：
+    curl -fsSL https://openclaw.ai/install.sh | bash
+
+如果服务器在国内，npm 下载慢时先试：
+    npm config set registry https://registry.npmmirror.com
+
+第四步：初始化
+
+执行：
+    openclaw onboard --install-daemon
+
+按下面这一整套填：
+
+${deepseekOpenAiCompatibleBlock}
+
+第五步：服务器部署时放行端口
+
+如果 OpenClaw Web UI 跑在 3000 端口，你需要在阿里云安全组放行 3000。
+
+正式部署更推荐 Nginx 反代，只暴露 80/443：
+    用户访问 https://agent.你的域名
+    Nginx 转发到 localhost:3000
+
+第六步：后台运行
+
+如果只是自己试用：
+    openclaw
+
+如果要长期运行，优先看 OpenClaw 官方 daemon / service 配置。小白可先用 pm2：
+    npm install -g pm2
+    pm2 start openclaw --name openclaw
+    pm2 save
+
+第七步：更新
+
+执行：
+    openclaw update
+
+如果是源码安装：
+    cd ~/.openclaw
+    git pull
+    npm install
+    npm run build`,
     tools: ["openclaw", "deepseek"],
     tips: "服务器部署最稳：阿里云 Ubuntu + DeepSeek API + Nginx HTTPS。不要把管理后台裸露到公网。",
   },
@@ -170,7 +435,96 @@ export const chinaAgentInstallSections: Section[] = [
   },
   {
     title: "Hermes 安装 + DeepSeek V4 接入：小白稳定路线",
-    content: "Hermes 的版本和社区发行渠道变化比较快。安装前先确认你正在看的官网、GitHub 仓库或文档是否是项目维护者发布的，不要随便运行陌生脚本。\n\n一、Hermes 适合谁\n\n适合：\n• 想做长期记忆的 Agent\n• 想让 Agent 从任务中学习\n• 想接微信、飞书、Telegram 等消息入口\n\n不适合：\n• 完全第一次接触命令行的人\n• 只想聊天问答的人\n• 不愿意处理配置文件的人\n\n小白建议：先 OpenClaw，再 Hermes。\n\n二、Windows 安装建议\n\n推荐 WSL2 Ubuntu，不推荐直接原生 Windows。\n\n① 安装 WSL2\n② 打开 Ubuntu\n③ 更新系统：\n    sudo apt update\n    sudo apt upgrade -y\n④ 安装 Node 22+ 或按 Hermes 官方文档要求安装运行时\n⑤ 按 Hermes 官方 README 的 Install 命令执行\n\n如果官方提供 npm 安装，Ubuntu / Mac 通常类似：\n    npm install -g hermes-agent\n\n如果你在 Windows PowerShell 原生执行 npm 命令，优先把 npm 改成 npm.cmd，例如：\n    npm.cmd install -g hermes-agent\n\n如果出现 npm.ps1 被禁止运行，不要慌。这是 PowerShell 安全策略，先用 npm.cmd；还不行再执行：\n    Set-ExecutionPolicy -Scope CurrentUser RemoteSigned\n\n出现确认时输入 Y，再按回车。\n\n如果官方提供脚本，先看清脚本域名是否来自官方，再执行。\n\n三、Mac / Linux 安装建议\n\n① 打开终端\n② 按官方文档安装运行时\n③ 执行官方 Install 命令\n④ 执行：\n    hermes --version\n\n四、接入 DeepSeek V4\n\n如果 Hermes 支持 OpenAI Compatible Provider，按这个填：\n    Provider：OpenAI Compatible\n    Base URL：https://api.deepseek.com\n    API Key：你的 DeepSeek API Key\n    Model：deepseek-v4-flash\n\n如果 Hermes 支持 Anthropic Compatible Provider，按这个填：\n    Provider：Anthropic Compatible\n    Base URL：https://api.deepseek.com/anthropic\n    API Key：你的 DeepSeek API Key\n    Model：deepseek-v4-flash\n\n五、启动 Dashboard\n\n如果你的 Hermes 版本支持 dashboard，常见形式是：\n    hermes dashboard\n\n然后浏览器打开终端提示的 localhost 地址。\n\n六、微信/飞书入口\n\n先不要一上来接微信。正确顺序：\n① 先让 Hermes 在终端里能正常回答\n② 再让它调用一个简单工具，例如读取天气或总结网页\n③ 再接飞书或企业微信\n④ 最后再考虑个人微信\n\n原因：个人微信通道最容易掉线，排错最难。企业微信/飞书更稳定，也更适合长期使用。\n\n七、排错清单\n\nnpm.ps1 被禁止运行：\n把 npm 改成 npm.cmd；仍不行再执行 Set-ExecutionPolicy -Scope CurrentUser RemoteSigned。\n\nhermes command not found：\n关闭终端重开，或检查 npm 全局 bin 是否在 PATH。\n\n模型无响应：\n先用 DeepSeek 平台测试 API Key，再回 Hermes 配置。\n\n消息平台收不到回复：\n先确认 Agent 本体能回答，再排查网关，不要两个问题混在一起排。",
+    content: `Hermes 的版本和社区发行渠道变化比较快。安装前先确认你正在看的官网、GitHub 仓库或文档是否是项目维护者发布的，不要随便运行陌生脚本。
+
+一、Hermes 适合谁
+
+适合：
+• 想做长期记忆的 Agent
+• 想让 Agent 从任务中学习
+• 想接微信、飞书、Telegram 等消息入口
+
+不适合：
+• 完全第一次接触命令行的人
+• 只想聊天问答的人
+• 不愿意处理配置文件的人
+
+小白建议：先 OpenClaw，再 Hermes。
+
+二、Windows 安装建议
+
+推荐 WSL2 Ubuntu，不推荐直接原生 Windows。
+
+① 安装 WSL2
+② 打开 Ubuntu
+③ 更新系统：
+    sudo apt update
+    sudo apt upgrade -y
+④ 安装 Node 22+ 或按 Hermes 官方文档要求安装运行时
+⑤ 按 Hermes 官方 README 的 Install 命令执行
+
+如果官方提供 npm 安装，Ubuntu / Mac 通常类似：
+    npm install -g hermes-agent
+
+如果你在 Windows PowerShell 原生执行 npm 命令，优先把 npm 改成 npm.cmd，例如：
+    npm.cmd install -g hermes-agent
+
+如果出现 npm.ps1 被禁止运行，不要慌。这是 PowerShell 安全策略，先用 npm.cmd；还不行再执行：
+    Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+
+出现确认时输入 Y，再按回车。
+
+如果官方提供脚本，先看清脚本域名是否来自官方，再执行。
+
+三、Mac / Linux 安装建议
+
+① 打开终端
+② 按官方文档安装运行时
+③ 执行官方 Install 命令
+④ 执行：
+    hermes --version
+
+四、接入 DeepSeek V4
+
+优先看 Hermes 当前版本支持哪一种 Provider。支持 OpenAI Compatible 就用第一套；支持 Anthropic Compatible 就用第二套。
+
+${deepseekOpenAiCompatibleBlock}
+
+${deepseekAnthropicCompatibleBlock}
+
+五、启动 Dashboard
+
+如果你的 Hermes 版本支持 dashboard，常见形式是：
+    hermes dashboard
+
+然后浏览器打开终端提示的 localhost 地址。
+
+六、微信/飞书入口
+
+先不要一上来接微信。正确顺序：
+① 先让 Hermes 在终端里能正常回答
+② 再让它调用一个简单工具，例如读取天气或总结网页
+③ 再接飞书或企业微信
+④ 最后再考虑个人微信
+
+原因：个人微信通道最容易掉线，排错最难。企业微信/飞书更稳定，也更适合长期使用。
+
+七、排错清单
+
+npm.ps1 被禁止运行：
+把 npm 改成 npm.cmd；仍不行再执行 Set-ExecutionPolicy -Scope CurrentUser RemoteSigned。
+
+hermes command not found：
+关闭终端重开，或检查 npm 全局 bin 是否在 PATH。
+
+模型无响应：
+先用 DeepSeek 平台测试 API Key，再回 Hermes 配置。还不行就把模型改成 deepseek-v4-flash。
+
+404 / model not found：
+当前模型名不支持，先用 deepseek-v4-flash 跑通，再试 deepseek-v4-pro。
+
+消息平台收不到回复：
+先确认 Agent 本体能回答，再排查网关，不要两个问题混在一起排。`,
     tools: ["deepseek"],
     tips: "Hermes 版本变化快，站内教程给的是稳定思路；具体命令以后要跟官方 README 同步更新。",
   },

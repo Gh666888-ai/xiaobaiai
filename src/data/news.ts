@@ -167,17 +167,49 @@ Mac：打开 Terminal。
 
 这不是安装失败。说明 Claude Code 已经打开了，但它默认去连接 Anthropic 官方服务，当前网络、地区或账号环境连不上。
 
-国内新手先用 DeepSeek 的 Anthropic 兼容接口跑通。
+国内新手先用 DeepSeek V4 的 Anthropic 兼容接口跑通。
 
-在同一个 PowerShell 里复制下面几行，把 sk-你的DeepSeek_API_Key 换成自己的 Key：
+Windows PowerShell 复制下面这一整段，把 sk-你的DeepSeek_API_Key 换成自己的 Key：
 
 \`$env:ANTHROPIC_BASE_URL="https://api.deepseek.com/anthropic"\`
 
 \`$env:ANTHROPIC_AUTH_TOKEN="sk-你的DeepSeek_API_Key"\`
 
-\`$env:ANTHROPIC_MODEL="deepseek-v4-flash"\`
+\`$env:ANTHROPIC_MODEL="deepseek-v4-pro[1m]"\`
+
+\`$env:ANTHROPIC_DEFAULT_OPUS_MODEL="deepseek-v4-pro[1m]"\`
+
+\`$env:ANTHROPIC_DEFAULT_SONNET_MODEL="deepseek-v4-pro[1m]"\`
+
+\`$env:ANTHROPIC_DEFAULT_HAIKU_MODEL="deepseek-v4-flash"\`
+
+\`$env:CLAUDE_CODE_SUBAGENT_MODEL="deepseek-v4-flash"\`
+
+\`$env:CLAUDE_CODE_EFFORT_LEVEL="max"\`
 
 \`claude\`
+
+Mac / Linux / WSL 复制下面这一整段：
+
+\`export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic\`
+
+\`export ANTHROPIC_AUTH_TOKEN=sk-你的DeepSeek_API_Key\`
+
+\`export ANTHROPIC_MODEL=deepseek-v4-pro[1m]\`
+
+\`export ANTHROPIC_DEFAULT_OPUS_MODEL=deepseek-v4-pro[1m]\`
+
+\`export ANTHROPIC_DEFAULT_SONNET_MODEL=deepseek-v4-pro[1m]\`
+
+\`export ANTHROPIC_DEFAULT_HAIKU_MODEL=deepseek-v4-flash\`
+
+\`export CLAUDE_CODE_SUBAGENT_MODEL=deepseek-v4-flash\`
+
+\`export CLAUDE_CODE_EFFORT_LEVEL=max\`
+
+\`claude\`
+
+如果模型名不支持 deepseek-v4-pro[1m]，先把三处 deepseek-v4-pro[1m] 改成 deepseek-v4-pro；还不行就先用 deepseek-v4-flash 跑通。
 
 如果你还没有 DeepSeek API Key，先去 platform.deepseek.com 创建一个。
 
