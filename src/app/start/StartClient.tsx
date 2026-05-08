@@ -30,6 +30,7 @@ const quickGoals = [
   { label: "我要做 PPT", desc: "适合汇报、作业、方案", goal: "做PPT" },
   { label: "我要整理资料", desc: "适合合同、文章、会议记录", goal: "办公" },
   { label: "我要写内容", desc: "适合小红书、公众号、产品文案", goal: "写文章" },
+  { label: "我要给 AI 加技能", desc: "适合找 Skill、插件、MCP 能力", goal: "找Skill" },
 ]
 
 const goalMissionMap: { keywords: string[]; missionId: string }[] = [
@@ -39,6 +40,7 @@ const goalMissionMap: { keywords: string[]; missionId: string }[] = [
   { keywords: ["编程", "代码", "开发", "小功能"], missionId: "codex-small-feature" },
   { keywords: ["claude", "Claude", "deepseek", "DeepSeek", "工程"], missionId: "claude-code-deepseek-project" },
   { keywords: ["agent", "Agent", "知识库", "客服", "店铺", "公司"], missionId: "dify-knowledge-base-bot" },
+  { keywords: ["skill", "Skill", "技能", "插件", "MCP", "找Skill", "加技能"], missionId: "agent-skill-first-install" },
   { keywords: ["自动化", "n8n", "日报", "提醒"], missionId: "n8n-ai-news-automation" },
 ]
 
@@ -125,7 +127,7 @@ export function StartClient() {
           第一次来不用理解 AI 生态，也不用先选工具。选下面一个目标，小白会直接给你当前这一步、复制用的提示词和完成判定。
         </p>
 
-        <section style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 10, marginBottom: 18 }} className="start-goal-grid">
+        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 10, marginBottom: 18 }} className="start-goal-grid">
           {quickGoals.map((item) => {
             const targetId = missionFromGoalParam(item.goal) || missions[0].id
             const active = targetId === selected.id

@@ -45,6 +45,7 @@ const firstRunSteps = [
 const nextAfterFirstTask = [
   { title: "第 1 个结果", desc: "先完成一个 PPT、资料摘要或内容草稿。", href: "/start", cta: "继续做第一步" },
   { title: "第 2 个结果", desc: "换一种场景再做一次，确认不是只会复制模板。", href: "/missions", cta: "看任务库" },
+  { title: "给 AI 加能力", desc: "找到一个 Skill，先做安全检查，再用小样例验证。", href: "/missions/agent-skill-first-install", cta: "找第一个 Skill" },
   { title: "第 3 个结果", desc: "把提示词、失败点和修改方法发成复盘。", href: "/community/new", cta: "写复盘" },
 ]
 
@@ -217,7 +218,7 @@ export default function LearnPage() {
         </section>
 
         <section style={{display:'grid',gridTemplateColumns:'1.15fr 0.85fr',gap:14,alignItems:'stretch',marginBottom:18}} className="learn-first-grid">
-          <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:10}} className="learn-choice-grid">
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(190px,1fr))',gap:10}} className="learn-choice-grid">
             {beginnerChoices.map((item) => (
               <Link key={item.title} href={item.href} style={{textDecoration:'none',border:item.highlight?'1px solid #8c7333':'1px solid #1f1f1f',background:item.highlight?'rgba(201,168,76,0.075)':'rgba(255,255,255,0.026)',borderRadius:10,padding:'18px 16px',minHeight:178,display:'flex',flexDirection:'column'}}>
                 <span style={{color:item.highlight?'#e8c96a':'#888',fontSize:11,fontWeight:950,marginBottom:9}}>{item.label}</span>

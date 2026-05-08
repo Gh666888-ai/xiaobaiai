@@ -116,6 +116,16 @@ export const GROWTH_MISSIONS: GrowthMission[] = [
     proofHint: "必须在任务详情页完成全部步骤后领取。",
   },
   {
+    id: "agent-skill-first-install",
+    title: "完成 Agent Skill 入门任务",
+    desc: "从真实能力出发，找到 Skill，做安全检查和最小验证。",
+    xp: 70,
+    href: "/missions/agent-skill-first-install",
+    cadence: "once",
+    claimMode: "action",
+    proofHint: "必须在任务详情页完成全部步骤后领取。",
+  },
+  {
     id: "codex-small-feature",
     title: "完成 Codex 小功能实战任务",
     desc: "让 Codex 在真实项目里完成一个小功能，并用 build/test 验证。",
