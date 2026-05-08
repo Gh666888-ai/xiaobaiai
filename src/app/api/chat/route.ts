@@ -304,7 +304,7 @@ function beginnerClaudeCodeReply(message: string) {
   if (!aboutClaudeCode || !aboutInstall) return ""
 
   if (hasNpxPolicyError) {
-    return "这张图里的关键点：Claude Code 已经安装成功了。\n\n看到这一行就算成功：\nchanged 2 packages in 2s\n\n后面又红，是因为他用了 npx：\nnpx @anthropic-ai/claude-code --version\n\nPowerShell 又去执行 npx.ps1，所以再次被系统策略拦住。这里不需要 npx。\n\n现在让他直接复制这一行验证：\nclaude --version\n\n如果提示 claude 不是内部或外部命令，就关闭 PowerShell，重新打开，再执行：\nclaude --version\n\n如果还不行，再执行：\nwhere.exe claude\n\n这一步只是找 Claude Code 的位置，不要再用 npx。"
+    return "这张图里的关键点：Claude Code 已经安装成功了。\n\n看到这一行就算成功：\nchanged 2 packages in 2s\n\n后面又红，是因为他用了 npx：\nnpx @anthropic-ai/claude-code --version\n\nPowerShell 又去执行 npx.ps1，所以再次被系统策略拦住。这里不需要 npx。\n\n现在让他直接复制这一行验证：\nclaude --version\n\n如果提示 claude 不是内部或外部命令，就关闭 PowerShell，重新打开，再执行：\nclaude --version\n\n验证成功后，启动 Claude Code 复制这一行：\nclaude\n\n第一次打开后，先输入这句话：\n请先告诉我你能做什么，不要修改我的文件。\n\n如果要在项目里用，先进入项目文件夹，再启动：\ncd 你的项目文件夹路径\nclaude\n\n这一步不要再用 npx。"
   }
 
   if (hasPowerShellPolicyError && !text.includes("claude code") && !text.includes("claudecode")) {
@@ -312,10 +312,10 @@ function beginnerClaudeCodeReply(message: string) {
   }
 
   if (hasPowerShellPolicyError) {
-    return "这个红字不是 Node 没装好，也不是 Claude Code 包坏了。\n\n原因：Windows PowerShell 禁止运行 npm.ps1 脚本。\n\n先复制这一行，粘贴到 PowerShell，按回车：\nnpm.cmd install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com\n\n如果还是同样红字，再复制这一行，按回车：\nSet-ExecutionPolicy -Scope CurrentUser RemoteSigned\n\n它问你确认时，输入 Y，再按回车。\n\n然后重新执行第一条 npm.cmd 安装命令。安装完后再输入：\nclaude --version\n\n看到版本号，就说明装好了。"
+    return "这个红字不是 Node 没装好，也不是 Claude Code 包坏了。\n\n原因：Windows PowerShell 禁止运行 npm.ps1 脚本。\n\n先复制这一行，粘贴到 PowerShell，按回车：\nnpm.cmd install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com\n\n如果还是同样红字，再复制这一行，按回车：\nSet-ExecutionPolicy -Scope CurrentUser RemoteSigned\n\n它问你确认时，输入 Y，再按回车。\n\n然后重新执行第一条 npm.cmd 安装命令。安装完后再输入：\nclaude --version\n\n看到版本号，就说明装好了。\n\n启动方式：\nclaude\n\n第一次打开后，先输入：\n请先告诉我你能做什么，不要修改我的文件。"
   }
 
-  return "先别管 API Key 和模型名，我们只做安装。\n\n第 1 步：打开浏览器，去 nodejs.org，下载 LTS 版本，双击安装。\n\n第 2 步：打开终端。\nWindows：搜索 PowerShell。\nMac：打开 Terminal。\n\n第 3 步：复制这一行，粘贴到终端，按回车：\nnode -v\n\n看到 v 开头的版本号，就继续。\n\n第 4 步：Windows PowerShell 复制这一行，粘贴到终端，按回车：\nnpm.cmd install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com\n\nMac 复制这一行：\nnpm install -g @anthropic-ai/claude-code\n\n第 5 步：等它跑完，再复制这一行，按回车：\nclaude --version\n\n看到版本号，就算安装完成。下一步你告诉我：你是 Windows 还是 Mac，我再给你下一条要复制的命令。"
+  return "先别管 API Key 和模型名，我们只做安装和启动。\n\n第 1 步：打开浏览器，去 nodejs.org，下载 LTS 版本，双击安装。\n\n第 2 步：打开终端。\nWindows：搜索 PowerShell。\nMac：打开 Terminal。\n\n第 3 步：复制这一行，粘贴到终端，按回车：\nnode -v\n\n看到 v 开头的版本号，就继续。\n\n第 4 步：Windows PowerShell 复制这一行，粘贴到终端，按回车：\nnpm.cmd install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com\n\nMac 复制这一行：\nnpm install -g @anthropic-ai/claude-code\n\n第 5 步：等它跑完，再复制这一行，按回车：\nclaude --version\n\n看到版本号，就算安装完成。\n\n第 6 步：启动 Claude Code，复制这一行：\nclaude\n\n第一次打开后，先输入：\n请先告诉我你能做什么，不要修改我的文件。\n\n如果要在自己的项目里用，先进入项目文件夹，再输入 claude。"
 }
 
 export async function POST(req: NextRequest) {

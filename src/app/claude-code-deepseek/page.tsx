@@ -49,6 +49,11 @@ claude --version`,
   powershellFix: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`,
   verify: `claude --version`,
   locateClaude: `where.exe claude`,
+  start: `claude`,
+  startInProject: `cd 你的项目文件夹路径
+claude`,
+  firstPrompt: `请先告诉我你能做什么，不要修改我的文件。`,
+  projectPrompt: `请先阅读这个项目，不要改文件，告诉我它是什么技术栈、主要目录和下一步建议。`,
 }
 
 const beginnerInstall = [
@@ -64,10 +69,15 @@ const beginnerInstall = [
     title: "安装 Claude Code",
     desc: "Windows PowerShell 用户优先用 npm.cmd 安装，避免 npm.ps1 被系统策略拦住。安装完成后输入 claude --version 验证。",
   },
+  {
+    title: "启动 Claude Code",
+    desc: "验证成功后输入 claude 启动。第一次先让它说明能力，不要马上让它改文件；在真实项目里用时，先 cd 到项目文件夹再启动。",
+  },
 ]
 
 const steps = [
   { title: "先装好 Node.js 和 Claude Code", desc: "先确认本机 node、npm、claude 三个命令都能正常运行，不要一开始就怀疑模型接口。" },
+  { title: "先启动一次 Claude Code", desc: "安装后输入 claude 启动；第一次只问它能做什么，不要马上让它改文件。" },
   { title: "申请 DeepSeek API Key", desc: "进入 DeepSeek 开发者平台创建 Key，保存后不要公开发送，不要写进仓库。" },
   { title: "配置 Anthropic 兼容接口", desc: "Claude Code 读取的是 ANTHROPIC_BASE_URL 和 ANTHROPIC_AUTH_TOKEN 这一组变量。" },
   { title: "从小项目开始测试", desc: "先让它读 README、总结目录、列计划，再允许它改 1 到 2 个文件。" },
@@ -180,6 +190,37 @@ export default function ClaudeCodeDeepSeekPage() {
           </p>
         </section>
 
+        <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.045)", borderRadius: 12, padding: 22, marginBottom: 42 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <TerminalSquare size={18} style={{ color: "#e8c96a" }} />
+            <h2 style={{ color: "#fff", fontSize: 22, fontWeight: 950 }}>安装好以后怎么启动</h2>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }} className="max-sm:grid-cols-1">
+            <div>
+              <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 8 }}>只是先打开试试</p>
+              <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.8, marginBottom: 10 }}>
+                看到版本号以后，直接复制下面这行启动 Claude Code。
+              </p>
+              <CodeBlock code={installCommands.start} />
+              <p style={{ color: "#bfa795", fontSize: 12, lineHeight: 1.75, margin: "10px 0 8px" }}>
+                第一次打开后，先复制这句话，不要马上让它改文件。
+              </p>
+              <CodeBlock code={installCommands.firstPrompt} />
+            </div>
+            <div>
+              <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 8 }}>在自己的项目里用</p>
+              <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.8, marginBottom: 10 }}>
+                先进入项目文件夹，再启动 Claude Code。路径可以从文件夹地址栏复制。
+              </p>
+              <CodeBlock code={installCommands.startInProject} />
+              <p style={{ color: "#bfa795", fontSize: 12, lineHeight: 1.75, margin: "10px 0 8px" }}>
+                进入后先让它读项目，不要直接修改。
+              </p>
+              <CodeBlock code={installCommands.projectPrompt} />
+            </div>
+          </div>
+        </section>
+
         <section style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: 12, marginBottom: 38 }} className="max-sm:grid-cols-1">
           {[
             { icon: <TerminalSquare size={18} />, label: "配置变量", value: "ANTHROPIC_*" },
@@ -198,7 +239,7 @@ export default function ClaudeCodeDeepSeekPage() {
         <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.045)", borderRadius: 12, padding: 22, marginBottom: 42 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
             <Route size={18} style={{ color: "#e8c96a" }} />
-            <h2 style={{ color: "#fff", fontSize: 22, fontWeight: 950 }}>4 步跑通</h2>
+            <h2 style={{ color: "#fff", fontSize: 22, fontWeight: 950 }}>5 步跑通</h2>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
             {steps.map((step, index) => (
