@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react"
 import { Search } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
+import { LevelBadge } from "@/components/LevelBadge"
 import { useAuth } from "@/lib/AuthContext"
-import { getNextLevel } from "@/data/user"
 
 const SYMBOLS = [
   "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
@@ -19,7 +19,6 @@ export default function HomePage() {
   const { user } = useAuth()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [pulseText, setPulseText] = useState("正在等待你登录")
-  const homeXPLabel = user ? (getNextLevel(user.xp) ? `${user.xp} XP` : "已达最高档") : ""
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -79,8 +78,8 @@ export default function HomePage() {
 
   useEffect(() => {
     const lines = user
-      ? ["读取你的任务状态", "准备询问行业目标", "生成下一步学习路线"]
-      : ["正在等待你登录", "登录后记住你的行业", "小白会制定接下来的一切"]
+      ? ["成长档案在线", "小白智能体待命", "任务系统就绪"]
+      : ["小白智能体待命", "AI工作流就绪", "新手起步模式"]
     let index = 0
     setPulseText(lines[0])
     const timer = window.setInterval(() => {
@@ -104,11 +103,8 @@ export default function HomePage() {
           <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.42em", color: "#7a6230", textTransform: "uppercase", marginBottom: 24, opacity: 0, animation: "fadeUp 0.8s ease forwards 0.2s" }}>XIAOBAI AGENT ONLINE</p>
           <h1 style={{ fontSize: "clamp(56px, 10vw, 118px)", fontWeight: 950, lineHeight: 1, letterSpacing: 0, color: "#fff", textShadow: "0 0 80px rgba(201,168,76,0.16), 0 0 160px rgba(201,168,76,0.06)", marginBottom: 24, opacity: 0, animation: "fadeUp 0.8s ease forwards 0.36s" }}>小白AI</h1>
           <div style={{ width: 0, height: 1, background: "linear-gradient(90deg, transparent, #c9a84c, transparent)", margin: "0 auto 26px", animation: "expandWidth 1s ease forwards 0.62s" }} />
-          <p style={{ fontSize: "clamp(20px, 3vw, 34px)", fontWeight: 950, lineHeight: 1.45, color: "#fff", margin: "0 auto 12px", opacity: 0, animation: "fadeUp 0.8s ease forwards 0.82s" }}>
-            先登录，然后让小白制定接下来的一切
-          </p>
-          <p style={{ fontSize: "clamp(14px, 1.6vw, 16px)", lineHeight: 1.9, color: "rgba(255,255,255,0.58)", maxWidth: 660, margin: "0 auto 28px", opacity: 0, animation: "fadeUp 0.8s ease forwards 0.98s" }}>
-            不再让新手先面对一堆工具和任务。你登录后，小白会先问行业和目标，再按你的方向给出 AI 工具、学习路线、实战任务和完成检查。
+          <p style={{ fontSize: "clamp(22px, 3.2vw, 38px)", fontWeight: 950, lineHeight: 1.45, color: "#fff", maxWidth: 820, margin: "0 auto 22px", opacity: 0, animation: "fadeUp 0.8s ease forwards 0.82s" }}>
+            我们立志让所有不懂 AI 的人，1 小时内成熟利用 AI 完成工作
           </p>
 
           <div style={{ display: "inline-flex", alignItems: "center", gap: 9, border: "1px solid rgba(201,168,76,0.3)", background: "rgba(8,8,8,0.84)", borderRadius: 999, padding: "8px 13px", color: "#cdbb80", fontSize: 12, fontWeight: 900, marginBottom: 22, opacity: 0, animation: "fadeUp 0.8s ease forwards 1.08s" }}>
@@ -116,9 +112,16 @@ export default function HomePage() {
             {pulseText}
           </div>
 
-          <p style={{ marginTop: 14, color: "#8e7d4b", fontSize: 12, lineHeight: 1.75, opacity: 0, animation: "fadeUp 0.8s ease forwards 1.28s" }}>
-            {user ? `欢迎回来，${user.name} · ${homeXPLabel}` : "注册后小白会记住你的行业、目标和任务进度"}
-          </p>
+          <div style={{ marginTop: 14, color: "#8e7d4b", fontSize: 12, lineHeight: 1.75, opacity: 0, animation: "fadeUp 0.8s ease forwards 1.28s", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
+            {user ? (
+              <>
+                <span>欢迎回来</span>
+                <LevelBadge name={user.name} xp={user.xp} compact />
+              </>
+            ) : (
+              <span>AI 新手工作台已就绪</span>
+            )}
+          </div>
 
           <form action="/search" style={{ display: "flex", alignItems: "center", background: "rgba(8,8,8,0.86)", border: "1px solid rgba(201,168,76,0.22)", borderRadius: 10, maxWidth: 620, margin: "24px auto 0", opacity: 0, animation: "fadeUp 0.8s ease forwards 1.32s" }}>
             <Search size={15} style={{ marginLeft: 14, color: "#777", flexShrink: 0 }} />

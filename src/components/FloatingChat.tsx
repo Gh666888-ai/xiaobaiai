@@ -33,9 +33,9 @@ const START_INDUSTRY_PROMPT =
   "你已经登录了。先告诉我两件事：你做什么行业或岗位？最想用 AI 做成什么？我会给你排学习计划，从第 1 步带你做。"
 const HOME_AGENT_PROMPT_KEY = "xiaobaiai:home-agent-prompt:v1"
 const HOME_GUEST_PROMPT =
-  "先点页面右上角登录/注册，我才能记住你的行业、目标和进度。也可以先问我：这个网站怎么开始。"
+  "先登录，然后我来制定接下来的一切。登录后我会先问你的行业和目标。"
 const HOME_USER_PROMPT =
-  "你已登录。告诉我：你做什么行业？想用 AI 做成什么事？我会给你定计划，然后一步步带你做。"
+  "欢迎回来。告诉我你做什么行业、想用 AI 做成什么事，我来给你排下一步。"
 const ONBOARDING_PROFILE_KEY = "xiaobaiai:onboarding-profile:v1"
 const FLOAT_AGENT_ANCHOR_KEY = "xiaobaiai:floating-agent-anchor:v1"
 const DEFAULT_FLOAT_ANCHOR: FloatAnchor = { right: 22, bottom: 22 }
@@ -118,6 +118,7 @@ export function FloatingChat() {
   const [mode, setMode] = useState<ChatMode>("")
   const [remaining, setRemaining] = useState<number | null>(null)
   const [launcherMood, setLauncherMood] = useState<LauncherMood>("welcome")
+  const [launcherHint, setLauncherHint] = useState("")
   const [missionProgress, setMissionProgress] = useState<MissionProgressState>(() => emptyMissionProgress())
   const [hasSavedMissionProgress, setHasSavedMissionProgress] = useState(false)
   const [floatAnchor, setFloatAnchor] = useState<FloatAnchor>(DEFAULT_FLOAT_ANCHOR)
@@ -218,16 +219,14 @@ export function FloatingChat() {
       : HOME_GUEST_PROMPT
 
     const timer = window.setTimeout(() => {
-      setOpen(true)
-      setMinimized(false)
       setMessages((prev) => {
         if (prev.some((message) => message.content === content)) return prev
         if (prev.length === 1 && prev[0].role === "assistant") return [{ role: "assistant", content }]
         return [...prev, { role: "assistant", content }]
       })
+      setLauncherHint(content.replace(/\n+/g, " ").slice(0, 44))
       setSpeaking(true)
       window.setTimeout(() => setSpeaking(false), 2200)
-      if (user) window.setTimeout(() => inputRef.current?.focus(), 260)
     }, 850)
 
     return () => window.clearTimeout(timer)
@@ -334,6 +333,7 @@ export function FloatingChat() {
     setMissionProgress(readMissionProgress())
     setOpen(true)
     setMinimized(false)
+    setLauncherHint("")
   }
 
   async function send(text = input) {
@@ -483,6 +483,11 @@ export function FloatingChat() {
         onClick={openFloatingChat}
         aria-label={hasProgress ? `拖动或点击小白AI，当前任务完成 ${doneSteps}/${activeMission.steps.length}` : "拖动或点击小白AI"}
       >
+        {launcherHint && (!open || minimized) && (
+          <span className="xiaobai-launcher-speech">
+            {launcherHint}
+          </span>
+        )}
         <span className="xiaobai-scan-ring" />
         <span className="xiaobai-scan-ring is-second" />
         <span className="xiaobai-orbit" aria-hidden="true">
@@ -698,6 +703,38 @@ export function FloatingChat() {
         .xiaobai-launcher.is-open {
           filter: drop-shadow(0 22px 34px rgba(201,168,76,0.22));
         }
+        .xiaobai-launcher-speech {
+          position: absolute;
+          right: 88px;
+          bottom: 70px;
+          z-index: 8;
+          width: min(220px, calc(100vw - 150px));
+          border: 1px solid rgba(201,168,76,0.34);
+          border-radius: 14px 14px 4px 14px;
+          background: rgba(5,5,5,0.92);
+          color: #f3e7ba;
+          box-shadow: 0 16px 38px rgba(0,0,0,0.44), 0 0 28px rgba(126,231,255,0.08);
+          backdrop-filter: blur(12px);
+          padding: 10px 12px;
+          font-size: 12px;
+          font-weight: 850;
+          line-height: 1.55;
+          text-align: left;
+          pointer-events: none;
+          animation: xiaobaiSpeechFloat 3.6s ease-in-out infinite;
+        }
+        .xiaobai-launcher-speech::after {
+          content: "";
+          position: absolute;
+          right: -7px;
+          bottom: 13px;
+          width: 12px;
+          height: 12px;
+          border-right: 1px solid rgba(201,168,76,0.34);
+          border-bottom: 1px solid rgba(201,168,76,0.34);
+          background: rgba(5,5,5,0.92);
+          transform: rotate(-45deg);
+        }
         .xiaobai-body {
           position: relative;
           z-index: 4;
@@ -863,6 +900,10 @@ export function FloatingChat() {
           0%, 100% { transform: scale(1); opacity: 0.86; }
           50% { transform: scale(1.35); opacity: 1; }
         }
+        @keyframes xiaobaiSpeechFloat {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
         @keyframes xiaobaiShadow {
           0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.74; }
           45% { transform: translateX(-50%) scale(0.72); opacity: 0.42; }
@@ -888,6 +929,12 @@ export function FloatingChat() {
             margin-left: auto;
             width: 98px;
             height: 112px;
+          }
+          .xiaobai-launcher-speech {
+            right: 76px;
+            bottom: 64px;
+            width: min(190px, calc(100vw - 132px));
+            font-size: 11px;
           }
         }
       `}</style>
