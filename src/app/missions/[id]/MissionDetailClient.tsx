@@ -11,10 +11,12 @@ import {
   Clipboard,
   ExternalLink,
   Flag,
+  Image as ImageIcon,
   Lock,
   MessageCircle,
   Sparkles,
   Trophy,
+  Upload,
 } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
@@ -295,13 +297,37 @@ function StepCard({
   const proofItems = proofRule.proofItems
   const [proofText, setProofText] = useState(savedProof?.text || "")
   const [proofChecks, setProofChecks] = useState<boolean[]>(savedProof?.checked || [])
+  const [screenshotName, setScreenshotName] = useState(savedProof?.screenshotName || "")
+  const [screenshotDataUrl, setScreenshotDataUrl] = useState(savedProof?.screenshotDataUrl || "")
+  const [screenshotError, setScreenshotError] = useState("")
   const checkedCount = proofChecks.filter(Boolean).length
-  const proofReady = checkedCount >= proofRule.requiredChecks && proofText.trim().length >= proofRule.minLength
+  const proofReady = checkedCount >= proofRule.requiredChecks
+    && proofText.trim().length >= proofRule.minLength
+    && (!proofRule.screenshotRequired || screenshotDataUrl.startsWith("data:image/"))
 
   useEffect(() => {
     setProofText(savedProof?.text || "")
     setProofChecks(savedProof?.checked || [])
+    setScreenshotName(savedProof?.screenshotName || "")
+    setScreenshotDataUrl(savedProof?.screenshotDataUrl || "")
+    setScreenshotError("")
   }, [mission.id, stepIndex, savedProof])
+
+  async function handleScreenshot(file: File | undefined) {
+    setScreenshotError("")
+    if (!file) return
+    if (!file.type.startsWith("image/")) {
+      setScreenshotError("请上传图片格式的截图。")
+      return
+    }
+    try {
+      const dataUrl = await compressProofImage(file)
+      setScreenshotDataUrl(dataUrl)
+      setScreenshotName(file.name)
+    } catch {
+      setScreenshotError("截图读取失败，请换一张图片再试。")
+    }
+  }
   const quickActions = [
     step.toolAction ? `打开：${step.toolAction.label}` : "看清这一步要做什么",
     step.prompt && step.prompt !== "这一步不需要复制提示词。先把工具打开，确认可以进入创建演示稿页面。" ? "复制提示词给 AI / 工具" : "按页面路径操作",
@@ -454,11 +480,25 @@ function StepCard({
             style={{ width: "100%", resize: "vertical", border: "1px solid #28412e", background: "rgba(0,0,0,0.32)", color: "#e9f6ed", borderRadius: 10, padding: "11px 12px", fontSize: 12, lineHeight: 1.65, outline: "none" }}
           />
         )}
+        {proofRule.screenshotRequired && (
+          <div style={{ marginTop: 12, border: "1px solid #28412e", background: "rgba(0,0,0,0.24)", borderRadius: 10, padding: "12px 13px" }}>
+            <p style={{ color: "#d7f4df", fontSize: 12, fontWeight: 950, marginBottom: 6, display: "flex", alignItems: "center", gap: 7 }}>
+              <ImageIcon size={14} /> 截图证明
+            </p>
+            <p style={{ color: "#9fcfaf", fontSize: 12, lineHeight: 1.65, marginBottom: 10 }}>{proofRule.screenshotHint || "上传一张能看出完成结果的截图。"}</p>
+            <label style={{ display: "inline-flex", alignItems: "center", gap: 8, border: "1px solid #3b5f43", background: "rgba(61,165,99,0.09)", color: "#d7f4df", borderRadius: 8, padding: "8px 10px", fontSize: 12, fontWeight: 900, cursor: "pointer" }}>
+              <Upload size={14} /> {screenshotName ? "更换截图" : "上传截图"}
+              <input type="file" accept="image/*" onChange={(event) => handleScreenshot(event.target.files?.[0])} style={{ display: "none" }} />
+            </label>
+            {screenshotName && <p style={{ color: "#8fd6a0", fontSize: 11, marginTop: 8 }}>已保存截图：{screenshotName}</p>}
+            {screenshotError && <p style={{ color: "#ff9b9b", fontSize: 11, marginTop: 8 }}>{screenshotError}</p>}
+          </div>
+        )}
       </section>
 
       <button
         type="button"
-        onClick={() => onDone({ method: proofRule.method, text: proofText.trim(), checked: proofChecks, updatedAt: new Date().toISOString() })}
+        onClick={() => onDone({ method: proofRule.method, text: proofText.trim(), checked: proofChecks, screenshotName, screenshotDataUrl, updatedAt: new Date().toISOString() })}
         disabled={!proofReady}
         className="btn-primary"
         style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12, opacity: proofReady ? 1 : 0.48, cursor: proofReady ? "pointer" : "not-allowed" }}
@@ -467,6 +507,33 @@ function StepCard({
       </button>
     </article>
   )
+}
+
+function compressProofImage(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onerror = () => reject(new Error("read failed"))
+    reader.onload = () => {
+      const img = new Image()
+      img.onerror = () => reject(new Error("image failed"))
+      img.onload = () => {
+        const maxWidth = 1200
+        const scale = Math.min(1, maxWidth / img.width)
+        const canvas = document.createElement("canvas")
+        canvas.width = Math.max(1, Math.round(img.width * scale))
+        canvas.height = Math.max(1, Math.round(img.height * scale))
+        const ctx = canvas.getContext("2d")
+        if (!ctx) {
+          reject(new Error("canvas failed"))
+          return
+        }
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        resolve(canvas.toDataURL("image/jpeg", 0.72))
+      }
+      img.src = String(reader.result || "")
+    }
+    reader.readAsDataURL(file)
+  })
 }
 
 function CompleteCard({

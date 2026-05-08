@@ -33,6 +33,13 @@ const beginnerChoices = [
     href: "/start?goal=写文章",
     cta: "做内容",
   },
+  {
+    label: "我想做动漫/故事",
+    title: "先做 60 秒漫剧或一章样章",
+    desc: "不追求一键大片，先把分镜、角色、台词或样章审稿跑通。",
+    href: "/start?goal=动漫漫剧",
+    cta: "做创作",
+  },
 ]
 
 const firstRunSteps = [
@@ -45,6 +52,7 @@ const firstRunSteps = [
 const nextAfterFirstTask = [
   { title: "第 1 个结果", desc: "先完成一个 PPT、资料摘要或内容草稿。", href: "/start", cta: "继续做第一步" },
   { title: "第 2 个结果", desc: "换一种场景再做一次，确认不是只会复制模板。", href: "/missions", cta: "看任务库" },
+  { title: "教程变任务", desc: "动漫、网文、本地模型、行业 Skill 都有可交付任务，不想做可以换。", href: "/start?goal=动漫漫剧", cta: "换个方向" },
   { title: "给 AI 加能力", desc: "找到一个 Skill，先做安全检查，再用小样例验证。", href: "/missions/agent-skill-first-install", cta: "找第一个 Skill" },
   { title: "第 3 个结果", desc: "把提示词、失败点和修改方法发成复盘。", href: "/community/new", cta: "写复盘" },
 ]
@@ -96,6 +104,15 @@ const curriculumFlow = [
     href: "/missions/xiaohongshu-ai-content-loop",
   },
   {
+    level: "进阶 1B",
+    title: "把教程变成创作样片",
+    difficulty: "一般",
+    desc: "从 AI 漫剧和网文教程里抽出真实交付物：分镜、角色提示词、配音清单或样章审稿。",
+    output: "一集 60 秒漫剧样片方案，或一章故事样章。",
+    proof: "保存剧情、分镜/大纲、初稿、审稿和复盘。",
+    href: "/start?goal=动漫漫剧",
+  },
+  {
     level: "进阶 2",
     title: "搭一个知识库 Bot",
     difficulty: "进阶",
@@ -103,6 +120,15 @@ const curriculumFlow = [
     output: "一个 Dify/Coze/FastGPT 知识库 Bot。",
     proof: "保存 10 条问答资料、5 条测试记录和上线边界。",
     href: "/missions/dify-knowledge-base-bot",
+  },
+  {
+    level: "进阶 3",
+    title: "给行业场景配 Skill 或本地模型",
+    difficulty: "进阶",
+    desc: "把行业技能清单和本地部署教程变成自己的验证任务，知道该装什么、怎么测、哪些数据不能给。",
+    output: "3 个行业 Skill 配置方案，或一次本地模型首跑记录。",
+    proof: "保存权限边界、验证任务、模型首跑结果和适用场景。",
+    href: "/missions/industry-skill-stack-plan",
   },
   {
     level: "高手 1",

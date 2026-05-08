@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import type { CSSProperties } from "react"
 import Link from "next/link"
-import { ArrowRight, Check, CheckCircle2, Clipboard, MessageCircle, Trophy } from "lucide-react"
+import { ArrowRight, Check, CheckCircle2, Clipboard, Image as ImageIcon, MessageCircle, Shuffle, SkipForward, Trophy, Upload } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { missions } from "@/data/missions"
@@ -30,10 +30,16 @@ const quickGoals = [
   { label: "我要做 PPT", desc: "适合汇报、作业、方案", goal: "做PPT" },
   { label: "我要整理资料", desc: "适合合同、文章、会议记录", goal: "办公" },
   { label: "我要写内容", desc: "适合小红书、公众号、产品文案", goal: "写文章" },
+  { label: "我要做动漫", desc: "适合漫剧、分镜、短视频样片", goal: "动漫漫剧" },
+  { label: "我要写故事", desc: "适合网文、小说、剧本样章", goal: "网文故事" },
   { label: "我要给 AI 加技能", desc: "适合找 Skill、插件、MCP 能力", goal: "找Skill" },
 ]
 
 const goalMissionMap: { keywords: string[]; missionId: string }[] = [
+  { keywords: ["动漫", "漫剧", "短剧", "短视频剧情", "分镜", "角色一致", "AI视频", "AI 视频"], missionId: "ai-comic-video-first-episode" },
+  { keywords: ["网文", "小说", "故事", "剧本", "写作", "样章"], missionId: "ai-webnovel-first-chapter" },
+  { keywords: ["本地", "本地模型", "部署", "Ollama", "LM Studio", "隐私"], missionId: "local-model-first-run" },
+  { keywords: ["行业技能", "行业Skill", "行业 Skill", "技能包", "自动化技能"], missionId: "industry-skill-stack-plan" },
   { keywords: ["写文章", "文章", "小红书", "内容", "做视频", "视频", "做图片", "图片", "封面"], missionId: "xiaohongshu-ai-content-loop" },
   { keywords: ["ppt", "PPT", "做PPT", "做 PPT", "演示", "幻灯片", "汇报"], missionId: "ai-ppt-first-deck" },
   { keywords: ["办公", "文档", "资料", "总结", "分析"], missionId: "kimi-k26-long-doc" },
@@ -44,10 +50,34 @@ const goalMissionMap: { keywords: string[]; missionId: string }[] = [
   { keywords: ["自动化", "n8n", "日报", "提醒"], missionId: "n8n-ai-news-automation" },
 ]
 
+const missionDirections: Record<string, string> = {
+  "ai-ppt-first-deck": "office",
+  "kimi-k26-long-doc": "office",
+  "xiaohongshu-ai-content-loop": "content",
+  "ai-comic-video-first-episode": "content",
+  "ai-webnovel-first-chapter": "content",
+  "dify-knowledge-base-bot": "agent-app",
+  "n8n-ai-news-automation": "automation",
+  "agent-skill-first-install": "agent-skill",
+  "industry-skill-stack-plan": "agent-skill",
+  "local-model-first-run": "local-model",
+  "codex-small-feature": "engineering",
+  "claude-code-deepseek-project": "engineering",
+}
+
 function missionFromGoalParam(goal: string | null) {
   if (!goal) return null
   const decoded = goal.trim()
   return goalMissionMap.find((item) => item.keywords.some((keyword) => decoded.includes(keyword)))?.missionId || null
+}
+
+function pickRandomMissionId(pool: typeof missions, fallbackId: string) {
+  if (pool.length === 0) return fallbackId
+  return pool[Math.floor(Math.random() * pool.length)].id
+}
+
+function missionDirection(id: string) {
+  return missionDirections[id] || "other"
 }
 
 export function StartClient() {
@@ -56,6 +86,9 @@ export function StartClient() {
   const [copied, setCopied] = useState<"prompt" | "recap" | null>(null)
   const [proofText, setProofText] = useState("")
   const [proofChecks, setProofChecks] = useState<boolean[]>([])
+  const [screenshotName, setScreenshotName] = useState("")
+  const [screenshotDataUrl, setScreenshotDataUrl] = useState("")
+  const [screenshotError, setScreenshotError] = useState("")
 
   useEffect(() => {
     const saved = readMissionProgress()
@@ -81,6 +114,8 @@ export function StartClient() {
     method: proofRequirement.method,
     text: proofText.trim(),
     checked: proofChecks,
+    screenshotName,
+    screenshotDataUrl,
     updatedAt: new Date().toISOString(),
   }
   const proofReady = isMissionStepProofReady(proofRequirement, currentProof)
@@ -89,6 +124,9 @@ export function StartClient() {
   useEffect(() => {
     setProofText(savedProof?.text || "")
     setProofChecks(savedProof?.checked || [])
+    setScreenshotName(savedProof?.screenshotName || "")
+    setScreenshotDataUrl(savedProof?.screenshotDataUrl || "")
+    setScreenshotError("")
   }, [selected.id, currentStepIndex, savedProof])
 
   function persist(next: MissionProgressState) {
@@ -99,6 +137,20 @@ export function StartClient() {
   function chooseMission(id: string) {
     setSelectedId(id)
     persist(selectMission(progress, id))
+  }
+
+  function switchRandomMission() {
+    const nextId = pickRandomMissionId(missions.filter((mission) => mission.id !== selected.id), missions[0].id)
+    chooseMission(nextId)
+  }
+
+  function skipCurrentDirection() {
+    const currentDirection = missionDirection(selected.id)
+    const nextId = pickRandomMissionId(
+      missions.filter((mission) => mission.id !== selected.id && missionDirection(mission.id) !== currentDirection),
+      missions.find((mission) => mission.id !== selected.id)?.id || missions[0].id,
+    )
+    chooseMission(nextId)
   }
 
   function finishCurrentStep() {
@@ -113,6 +165,22 @@ export function StartClient() {
       window.setTimeout(() => setCopied(null), 1600)
     } catch {
       setCopied(null)
+    }
+  }
+
+  async function handleScreenshot(file: File | undefined) {
+    setScreenshotError("")
+    if (!file) return
+    if (!file.type.startsWith("image/")) {
+      setScreenshotError("请上传图片格式的截图。")
+      return
+    }
+    try {
+      const dataUrl = await compressProofImage(file)
+      setScreenshotDataUrl(dataUrl)
+      setScreenshotName(file.name)
+    } catch {
+      setScreenshotError("截图读取失败，请换一张图片再试。")
     }
   }
 
@@ -160,9 +228,17 @@ export function StartClient() {
               你选的是：<b>{selectedGoal}</b>。当前任务：<b>{selected.shortTitle}</b>。现在只做：<b>{selectedProgress.completed ? "发复盘，把经验沉淀下来" : currentStep.title}</b>。
             </p>
           </div>
-          <a href="#start-current-step" className="btn-primary" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
-            开始这一步 <ArrowRight size={14} />
-          </a>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "flex-end", flexWrap: "wrap" }}>
+            <button type="button" onClick={switchRandomMission} className="btn-outline" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <Shuffle size={14} /> 随机换一个
+            </button>
+            <button type="button" onClick={skipCurrentDirection} className="btn-outline" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <SkipForward size={14} /> 跳过这个方向
+            </button>
+            <a href="#start-current-step" className="btn-primary" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
+              开始这一步 <ArrowRight size={14} />
+            </a>
+          </div>
         </section>
 
         <section style={{ border: "1px solid #181818", background: "rgba(255,255,255,0.024)", borderRadius: 10, padding: "10px 12px", marginBottom: 14, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
@@ -278,11 +354,31 @@ export function StartClient() {
                   style={{ width: "100%", resize: "vertical", border: "1px solid #28412e", background: "rgba(0,0,0,0.32)", color: "#e9f6ed", borderRadius: 10, padding: "10px 11px", fontSize: 12, lineHeight: 1.65, outline: "none" }}
                 />
               )}
+              {proofRequirement.screenshotRequired && (
+                <div style={{ marginTop: 10, border: "1px solid #28412e", background: "rgba(0,0,0,0.24)", borderRadius: 10, padding: "10px 11px" }}>
+                  <p style={{ color: "#d7f4df", fontSize: 12, fontWeight: 950, marginBottom: 6, display: "flex", alignItems: "center", gap: 7 }}>
+                    <ImageIcon size={14} /> 截图证明
+                  </p>
+                  <p style={{ color: "#9fcfaf", fontSize: 12, lineHeight: 1.6, marginBottom: 9 }}>{proofRequirement.screenshotHint || "上传一张能看出完成结果的截图。"}</p>
+                  <label style={{ display: "inline-flex", alignItems: "center", gap: 8, border: "1px solid #3b5f43", background: "rgba(61,165,99,0.09)", color: "#d7f4df", borderRadius: 8, padding: "8px 10px", fontSize: 12, fontWeight: 900, cursor: "pointer" }}>
+                    <Upload size={14} /> {screenshotName ? "更换截图" : "上传截图"}
+                    <input type="file" accept="image/*" onChange={(event) => handleScreenshot(event.target.files?.[0])} style={{ display: "none" }} />
+                  </label>
+                  {screenshotName && <p style={{ color: "#8fd6a0", fontSize: 11, marginTop: 8 }}>已保存截图：{screenshotName}</p>}
+                  {screenshotError && <p style={{ color: "#ff9b9b", fontSize: 11, marginTop: 8 }}>{screenshotError}</p>}
+                </div>
+              )}
             </div>
 
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
               <button type="button" onClick={finishCurrentStep} disabled={!proofReady} className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: 8, opacity: proofReady ? 1 : 0.48, cursor: proofReady ? "pointer" : "not-allowed" }}>
                 完成这一步 <CheckCircle2 size={14} />
+              </button>
+              <button type="button" onClick={switchRandomMission} className="btn-outline" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                <Shuffle size={14} /> 换任务
+              </button>
+              <button type="button" onClick={skipCurrentDirection} className="btn-outline" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                <SkipForward size={14} /> 跳过方向
               </button>
               <Link href={`/missions/${selected.id}`} className="btn-outline" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
                 打开任务详情 <ArrowRight size={14} />
@@ -350,6 +446,33 @@ export function StartClient() {
       </main>
     </div>
   )
+}
+
+function compressProofImage(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onerror = () => reject(new Error("read failed"))
+    reader.onload = () => {
+      const img = new Image()
+      img.onerror = () => reject(new Error("image failed"))
+      img.onload = () => {
+        const maxWidth = 1200
+        const scale = Math.min(1, maxWidth / img.width)
+        const canvas = document.createElement("canvas")
+        canvas.width = Math.max(1, Math.round(img.width * scale))
+        canvas.height = Math.max(1, Math.round(img.height * scale))
+        const ctx = canvas.getContext("2d")
+        if (!ctx) {
+          reject(new Error("canvas failed"))
+          return
+        }
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        resolve(canvas.toDataURL("image/jpeg", 0.72))
+      }
+      img.src = String(reader.result || "")
+    }
+    reader.readAsDataURL(file)
+  })
 }
 
 const miniButtonStyle: CSSProperties = {
