@@ -1,4 +1,5 @@
 import { missions } from "@/data/missions"
+import type { Mission, MissionStep } from "@/data/missions"
 
 export const MISSION_PROGRESS_KEY = "xiaobaiai:mission-progress:v1"
 
@@ -15,6 +16,15 @@ export type MissionStepProof = {
   text: string
   checked: boolean[]
   updatedAt: string
+}
+
+export type MissionStepProofRequirement = {
+  method: "self-check" | "artifact" | "recap"
+  label: string
+  placeholder?: string
+  minLength: number
+  requiredChecks: number
+  proofItems: string[]
 }
 
 export type MissionProgressState = {
@@ -70,6 +80,68 @@ export function selectMission(state: MissionProgressState, missionId: string): M
     },
   }
 }
+
+export function getMissionStepProofRequirement(
+  step: MissionStep,
+  stepIndex: number,
+  totalSteps: number,
+): MissionStepProofRequirement {
+  const fallback =
+    stepIndex === totalSteps - 1
+      ? {
+          method: "recap" as const,
+          label: "最后一步要留下复盘或导出结果，方便领取完整任务经验。",
+          placeholder: "例如：已导出 PPTX，复盘里记录了工具、资料、最好用的提示词和下次改进点。",
+          minLength: 20,
+          requiredChecks: 2,
+        }
+      : stepIndex >= 1
+        ? {
+            method: "artifact" as const,
+            label: "这一步需要有一个看得见的产物，粘贴一句结果或文件名即可。",
+            placeholder: "例如：生成了 6 页 PPT 初稿 / 得到 3 个选题 / 完成 5 条测试记录。",
+            minLength: 10,
+            requiredChecks: 1,
+          }
+        : {
+            method: "self-check" as const,
+            label: "新手第一步只做轻量确认，先把工具或页面打开。",
+            minLength: 0,
+            requiredChecks: 1,
+          }
+
+  const proof = step.proof || fallback
+  const method = proof.method
+  const proofItems = (step.validation && step.validation.length > 0 ? step.validation : step.checklist || []).slice(0, 3)
+  const requiredChecks = proofItems.length > 0 ? Math.min(proof.requiredChecks ?? fallback.requiredChecks, proofItems.length) : 0
+  const minLength = proof.minLength ?? (method === "self-check" ? 0 : method === "artifact" ? 10 : 20)
+
+  return {
+    method,
+    label: proof.label,
+    placeholder: proof.placeholder,
+    minLength,
+    requiredChecks,
+    proofItems,
+  }
+}
+
+export function isMissionStepProofReady(requirement: MissionStepProofRequirement, proof?: MissionStepProof) {
+  if (!proof) return false
+  const checkedCount = Array.isArray(proof.checked) ? proof.checked.filter(Boolean).length : 0
+  const textLength = typeof proof.text === "string" ? proof.text.trim().length : 0
+  return checkedCount >= requirement.requiredChecks && textLength >= requirement.minLength
+}
+
+export function isMissionCompletionProofReady(mission: Mission, progress: StoredMissionProgress) {
+  return mission.steps.every((step, index) =>
+    isMissionStepProofReady(
+      getMissionStepProofRequirement(step, index, mission.steps.length),
+      progress.stepProofs?.[index],
+    ),
+  )
+}
+
 export function markMissionStepDone(
   state: MissionProgressState,
   missionId: string,

@@ -9,7 +9,9 @@ import { NavBar } from "@/components/NavBar"
 import { missions } from "@/data/missions"
 import {
   currentStepLabel,
+  getMissionStepProofRequirement,
   getStoredMission,
+  isMissionStepProofReady,
   markMissionStepDone,
   readMissionProgress,
   selectMission,
@@ -44,6 +46,8 @@ export function StartClient() {
   const [progress, setProgress] = useState<MissionProgressState>(() => ({ activeMissionId: missions[0].id, missions: {} }))
   const [selectedId, setSelectedId] = useState(missions[0].id)
   const [copied, setCopied] = useState<"prompt" | "recap" | null>(null)
+  const [proofText, setProofText] = useState("")
+  const [proofChecks, setProofChecks] = useState<boolean[]>([])
 
   useEffect(() => {
     const saved = readMissionProgress()
@@ -66,6 +70,20 @@ export function StartClient() {
   const activeProgress = getStoredMission(progress, activeMission.id)
   const activeStep = currentStepLabel(activeMission.id, Math.min(activeProgress.currentStep || 0, activeMission.steps.length - 1))
   const doneSteps = selected.steps.filter((_, index) => selectedProgress.completedSteps[index]).length
+  const proofRequirement = getMissionStepProofRequirement(currentStep, currentStepIndex, selected.steps.length)
+  const savedProof = selectedProgress.stepProofs?.[currentStepIndex]
+  const currentProof = {
+    method: proofRequirement.method,
+    text: proofText.trim(),
+    checked: proofChecks,
+    updatedAt: new Date().toISOString(),
+  }
+  const proofReady = isMissionStepProofReady(proofRequirement, currentProof)
+
+  useEffect(() => {
+    setProofText(savedProof?.text || "")
+    setProofChecks(savedProof?.checked || [])
+  }, [selected.id, currentStepIndex, savedProof])
 
   function persist(next: MissionProgressState) {
     setProgress(next)
@@ -78,7 +96,8 @@ export function StartClient() {
   }
 
   function finishCurrentStep() {
-    persist(markMissionStepDone(progress, selected.id, currentStepIndex, selected.steps.length))
+    if (!proofReady) return
+    persist(markMissionStepDone(progress, selected.id, currentStepIndex, selected.steps.length, currentProof))
   }
 
   async function copyText(kind: "prompt" | "recap", text: string) {
@@ -96,13 +115,13 @@ export function StartClient() {
       <MathRain />
       <NavBar />
       <main style={{ maxWidth: 1120, margin: "0 auto", padding: "64px clamp(16px,5vw,60px) 104px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.9)" }}>
-        <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.34em", color: "#7a6230", textTransform: "uppercase", marginBottom: 12, fontWeight: 900 }}>Start From 0 To 1</p>
-        <h1 style={{ fontSize: 42, color: "#fff", fontWeight: 950, lineHeight: 1.22, marginBottom: 14 }}>你现在最想用 AI 做成什么事？</h1>
+        <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.34em", color: "#7a6230", textTransform: "uppercase", marginBottom: 12, fontWeight: 900 }}>Today 0-1 Step</p>
+        <h1 style={{ fontSize: 42, color: "#fff", fontWeight: 950, lineHeight: 1.22, marginBottom: 14 }}>今天先做完一个 AI 小环节</h1>
         <p style={{ fontSize: 16, color: "#ccc", lineHeight: 1.9, maxWidth: 880, marginBottom: 24 }}>
-          不要从“选哪个工具”开始。先说你想做成什么事。就算现在的工具还不能帮你做完整件事，我们也可以先做好其中一个环节，这就是从 0 到 1 的开始。
+          不用先学完整课程，也不用挑半天工具。小白先给你一个默认任务：做出一份 AI PPT 初稿的第一步。做完这一小步，系统会记住证明，再带你继续下一步。
         </p>
 
-        <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.055)", borderRadius: 12, padding: "18px 20px", marginBottom: 30, display: "grid", gridTemplateColumns: "1fr auto", gap: 14, alignItems: "center" }} className="max-sm:grid-cols-1">
+        <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.055)", borderRadius: 12, padding: "18px 20px", marginBottom: 24, display: "grid", gridTemplateColumns: "1fr auto", gap: 14, alignItems: "center" }} className="max-sm:grid-cols-1">
           <div>
             <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>小白记得你上次做到这里</p>
             <p style={{ color: "#ddd", fontSize: 14, lineHeight: 1.8 }}>
@@ -114,7 +133,7 @@ export function StartClient() {
           </Link>
         </section>
 
-        <section style={{ border: "1px solid #181818", background: "rgba(255,255,255,0.024)", borderRadius: 10, padding: "10px 12px", marginBottom: 22, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        <section style={{ border: "1px solid #181818", background: "rgba(255,255,255,0.024)", borderRadius: 10, padding: "10px 12px", marginBottom: 18, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <span style={{ color: "#cdbb80", fontSize: 12, fontWeight: 950, marginRight: 2 }}>做事路径</span>
           {principles.map((item, index) => (
             <span key={item} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#aaa", border: "1px solid #222", background: "rgba(0,0,0,0.22)", borderRadius: 999, padding: "6px 9px", fontSize: 11, fontWeight: 850 }}>
@@ -124,48 +143,45 @@ export function StartClient() {
           ))}
         </section>
 
-        <section style={{ display: "grid", gridTemplateColumns: "320px minmax(0,1fr)", gap: 18, alignItems: "start", marginBottom: 44 }} className="start-workspace">
-          <div>
-            <div style={{ marginBottom: 10 }}>
-              <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, marginBottom: 5 }}>选择任务</h2>
-              <p style={{ color: "#888", fontSize: 12, lineHeight: 1.65 }}>这里先选方向，右侧才是今天要做的主任务。</p>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 8, maxHeight: 560, overflowY: "auto", paddingRight: 4 }} className="start-mission-list">
-              {missions.map((mission) => {
-                const active = mission.id === selected.id
-                const missionProgress = getStoredMission(progress, mission.id)
-                const missionDoneSteps = mission.steps.filter((_, index) => missionProgress.completedSteps[index]).length
-                return (
-                  <button
-                    key={mission.id}
-                    type="button"
-                    onClick={() => chooseMission(mission.id)}
-                    style={{
-                      textAlign: "left",
-                      border: active ? "1px solid #8c7333" : "1px solid #1a1a1a",
-                      background: active ? "rgba(201,168,76,0.08)" : "rgba(255,255,255,0.026)",
-                      borderRadius: 10,
-                      padding: "11px 12px",
-                      minHeight: 82,
-                      cursor: "pointer",
-                    }}
-                  >
-                    <h3 style={{ color: "#fff", fontSize: 13, fontWeight: 950, lineHeight: 1.45, marginBottom: 5 }}>{mission.shortTitle}</h3>
-                    <p style={{ color: active ? "#cfcfcf" : "#8f8f8f", fontSize: 11, lineHeight: 1.55, marginBottom: 8, display: "-webkit-box", WebkitLineClamp: active ? 2 : 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{mission.tagline}</p>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: 8, borderTop: "1px solid #202020", paddingTop: 8 }}>
-                      <span style={{ color: "#cdbb80", fontSize: 11, fontWeight: 900 }}>{missionDoneSteps}/{mission.steps.length} 步</span>
-                      <span style={{ color: "#777", fontSize: 11, fontWeight: 900 }}>{mission.minutes}</span>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
+        <details style={{ border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.024)", borderRadius: 10, padding: "13px 14px", marginBottom: 18 }}>
+          <summary style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, cursor: "pointer" }}>不做 PPT？点这里换一个任务方向</summary>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(210px,1fr))", gap: 8, marginTop: 12 }} className="start-mission-list">
+            {missions.map((mission) => {
+              const active = mission.id === selected.id
+              const missionProgress = getStoredMission(progress, mission.id)
+              const missionDoneSteps = mission.steps.filter((_, index) => missionProgress.completedSteps[index]).length
+              return (
+                <button
+                  key={mission.id}
+                  type="button"
+                  onClick={() => chooseMission(mission.id)}
+                  style={{
+                    textAlign: "left",
+                    border: active ? "1px solid #8c7333" : "1px solid #1a1a1a",
+                    background: active ? "rgba(201,168,76,0.08)" : "rgba(255,255,255,0.026)",
+                    borderRadius: 10,
+                    padding: "11px 12px",
+                    minHeight: 78,
+                    cursor: "pointer",
+                  }}
+                >
+                  <h3 style={{ color: "#fff", fontSize: 13, fontWeight: 950, lineHeight: 1.45, marginBottom: 5 }}>{mission.shortTitle}</h3>
+                  <p style={{ color: active ? "#cfcfcf" : "#8f8f8f", fontSize: 11, lineHeight: 1.55, marginBottom: 8, display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{mission.tagline}</p>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 8, borderTop: "1px solid #202020", paddingTop: 8 }}>
+                    <span style={{ color: "#cdbb80", fontSize: 11, fontWeight: 900 }}>{missionDoneSteps}/{mission.steps.length} 步</span>
+                    <span style={{ color: "#777", fontSize: 11, fontWeight: 900 }}>{mission.minutes}</span>
+                  </div>
+                </button>
+              )
+            })}
           </div>
+        </details>
 
-          <aside style={{ border: "1px solid #2a1f10", background: "linear-gradient(180deg,rgba(201,168,76,0.08),rgba(255,255,255,0.025))", borderRadius: 12, padding: "22px 24px", position: "sticky", top: 18, minHeight: 520 }}>
+        <section style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 300px", gap: 18, alignItems: "start", marginBottom: 44 }} className="start-workspace">
+          <aside style={{ border: "1px solid #2a1f10", background: "linear-gradient(180deg,rgba(201,168,76,0.08),rgba(255,255,255,0.025))", borderRadius: 12, padding: "22px 24px", minHeight: 520 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
               <div>
-                <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.18em", color: "#7a6230", fontWeight: 950, marginBottom: 6 }}>TODAY 0-1 QUEST</p>
+                <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.18em", color: "#7a6230", fontWeight: 950, marginBottom: 6 }}>NEXT ACTION</p>
                 <h2 style={{ color: "#fff", fontSize: 23, fontWeight: 950, lineHeight: 1.35 }}>{selected.shortTitle}</h2>
               </div>
               <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#e8c96a", fontFamily: "'JetBrains Mono',monospace", fontSize: 12, fontWeight: 950 }}>
@@ -180,26 +196,60 @@ export function StartClient() {
             </div>
 
             <div style={{ border: "1px solid #242424", borderRadius: 10, padding: "15px 16px", background: "rgba(0,0,0,0.28)", marginBottom: 14 }}>
-              <p style={{ color: "#888", fontSize: 11, fontWeight: 950, marginBottom: 7 }}>小白建议你现在做</p>
+              <p style={{ color: "#888", fontSize: 11, fontWeight: 950, marginBottom: 7 }}>现在只做这一件事</p>
               <h3 style={{ color: "#fff", fontSize: 16, fontWeight: 950, lineHeight: 1.5, marginBottom: 7 }}>{selectedProgress.completed ? "发一篇复盘，沉淀你的做法" : currentStep.title}</h3>
-              <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.75, marginBottom: 10 }}>{selectedProgress.completed ? "这条任务已经跑完，下一步最值钱的是把踩坑和成果写出来。" : currentStep.desc}</p>
+              <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.75, marginBottom: 10 }}>{selectedProgress.completed ? "这条任务已经跑完，下一步最值钱的是把踩坑和成果写出来。" : currentStep.action}</p>
               <p style={{ color: "#cdbb80", fontSize: 12, lineHeight: 1.65 }}>交付物：{selectedProgress.completed ? selected.recapTemplate.split("\n")[0] : currentStep.deliverable}</p>
             </div>
 
-            <TaskBlock title="准备材料" items={selected.materials} />
-
-            <div style={{ border: "1px solid #242424", borderRadius: 10, padding: "14px 15px", background: "rgba(0,0,0,0.28)", marginTop: 14, marginBottom: 14 }}>
+            <div style={{ border: "1px solid #242424", borderRadius: 10, padding: "14px 15px", background: "rgba(0,0,0,0.28)", marginBottom: 14 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 9 }}>
                 <p style={{ color: "#fff", fontSize: 13, fontWeight: 950 }}>复制当前步骤提示词</p>
                 <button type="button" onClick={() => copyText("prompt", currentStep.prompt)} style={miniButtonStyle}>
                   {copied === "prompt" ? <Check size={13} /> : <Clipboard size={13} />} {copied === "prompt" ? "已复制" : "复制"}
                 </button>
               </div>
-              <p style={{ color: "#bbb", fontSize: 12, lineHeight: 1.8 }}>{currentStep.prompt}</p>
+              <p style={{ color: "#bbb", fontSize: 12, lineHeight: 1.8, whiteSpace: "pre-line" }}>{currentStep.prompt}</p>
+            </div>
+
+            <div style={{ border: "1px solid #29351f", borderRadius: 10, padding: "14px 15px", background: "rgba(61,165,99,0.06)", marginBottom: 14 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "start", marginBottom: 10 }}>
+                <div>
+                  <p style={{ color: "#fff", fontSize: 13, fontWeight: 950, marginBottom: 5 }}>完成判定</p>
+                  <p style={{ color: "#9fcfaf", fontSize: 12, lineHeight: 1.65 }}>{proofRequirement.label}</p>
+                </div>
+                <span style={{ color: proofReady ? "#3DA563" : "#888", fontSize: 11, fontWeight: 950, whiteSpace: "nowrap" }}>{proofReady ? "可完成" : "待证明"}</span>
+              </div>
+              <div style={{ display: "grid", gap: 7, marginBottom: proofRequirement.minLength > 0 ? 10 : 0 }}>
+                {proofRequirement.proofItems.map((item, index) => (
+                  <label key={item} style={{ display: "grid", gridTemplateColumns: "18px 1fr", gap: 8, alignItems: "start", color: "#cfcfcf", fontSize: 12, lineHeight: 1.6, cursor: "pointer" }}>
+                    <input
+                      type="checkbox"
+                      checked={!!proofChecks[index]}
+                      onChange={() => setProofChecks((prev) => {
+                        const next = [...prev]
+                        next[index] = !next[index]
+                        return next
+                      })}
+                      style={{ width: 15, height: 15, marginTop: 2, accentColor: "#3DA563" }}
+                    />
+                    <span>{item}</span>
+                  </label>
+                ))}
+              </div>
+              {proofRequirement.minLength > 0 && (
+                <textarea
+                  value={proofText}
+                  onChange={(event) => setProofText(event.target.value)}
+                  placeholder={proofRequirement.placeholder || "粘贴一句结果、文件名、链接或你生成出来的关键内容。"}
+                  rows={3}
+                  style={{ width: "100%", resize: "vertical", border: "1px solid #28412e", background: "rgba(0,0,0,0.32)", color: "#e9f6ed", borderRadius: 10, padding: "10px 11px", fontSize: 12, lineHeight: 1.65, outline: "none" }}
+                />
+              )}
             </div>
 
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <button type="button" onClick={finishCurrentStep} className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <button type="button" onClick={finishCurrentStep} disabled={!proofReady} className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: 8, opacity: proofReady ? 1 : 0.48, cursor: proofReady ? "pointer" : "not-allowed" }}>
                 完成这一步 <CheckCircle2 size={14} />
               </button>
               <Link href={`/missions/${selected.id}`} className="btn-outline" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
@@ -210,6 +260,24 @@ export function StartClient() {
               </button>
             </div>
           </aside>
+
+          <div style={{ display: "grid", gap: 14 }}>
+            <section style={{ border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.026)", borderRadius: 12, padding: "18px 20px" }}>
+              <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, marginBottom: 8 }}>这一关为什么要做</h2>
+              <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.85, marginBottom: 12 }}>{selected.whyNow}</p>
+              <p style={{ color: "#cdbb80", fontSize: 12, lineHeight: 1.75 }}>最终产出：{selected.outcome}</p>
+            </section>
+            <section style={{ border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.026)", borderRadius: 12, padding: "18px 20px" }}>
+              <TaskBlock title="准备材料" items={selected.materials} />
+            </section>
+            <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 12, padding: "18px 20px" }}>
+              <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, marginBottom: 8 }}>第一个任务之后不会没事做</h2>
+              <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.85, marginBottom: 12 }}>
+                完成 PPT 第一步后，继续生成初稿、检查空话、导出复盘；完整通关后会进入长文档分析、内容流水线、知识库 Bot、自动化和工程 Agent。学习主线会按产物解锁下一段。
+              </p>
+              <Link href="/learn" className="btn-outline" style={{ textDecoration: "none", display: "inline-flex" }}>查看深度学习主线</Link>
+            </section>
+          </div>
         </section>
 
         <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 12, padding: "24px 26px" }}>
@@ -239,15 +307,8 @@ export function StartClient() {
             .start-workspace {
               grid-template-columns: 1fr !important;
             }
-            .start-mission-list {
-              max-height: none !important;
-              overflow: visible !important;
-              grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-              padding-right: 0 !important;
-            }
           }
           @media (max-width: 640px) {
-            .start-mission-list,
             .max-sm\\:grid-cols-1 {
               grid-template-columns: 1fr !important;
             }

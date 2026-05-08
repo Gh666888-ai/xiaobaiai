@@ -94,6 +94,51 @@ const curriculumFlow = [
   },
 ]
 
+const deepTrack = [
+  {
+    phase: "第一天",
+    title: "只跑通一个最小交付",
+    goal: "打开工具，完成一个步骤，留下证明。",
+    unlock: "完成任意任务第 1 步",
+    href: "/start",
+  },
+  {
+    phase: "第 2-3 天",
+    title: "把第一个任务完整做完",
+    goal: "从资料、生成、检查、导出到复盘，不只停在打开工具。",
+    unlock: "完成 AI PPT / 长文档 / 内容流水线任一任务",
+    href: "/missions",
+  },
+  {
+    phase: "第 1 周",
+    title: "做三个不同类型产物",
+    goal: "办公产物、内容产物、知识库或自动化产物至少各碰一次。",
+    unlock: "任务证明里出现 3 个可检查成果",
+    href: "/missions",
+  },
+  {
+    phase: "第 2 周",
+    title: "从使用者变成流程搭建者",
+    goal: "搭一个知识库 Bot 或半自动日报，开始理解边界、测试和人工确认。",
+    unlock: "完成 Dify 或 n8n 任务",
+    href: "/missions/dify-knowledge-base-bot",
+  },
+  {
+    phase: "第 3 周+",
+    title: "让 Agent 进入真实项目",
+    goal: "限定范围、看 diff、跑验证，把 AI 放进真实生产流程。",
+    unlock: "完成 Codex / Claude Code 工程任务",
+    href: "/missions/codex-small-feature",
+  },
+]
+
+const masteryChecks = [
+  { name: "会问", desc: "能把目标、材料、限制和输出格式说清楚。" },
+  { name: "会查", desc: "能区分 AI 的事实、推断和编造内容。" },
+  { name: "会交付", desc: "能导出文件、表格、脚本、流程图或可发布草稿。" },
+  { name: "会复用", desc: "能保存提示词、模板和失败修复方法。" },
+  { name: "会升级", desc: "能把一次任务迁移到另一个场景或更长流程。" },
+]
 const todayActions = [
   { title: "选一个目标", desc: "不是选工具，而是说清楚你想做成什么事。", href: "/start" },
   { title: "做一个环节", desc: "只交付表格、脚本、提示词、流程图或一个小 diff。", href: "/missions" },
@@ -152,6 +197,36 @@ export default function LearnPage() {
             ))}
           </div>
           <p style={{fontSize:13,color:'#cdbb80',lineHeight:1.8,borderTop:'1px solid #242424',paddingTop:14}}>学习顺序很简单：先看懂概念，照着做一次，再换成自己的场景，最后把结果发成复盘。</p>
+        </section>
+
+        <section style={{border:'1px solid #1f1f1f',background:'rgba(255,255,255,0.025)',borderRadius:12,padding:'22px 24px',marginBottom:28}}>
+          <div style={{display:'flex',alignItems:'flex-end',justifyContent:'space-between',gap:16,flexWrap:'wrap',marginBottom:18}}>
+            <div>
+              <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.2em',color:'#7a6230',fontWeight:900,marginBottom:6}}>DEEP LEARNING TRACK</p>
+              <h2 style={{fontSize:24,fontWeight:950,color:'#fff',lineHeight:1.35}}>第一个任务之后，继续往深处走</h2>
+              <p style={{fontSize:14,color:'#aaa',lineHeight:1.8,marginTop:8,maxWidth:760}}>小白AI 不把“完成第一步”当终点。真正的学习系统会把用户从一次小交付，推进到多产物、流程搭建、自动化和真实项目。</p>
+            </div>
+            <Link href="/start" className="btn-primary" style={{textDecoration:'none'}}>继续我的下一步</Link>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:10,marginBottom:14}}>
+            {deepTrack.map((item,index)=>(
+              <Link key={item.phase} href={item.href} style={{position:'relative',display:'block',textDecoration:'none',border:'1px solid #242424',background:index===0?'rgba(201,168,76,0.055)':'rgba(0,0,0,0.24)',borderRadius:10,padding:'16px 15px',minHeight:190}}>
+                <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950,color:'#e8c96a',marginBottom:7}}>{item.phase}</p>
+                <h3 style={{fontSize:15,fontWeight:950,color:'#fff',lineHeight:1.45,marginBottom:8}}>{item.title}</h3>
+                <p style={{fontSize:12,color:'#bbb',lineHeight:1.7,marginBottom:10}}>{item.goal}</p>
+                <p style={{fontSize:11,color:'#8fd6a0',lineHeight:1.6,borderTop:'1px solid #202020',paddingTop:9}}>解锁判定：{item.unlock}</p>
+              </Link>
+            ))}
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:8}}>
+            {masteryChecks.map((item,index)=>(
+              <div key={item.name} style={{border:'1px solid #1a1a1a',background:'rgba(0,0,0,0.22)',borderRadius:8,padding:'12px 13px'}}>
+                <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950,color:'#7a6230',marginBottom:5}}>MASTERY {index+1}</p>
+                <p style={{fontSize:13,fontWeight:950,color:'#fff',marginBottom:4}}>{item.name}</p>
+                <p style={{fontSize:12,color:'#aaa',lineHeight:1.6}}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.045)',borderRadius:12,padding:'20px 22px',marginBottom:28}}>

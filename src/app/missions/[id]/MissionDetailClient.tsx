@@ -27,6 +27,7 @@ import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
 import {
   getStoredMission,
+  getMissionStepProofRequirement,
   markMissionStepDone,
   readMissionProgress,
   selectMission,
@@ -290,14 +291,12 @@ function StepCard({
   onDone: (proof: MissionStepProof) => void
 }) {
   const step = mission.steps[stepIndex]
-  const proofRule = step.proof || defaultProofRule(stepIndex, mission.steps.length)
-  const proofItems = (step.validation && step.validation.length > 0 ? step.validation : step.checklist || []).slice(0, 3)
-  const minChecks = Math.min(proofRule.requiredChecks ?? 1, proofItems.length)
-  const minLength = proofRule.minLength ?? (proofRule.method === "self-check" ? 0 : proofRule.method === "artifact" ? 10 : 20)
+  const proofRule = getMissionStepProofRequirement(step, stepIndex, mission.steps.length)
+  const proofItems = proofRule.proofItems
   const [proofText, setProofText] = useState(savedProof?.text || "")
   const [proofChecks, setProofChecks] = useState<boolean[]>(savedProof?.checked || [])
   const checkedCount = proofChecks.filter(Boolean).length
-  const proofReady = checkedCount >= minChecks && proofText.trim().length >= minLength
+  const proofReady = checkedCount >= proofRule.requiredChecks && proofText.trim().length >= proofRule.minLength
 
   useEffect(() => {
     setProofText(savedProof?.text || "")
@@ -428,7 +427,7 @@ function StepCard({
           <span style={{ color: proofReady ? "#3DA563" : "#888", fontSize: 11, fontWeight: 950 }}>{proofReady ? "可以进入下一步" : "先留下完成证明"}</span>
         </div>
         {proofItems.length > 0 && (
-          <div style={{ display: "grid", gap: 7, marginBottom: minLength > 0 ? 12 : 0 }}>
+          <div style={{ display: "grid", gap: 7, marginBottom: proofRule.minLength > 0 ? 12 : 0 }}>
             {proofItems.map((item, index) => (
               <label key={item} style={{ display: "grid", gridTemplateColumns: "18px 1fr", gap: 8, alignItems: "start", color: "#cfcfcf", fontSize: 12, lineHeight: 1.6, cursor: "pointer" }}>
                 <input
@@ -446,7 +445,7 @@ function StepCard({
             ))}
           </div>
         )}
-        {minLength > 0 && (
+        {proofRule.minLength > 0 && (
           <textarea
             value={proofText}
             onChange={(event) => setProofText(event.target.value)}
@@ -468,33 +467,6 @@ function StepCard({
       </button>
     </article>
   )
-}
-
-function defaultProofRule(stepIndex: number, totalSteps: number) {
-  if (stepIndex === totalSteps - 1) {
-    return {
-      method: "recap" as const,
-      label: "最后一步要留下复盘或导出结果，方便领取完整任务经验。",
-      placeholder: "例如：已导出 PPTX，复盘里记录了工具、资料、最好用的提示词和下次改进点。",
-      minLength: 20,
-      requiredChecks: 2,
-    }
-  }
-  if (stepIndex >= 1) {
-    return {
-      method: "artifact" as const,
-      label: "这一步需要有一个看得见的产物，粘贴一句结果或文件名即可。",
-      placeholder: "例如：生成了 6 页 PPT 初稿 / 得到 3 个选题 / 完成 5 条测试记录。",
-      minLength: 10,
-      requiredChecks: 1,
-    }
-  }
-  return {
-    method: "self-check" as const,
-    label: "新手第一步只做轻量确认，先把工具或页面打开。",
-    minLength: 0,
-    requiredChecks: 1,
-  }
 }
 
 function CompleteCard({
@@ -533,7 +505,7 @@ function CompleteCard({
           发复盘 <MessageCircle size={14} />
         </Link>
       </div>
-      {notice && <p style={{ color: notice.includes("获得") ? "#3DA563" : "#cdbb80", fontSize: 13, lineHeight: 1.7, marginTop: 12 }}>{notice}</p>}
+      {notice && <p style={{ color: notice.includes("到账") ? "#3DA563" : "#cdbb80", fontSize: 13, lineHeight: 1.7, marginTop: 12 }}>{notice}</p>}
     </article>
   )
 }
