@@ -67,6 +67,46 @@ function autoModeratePost(title: string, content: string, tags: string[]) {
   return { status: "pending", reason: "manual_review_required" }
 }
 
+function getMissingColumnName(error: any) {
+  const text = `${error?.message || ""}\n${error?.details || ""}\n${error?.hint || ""}`
+  const match = text.match(/'([^']+)'\s+column/i) || text.match(/column\s+"?([a-zA-Z0-9_]+)"?\s+does not exist/i)
+  return match?.[1] || ""
+}
+
+async function insertCommunityPost(payload: Record<string, unknown>) {
+  const nextPayload = { ...payload }
+  const removedColumns: string[] = []
+
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    const { data, error } = await supabase
+      .from("community_posts")
+      .insert(nextPayload)
+      .select("id")
+      .single()
+
+    if (!error) return { data, error: null, removedColumns }
+
+    const missingColumn = getMissingColumnName(error)
+    if (!missingColumn || !(missingColumn in nextPayload)) {
+      return { data: null, error, removedColumns }
+    }
+
+    delete nextPayload[missingColumn]
+    removedColumns.push(missingColumn)
+    console.warn("[posts:community-schema-fallback]", {
+      missingColumn,
+      removedColumns,
+      message: error.message,
+    })
+  }
+
+  return {
+    data: null,
+    error: { message: "community_posts 表结构缺失字段过多，请先执行 Supabase 社区表补丁。" },
+    removedColumns,
+  }
+}
+
 async function recordGrowthEvent(userId: string, eventKey: string, reason: string, amount: number) {
   const { error } = await supabase.from("growth_events").insert({
     user_id: userId,
@@ -207,7 +247,7 @@ export async function POST(req: NextRequest) {
   }
 
   const moderation = autoModeratePost(title, content, tags)
-  const { data: insertedPost, error } = await supabase.from("community_posts").insert({
+  const { data: insertedPost, error, removedColumns } = await insertCommunityPost({
     author_id: userId || null,
     title,
     content,
@@ -225,16 +265,24 @@ export async function POST(req: NextRequest) {
     tool_ids: toolIds,
     source: userId ? "user" : "anonymous",
     author_ip_hash: ipHash || null,
-  }).select("id,status,moderation_reason").single()
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  })
+  if (error) {
+    const missingColumn = getMissingColumnName(error)
+    const message = missingColumn
+      ? `社区表缺少 ${missingColumn} 字段。请先在 Supabase SQL Editor 执行项目里的社区表补丁，然后重新提交。`
+      : error.message
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
 
   return NextResponse.json({
     success: true,
     id: insertedPost?.id,
-    status: insertedPost?.status,
-    moderation_reason: insertedPost?.moderation_reason,
+    status: moderation.status,
+    moderation_reason: moderation.reason,
     awarded: 0,
-    reward_pending: Boolean(userId && insertedPost?.status === "pending"),
+    reward_pending: Boolean(userId && moderation.status === "pending"),
+    degraded_schema: removedColumns.length > 0,
+    removed_columns: removedColumns,
   })
 }
 

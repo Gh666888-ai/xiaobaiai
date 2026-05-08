@@ -244,6 +244,7 @@ ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS author_id UUID REFERENCES a
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS author_name TEXT NOT NULL DEFAULT '匿名用户';
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS author_email TEXT;
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS author_xp INTEGER DEFAULT 0;
+NOTIFY pgrst, 'reload schema';
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS author_ip_hash TEXT;
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS category TEXT NOT NULL DEFAULT '经验分享';
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}';
