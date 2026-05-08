@@ -141,6 +141,20 @@ Mac：打开 Terminal。
 
 \`claude\`
 
+如果出现英文界面：
+
+\`Choose the text style that looks best with your terminal\`
+
+这不是报错，是让你选终端主题。默认选中的一般是 Dark mode。
+
+直接按回车就行。
+
+如果不小心选错了，以后在 Claude Code 里输入：
+
+\`/theme\`
+
+可以重新选择主题。
+
 第一次打开后，先输入这句话：
 
 \`请先告诉我你能做什么，不要修改我的文件。\`

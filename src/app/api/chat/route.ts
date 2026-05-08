@@ -291,6 +291,13 @@ function siteReply(message: string) {
 
 function beginnerClaudeCodeReply(message: string) {
   const text = message.toLowerCase()
+  const hasThemeSelect =
+    text.includes("choose the text style") ||
+    text.includes("looks best with your terminal") ||
+    text.includes("/theme") ||
+    text.includes("dark mode") ||
+    text.includes("light mode") ||
+    text.includes("monokai extended")
   const hasPowerShellPolicyError =
     text.includes("npm.ps1") ||
     text.includes("npx.ps1") ||
@@ -305,9 +312,13 @@ function beginnerClaudeCodeReply(message: string) {
     text.includes("err_bad_request") ||
     text.includes("supported-countries") ||
     text.includes("might not be available in your country")
-  const aboutClaudeCode = text.includes("claude code") || text.includes("claudecode") || hasPowerShellPolicyError || hasAnthropicServiceError
-  const aboutInstall = text.includes("安装") || text.includes("下载") || text.includes("终端") || text.includes("node") || text.includes("npm") || text.includes("npx") || text.includes("启动") || hasPowerShellPolicyError || hasAnthropicServiceError
+  const aboutClaudeCode = text.includes("claude code") || text.includes("claudecode") || hasPowerShellPolicyError || hasAnthropicServiceError || hasThemeSelect
+  const aboutInstall = text.includes("安装") || text.includes("下载") || text.includes("终端") || text.includes("node") || text.includes("npm") || text.includes("npx") || text.includes("启动") || hasPowerShellPolicyError || hasAnthropicServiceError || hasThemeSelect
   if (!aboutClaudeCode || !aboutInstall) return ""
+
+  if (hasThemeSelect) {
+    return "这不是报错，是 Claude Code 第一次启动时让你选终端主题。\n\n现在直接这样做：\n按回车。\n\n它当前选中的是 Dark mode，默认就能用。按回车后会继续进入下一步。\n\n如果你想换主题：\n1. 用键盘上下方向键移动。\n2. 选好后按回车。\n3. 以后想重新改，在 Claude Code 里输入：\n/theme\n\n这个界面不用复制下面网页里的 DeepSeek 命令。先把主题这一步按回车过掉，后面如果出现 api.anthropic.com 连不上，再复制 DeepSeek V4 配置。"
+  }
 
   if (hasAnthropicServiceError) {
     return "这不是安装失败。Claude Code 已经启动成功了，版本号也出来了。\n\n现在卡住的是：它默认去连接 Anthropic 官方服务 api.anthropic.com，但当前网络/地区/账号环境连不上，所以出现：\nUnable to connect to Anthropic services\n\n国内新手先不要走官方连接，直接对接 DeepSeek V4 的 Anthropic 兼容接口。\n\nWindows PowerShell 复制下面这一整段，把 sk-你的DeepSeek_API_Key 换成自己的 Key：\n$env:ANTHROPIC_BASE_URL=\"https://api.deepseek.com/anthropic\"\n$env:ANTHROPIC_AUTH_TOKEN=\"sk-你的DeepSeek_API_Key\"\n$env:ANTHROPIC_MODEL=\"deepseek-v4-pro[1m]\"\n$env:ANTHROPIC_DEFAULT_OPUS_MODEL=\"deepseek-v4-pro[1m]\"\n$env:ANTHROPIC_DEFAULT_SONNET_MODEL=\"deepseek-v4-pro[1m]\"\n$env:ANTHROPIC_DEFAULT_HAIKU_MODEL=\"deepseek-v4-flash\"\n$env:CLAUDE_CODE_SUBAGENT_MODEL=\"deepseek-v4-flash\"\n$env:CLAUDE_CODE_EFFORT_LEVEL=\"max\"\nclaude\n\n如果模型名不支持 deepseek-v4-pro[1m]，先把三处 deepseek-v4-pro[1m] 改成 deepseek-v4-pro；还不行就先用 deepseek-v4-flash 跑通。\n\n如果还没有 DeepSeek API Key，先去 platform.deepseek.com 创建一个。"

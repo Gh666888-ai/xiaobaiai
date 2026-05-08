@@ -52,6 +52,11 @@ claude --version`,
   start: `claude`,
   startInProject: `cd 你的项目文件夹路径
 claude`,
+  theme: `看到 Choose the text style that looks best with your terminal
+直接按回车
+
+以后想改主题：
+/theme`,
   firstPrompt: `请先告诉我你能做什么，不要修改我的文件。`,
   projectPrompt: `请先阅读这个项目，不要改文件，告诉我它是什么技术栈、主要目录和下一步建议。`,
   deepseekQuickStart: `$env:ANTHROPIC_BASE_URL="https://api.deepseek.com/anthropic"
@@ -232,6 +237,10 @@ export default function ClaudeCodeDeepSeekPage() {
                 看到版本号以后，直接复制下面这行启动 Claude Code。
               </p>
               <CodeBlock code={installCommands.start} />
+              <p style={{ color: "#bfa795", fontSize: 12, lineHeight: 1.75, margin: "10px 0 8px" }}>
+                如果出现 Choose the text style that looks best with your terminal，这不是报错，是让你选终端主题。默认 Dark mode 可以直接用，按回车继续。
+              </p>
+              <CodeBlock code={installCommands.theme} />
               <p style={{ color: "#bfa795", fontSize: 12, lineHeight: 1.75, margin: "10px 0 8px" }}>
                 第一次打开后，先复制这句话，不要马上让它改文件。
               </p>
