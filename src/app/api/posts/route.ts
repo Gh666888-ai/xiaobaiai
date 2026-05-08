@@ -12,6 +12,7 @@ const MAX_LEVEL_EMAILS = new Set(["15171192200@163.com", "109020070@qq.com", "77
 const MAX_LEVEL_XP = 100000
 const ADMIN_EMAILS = new Set(["15171192200@163.com"])
 const POST_APPROVED_XP = 10
+const QUESTION_POST_APPROVED_XP = 12
 const POST_HOURLY_LIMIT = 3
 const POST_DAILY_LIMIT = 10
 const IP_HOURLY_LIMIT = 5
@@ -245,7 +246,7 @@ export async function PATCH(req: NextRequest) {
 
   const { data: current, error: readError } = await supabase
     .from("community_posts")
-    .select("id,author_id,author_email,author_xp,status")
+    .select("id,author_id,author_email,author_xp,status,category")
     .eq("id", id)
     .maybeSingle()
   if (readError) return NextResponse.json({ error: readError.message }, { status: 500 })
@@ -283,12 +284,14 @@ export async function PATCH(req: NextRequest) {
     if (MAX_LEVEL_EMAILS.has(String(profile?.email || current.author_email || "").toLowerCase())) {
       return NextResponse.json({ success: true, awarded: 0 })
     }
-    const eventInserted = await recordGrowthEvent(current.author_id, `community-post-approved:${id}`, "post-approved", POST_APPROVED_XP)
+    const isQuestionPost = String((current as any).category || "").includes("问题")
+    const postXP = isQuestionPost ? QUESTION_POST_APPROVED_XP : POST_APPROVED_XP
+    const eventInserted = await recordGrowthEvent(current.author_id, `community-post-approved:${id}`, isQuestionPost ? "question-post-approved" : "post-approved", postXP)
     if (eventInserted) {
-      const nextXP = Number(profile?.xp ?? current.author_xp ?? 0) + POST_APPROVED_XP
+      const nextXP = Number(profile?.xp ?? current.author_xp ?? 0) + postXP
       await supabase.from("profiles").update({ xp: nextXP }).eq("id", current.author_id)
       await supabase.from("community_posts").update({ author_xp: normalizeXP(profile?.email || current.author_email, nextXP) }).eq("id", id)
-      awarded = POST_APPROVED_XP
+      awarded = postXP
     }
   }
 

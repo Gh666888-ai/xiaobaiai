@@ -14,15 +14,18 @@ import { getUserLevel } from "@/data/user"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
 import { communityImage } from "@/lib/visual-assets"
-import { Heart, MessageCircle, Pin } from "lucide-react"
+import { CheckCircle2, Heart, MessageCircle, Pin } from "lucide-react"
 
 type CommunityComment = {
   id: string
   post_id: string
+  author_id?: string
   author_name: string
   author_xp?: number
   content: string
   status?: string
+  is_accepted?: boolean
+  accepted_at?: string
   created_at?: string
 }
 
@@ -56,6 +59,7 @@ export default function PostDetailPage() {
   const [commentText, setCommentText] = useState("")
   const [commentLoading, setCommentLoading] = useState(false)
   const [commentError, setCommentError] = useState("")
+  const [acceptingCommentId, setAcceptingCommentId] = useState("")
   useEffect(()=>{
     fetch("/community-posts.json").then(r=>r.json()).then(d=>{if(Array.isArray(d))setStaticPosts(d)}).catch(()=>{})
     fetch("/api/posts?status=approved").then(r=>r.json()).then(d=>{if(Array.isArray(d))setApiPosts(d)}).catch(()=>{})
@@ -130,7 +134,42 @@ export default function PostDetailPage() {
     }
   }
 
+  async function acceptComment(comment: CommunityComment) {
+    setCommentError("")
+    const token = readAppAuth()?.session?.access_token
+    if (!token) {
+      router.push(`/login?redirect=${encodeURIComponent(`/community/${postId}`)}`)
+      return
+    }
+    setAcceptingCommentId(comment.id)
+    try {
+      const res = await fetch("/api/comments", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action: "accept", postId, commentId: comment.id }),
+      })
+      const data = await res.json().catch(() => null)
+      if (!res.ok) throw new Error(data?.error || "认可失败，请稍后再试。")
+      setComments((prev) => prev.map((item) => (
+        item.id === comment.id
+          ? { ...item, ...data, is_accepted: true }
+          : { ...item, is_accepted: false }
+      )))
+      setCommentError(`已认可这条解决方案，评论会置顶，答主 +${Number(data?.awarded || 0)}XP。`)
+      await refresh().catch(() => undefined)
+    } catch (error: any) {
+      setCommentError(error?.message || "认可失败，请稍后再试。")
+    } finally {
+      setAcceptingCommentId("")
+    }
+  }
+
   const sortedComments = [...comments].sort((a, b) => {
+    if (a.is_accepted && !b.is_accepted) return -1
+    if (!a.is_accepted && b.is_accepted) return 1
     const aXP = Number(a.author_xp || 0)
     const bXP = Number(b.author_xp || 0)
     const aLevel = getUserLevel(aXP).level
@@ -155,6 +194,8 @@ export default function PostDetailPage() {
 
   const authorName = post.author_name || post.author || "匿名用户"
   const authorXP = Number(post.author_xp ?? post.authorXp ?? (authorName === "小白站长" ? 100000 : 0))
+  const isPostAuthor = Boolean(user?.userId && post.author_id && user.userId === post.author_id)
+  const isQuestionPost = String(post.category || "").includes("问题") || String(post.title || "").includes("？") || String(post.title || "").includes("?")
 
   return (
     <div style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
@@ -195,8 +236,8 @@ export default function PostDetailPage() {
 
         <section style={{display:'grid',gridTemplateColumns:'1fr auto',gap:12,alignItems:'center',border:'1px solid rgba(201,168,76,0.34)',background:'rgba(201,168,76,0.045)',borderRadius:12,padding:'14px 16px',marginBottom:18}} className="max-sm:grid-cols-1">
           <div>
-            <p style={{color:'#fff',fontSize:14,fontWeight:950,marginBottom:4}}>写一条有效评论 +3XP，今日经验榜实时刷新</p>
-            <p style={{color:'#d6c28a',fontSize:12,lineHeight:1.7}}>{user ? "补充你的用法、踩坑点或替代工具，更容易被其他用户看到。" : "登录后评论 +3XP，还能领取礼包、冲今日经验榜。"}</p>
+            <p style={{color:'#fff',fontSize:14,fontWeight:950,marginBottom:4}}>{isQuestionPost ? "帮楼主解决问题 +3XP，被认可再加 30XP 并置顶" : "写一条有效评论 +3XP，今日经验榜实时刷新"}</p>
+            <p style={{color:'#d6c28a',fontSize:12,lineHeight:1.7}}>{user ? "补充你的用法、踩坑点、替代工具或可执行步骤，越具体越容易被楼主认可。" : "登录后评论 +3XP，回答问题被认可还能获得更多经验。"}</p>
           </div>
           <button onClick={()=>setShowCommentBox(true)} className="btn-outline" style={{whiteSpace:'nowrap'}}>去评论</button>
         </section>
@@ -233,15 +274,21 @@ export default function PostDetailPage() {
               {sortedComments.length === 0 ? (
                 <p style={{fontSize:12,color:'#666',textAlign:'center',padding:'14px 0'}}>还没有评论，第一条神评席位空着呢。</p>
               ) : sortedComments.map(comment => (
-                <div key={comment.id} style={{border:`1px solid ${getUserLevel(Number(comment.author_xp || 0)).level>=5?'rgba(126,231,255,0.45)':'#202020'}`,background:getUserLevel(Number(comment.author_xp || 0)).level>=5?'rgba(126,231,255,0.045)':'rgba(0,0,0,0.28)',borderRadius:10,padding:'14px 16px'}}>
+                <div key={comment.id} style={{border:`1px solid ${comment.is_accepted ? 'rgba(61,165,99,0.72)' : getUserLevel(Number(comment.author_xp || 0)).level>=5?'rgba(126,231,255,0.45)':'#202020'}`,background:comment.is_accepted ? 'rgba(61,165,99,0.075)' : getUserLevel(Number(comment.author_xp || 0)).level>=5?'rgba(126,231,255,0.045)':'rgba(0,0,0,0.28)',borderRadius:10,padding:'14px 16px'}}>
                   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,marginBottom:10,flexWrap:'wrap'}}>
                     <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                      {comment.is_accepted && <span style={{display:'inline-flex',alignItems:'center',gap:4,border:'1px solid rgba(61,165,99,0.72)',background:'rgba(61,165,99,0.12)',color:'#8fd6a0',borderRadius:999,padding:'3px 8px',fontSize:10,fontWeight:950}}><CheckCircle2 size={11} />已被楼主认可</span>}
                       <LevelBadge compact name={comment.author_name || "匿名用户"} xp={Number(comment.author_xp || 0)} />
                       {levelPerkLabel(Number(comment.author_xp || 0)) && <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:getUserLevel(Number(comment.author_xp || 0)).level>=7?'#7ee7ff':'#e8c96a',border:`1px solid ${getUserLevel(Number(comment.author_xp || 0)).level>=7?'rgba(126,231,255,0.55)':'rgba(201,168,76,0.45)'}`,background:getUserLevel(Number(comment.author_xp || 0)).level>=7?'rgba(126,231,255,0.08)':'rgba(201,168,76,0.08)',padding:'2px 8px',borderRadius:999,fontWeight:900}}>{levelPerkLabel(Number(comment.author_xp || 0))}</span>}
                     </div>
                     <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#666'}}>{formatCommentTime(comment.created_at)}</span>
                   </div>
                   <p style={{fontSize:14,color:'#ddd',lineHeight:1.8,whiteSpace:'pre-line',margin:0}}><SeoKeywordLinks text={comment.content} maxLinks={4} /></p>
+                  {isPostAuthor && !comment.is_accepted && comment.author_id !== user?.userId && (
+                    <button type="button" onClick={() => acceptComment(comment)} disabled={acceptingCommentId === comment.id} style={{marginTop:12,display:'inline-flex',alignItems:'center',gap:6,border:'1px solid rgba(61,165,99,0.58)',background:'rgba(61,165,99,0.08)',color:'#8fd6a0',borderRadius:8,padding:'7px 10px',fontSize:12,fontWeight:950,cursor:acceptingCommentId === comment.id ? 'default' : 'pointer',opacity:acceptingCommentId === comment.id ? 0.65 : 1}}>
+                      <CheckCircle2 size={13} /> {acceptingCommentId === comment.id ? "认可中" : "认可为解决方案"}
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

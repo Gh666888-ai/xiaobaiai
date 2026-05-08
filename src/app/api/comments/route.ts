@@ -4,6 +4,8 @@ import { getSeedCommunityComments } from "@/data/community-comments"
 
 const MAX_LEVEL_EMAILS = new Set(["15171192200@163.com", "109020070@qq.com", "771239559@qq.com"])
 const MAX_LEVEL_XP = 100000
+const COMMENT_XP = 3
+const ACCEPTED_ANSWER_XP = 30
 const COMMENT_COOLDOWN_MS = 30_000
 const LINK_PATTERN = /(https?:\/\/|www\.|\.com\b|\.cn\b|\.net\b|\.org\b|\.top\b|\.xyz\b|\.vip\b)/i
 const HARD_BLOCK_RULES = [
@@ -36,14 +38,37 @@ async function recordGrowthEvent(supabase: ReturnType<typeof createServerSupabas
     amount,
     day_key: dayKey(),
   })
-  if (error && String(error.code || "") !== "23505") {
+  if (error && String(error.code || "") === "23505") return false
+  if (error) {
     console.error("[comments:growth-event]", {
       code: error.code,
       message: error.message,
       details: error.details,
       hint: error.hint,
     })
+    return false
   }
+  return true
+}
+
+async function awardXP(supabase: ReturnType<typeof createServerSupabase>, userId: string, amount: number, eventKey: string, reason: string) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("xp,email")
+    .eq("id", userId)
+    .maybeSingle()
+  if (MAX_LEVEL_EMAILS.has(String(profile?.email || "").toLowerCase())) return 0
+
+  const inserted = await recordGrowthEvent(supabase, userId, eventKey, reason, amount)
+  if (!inserted) return 0
+
+  const nextXP = Number(profile?.xp || 0) + amount
+  const { error } = await supabase.from("profiles").update({ xp: nextXP }).eq("id", userId)
+  if (error) {
+    console.error("[comments:award-xp]", error)
+    return 0
+  }
+  return amount
 }
 
 function cleanContent(value: unknown) {
@@ -68,9 +93,10 @@ export async function GET(req: NextRequest) {
   const supabase = createServerSupabase()
   const { data, error } = await supabase
     .from("community_comments")
-    .select("id,post_id,author_name,author_xp,content,created_at")
+    .select("id,post_id,author_id,author_name,author_xp,content,is_accepted,accepted_at,created_at")
     .eq("post_id", postId)
     .eq("status", "approved")
+    .order("is_accepted", { ascending: false })
     .order("created_at", { ascending: true })
     .limit(100)
 
@@ -165,14 +191,72 @@ export async function POST(req: NextRequest) {
         .eq("id", postId)
     }
     if (!MAX_LEVEL_EMAILS.has(String(email || "").toLowerCase())) {
-      await auth.adminSupabase
-        .from("profiles")
-        .update({ xp: Number(profile?.xp || 0) + 3 })
-        .eq("id", auth.user.id)
-      await recordGrowthEvent(auth.adminSupabase, auth.user.id, `comment:${result.data?.id || Date.now()}`, "comment", 3)
-      awarded = 3
+      awarded = await awardXP(auth.adminSupabase, auth.user.id, COMMENT_XP, `comment:${result.data?.id || Date.now()}`, "comment")
     }
   }
 
   return NextResponse.json({ ...result.data, awarded })
+}
+
+export async function PATCH(req: NextRequest) {
+  const auth = await requireUser(req)
+  if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status })
+
+  const body = await req.json().catch(() => null)
+  const commentId = String(body?.commentId || body?.id || "").trim()
+  const postId = String(body?.postId || "").trim()
+  const action = String(body?.action || "").trim()
+  if (!commentId || !postId || action !== "accept") {
+    return NextResponse.json({ error: "缺少认可参数。" }, { status: 400 })
+  }
+
+  const { data: post, error: postError } = await auth.adminSupabase
+    .from("community_posts")
+    .select("id,author_id,category,title")
+    .eq("id", postId)
+    .maybeSingle()
+  if (postError) return NextResponse.json({ error: postError.message }, { status: 500 })
+  if (!post) return NextResponse.json({ error: "帖子不存在。" }, { status: 404 })
+  if (post.author_id !== auth.user.id) return NextResponse.json({ error: "只有发帖人可以认可解决方案。" }, { status: 403 })
+
+  const { data: comment, error: commentError } = await auth.adminSupabase
+    .from("community_comments")
+    .select("id,author_id,author_xp,status")
+    .eq("id", commentId)
+    .eq("post_id", postId)
+    .maybeSingle()
+  if (commentError) return NextResponse.json({ error: commentError.message }, { status: 500 })
+  if (!comment || comment.status !== "approved") return NextResponse.json({ error: "评论不存在或还未通过。" }, { status: 404 })
+  if (!comment.author_id) return NextResponse.json({ error: "匿名评论不能领取认可经验。" }, { status: 400 })
+
+  const now = new Date().toISOString()
+  await auth.adminSupabase
+    .from("community_comments")
+    .update({ is_accepted: false })
+    .eq("post_id", postId)
+    .eq("is_accepted", true)
+
+  const { data: accepted, error: acceptError } = await auth.adminSupabase
+    .from("community_comments")
+    .update({ is_accepted: true, accepted_at: now, accepted_by: auth.user.id })
+    .eq("id", commentId)
+    .select("id,post_id,author_id,author_name,author_xp,content,is_accepted,accepted_at,created_at")
+    .single()
+  if (acceptError) return NextResponse.json({ error: acceptError.message }, { status: 500 })
+
+  const awarded = await awardXP(auth.adminSupabase, comment.author_id, ACCEPTED_ANSWER_XP, `comment-accepted:${commentId}`, "comment-accepted")
+  if (awarded > 0) {
+    const { data: profile } = await auth.adminSupabase
+      .from("profiles")
+      .select("xp,email")
+      .eq("id", comment.author_id)
+      .maybeSingle()
+    await auth.adminSupabase
+      .from("community_comments")
+      .update({ author_xp: normalizeXP(profile?.email, profile?.xp) })
+      .eq("id", commentId)
+    if (accepted) accepted.author_xp = normalizeXP(profile?.email, profile?.xp)
+  }
+
+  return NextResponse.json({ ...accepted, awarded })
 }

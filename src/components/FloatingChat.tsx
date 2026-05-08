@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import type { PointerEvent as ReactPointerEvent } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ArrowUp, Loader2, LogIn, MessageCircle, Minus, UserRound, X } from "lucide-react"
@@ -24,10 +25,16 @@ type Message = {
 
 type LauncherMood = "welcome" | "thinking" | "recommend"
 type ChatMode = "ai" | "fallback" | "site" | ""
+type FloatAnchor = {
+  right: number
+  bottom: number
+}
 
 const START_INDUSTRY_PROMPT_KEY = "xiaobaiai:start-industry-prompt:v1"
 const START_INDUSTRY_PROMPT =
   "你已经登录了。先告诉我两个信息：\n1. 你从事什么行业或岗位？\n2. 你最想用 AI 做成什么事？\n\n我会按你的行业推荐该学的 AI 工具，并把路线拆成能一步步完成的任务。"
+const FLOAT_AGENT_ANCHOR_KEY = "xiaobaiai:floating-agent-anchor:v1"
+const DEFAULT_FLOAT_ANCHOR: FloatAnchor = { right: 22, bottom: 22 }
 
 function isSiteQuestion(message: string) {
   const text = message.toLowerCase()
@@ -84,8 +91,22 @@ export function FloatingChat() {
   const [launcherMood, setLauncherMood] = useState<LauncherMood>("welcome")
   const [missionProgress, setMissionProgress] = useState<MissionProgressState>(() => emptyMissionProgress())
   const [hasSavedMissionProgress, setHasSavedMissionProgress] = useState(false)
+  const [floatAnchor, setFloatAnchor] = useState<FloatAnchor>(DEFAULT_FLOAT_ANCHOR)
+  const [dragging, setDragging] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const launcherRef = useRef<HTMLButtonElement>(null)
+  const patrolIndexRef = useRef(0)
+  const suppressClickRef = useRef(false)
+  const dragRef = useRef<{
+    offsetX: number
+    offsetY: number
+    width: number
+    height: number
+    startX: number
+    startY: number
+    moved: boolean
+  } | null>(null)
 
   const hideOnFullChat = pathname === "/chat" || pathname === "/login"
   const hideOnFocusedFlow =
@@ -103,6 +124,25 @@ export function FloatingChat() {
     }
     window.addEventListener("xiaobai:open-chat", openChat)
     return () => window.removeEventListener("xiaobai:open-chat", openChat)
+  }, [])
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem(FLOAT_AGENT_ANCHOR_KEY)
+    if (!saved) return
+    try {
+      const parsed = JSON.parse(saved) as Partial<FloatAnchor>
+      if (typeof parsed.right === "number" && typeof parsed.bottom === "number") {
+        setFloatAnchor(clampFloatAnchor({ right: parsed.right, bottom: parsed.bottom }))
+      }
+    } catch {
+      window.localStorage.removeItem(FLOAT_AGENT_ANCHOR_KEY)
+    }
+  }, [])
+
+  useEffect(() => {
+    const keepInView = () => setFloatAnchor((anchor) => clampFloatAnchor(anchor, getLauncherSize(launcherRef.current)))
+    window.addEventListener("resize", keepInView)
+    return () => window.removeEventListener("resize", keepInView)
   }, [])
 
   useEffect(() => {
@@ -148,6 +188,79 @@ export function FloatingChat() {
     }, 2600)
     return () => window.clearInterval(timer)
   }, [open, minimized])
+
+  useEffect(() => {
+    if ((open && !minimized) || dragging) return
+    if (window.localStorage.getItem(FLOAT_AGENT_ANCHOR_KEY)) return
+
+    const timer = window.setInterval(() => {
+      const points = getPatrolAnchors(getLauncherSize(launcherRef.current))
+      patrolIndexRef.current = (patrolIndexRef.current + 1) % points.length
+      setFloatAnchor(clampFloatAnchor(points[patrolIndexRef.current], getLauncherSize(launcherRef.current)))
+    }, 8500)
+    return () => window.clearInterval(timer)
+  }, [dragging, minimized, open])
+
+  function handleLauncherPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
+    if (event.button !== 0) return
+    const rect = event.currentTarget.getBoundingClientRect()
+    dragRef.current = {
+      offsetX: event.clientX - rect.left,
+      offsetY: event.clientY - rect.top,
+      width: rect.width,
+      height: rect.height,
+      startX: event.clientX,
+      startY: event.clientY,
+      moved: false,
+    }
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  function handleLauncherPointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
+    const drag = dragRef.current
+    if (!drag) return
+    const movedEnough = Math.abs(event.clientX - drag.startX) + Math.abs(event.clientY - drag.startY) > 6
+    if (movedEnough) {
+      drag.moved = true
+      suppressClickRef.current = true
+      setDragging(true)
+    }
+    if (!drag.moved) return
+
+    const left = event.clientX - drag.offsetX
+    const top = event.clientY - drag.offsetY
+    const next = {
+      right: window.innerWidth - left - drag.width,
+      bottom: window.innerHeight - top - drag.height,
+    }
+    setFloatAnchor(clampFloatAnchor(next, { width: drag.width, height: drag.height }))
+  }
+
+  function finishLauncherDrag(event: ReactPointerEvent<HTMLButtonElement>) {
+    const drag = dragRef.current
+    if (!drag) return
+    if (drag.moved) {
+      const next = clampFloatAnchor(floatAnchor, { width: drag.width, height: drag.height })
+      setFloatAnchor(next)
+      window.localStorage.setItem(FLOAT_AGENT_ANCHOR_KEY, JSON.stringify(next))
+    }
+    dragRef.current = null
+    setDragging(false)
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+  }
+
+  function openFloatingChat() {
+    if (suppressClickRef.current) {
+      suppressClickRef.current = false
+      return
+    }
+    setHasSavedMissionProgress(Boolean(window.localStorage.getItem(MISSION_PROGRESS_KEY)))
+    setMissionProgress(readMissionProgress())
+    setOpen(true)
+    setMinimized(false)
+  }
 
   async function send(text = input) {
     const value = text.trim()
@@ -213,9 +326,20 @@ export function FloatingChat() {
       : "注册登录后告诉小白你的行业，我会推荐你该学的 AI 工具和任务路线。"
   const reminderAction = hasProgress ? "继续" : user ? "告诉小白" : "登录"
   const reminderHref = hasProgress ? `/missions/${activeMission.id}` : user ? "/chat" : `/login?redirect=${encodeURIComponent(pathname || "/start")}`
+  const launcherSubtitle = hasProgress
+    ? `巡到任务 ${doneSteps}/${activeMission.steps.length}`
+    : user
+      ? launcherMood === "thinking"
+        ? "我巡一下任务"
+        : launcherMood === "recommend"
+          ? "点我说行业目标"
+          : "这步做了吗"
+      : launcherMood === "recommend"
+        ? "注册后定制"
+        : "点我先问问"
 
   return (
-    <div className="xiaobai-float">
+    <div className={`xiaobai-float ${dragging ? "is-dragging" : ""}`} style={{ right: floatAnchor.right, bottom: floatAnchor.bottom }}>
       {open && !minimized && (
         <section className="xiaobai-panel" aria-label="小白AI浮动问答">
           <header className="xiaobai-panel-head">
@@ -325,20 +449,20 @@ export function FloatingChat() {
       )}
 
       <button
+        ref={launcherRef}
         type="button"
         className={`xiaobai-launcher ${open && !minimized ? "is-open" : ""}`}
-        onClick={() => {
-          setHasSavedMissionProgress(Boolean(window.localStorage.getItem(MISSION_PROGRESS_KEY)))
-          setMissionProgress(readMissionProgress())
-          setOpen(true)
-          setMinimized(false)
-        }}
-        aria-label="问小白AI"
+        onPointerDown={handleLauncherPointerDown}
+        onPointerMove={handleLauncherPointerMove}
+        onPointerUp={finishLauncherDrag}
+        onPointerCancel={finishLauncherDrag}
+        onClick={openFloatingChat}
+        aria-label="拖动或点击小白AI"
       >
         <XiaobaiMascot size={66} mood={open ? "happy" : launcherMood} />
         <span>
-          <strong>问小白AI</strong>
-          <small>{hasProgress ? `上次 ${doneSteps}/${activeMission.steps.length}` : launcherMood === "thinking" ? "按行业问我" : launcherMood === "recommend" ? "定制学习工具" : user ? "先说行业" : "注册后定制"}</small>
+          <strong>小白AI巡视中</strong>
+          <small>{launcherSubtitle}</small>
         </span>
         <MessageCircle size={17} />
       </button>
@@ -346,10 +470,13 @@ export function FloatingChat() {
       <style>{`
         .xiaobai-float {
           position: fixed;
-          right: 22px;
-          bottom: 22px;
           z-index: 120;
           font-family: 'Noto Sans SC', sans-serif;
+          transition: right 0.7s ease, bottom 0.7s ease;
+          touch-action: none;
+        }
+        .xiaobai-float.is-dragging {
+          transition: none;
         }
         .xiaobai-panel {
           width: min(420px, calc(100vw - 28px));
@@ -648,8 +775,14 @@ export function FloatingChat() {
           align-items: center;
           gap: 10px;
           padding: 11px 14px;
-          cursor: pointer;
+          cursor: grab;
           backdrop-filter: blur(14px);
+          user-select: none;
+          margin-left: auto;
+          touch-action: none;
+        }
+        .xiaobai-float.is-dragging .xiaobai-launcher {
+          cursor: grabbing;
         }
         .xiaobai-launcher.is-open {
           border-color: #2a2a2a;
@@ -674,9 +807,7 @@ export function FloatingChat() {
         }
         @media (max-width: 640px) {
           .xiaobai-float {
-            right: 12px;
-            bottom: 12px;
-            left: 12px;
+            max-width: calc(100vw - 24px);
           }
           .xiaobai-panel {
             width: 100%;
@@ -690,4 +821,33 @@ export function FloatingChat() {
       `}</style>
     </div>
   )
+}
+
+function getLauncherSize(element: HTMLElement | null) {
+  if (!element) return { width: 204, height: 90 }
+  const rect = element.getBoundingClientRect()
+  return { width: rect.width, height: rect.height }
+}
+
+function clampFloatAnchor(anchor: FloatAnchor, size = { width: 204, height: 90 }): FloatAnchor {
+  if (typeof window === "undefined") return anchor
+  const margin = window.innerWidth <= 640 ? 12 : 18
+  const maxRight = Math.max(margin, window.innerWidth - size.width - margin)
+  const maxBottom = Math.max(margin, window.innerHeight - size.height - margin)
+  return {
+    right: Math.min(Math.max(anchor.right, margin), maxRight),
+    bottom: Math.min(Math.max(anchor.bottom, margin), maxBottom),
+  }
+}
+
+function getPatrolAnchors(size = { width: 204, height: 90 }): FloatAnchor[] {
+  if (typeof window === "undefined") return [DEFAULT_FLOAT_ANCHOR]
+  const margin = window.innerWidth <= 640 ? 12 : 22
+  const midBottom = Math.max(margin, Math.min(window.innerHeight - size.height - margin, Math.round(window.innerHeight * 0.34)))
+  return [
+    { right: margin, bottom: margin },
+    { right: margin, bottom: midBottom },
+    { right: Math.max(margin, Math.round(window.innerWidth * 0.18)), bottom: margin },
+    { right: margin, bottom: margin },
+  ]
 }

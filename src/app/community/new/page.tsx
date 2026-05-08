@@ -140,7 +140,7 @@ export default function NewPostPage() {
         <div style={{ textAlign: "center", maxWidth: 460, border: "1px solid #1a1a1a", borderRadius: 14, padding: 34, background: "rgba(255,255,255,0.03)" }}>
           <FileText size={42} style={{ color: "#e8c96a", marginBottom: 16 }} />
           <h2 style={{ fontSize: 22, color: "#fff", marginBottom: 10 }}>投稿已提交，等待审核</h2>
-          <p style={{ fontSize: 14, color: "#aaa", lineHeight: 1.8, marginBottom: 18 }}>{user ? "帖子通过审核后会自动发放 10XP，并进入今日经验榜。" : "帖子已提交；登录用户的帖子通过审核后才会领取 10XP。"}通过后会展示在社区，越真实、越可复用，越容易被设为精华。</p>
+          <p style={{ fontSize: 14, color: "#aaa", lineHeight: 1.8, marginBottom: 18 }}>{user ? "帖子通过审核后会自动发放经验，问题求助帖通过后 +12XP，其他帖子 +10XP。" : "帖子已提交；登录用户的帖子通过审核后才会领取经验。"}如果有人帮你解决了问题，你可以认可那条评论，评论会置顶，答主再得 +30XP。</p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }} className="max-sm:grid-cols-1">
             <button onClick={() => router.push("/growth")} className="btn-primary">看今日排名</button>
             <button onClick={() => router.push("/community")} className="btn-outline">返回社区</button>

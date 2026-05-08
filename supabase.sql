@@ -324,12 +324,19 @@ CREATE TABLE IF NOT EXISTS community_comments (
   content TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'approved',
   moderation_reason TEXT,
+  is_accepted BOOLEAN DEFAULT FALSE,
+  accepted_at TIMESTAMPTZ,
+  accepted_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 ALTER TABLE community_comments ADD COLUMN IF NOT EXISTS moderation_reason TEXT;
+ALTER TABLE community_comments ADD COLUMN IF NOT EXISTS is_accepted BOOLEAN DEFAULT FALSE;
+ALTER TABLE community_comments ADD COLUMN IF NOT EXISTS accepted_at TIMESTAMPTZ;
+ALTER TABLE community_comments ADD COLUMN IF NOT EXISTS accepted_by UUID REFERENCES auth.users(id) ON DELETE SET NULL;
 
 CREATE INDEX IF NOT EXISTS community_comments_post_created_idx ON community_comments(post_id, created_at ASC);
+CREATE INDEX IF NOT EXISTS community_comments_post_accepted_idx ON community_comments(post_id, is_accepted DESC, created_at ASC);
 CREATE INDEX IF NOT EXISTS community_comments_author_created_idx ON community_comments(author_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS community_comments_status_created_idx ON community_comments(status, created_at DESC);
 

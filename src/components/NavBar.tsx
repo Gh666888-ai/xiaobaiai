@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { BookOpen, Bot, Building2, ChevronDown, Compass, Flag, GraduationCap, LogOut, Menu, MessageCircle, Newspaper, Search, Trophy, Users, Workflow, X } from "lucide-react"
+import { BookOpen, Bot, Building2, ChevronDown, Compass, Flag, GraduationCap, LogOut, Menu, Newspaper, Search, Trophy, Users, Workflow, X } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/lib/AuthContext"
 import { LevelBadge } from "@/components/LevelBadge"
@@ -66,10 +66,6 @@ export function NavBar() {
               </Link>
             )
           })}
-          <button type="button" className="site-nav-link site-nav-button" onClick={() => window.dispatchEvent(new Event("xiaobai:open-chat"))}>
-            <MessageCircle size={14} />
-            问小白
-          </button>
           <div className="site-more-wrap">
             <button type="button" className={`site-nav-link site-nav-button ${moreOpen ? "is-active" : ""}`} aria-expanded={moreOpen} onClick={() => setMoreOpen((open) => !open)}>
               <Menu size={14} />
@@ -177,10 +173,6 @@ export function NavBar() {
               </Link>
             )
           })}
-          <button type="button" className="site-mobile-link site-mobile-button" onClick={() => window.dispatchEvent(new Event("xiaobai:open-chat"))}>
-            <MessageCircle size={15} />
-            <span>问小白</span>
-          </button>
           <div className="site-mobile-more">
             <p>更多入口</p>
             <div>
