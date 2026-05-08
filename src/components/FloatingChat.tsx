@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { ArrowUp, Loader2, Minus, UserRound, X } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
-import { XiaobaiMascot, type XiaobaiMascotMood } from "@/components/XiaobaiMascot"
+import { XiaobaiMascot } from "@/components/XiaobaiMascot"
 import { missions } from "@/data/missions"
 import {
   emptyMissionProgress,
@@ -475,7 +475,7 @@ export function FloatingChat() {
   const progressDots = hasProgress ? activeMission.steps.slice(0, 6) : []
   const launcherSize = getLauncherSize(launcherRef.current)
   const panelPosition = getPanelPosition(floatAnchor, launcherSize)
-  const liveMood: XiaobaiMascotMood = burrowing ? "burrowing" : walking || dragging ? "walking" : open ? "welcome" : launcherMood
+  const liveMood: LauncherMood = walking || dragging || burrowing ? "thinking" : open ? "welcome" : launcherMood
 
   return (
     <div className={`xiaobai-float ${dragging ? "is-dragging" : ""} ${burrowing ? "is-burrowing" : ""}`} style={{ right: floatAnchor.right, bottom: floatAnchor.bottom }}>
