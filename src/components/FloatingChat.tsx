@@ -34,6 +34,8 @@ type FloatAnchor = {
 const START_INDUSTRY_PROMPT_KEY = "xiaobaiai:start-industry-prompt:v1"
 const START_INDUSTRY_PROMPT =
   "你已经登录了。先告诉我两件事：你做什么行业或岗位？最想用 AI 做成什么？我会给你排学习计划，从第 1 步带你做。"
+const GOAL_ROUTER_PROMPT =
+  "直接说一句：你做什么行业 + 想用 AI 做成什么。\n\n比如：我做电商，想用 AI 做客服和短视频。\n\n我收到后会直接打开对应任务模板，不再给你讲一堆建议。"
 const HOME_AGENT_PROMPT_KEY = "xiaobaiai:home-agent-prompt:v1"
 const HOME_GUEST_PROMPT =
   "先登录，然后我来制定接下来的一切。登录后我会先问你的行业和目标。"
@@ -148,8 +150,6 @@ export function FloatingChat() {
 
   const hideOnFullChat = pathname === "/chat" || pathname === "/login"
   const hideOnFocusedFlow =
-    pathname === "/missions" ||
-    pathname?.startsWith("/missions/") ||
     pathname === "/learn" ||
     pathname?.startsWith("/learn/")
 
@@ -160,8 +160,24 @@ export function FloatingChat() {
       setHasSavedMissionProgress(Boolean(window.localStorage.getItem(MISSION_PROGRESS_KEY)))
       setMissionProgress(readMissionProgress())
     }
+    const openGoalRouter = () => {
+      openChat()
+      setInput("")
+      setMessages((prev) => (
+        prev.some((message) => message.content === GOAL_ROUTER_PROMPT)
+          ? prev
+          : [...prev, { role: "assistant", content: GOAL_ROUTER_PROMPT }]
+      ))
+      setSpeaking(true)
+      window.setTimeout(() => setSpeaking(false), 1800)
+      window.setTimeout(() => inputRef.current?.focus(), 180)
+    }
     window.addEventListener("xiaobai:open-chat", openChat)
-    return () => window.removeEventListener("xiaobai:open-chat", openChat)
+    window.addEventListener("xiaobai:open-goal-router", openGoalRouter)
+    return () => {
+      window.removeEventListener("xiaobai:open-chat", openChat)
+      window.removeEventListener("xiaobai:open-goal-router", openGoalRouter)
+    }
   }, [])
 
   useEffect(() => {
@@ -835,36 +851,6 @@ export function FloatingChat() {
         .xiaobai-launcher.is-burrowing .xiaobai-body {
           animation: xiaobaiBurrowBody 1.24s cubic-bezier(.16,1,.3,1) both;
         }
-        .xiaobai-launcher.is-burrowing .xiaobai-face-layer {
-          animation: xiaobaiSeriousFace 0.42s ease-in-out infinite;
-        }
-        .xiaobai-launcher.is-burrowing .xiaobai-brow {
-          opacity: 1;
-          background: rgba(3,22,30,0.86);
-        }
-        .xiaobai-launcher.is-burrowing .xiaobai-brow.left {
-          transform: rotate(17deg) translateY(1px);
-        }
-        .xiaobai-launcher.is-burrowing .xiaobai-brow.right {
-          transform: rotate(-17deg) translateY(1px);
-        }
-        .xiaobai-launcher.is-burrowing .xiaobai-eye {
-          height: 11%;
-          top: 39%;
-          background: rgba(3,22,30,0.86);
-          animation: xiaobaiSeriousBlink 0.72s ease-in-out infinite;
-        }
-        .xiaobai-launcher.is-burrowing .xiaobai-eye i {
-          animation: xiaobaiSealFocus 0.36s steps(2, end) infinite;
-        }
-        .xiaobai-launcher.is-burrowing .xiaobai-mouth {
-          width: 15%;
-          height: 2px;
-          top: 65%;
-          border: 0;
-          background: rgba(3,22,30,0.72);
-          border-radius: 999px;
-        }
         .xiaobai-launcher.is-sleeping .xiaobai-body {
           animation: xiaobaiDozeBody 3.2s ease-in-out infinite;
         }
@@ -1172,18 +1158,6 @@ export function FloatingChat() {
           55% { transform: translateX(-50%) scaleY(0.35); opacity: 0.12; }
           70% { transform: translateX(-50%) scaleY(1.14); opacity: 0.95; }
           100% { transform: translateX(-50%) scaleY(0.2); opacity: 0; }
-        }
-        @keyframes xiaobaiSeriousFace {
-          0%, 100% { transform: translate(-50%, -48%) scale(1) rotate(0deg); }
-          50% { transform: translate(-50%, -50%) scale(0.98) rotate(-1deg); }
-        }
-        @keyframes xiaobaiSeriousBlink {
-          0%, 100% { transform: scaleY(1); }
-          48% { transform: scaleY(0.78); }
-        }
-        @keyframes xiaobaiSealFocus {
-          0% { transform: translate(-30%, -8%) scale(0.92); }
-          100% { transform: translate(24%, -4%) scale(1.04); }
         }
         @keyframes xiaobaiSealBurst {
           0% { transform: translateX(-50%) scale(0.92) rotate(-8deg); }

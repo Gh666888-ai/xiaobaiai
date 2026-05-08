@@ -304,6 +304,8 @@ function StepCard({
   const proofReady = checkedCount >= proofRule.requiredChecks
     && proofText.trim().length >= proofRule.minLength
     && (!proofRule.screenshotRequired || screenshotDataUrl.startsWith("data:image/"))
+  const recommendedTools = mission.toolIds.map((id) => tools.find((tool) => tool.id === id)).filter(Boolean) as typeof tools
+  const primaryTool = recommendedTools[0]
 
   useEffect(() => {
     setProofText(savedProof?.text || "")
@@ -350,6 +352,32 @@ function StepCard({
       <section style={{ border: "1px solid #242424", background: "rgba(0,0,0,0.28)", borderRadius: 12, padding: "16px 18px", marginBottom: 12 }}>
         <p style={{ color: "#888", fontSize: 11, fontWeight: 950, marginBottom: 7 }}>先别想太多，现在只做这一件事</p>
         <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.65 }}>{step.action}</p>
+      </section>
+
+      <section style={{ border: "1px solid rgba(201,168,76,0.34)", background: "rgba(201,168,76,0.065)", borderRadius: 12, padding: "15px 17px", marginBottom: 12 }}>
+        <p style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950, marginBottom: 7 }}>这一步先用什么工具</p>
+        <p style={{ color: "#fff", fontSize: 14, fontWeight: 900, lineHeight: 1.7, marginBottom: 10 }}>
+          {step.toolAction
+            ? `先点下面的「${step.toolAction.label}」，打开工具后再复制提示词。`
+            : primaryTool
+              ? `先用「${primaryTool.name}」完成这一步；如果打不开，再从下面备用工具里换一个。`
+              : "先用你已经会打开的 AI 对话工具完成这一步，比如 Kimi、DeepSeek 或豆包。"}
+        </p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {step.toolAction && (
+            <a href={step.toolAction.href} target="_blank" rel="noreferrer" style={toolChipButtonStyle}>
+              <ExternalLink size={13} /> 立即打开：{step.toolAction.label}
+            </a>
+          )}
+          {recommendedTools.slice(0, 4).map((tool) => (
+            <Link key={tool.id} href={toolPath(tool)} style={toolChipLinkStyle}>
+              {tool.name}
+            </Link>
+          ))}
+          {recommendedTools.length === 0 && (
+            <span style={toolChipTextStyle}>Kimi</span>
+          )}
+        </div>
       </section>
 
       <section style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 8, marginBottom: 12 }} className="step-action-row">
@@ -643,6 +671,45 @@ const toolButtonStyle: CSSProperties = {
   textDecoration: "none",
   fontSize: 13,
   fontWeight: 950,
+}
+
+const toolChipButtonStyle: CSSProperties = {
+  border: "1px solid #7a6230",
+  background: "rgba(201,168,76,0.16)",
+  color: "#f2dc91",
+  borderRadius: 999,
+  padding: "8px 11px",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 6,
+  textDecoration: "none",
+  fontSize: 12,
+  fontWeight: 950,
+}
+
+const toolChipLinkStyle: CSSProperties = {
+  border: "1px solid rgba(255,255,255,0.14)",
+  background: "rgba(0,0,0,0.28)",
+  color: "#ddd",
+  borderRadius: 999,
+  padding: "8px 11px",
+  display: "inline-flex",
+  alignItems: "center",
+  textDecoration: "none",
+  fontSize: 12,
+  fontWeight: 900,
+}
+
+const toolChipTextStyle: CSSProperties = {
+  border: "1px solid rgba(255,255,255,0.14)",
+  background: "rgba(0,0,0,0.28)",
+  color: "#ddd",
+  borderRadius: 999,
+  padding: "8px 11px",
+  display: "inline-flex",
+  alignItems: "center",
+  fontSize: 12,
+  fontWeight: 900,
 }
 
 const miniButtonStyle: CSSProperties = {

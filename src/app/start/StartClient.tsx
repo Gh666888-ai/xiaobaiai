@@ -166,6 +166,10 @@ export function StartClient() {
     }
   }
 
+  function openGoalRouter() {
+    window.dispatchEvent(new CustomEvent("xiaobai:open-goal-router"))
+  }
+
   return (
     <div style={{ background: "#050505", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative" }}>
       <NavBar />
@@ -186,7 +190,7 @@ export function StartClient() {
 
           <div style={taskBoxStyle}>
             <p style={smallLabelStyle}>现在只做这件事</p>
-            <p style={taskTextStyle}>{completed ? "点右下角小白，说你的行业和目标，让它给你换成下一条路线。" : currentStep.action}</p>
+            <p style={taskTextStyle}>{completed ? "点小白，说一句行业和目标，它会直接打开下一条任务模板。" : currentStep.action}</p>
           </div>
 
           {!completed && (
@@ -195,8 +199,8 @@ export function StartClient() {
 
           <div style={actionRowStyle}>
             {completed ? (
-              <button type="button" onClick={() => window.dispatchEvent(new Event("xiaobai:open-chat"))} className="btn-primary" style={buttonStyle}>
-                让小白定制下一步 <MessageCircle size={16} />
+              <button type="button" onClick={openGoalRouter} className="btn-primary" style={buttonStyle}>
+                让小白打开任务模板 <MessageCircle size={16} />
               </button>
             ) : (
               <button type="button" onClick={confirmCurrentStep} className="btn-primary" style={buttonStyle}>
@@ -221,10 +225,10 @@ export function StartClient() {
         <section style={agentHintStyle}>
           <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, marginBottom: 7 }}>想换成你的行业任务？</p>
           <p style={{ color: "#aaa", fontSize: 13, lineHeight: 1.75, marginBottom: 14 }}>
-            点右下角小白，告诉它你做什么行业、想用 AI 做成什么。它会给你换成对应的学习工具和任务路线。
+            告诉小白一句行业和目标，它会直接跳到对应的固定任务模板，并记住你做到哪一步。
           </p>
-          <button type="button" onClick={() => window.dispatchEvent(new Event("xiaobai:open-chat"))} className="btn-outline" style={agentButtonStyle}>
-            叫小白来定制 <ArrowRight size={14} />
+          <button type="button" onClick={openGoalRouter} className="btn-outline" style={agentButtonStyle}>
+            直接分配任务 <ArrowRight size={14} />
           </button>
         </section>
       </main>
