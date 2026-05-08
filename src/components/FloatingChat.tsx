@@ -149,9 +149,6 @@ export function FloatingChat() {
   } | null>(null)
 
   const hideOnFullChat = pathname === "/chat" || pathname === "/login"
-  const hideOnFocusedFlow =
-    pathname === "/learn" ||
-    pathname?.startsWith("/learn/")
 
   useEffect(() => {
     const openChat = () => {
@@ -466,7 +463,7 @@ export function FloatingChat() {
     }
   }
 
-  if (hideOnFullChat || hideOnFocusedFlow) return null
+  if (hideOnFullChat) return null
 
   const activeMission = missions.find((mission) => mission.id === missionProgress.activeMissionId) || missions[0]
   const activeProgress = getStoredMission(missionProgress, activeMission.id)
