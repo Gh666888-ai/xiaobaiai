@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import type { PointerEvent as ReactPointerEvent } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ArrowUp, Loader2, LogIn, MessageCircle, Minus, UserRound, X } from "lucide-react"
+import { ArrowUp, Loader2, LogIn, Minus, UserRound, X } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
 import { XiaobaiMascot } from "@/components/XiaobaiMascot"
@@ -93,10 +93,12 @@ export function FloatingChat() {
   const [hasSavedMissionProgress, setHasSavedMissionProgress] = useState(false)
   const [floatAnchor, setFloatAnchor] = useState<FloatAnchor>(DEFAULT_FLOAT_ANCHOR)
   const [dragging, setDragging] = useState(false)
+  const [walking, setWalking] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const launcherRef = useRef<HTMLButtonElement>(null)
   const patrolIndexRef = useRef(0)
+  const walkingTimerRef = useRef<number | null>(null)
   const suppressClickRef = useRef(false)
   const dragRef = useRef<{
     offsetX: number
@@ -196,10 +198,24 @@ export function FloatingChat() {
     const timer = window.setInterval(() => {
       const points = getPatrolAnchors(getLauncherSize(launcherRef.current))
       patrolIndexRef.current = (patrolIndexRef.current + 1) % points.length
+      startWalking()
       setFloatAnchor(clampFloatAnchor(points[patrolIndexRef.current], getLauncherSize(launcherRef.current)))
     }, 8500)
     return () => window.clearInterval(timer)
   }, [dragging, minimized, open])
+
+  useEffect(() => () => {
+    if (walkingTimerRef.current) window.clearTimeout(walkingTimerRef.current)
+  }, [])
+
+  function startWalking(duration = 1150) {
+    setWalking(true)
+    if (walkingTimerRef.current) window.clearTimeout(walkingTimerRef.current)
+    walkingTimerRef.current = window.setTimeout(() => {
+      setWalking(false)
+      walkingTimerRef.current = null
+    }, duration)
+  }
 
   function handleLauncherPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
     if (event.button !== 0) return
@@ -224,6 +240,7 @@ export function FloatingChat() {
       drag.moved = true
       suppressClickRef.current = true
       setDragging(true)
+      setWalking(false)
     }
     if (!drag.moved) return
 
@@ -326,17 +343,7 @@ export function FloatingChat() {
       : "注册登录后告诉小白你的行业，我会推荐你该学的 AI 工具和任务路线。"
   const reminderAction = hasProgress ? "继续" : user ? "告诉小白" : "登录"
   const reminderHref = hasProgress ? `/missions/${activeMission.id}` : user ? "/chat" : `/login?redirect=${encodeURIComponent(pathname || "/start")}`
-  const launcherSubtitle = hasProgress
-    ? `巡到任务 ${doneSteps}/${activeMission.steps.length}`
-    : user
-      ? launcherMood === "thinking"
-        ? "我巡一下任务"
-        : launcherMood === "recommend"
-          ? "点我说行业目标"
-          : "这步做了吗"
-      : launcherMood === "recommend"
-        ? "注册后定制"
-        : "点我先问问"
+  const progressDots = hasProgress ? activeMission.steps.slice(0, 6) : []
 
   return (
     <div className={`xiaobai-float ${dragging ? "is-dragging" : ""}`} style={{ right: floatAnchor.right, bottom: floatAnchor.bottom }}>
@@ -451,20 +458,37 @@ export function FloatingChat() {
       <button
         ref={launcherRef}
         type="button"
-        className={`xiaobai-launcher ${open && !minimized ? "is-open" : ""}`}
+        className={`xiaobai-launcher ${open && !minimized ? "is-open" : ""} ${hasProgress ? "has-progress" : ""} ${walking ? "is-walking" : ""}`}
         onPointerDown={handleLauncherPointerDown}
         onPointerMove={handleLauncherPointerMove}
         onPointerUp={finishLauncherDrag}
         onPointerCancel={finishLauncherDrag}
         onClick={openFloatingChat}
-        aria-label="拖动或点击小白AI"
+        aria-label={hasProgress ? `拖动或点击小白AI，当前任务完成 ${doneSteps}/${activeMission.steps.length}` : "拖动或点击小白AI"}
       >
-        <XiaobaiMascot size={66} mood={open ? "happy" : launcherMood} />
-        <span>
-          <strong>小白AI巡视中</strong>
-          <small>{launcherSubtitle}</small>
+        <span className="xiaobai-scan-ring" />
+        <span className="xiaobai-scan-ring is-second" />
+        <span className="xiaobai-orbit" aria-hidden="true">
+          <i />
         </span>
-        <MessageCircle size={17} />
+        <span className="xiaobai-body">
+          <XiaobaiMascot size={86} mood={open ? "happy" : launcherMood} />
+        </span>
+        <span className="xiaobai-footsteps" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </span>
+        {hasProgress ? (
+          <span className="xiaobai-progress-dots" aria-hidden="true">
+            {progressDots.map((_, index) => (
+              <i key={index} className={index < doneSteps ? "is-done" : ""} />
+            ))}
+          </span>
+        ) : (
+          <span className={`xiaobai-status-dot ${user ? "is-ready" : ""}`} aria-hidden="true" />
+        )}
+        <span className="xiaobai-shadow" aria-hidden="true" />
       </button>
 
       <style>{`
@@ -765,57 +789,220 @@ export function FloatingChat() {
           cursor: default;
         }
         .xiaobai-launcher {
-          min-width: 204px;
-          border: 1px solid #7a6230;
-          border-radius: 17px;
-          background: rgba(0,0,0,0.86);
-          box-shadow: 0 18px 60px rgba(0,0,0,0.65);
-          color: #fff;
+          width: 112px;
+          height: 124px;
+          border: 0;
+          border-radius: 999px;
+          background: transparent;
+          color: transparent;
           display: flex;
           align-items: center;
-          gap: 10px;
-          padding: 11px 14px;
+          justify-content: center;
+          padding: 0;
           cursor: grab;
-          backdrop-filter: blur(14px);
           user-select: none;
           margin-left: auto;
           touch-action: none;
+          position: relative;
+          overflow: visible;
+          filter: drop-shadow(0 20px 28px rgba(0,0,0,0.55));
         }
         .xiaobai-float.is-dragging .xiaobai-launcher {
           cursor: grabbing;
         }
         .xiaobai-launcher.is-open {
-          border-color: #2a2a2a;
+          filter: drop-shadow(0 22px 34px rgba(201,168,76,0.22));
         }
-        .xiaobai-launcher span {
+        .xiaobai-body {
+          position: relative;
+          z-index: 4;
+          display: inline-flex;
+          animation: xiaobaiFloatBody 3.4s ease-in-out infinite;
+          transform-origin: 50% 92%;
+        }
+        .xiaobai-float.is-dragging .xiaobai-body {
+          animation: none;
+          transform: scale(1.04) rotate(-2deg);
+        }
+        .xiaobai-launcher.is-walking .xiaobai-body {
+          animation: xiaobaiWalkBody 0.46s ease-in-out infinite;
+        }
+        .xiaobai-scan-ring {
+          position: absolute;
+          z-index: 1;
+          width: 88px;
+          height: 88px;
+          border: 1px solid rgba(126,231,255,0.34);
+          border-radius: 50%;
+          opacity: 0;
+          animation: xiaobaiScan 3.2s ease-out infinite;
+        }
+        .xiaobai-scan-ring.is-second {
+          border-color: rgba(232,201,106,0.3);
+          animation-delay: 1.45s;
+        }
+        .xiaobai-orbit {
+          position: absolute;
+          z-index: 2;
+          width: 104px;
+          height: 104px;
+          border-radius: 50%;
+          animation: xiaobaiOrbit 4.8s linear infinite;
+        }
+        .xiaobai-orbit i {
+          position: absolute;
+          top: 8px;
+          left: 50%;
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: #7ee7ff;
+          box-shadow: 0 0 16px rgba(126,231,255,0.9);
+        }
+        .xiaobai-progress-dots {
+          position: absolute;
+          z-index: 5;
+          bottom: 17px;
+          left: 50%;
+          transform: translateX(-50%);
           display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          line-height: 1.25;
-          flex: 1;
+          gap: 4px;
+          padding: 4px 6px;
+          border-radius: 999px;
+          background: rgba(0,0,0,0.5);
+          box-shadow: 0 0 18px rgba(0,0,0,0.36);
         }
-        .xiaobai-launcher strong {
-          font-size: 13px;
-          font-weight: 950;
+        .xiaobai-progress-dots i {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.28);
         }
-        .xiaobai-launcher small {
-          color: #c9a84c;
-          font-size: 11px;
+        .xiaobai-progress-dots i.is-done {
+          background: #e8c96a;
+          box-shadow: 0 0 10px rgba(232,201,106,0.85);
+        }
+        .xiaobai-status-dot {
+          position: absolute;
+          z-index: 5;
+          right: 22px;
+          top: 22px;
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: #e8c96a;
+          box-shadow: 0 0 0 5px rgba(232,201,106,0.14), 0 0 20px rgba(232,201,106,0.7);
+          animation: xiaobaiBlink 1.8s ease-in-out infinite;
+        }
+        .xiaobai-status-dot.is-ready {
+          background: #7ee7ff;
+          box-shadow: 0 0 0 5px rgba(126,231,255,0.15), 0 0 20px rgba(126,231,255,0.75);
+        }
+        .xiaobai-shadow {
+          position: absolute;
+          z-index: 0;
+          left: 50%;
+          bottom: 9px;
+          width: 72px;
+          height: 14px;
+          transform: translateX(-50%);
+          border-radius: 50%;
+          background: radial-gradient(ellipse, rgba(126,231,255,0.22), rgba(201,168,76,0.08) 48%, transparent 72%);
+          animation: xiaobaiShadow 3.4s ease-in-out infinite;
+        }
+        .xiaobai-launcher.is-walking .xiaobai-shadow {
+          animation: xiaobaiWalkShadow 0.46s ease-in-out infinite;
+        }
+        .xiaobai-footsteps {
+          position: absolute;
+          z-index: 3;
+          left: 50%;
+          bottom: 15px;
+          width: 88px;
+          height: 30px;
+          transform: translateX(-50%);
+          pointer-events: none;
+          opacity: 0;
+        }
+        .xiaobai-launcher.is-walking .xiaobai-footsteps {
+          opacity: 1;
+        }
+        .xiaobai-footsteps i {
+          position: absolute;
+          bottom: 5px;
+          width: 9px;
+          height: 4px;
+          border-radius: 50%;
+          background: rgba(126,231,255,0.48);
+          box-shadow: 0 0 14px rgba(126,231,255,0.56);
+          opacity: 0;
+          animation: xiaobaiStepMark 0.92s ease-out infinite;
+        }
+        .xiaobai-footsteps i:nth-child(1) {
+          left: 24px;
+          transform: rotate(-12deg);
+        }
+        .xiaobai-footsteps i:nth-child(2) {
+          left: 43px;
+          animation-delay: 0.22s;
+          transform: rotate(12deg);
+        }
+        .xiaobai-footsteps i:nth-child(3) {
+          left: 60px;
+          animation-delay: 0.44s;
+          transform: rotate(-10deg);
         }
         @keyframes xiaobaiSpin {
           to { transform: rotate(360deg); }
+        }
+        @keyframes xiaobaiFloatBody {
+          0%, 100% { transform: translateY(0) rotate(-1deg); }
+          45% { transform: translateY(-9px) rotate(2deg); }
+          70% { transform: translateY(-4px) rotate(-2deg); }
+        }
+        @keyframes xiaobaiWalkBody {
+          0%, 100% { transform: translate(-4px, -1px) rotate(-5deg) scaleX(0.98); }
+          25% { transform: translate(0, -9px) rotate(0deg) scaleX(1.02); }
+          50% { transform: translate(4px, -1px) rotate(5deg) scaleX(0.98); }
+          75% { transform: translate(0, -8px) rotate(0deg) scaleX(1.02); }
+        }
+        @keyframes xiaobaiScan {
+          0% { transform: scale(0.54); opacity: 0; }
+          18% { opacity: 0.75; }
+          100% { transform: scale(1.35); opacity: 0; }
+        }
+        @keyframes xiaobaiOrbit {
+          to { transform: rotate(360deg); }
+        }
+        @keyframes xiaobaiBlink {
+          0%, 100% { transform: scale(1); opacity: 0.86; }
+          50% { transform: scale(1.35); opacity: 1; }
+        }
+        @keyframes xiaobaiShadow {
+          0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.74; }
+          45% { transform: translateX(-50%) scale(0.72); opacity: 0.42; }
+        }
+        @keyframes xiaobaiWalkShadow {
+          0%, 100% { transform: translateX(-50%) scale(0.96); opacity: 0.56; }
+          50% { transform: translateX(-50%) scale(0.7); opacity: 0.32; }
+        }
+        @keyframes xiaobaiStepMark {
+          0% { transform: translateY(0) scale(0.6); opacity: 0; }
+          20% { opacity: 0.78; }
+          100% { transform: translateY(8px) scale(1.35); opacity: 0; }
         }
         @media (max-width: 640px) {
           .xiaobai-float {
             max-width: calc(100vw - 24px);
           }
           .xiaobai-panel {
-            width: 100%;
+            width: min(420px, calc(100vw - 24px));
             height: min(620px, calc(100vh - 86px));
           }
           .xiaobai-launcher {
             margin-left: auto;
-            min-width: 186px;
+            width: 98px;
+            height: 112px;
           }
         }
       `}</style>
@@ -824,12 +1011,12 @@ export function FloatingChat() {
 }
 
 function getLauncherSize(element: HTMLElement | null) {
-  if (!element) return { width: 204, height: 90 }
+  if (!element) return { width: 112, height: 124 }
   const rect = element.getBoundingClientRect()
   return { width: rect.width, height: rect.height }
 }
 
-function clampFloatAnchor(anchor: FloatAnchor, size = { width: 204, height: 90 }): FloatAnchor {
+function clampFloatAnchor(anchor: FloatAnchor, size = { width: 112, height: 124 }): FloatAnchor {
   if (typeof window === "undefined") return anchor
   const margin = window.innerWidth <= 640 ? 12 : 18
   const maxRight = Math.max(margin, window.innerWidth - size.width - margin)
@@ -840,7 +1027,7 @@ function clampFloatAnchor(anchor: FloatAnchor, size = { width: 204, height: 90 }
   }
 }
 
-function getPatrolAnchors(size = { width: 204, height: 90 }): FloatAnchor[] {
+function getPatrolAnchors(size = { width: 112, height: 124 }): FloatAnchor[] {
   if (typeof window === "undefined") return [DEFAULT_FLOAT_ANCHOR]
   const margin = window.innerWidth <= 640 ? 12 : 22
   const midBottom = Math.max(margin, Math.min(window.innerHeight - size.height - margin, Math.round(window.innerHeight * 0.34)))
