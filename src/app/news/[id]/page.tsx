@@ -13,6 +13,121 @@ import { SeoRelatedLinks } from "@/components/SeoRelatedLinks"
 import { screenshotImageSources, sourceLogoSources } from "@/lib/visual-assets"
 import Link from "next/link"
 
+type ArticleBlock =
+  | { type: "heading"; text: string }
+  | { type: "paragraph"; text: string }
+  | { type: "list"; items: string[] }
+  | { type: "code"; text: string }
+
+function parseArticle(text: string): ArticleBlock[] {
+  const blocks: ArticleBlock[] = []
+  const lines = text.replace(/\r\n/g, "\n").split("\n")
+  let paragraph: string[] = []
+  let list: string[] = []
+  let code: string[] = []
+  let inCode = false
+
+  const flushParagraph = () => {
+    if (!paragraph.length) return
+    blocks.push({ type: "paragraph", text: paragraph.join(" ") })
+    paragraph = []
+  }
+  const flushList = () => {
+    if (!list.length) return
+    blocks.push({ type: "list", items: list })
+    list = []
+  }
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim()
+    if (line.startsWith("```")) {
+      if (inCode) {
+        blocks.push({ type: "code", text: code.join("\n").trim() })
+        code = []
+        inCode = false
+      } else {
+        flushParagraph()
+        flushList()
+        inCode = true
+      }
+      continue
+    }
+    if (inCode) {
+      code.push(rawLine)
+      continue
+    }
+    if (!line) {
+      flushParagraph()
+      flushList()
+      continue
+    }
+    const heading = line.match(/^#{1,3}\s+(.+)$/)
+    if (heading) {
+      flushParagraph()
+      flushList()
+      blocks.push({ type: "heading", text: heading[1] })
+      continue
+    }
+    const bullet = line.match(/^[-*]\s+(.+)$/) || line.match(/^\d+\.\s+(.+)$/)
+    if (bullet) {
+      flushParagraph()
+      list.push(bullet[1])
+      continue
+    }
+    flushList()
+    paragraph.push(line)
+  }
+
+  flushParagraph()
+  flushList()
+  if (code.length) blocks.push({ type: "code", text: code.join("\n").trim() })
+  return blocks
+}
+
+function cleanInlineMarkdown(text: string) {
+  return text.replace(/`([^`]+)`/g, "$1")
+}
+
+function ArticleBody({ text }: { text: string }) {
+  return (
+    <>
+      {parseArticle(text).map((block, index) => {
+        if (block.type === "heading") {
+          return (
+            <h2 key={index} style={{ color: "#fff", fontSize: 22, fontWeight: 950, lineHeight: 1.45, margin: "34px 0 12px" }}>
+              {cleanInlineMarkdown(block.text)}
+            </h2>
+          )
+        }
+        if (block.type === "code") {
+          return (
+            <pre key={index} style={{ margin: "14px 0 22px", whiteSpace: "pre-wrap", wordBreak: "break-word", border: "1px solid #242424", background: "rgba(0,0,0,0.68)", borderRadius: 10, padding: 16, color: "#f4e9bf", fontSize: 13, lineHeight: 1.8, fontFamily: "'JetBrains Mono', monospace" }}>
+              {block.text}
+            </pre>
+          )
+        }
+        if (block.type === "list") {
+          return (
+            <div key={index} style={{ display: "grid", gap: 8, margin: "10px 0 20px" }}>
+              {block.items.map((item, itemIndex) => (
+                <p key={itemIndex} style={{ display: "flex", gap: 10, color: "#ccc", fontSize: 16, lineHeight: 1.9, margin: 0 }}>
+                  <span style={{ color: "#e8c96a", fontWeight: 950, flexShrink: 0 }}>{itemIndex + 1}.</span>
+                  <span><SeoKeywordLinks text={cleanInlineMarkdown(item)} maxLinks={3} /></span>
+                </p>
+              ))}
+            </div>
+          )
+        }
+        return (
+          <p key={index} style={{ color: "#ccc", fontSize: 16, lineHeight: 2.05, margin: "0 0 16px" }}>
+            <SeoKeywordLinks text={cleanInlineMarkdown(block.text)} maxLinks={6} />
+          </p>
+        )
+      })}
+    </>
+  )
+}
+
 export default function NewsDetailPage() {
   const params = useParams()
   const [fetched,setFetched]=useState<any[]>([])
@@ -34,12 +149,12 @@ export default function NewsDetailPage() {
           {item.importance>=8&&<span style={{fontSize:11,color:'#e8c96a',fontWeight:700}}>🔥 重磅</span>}
         </div>
         <h1 style={{fontSize:30,fontWeight:900,color:'#fff',lineHeight:1.4,marginBottom:24}}>{item.title}</h1>
-        <div style={{fontSize:16,color:'#ccc',lineHeight:2.1,whiteSpace:'pre-wrap'}}>
+        <div style={{fontSize:16,color:'#ccc',lineHeight:2.1}}>
           <div style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.045)',borderRadius:8,padding:'18px 20px',marginBottom:24}}>
-            <p style={{fontSize:13,fontWeight:900,color:'#e8c96a',marginBottom:8,fontFamily:"'JetBrains Mono',monospace",letterSpacing:'0.08em'}}>QUICK VIEW</p>
+            <p style={{fontSize:13,fontWeight:900,color:'#e8c96a',marginBottom:8}}>小白先看这个</p>
             <p style={{color:'#f2e4b8',lineHeight:1.9}}><SeoKeywordLinks text={item.summary} maxLinks={5} /></p>
           </div>
-          <p><SeoKeywordLinks text={buildNewsArticle(item)} maxLinks={10} /></p>
+          <ArticleBody text={buildNewsArticle(item)} />
           <SeoRelatedLinks text={`${item.title}\n${item.summary}\n${buildNewsArticle(item)}`} title="相关教程" limit={6} />
           {item.url && item.url !== "#" && <p style={{fontSize:13,color:'#777',marginTop:24}}>本文已整理为站内可读版本，外部来源仅用于继续核对背景信息。</p>}
         </div>

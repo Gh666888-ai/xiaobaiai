@@ -142,6 +142,28 @@ ALTER TABLE mission_submissions ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can read own mission submissions" ON mission_submissions;
 CREATE POLICY "Users can read own mission submissions" ON mission_submissions FOR SELECT USING (auth.uid() = user_id);
 
+-- 用户当前任务进度表。用于 /start 页面记住登录用户做到哪一步。
+-- 本表只保存任务 id、当前步骤、勾选状态和短证明，不保存大文件。
+CREATE TABLE IF NOT EXISTS user_mission_progress (
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  progress JSONB NOT NULL DEFAULT '{}'::jsonb,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE user_mission_progress ADD COLUMN IF NOT EXISTS progress JSONB NOT NULL DEFAULT '{}'::jsonb;
+ALTER TABLE user_mission_progress ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+
+GRANT SELECT, INSERT, UPDATE ON TABLE user_mission_progress TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE user_mission_progress TO service_role;
+
+ALTER TABLE user_mission_progress ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can read own mission progress" ON user_mission_progress;
+DROP POLICY IF EXISTS "Users can insert own mission progress" ON user_mission_progress;
+DROP POLICY IF EXISTS "Users can update own mission progress" ON user_mission_progress;
+CREATE POLICY "Users can read own mission progress" ON user_mission_progress FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own mission progress" ON user_mission_progress FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own mission progress" ON user_mission_progress FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
 -- 通用服务端限流表。用于聊天、投稿、Webhook 等需要跨重启保留的限流窗口。
 CREATE TABLE IF NOT EXISTS rate_limits (
   scope TEXT NOT NULL,

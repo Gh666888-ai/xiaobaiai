@@ -2,15 +2,13 @@
 
 import { useEffect, useRef, useState } from "react"
 import type { PointerEvent as ReactPointerEvent } from "react"
-import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ArrowUp, Loader2, LogIn, Minus, UserRound, X } from "lucide-react"
+import { ArrowUp, Loader2, Minus, UserRound, X } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
 import { XiaobaiMascot } from "@/components/XiaobaiMascot"
 import { missions } from "@/data/missions"
 import {
-  currentStepLabel,
   emptyMissionProgress,
   getStoredMission,
   MISSION_PROGRESS_KEY,
@@ -32,7 +30,13 @@ type FloatAnchor = {
 
 const START_INDUSTRY_PROMPT_KEY = "xiaobaiai:start-industry-prompt:v1"
 const START_INDUSTRY_PROMPT =
-  "你已经登录了。先告诉我两个信息：\n1. 你从事什么行业或岗位？\n2. 你最想用 AI 做成什么事？\n\n我会按你的行业推荐该学的 AI 工具，并把路线拆成能一步步完成的任务。"
+  "你已经登录了。先告诉我两件事：你做什么行业或岗位？最想用 AI 做成什么？我会给你排学习计划，从第 1 步带你做。"
+const HOME_AGENT_PROMPT_KEY = "xiaobaiai:home-agent-prompt:v1"
+const HOME_GUEST_PROMPT =
+  "先点页面右上角登录/注册，我才能记住你的行业、目标和进度。也可以先问我：这个网站怎么开始。"
+const HOME_USER_PROMPT =
+  "你已登录。告诉我：你做什么行业？想用 AI 做成什么事？我会给你定计划，然后一步步带你做。"
+const ONBOARDING_PROFILE_KEY = "xiaobaiai:onboarding-profile:v1"
 const FLOAT_AGENT_ANCHOR_KEY = "xiaobaiai:floating-agent-anchor:v1"
 const DEFAULT_FLOAT_ANCHOR: FloatAnchor = { right: 22, bottom: 22 }
 
@@ -69,6 +73,31 @@ function isSiteQuestion(message: string) {
     "成长",
     "打卡",
     "登录",
+  ].some((keyword) => text.includes(keyword))
+}
+
+function looksLikeIndustryGoal(message: string) {
+  const text = message.toLowerCase()
+  return text.length >= 6 && [
+    "行业",
+    "我是",
+    "我做",
+    "想用",
+    "想做",
+    "我要",
+    "公司",
+    "门店",
+    "客户",
+    "电商",
+    "教育",
+    "自媒体",
+    "餐饮",
+    "客服",
+    "编程",
+    "设计",
+    "运营",
+    "销售",
+    "ai",
   ].some((keyword) => text.includes(keyword))
 }
 
@@ -174,6 +203,34 @@ export function FloatingChat() {
       window.clearTimeout(speakingTimer)
       window.clearTimeout(focusTimer)
     }
+  }, [loading, pathname, user])
+
+  useEffect(() => {
+    if (loading || pathname !== "/") return
+    if (window.sessionStorage.getItem(HOME_AGENT_PROMPT_KEY)) return
+
+    window.sessionStorage.setItem(HOME_AGENT_PROMPT_KEY, "1")
+    const savedProfile = window.localStorage.getItem(ONBOARDING_PROFILE_KEY)
+    const content = user
+      ? savedProfile
+        ? `我记得你上次说的方向：${savedProfile.slice(0, 80)}。\n\n如果方向没变，我可以继续带你做下一步；如果变了，直接告诉我新的行业和目标。`
+        : HOME_USER_PROMPT
+      : HOME_GUEST_PROMPT
+
+    const timer = window.setTimeout(() => {
+      setOpen(true)
+      setMinimized(false)
+      setMessages((prev) => {
+        if (prev.some((message) => message.content === content)) return prev
+        if (prev.length === 1 && prev[0].role === "assistant") return [{ role: "assistant", content }]
+        return [...prev, { role: "assistant", content }]
+      })
+      setSpeaking(true)
+      window.setTimeout(() => setSpeaking(false), 2200)
+      if (user) window.setTimeout(() => inputRef.current?.focus(), 260)
+    }, 850)
+
+    return () => window.clearTimeout(timer)
   }, [loading, pathname, user])
 
   useEffect(() => {
@@ -289,7 +346,7 @@ export function FloatingChat() {
         ...prev,
         {
           role: "assistant",
-          content: "想让小白按你的行业推荐该学哪些 AI 工具、先做哪些任务，需要先注册登录。登录后我会记住你的行业、目标和进度，不会每次都从头问。",
+          content: "这个要先登录。点页面右上角登录/注册，回来告诉我行业和目标，我会记住进度，并给你安排下一步。",
         },
       ])
       setSpeaking(true)
@@ -301,6 +358,9 @@ export function FloatingChat() {
     setInput("")
     setSending(true)
     setSpeaking(false)
+    if (user && looksLikeIndustryGoal(value)) {
+      window.localStorage.setItem(ONBOARDING_PROFILE_KEY, value.slice(0, 240))
+    }
     try {
       const token = readAppAuth()?.session?.access_token
       const res = await fetch("/api/chat", {
@@ -331,18 +391,8 @@ export function FloatingChat() {
 
   const activeMission = missions.find((mission) => mission.id === missionProgress.activeMissionId) || missions[0]
   const activeProgress = getStoredMission(missionProgress, activeMission.id)
-  const stepIndex = Math.min(activeProgress.currentStep || 0, activeMission.steps.length - 1)
   const doneSteps = activeMission.steps.filter((_, index) => activeProgress.completedSteps[index]).length
-  const nextStep = activeProgress.completed ? "任务完成了，下一步发复盘拿 XP" : currentStepLabel(activeMission.id, stepIndex)
   const hasProgress = hasSavedMissionProgress && (doneSteps > 0 || activeProgress.currentStep > 0 || missionProgress.activeMissionId !== missions[0].id)
-  const reminderTitle = hasProgress ? "小白继续提醒" : "按行业定制"
-  const reminderText = hasProgress
-    ? `上次任务：${activeMission.shortTitle}。接下来：${nextStep}。`
-    : user
-      ? "先说你的行业和想做成的事，我会给你一条能实际执行的学习路线。"
-      : "注册登录后告诉小白你的行业，我会推荐你该学的 AI 工具和任务路线。"
-  const reminderAction = hasProgress ? "继续" : user ? "告诉小白" : "登录"
-  const reminderHref = hasProgress ? `/missions/${activeMission.id}` : user ? "/chat" : `/login?redirect=${encodeURIComponent(pathname || "/start")}`
   const progressDots = hasProgress ? activeMission.steps.slice(0, 6) : []
   const launcherSize = getLauncherSize(launcherRef.current)
   const panelPosition = getPanelPosition(floatAnchor, launcherSize)
@@ -371,41 +421,6 @@ export function FloatingChat() {
 
           <>
             <div className="xiaobai-messages">
-              {!loading && !user && (
-                <div className="xiaobai-login-note">
-                  <XiaobaiMascot size={36} mood="welcome" />
-                  <div>
-                    <p>小白速答已待命</p>
-                    <span>注册登录后，小白会根据你的行业和想做的方向，推荐需要学习的 AI 工具、任务路线和下一步。</span>
-                  </div>
-                  <Link href={`/login?redirect=${encodeURIComponent(pathname || "/")}`}>
-                    <LogIn size={13} />
-                    登录
-                  </Link>
-                </div>
-              )}
-              <div className="xiaobai-continue-card">
-                <XiaobaiMascot size={34} mood="recommend" />
-                <div>
-                  <p>{reminderTitle}</p>
-                  <span>{reminderText}</span>
-                </div>
-                {hasProgress || !user ? (
-                  <Link href={reminderHref}>{reminderAction}</Link>
-                ) : (
-                  <button type="button" onClick={() => inputRef.current?.focus()}>{reminderAction}</button>
-                )}
-              </div>
-                {messages.length <= 1 && (
-                  <div className="xiaobai-empty">
-                    <XiaobaiMascot size={38} mood="recommend" />
-                    <div>
-                      <p>我可以按行业给你带路</p>
-                      <span>告诉小白你做什么行业，我会推荐该学哪些 AI 工具，以及从第 1 个任务到后续进阶怎么走。</span>
-                    </div>
-                  </div>
-                )}
-
                 {messages.map((message, index) => {
                   const isUser = message.role === "user"
                   const isLastAssistant = !isUser && index === messages.length - 1
@@ -559,119 +574,6 @@ export function FloatingChat() {
           justify-content: center;
           cursor: pointer;
         }
-        .xiaobai-login-state {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-          padding: 30px;
-        }
-        .xiaobai-login-state h2 {
-          color: #fff;
-          font-size: 20px;
-          font-weight: 950;
-          margin: 18px 0 8px;
-        }
-        .xiaobai-login-state p {
-          color: #aaa;
-          font-size: 13px;
-          line-height: 1.8;
-          margin: 0 0 18px;
-        }
-        .xiaobai-login-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 7px;
-          color: #111;
-          background: #e8c96a;
-          border: 1px solid #e8c96a;
-          border-radius: 10px;
-          padding: 10px 15px;
-          font-size: 13px;
-          font-weight: 950;
-          text-decoration: none;
-        }
-        .xiaobai-login-note {
-          display: grid;
-          grid-template-columns: auto 1fr auto;
-          align-items: center;
-          gap: 10px;
-          border: 1px solid #2a1f10;
-          border-radius: 12px;
-          background: rgba(201,168,76,0.04);
-          padding: 10px;
-        }
-        .xiaobai-continue-card {
-          display: grid;
-          grid-template-columns: auto 1fr auto;
-          align-items: center;
-          gap: 10px;
-          border: 1px solid rgba(201,168,76,0.34);
-          border-radius: 12px;
-          background: rgba(201,168,76,0.06);
-          padding: 10px;
-        }
-        .xiaobai-continue-card p {
-          margin: 0 0 3px;
-          color: #fff;
-          font-size: 12px;
-          font-weight: 950;
-        }
-        .xiaobai-continue-card span {
-          color: #cdbb80;
-          font-size: 11px;
-          line-height: 1.55;
-        }
-        .xiaobai-continue-card a {
-          display: inline-flex;
-          align-items: center;
-          color: #111;
-          background: #e8c96a;
-          border-radius: 8px;
-          padding: 7px 9px;
-          font-size: 11px;
-          font-weight: 950;
-          text-decoration: none;
-        }
-        .xiaobai-continue-card button {
-          border: 0;
-          display: inline-flex;
-          align-items: center;
-          color: #111;
-          background: #e8c96a;
-          border-radius: 8px;
-          padding: 7px 9px;
-          font-size: 11px;
-          font-weight: 950;
-          font-family: inherit;
-          cursor: pointer;
-          white-space: nowrap;
-        }
-        .xiaobai-login-note p {
-          margin: 0 0 3px;
-          color: #fff;
-          font-size: 12px;
-          font-weight: 950;
-        }
-        .xiaobai-login-note span {
-          color: #999;
-          font-size: 11px;
-          line-height: 1.55;
-        }
-        .xiaobai-login-note a {
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-          color: #111;
-          background: #e8c96a;
-          border-radius: 8px;
-          padding: 7px 9px;
-          font-size: 11px;
-          font-weight: 950;
-          text-decoration: none;
-        }
         .xiaobai-messages {
           flex: 1;
           min-height: 0;
@@ -680,26 +582,6 @@ export function FloatingChat() {
           display: flex;
           flex-direction: column;
           gap: 12px;
-        }
-        .xiaobai-empty {
-          display: flex;
-          align-items: center;
-          gap: 11px;
-          border: 1px solid #2a1f10;
-          border-radius: 12px;
-          background: rgba(201,168,76,0.045);
-          padding: 12px;
-        }
-        .xiaobai-empty p {
-          margin: 0 0 3px;
-          color: #fff;
-          font-size: 13px;
-          font-weight: 950;
-        }
-        .xiaobai-empty span {
-          color: #999;
-          font-size: 12px;
-          line-height: 1.6;
         }
         .xiaobai-message {
           display: flex;

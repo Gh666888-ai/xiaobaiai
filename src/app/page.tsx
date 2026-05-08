@@ -116,16 +116,6 @@ export default function HomePage() {
             {pulseText}
           </div>
 
-          <section style={{ maxWidth: 680, margin: "0 auto", border: "1px solid rgba(201,168,76,0.18)", background: "rgba(6,6,6,0.66)", borderRadius: 12, padding: "22px clamp(16px,4vw,26px)", textAlign: "left", opacity: 0, animation: "fadeUp 0.8s ease forwards 1.18s" }}>
-            <p style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950, marginBottom: 10 }}>小白：</p>
-            <p style={{ color: "#fff", fontSize: "clamp(17px,2.4vw,22px)", lineHeight: 1.75, fontWeight: 850, marginBottom: 12 }}>
-              {user ? "我已经在右下角了。点我一下，告诉我你的行业和想做成的事，我来给你排下一步。" : "先跟我打个招呼也行。你还没登录时，我会先带你去注册；登录后，我会记住你的行业和任务进度。"}
-            </p>
-            <p style={{ color: "#9b9b9b", fontSize: 13, lineHeight: 1.8 }}>
-              我不会让你先看一堆教程。你说目标，我问清楚，再把工具、教程和任务按顺序给你。
-            </p>
-          </section>
-
           <p style={{ marginTop: 14, color: "#8e7d4b", fontSize: 12, lineHeight: 1.75, opacity: 0, animation: "fadeUp 0.8s ease forwards 1.28s" }}>
             {user ? `欢迎回来，${user.name} · ${homeXPLabel}` : "注册后小白会记住你的行业、目标和任务进度"}
           </p>

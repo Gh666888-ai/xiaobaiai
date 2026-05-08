@@ -289,12 +289,31 @@ function siteReply(message: string) {
   return "这个问题和小白AI网站有关，我先给你站内路线：\n\n1. 想选工具：去 /choose-tool。\n2. 想系统学习：去 /learn，也就是「小白爱学习」。\n3. 想看模型排行和价格：去 /models。\n4. 想看资讯：去 /news。\n5. 想看案例或投稿：去 /community。\n6. 想每天打卡：去 /growth。\n\n你也可以直接告诉我：你现在想完成什么任务，我会帮你选最短路径。"
 }
 
+function beginnerClaudeCodeReply(message: string) {
+  const text = message.toLowerCase()
+  const aboutClaudeCode = text.includes("claude code") || text.includes("claudecode")
+  const aboutInstall = text.includes("安装") || text.includes("下载") || text.includes("终端") || text.includes("node") || text.includes("npm")
+  if (!aboutClaudeCode || !aboutInstall) return ""
+
+  return "先别管 API Key 和模型名，我们只做安装。\n\n第 1 步：打开浏览器，去 nodejs.org，下载 LTS 版本，双击安装。\n\n第 2 步：打开终端。\nWindows：搜索 PowerShell。\nMac：打开 Terminal。\n\n第 3 步：复制这一行，粘贴到终端，按回车：\nnode -v\n\n看到 v 开头的版本号，就继续。\n\n第 4 步：复制这一行，粘贴到终端，按回车：\nnpm install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com\n\n第 5 步：等它跑完，再复制这一行，按回车：\nclaude --version\n\n看到版本号，就算安装完成。下一步你告诉我：你是 Windows 还是 Mac，我再给你下一条要复制的命令。"
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json()
   const userMessage = String(body.message || "").trim()
   const history = Array.isArray(body.messages) ? body.messages.slice(-8) : []
 
   if (!userMessage) return NextResponse.json({ error: "empty message" }, { status: 400 })
+
+  const freeBeginnerClaudeCodeReply = beginnerClaudeCodeReply(userMessage)
+  if (freeBeginnerClaudeCodeReply) {
+    return NextResponse.json({
+      reply: freeBeginnerClaudeCodeReply,
+      mode: "site",
+      free: true,
+      remaining: null,
+    })
+  }
 
   const freeToolRecommendation = siteToolRecommendation(userMessage)
   if (freeToolRecommendation) {
