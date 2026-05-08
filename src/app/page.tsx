@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 "use client"
 
 import { useRef, useEffect, useState } from "react"
@@ -176,7 +176,7 @@ export default function HomePage() {
           <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.42em", color: "#7a6230", textTransform: "uppercase", marginBottom: 26, opacity: 0, animation: "fadeUp 0.8s ease forwards 0.25s" }}>Task-first AI Growth</p>
           <h1 style={{ fontSize: "clamp(58px, 10vw, 118px)", fontWeight: 950, lineHeight: 1, letterSpacing: "0.04em", color: "#fff", textShadow: "0 0 80px rgba(201,168,76,0.15), 0 0 160px rgba(201,168,76,0.05)", marginBottom: 26, opacity: 0, animation: "fadeUp 0.8s ease forwards 0.42s" }}>小白AI</h1>
           <div style={{ width: 0, height: 1, background: "linear-gradient(90deg, transparent, #c9a84c, transparent)", margin: "0 auto 28px", animation: "expandWidth 1s ease forwards 0.72s" }} />
-          <p style={{ fontSize: "clamp(18px, 2.6vw, 28px)", fontWeight: 950, lineHeight: 1.55, color: "#fff", margin: "0 auto 10px", opacity: 0, animation: "fadeUp 0.8s ease forwards 0.9s" }}>中文新手用 AI 做成第一件事</p>
+          <p style={{ fontSize: "clamp(18px, 2.6vw, 28px)", fontWeight: 950, lineHeight: 1.55, color: "#fff", margin: "0 auto 10px", opacity: 0, animation: "fadeUp 0.8s ease forwards 0.9s" }}>让 AI 新手也能做成第一件事</p>
           <p style={{ fontSize: "clamp(13px, 1.5vw, 15px)", fontWeight: 400, lineHeight: 1.9, color: "rgba(255,255,255,0.54)", maxWidth: 680, margin: "0 auto 30px", opacity: 0, animation: "fadeUp 0.8s ease forwards 1.05s" }}>
             不知道用哪个 AI？先告诉小白你想做什么，今天就完成一个可交付任务。选目标、做任务、拿奖励、发复盘，小白陪你从 0 到 1。
           </p>
