@@ -43,6 +43,74 @@ git push
 
 ## 生产部署命令
 
+## 用户协作习惯和跨会话同步
+
+站长习惯：
+
+- 希望助手直接给可复制的命令，不要只讲概念。
+- 如果另一个会话已经改好并 push 到 GitHub，告诉站长：服务器只需要一次 `git pull`，会把多个会话的提交一起拉下来。
+- 如果不确定另一个会话是否 push，先让站长看 `git log --oneline -n 5` 或在本地确认是否已 push。
+- 服务器上执行部署前，永远先看：
+
+```bash
+cd /var/www/xiaobaiai
+git status --short
+```
+
+如果输出为空，再直接部署：
+
+```bash
+git pull
+npm run build
+pm2 restart xiaobaiai --update-env
+pm2 flush xiaobaiai
+curl -I https://www.xiaobaiai.cn/
+pm2 logs xiaobaiai --lines 80 --nostream
+```
+
+如果 `git status --short` 有输出，不要让站长直接 `reset --hard` 或乱 `checkout`。先判断是不是服务器生成文件、日志或数据文件。常见输出：
+
+```text
+M public/model-prices.json
+M public/fetched-news.json
+M scripts/run-workflows-cron.sh
+?? logs/model-prices.log
+```
+
+如果只是服务器生成文件且需要先拉新代码，推荐临时保存：
+
+```bash
+git stash push -u -m "server local generated files before pulling latest"
+git pull
+npm run build
+pm2 restart xiaobaiai --update-env
+pm2 flush xiaobaiai
+```
+
+拉完后确认最新提交：
+
+```bash
+git log --oneline -n 5
+```
+
+如果站长问“上一版没跑，这次一起跑吗”，回答：是的，只要这些改动都已经 push，一次 `git pull` 会把上一版和这一版一起拉到服务器。
+
+如果新增了页面或任务，部署后要验证对应 URL，例如：
+
+```bash
+curl -I https://www.xiaobaiai.cn/
+curl -I https://www.xiaobaiai.cn/missions
+curl -I https://www.xiaobaiai.cn/missions/ai-ppt-first-deck
+curl -I https://www.xiaobaiai.cn/growth
+```
+
+判断上线成功的标准：
+
+- `npm run build` 通过。
+- 首页或新增页面 `curl -I` 返回 `200 OK`。
+- `pm2 logs xiaobaiai --lines 80 --nostream` 没有新的 error。
+- 刚重启后短暂 502 可以等 3 秒再测，不要立刻判定失败。
+
 常规部署：
 
 ```bash

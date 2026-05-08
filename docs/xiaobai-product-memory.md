@@ -199,3 +199,54 @@ DeepSeek V4 只是模型或模型 API 后端，不是 Agent。可以出“Claude
 一句核心话术：
 
 > 不是先问“该用哪个工具”，而是先问“你现在最想做成什么事”。完整项目太大，我们就先做好其中一个环节，这就是开始。
+
+## 站长协作习惯
+
+站长更喜欢“直接一起做”，不喜欢长时间停留在建议层。除非有高风险或信息缺失，否则应该直接改代码、跑验证、提交并给部署命令。
+
+沟通习惯：
+
+- 用中文回答，直接、实用、少绕。
+- 给命令时要能直接复制执行。
+- 用户经常把服务器终端输出贴回来，要基于输出判断下一步，不要重复讲大段理论。
+- 用户会同时开多个会话让不同助手改项目；如果他说“另一个会话改好了”，默认要告诉他先确认是否 push，然后服务器 `git pull` 一次即可拉到所有已 push 的提交。
+- 用户问“上一版没跑，这次一起跑吗”，回答重点是：只要都已 push，一次 `git pull` 会连续拉到最新提交，然后一次 build/restart 即可。
+- 生产服务器上有本地生成文件时，不要建议粗暴 `git reset --hard`。先 `git status --short`，必要时用 `git stash push -u -m "server local generated files before pulling latest"`。
+- 用户重视上线验证。部署命令后要附上 `curl -I` 和 `pm2 logs ... --nostream`。
+- 用户希望我们记住项目状态、部署路径、PM2 名称、Supabase SQL 是否需要执行、cron 是否需要检查。
+
+做完代码后默认流程：
+
+1. 本地跑 `npm.cmd run typecheck`。
+2. 本地跑 `npm.cmd run lint`。
+3. 重要 UI/路由改动跑 `npm.cmd run build`。
+4. `git diff --check`。
+5. commit + push。
+6. final 里告诉用户 commit hash、改了什么、服务器怎么拉。
+
+服务器部署口径：
+
+```bash
+cd /var/www/xiaobaiai
+git status --short
+git pull
+git log --oneline -n 5
+npm run build
+pm2 restart xiaobaiai --update-env
+pm2 flush xiaobaiai
+curl -I https://www.xiaobaiai.cn/
+pm2 logs xiaobaiai --lines 80 --nostream
+```
+
+如果涉及新增页面或任务，要在部署命令里加具体 URL 验证，例如：
+
+```bash
+curl -I https://www.xiaobaiai.cn/missions/ai-ppt-first-deck
+curl -I https://www.xiaobaiai.cn/growth
+```
+
+当前首页主张已改为：
+
+> 让 AI 新手也能做成第一件事
+
+不要再用“中文新手”作为首页主标题，因为它有歧义。
