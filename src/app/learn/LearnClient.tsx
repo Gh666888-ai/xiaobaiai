@@ -10,6 +10,44 @@ import Link from "next/link"
 import { progressId, readLearningProgress, LearningProgress } from "@/lib/learning-progress"
 import { readMissionProgress } from "@/lib/mission-progress"
 
+const beginnerChoices = [
+  {
+    label: "我完全不知道从哪开始",
+    title: "先做一份 6 页 PPT 初稿",
+    desc: "不用先选工具，跟着复制一句提示词，先做出一个能看的文件。",
+    href: "/start?goal=做PPT",
+    cta: "从这里开始",
+    highlight: true,
+  },
+  {
+    label: "我手里有资料",
+    title: "让 AI 读资料并列行动清单",
+    desc: "上传或粘贴一份文档，得到摘要、风险点和下一步。",
+    href: "/start?goal=办公",
+    cta: "处理资料",
+  },
+  {
+    label: "我想做内容",
+    title: "做一条小红书内容草稿",
+    desc: "从选题、正文、配图提示词到发布前检查，一次跑通。",
+    href: "/start?goal=写文章",
+    cta: "做内容",
+  },
+]
+
+const firstRunSteps = [
+  { title: "不用选课", desc: "默认从第一个可交付任务开始。" },
+  { title: "只做一步", desc: "复制提示词，打开工具，留下一个结果。" },
+  { title: "能判断完成", desc: "页面会要求你勾选或粘贴证明，不是自己猜。" },
+  { title: "再给下一步", desc: "做完以后才出现更深的任务路线。" },
+]
+
+const nextAfterFirstTask = [
+  { title: "第 1 个结果", desc: "先完成一个 PPT、资料摘要或内容草稿。", href: "/start", cta: "继续做第一步" },
+  { title: "第 2 个结果", desc: "换一种场景再做一次，确认不是只会复制模板。", href: "/missions", cta: "看任务库" },
+  { title: "第 3 个结果", desc: "把提示词、失败点和修改方法发成复盘。", href: "/community/new", cta: "写复盘" },
+]
+
 const curriculumFlow = [
   {
     level: "新手村 1",
@@ -159,18 +197,76 @@ export default function LearnPage() {
 
   const totalSections = stages.reduce((sum, stage) => sum + stage.sections.length, 0)
   const doneSections = stages.reduce((sum, stage) => sum + stage.sections.filter((_, index) => progress[progressId(stage.id, index)]).length, 0)
+  const nextMainAction = missionDoneCount > 0 ? "/missions" : "/start?goal=做PPT"
+  const nextMainText = missionDoneCount > 0 ? "继续下一个实战任务" : "我不知道，从第一个任务开始"
 
   return (
     <div style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
       <MathRain />
       <NavBar />
 
-      <div style={{maxWidth:1080,margin:'0 auto',padding:'60px 60px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.88)'}} className="max-sm:px-4">
-        <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.4em',color:'#7a6230',textTransform:'uppercase',marginBottom:10,fontWeight:700}}>Curriculum</p>
-        <h1 style={{fontSize:36,fontWeight:900,color:'#fff',letterSpacing:'0.02em',marginBottom:8}}>小白爱学习</h1>
-        <p style={{fontSize:14,fontWeight:400,color:'#ccc',marginBottom:24}}>{stages.length} 个阶段 · 每次只推进一个章节 · 阶段通关可领取 XP 奖励</p>
+      <div style={{maxWidth:1080,margin:'0 auto',padding:'54px 60px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.88)'}} className="max-sm:px-4">
+        <section style={{border:'1px solid #2a1f10',background:'linear-gradient(180deg,rgba(201,168,76,0.085),rgba(255,255,255,0.025))',borderRadius:12,padding:'28px 30px',marginBottom:18}}>
+          <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.28em',color:'#7a6230',textTransform:'uppercase',marginBottom:10,fontWeight:900}}>Start Here</p>
+          <h1 style={{fontSize:38,fontWeight:950,color:'#fff',letterSpacing:'0.02em',lineHeight:1.22,marginBottom:10}}>不知道从哪开始，就先做出一个小结果</h1>
+          <p style={{fontSize:15,fontWeight:400,color:'#ccc',lineHeight:1.9,maxWidth:760,marginBottom:20}}>这里不是让你先看懂一整套课程。第一次来，只需要选一个真实目标，照着做一步，页面会告诉你怎么判断完成。</p>
+          <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+            <Link href={nextMainAction} className="btn-primary" style={{textDecoration:'none'}}>{nextMainText}</Link>
+            <Link href="/community" className="btn-outline" style={{textDecoration:'none'}}>先看别人怎么做</Link>
+          </div>
+        </section>
 
-        <section style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.045)',borderRadius:12,padding:'22px 24px',marginBottom:28}}>
+        <section style={{display:'grid',gridTemplateColumns:'1.15fr 0.85fr',gap:14,alignItems:'stretch',marginBottom:18}} className="learn-first-grid">
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:10}} className="learn-choice-grid">
+            {beginnerChoices.map((item) => (
+              <Link key={item.title} href={item.href} style={{textDecoration:'none',border:item.highlight?'1px solid #8c7333':'1px solid #1f1f1f',background:item.highlight?'rgba(201,168,76,0.075)':'rgba(255,255,255,0.026)',borderRadius:10,padding:'18px 16px',minHeight:178,display:'flex',flexDirection:'column'}}>
+                <span style={{color:item.highlight?'#e8c96a':'#888',fontSize:11,fontWeight:950,marginBottom:9}}>{item.label}</span>
+                <h2 style={{color:'#fff',fontSize:17,fontWeight:950,lineHeight:1.35,marginBottom:8}}>{item.title}</h2>
+                <p style={{color:'#aaa',fontSize:12,lineHeight:1.75,flex:1}}>{item.desc}</p>
+                <span style={{color:item.highlight?'#111':'#e8c96a',background:item.highlight?'#e8c96a':'rgba(201,168,76,0.06)',border:'1px solid #7a6230',borderRadius:8,padding:'8px 10px',fontSize:12,fontWeight:950,width:'fit-content',marginTop:14}}>{item.cta}</span>
+              </Link>
+            ))}
+          </div>
+
+          <aside style={{border:'1px solid #1f1f1f',background:'rgba(255,255,255,0.026)',borderRadius:10,padding:'18px 18px'}}>
+            <h2 style={{color:'#fff',fontSize:17,fontWeight:950,marginBottom:12}}>今天只需要这样走</h2>
+            <div style={{display:'grid',gap:9}}>
+              {firstRunSteps.map((item,index)=>(
+                <div key={item.title} style={{display:'grid',gridTemplateColumns:'26px 1fr',gap:9,alignItems:'start'}}>
+                  <span style={{width:26,height:26,borderRadius:999,display:'inline-flex',alignItems:'center',justifyContent:'center',background:'rgba(201,168,76,0.1)',color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950}}>{index+1}</span>
+                  <span>
+                    <span style={{display:'block',color:'#fff',fontSize:13,fontWeight:950,marginBottom:3}}>{item.title}</span>
+                    <span style={{display:'block',color:'#999',fontSize:12,lineHeight:1.6}}>{item.desc}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </aside>
+        </section>
+
+        <section style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.04)',borderRadius:12,padding:'20px 22px',marginBottom:18}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:14,flexWrap:'wrap',marginBottom:14}}>
+            <div>
+              <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950,color:'#7a6230',letterSpacing:'0.14em',marginBottom:6}}>AFTER FIRST RESULT</p>
+              <h2 style={{fontSize:21,fontWeight:950,color:'#fff',lineHeight:1.35}}>做完第一个任务后，不会让你停在原地</h2>
+            </div>
+            <Link href="/start" className="btn-outline" style={{textDecoration:'none'}}>回到我的下一步</Link>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:10}} className="learn-choice-grid">
+            {nextAfterFirstTask.map((item,index)=>(
+              <Link key={item.title} href={item.href} style={{textDecoration:'none',border:'1px solid #242424',background:'rgba(0,0,0,0.24)',borderRadius:10,padding:'15px 14px',minHeight:138}}>
+                <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950,color:'#e8c96a',marginBottom:8}}>STEP {index+1}</p>
+                <h3 style={{fontSize:15,fontWeight:950,color:'#fff',lineHeight:1.4,marginBottom:7}}>{item.title}</h3>
+                <p style={{fontSize:12,color:'#aaa',lineHeight:1.7,marginBottom:10}}>{item.desc}</p>
+                <span style={{fontSize:12,color:'#cdbb80',fontWeight:950}}>{item.cta}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <details style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.035)',borderRadius:12,padding:'16px 18px',marginBottom:18}}>
+          <summary style={{color:'#e8c96a',fontSize:14,fontWeight:950,cursor:'pointer'}}>已经做过第一步？展开完整学习主线</summary>
+          <section style={{paddingTop:18}}>
           <div style={{display:'flex',alignItems:'flex-end',justifyContent:'space-between',gap:16,flexWrap:'wrap',marginBottom:18}}>
             <div>
               <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.2em',color:'#7a6230',fontWeight:900,marginBottom:6}}>FROM BASIC TO ADVANCED</p>
@@ -197,9 +293,12 @@ export default function LearnPage() {
             ))}
           </div>
           <p style={{fontSize:13,color:'#cdbb80',lineHeight:1.8,borderTop:'1px solid #242424',paddingTop:14}}>学习顺序很简单：先看懂概念，照着做一次，再换成自己的场景，最后把结果发成复盘。</p>
-        </section>
+          </section>
+        </details>
 
-        <section style={{border:'1px solid #1f1f1f',background:'rgba(255,255,255,0.025)',borderRadius:12,padding:'22px 24px',marginBottom:28}}>
+        <details style={{border:'1px solid #1f1f1f',background:'rgba(255,255,255,0.022)',borderRadius:12,padding:'16px 18px',marginBottom:18}}>
+          <summary style={{color:'#e8c96a',fontSize:14,fontWeight:950,cursor:'pointer'}}>想继续往深处走？展开进阶路线</summary>
+          <section style={{paddingTop:18}}>
           <div style={{display:'flex',alignItems:'flex-end',justifyContent:'space-between',gap:16,flexWrap:'wrap',marginBottom:18}}>
             <div>
               <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.2em',color:'#7a6230',fontWeight:900,marginBottom:6}}>DEEP LEARNING TRACK</p>
@@ -227,9 +326,10 @@ export default function LearnPage() {
               </div>
             ))}
           </div>
-        </section>
+          </section>
+        </details>
 
-        <section style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.045)',borderRadius:12,padding:'20px 22px',marginBottom:28}}>
+        <section style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.045)',borderRadius:12,padding:'20px 22px',marginBottom:18}}>
               <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950,color:'#7a6230',letterSpacing:'0.14em',marginBottom:8}}>TODAY QUEST</p>
               <h3 style={{fontSize:19,fontWeight:950,color:'#fff',lineHeight:1.35,marginBottom:12}}>今天只做三件小事</h3>
               <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:16}}>
@@ -246,7 +346,7 @@ export default function LearnPage() {
               <p style={{fontSize:12,color:'#bbb',lineHeight:1.8}}>做完以后，回到阶段页标记章节、领取阶段 XP。真正的沉浸感来自“今天我推进了我的事”，而不是“今天我又看了很多内容”。</p>
         </section>
 
-        <div style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.05)',borderRadius:12,padding:'16px 18px',marginBottom:28}}>
+        <div style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.05)',borderRadius:12,padding:'16px 18px',marginBottom:18}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:10}}>
             <p style={{fontSize:13,fontWeight:900,color:'#fff'}}>我的学习进度</p>
             <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:12,fontWeight:900,color:'#e8c96a'}}>{doneSections}/{totalSections}</p>
@@ -260,7 +360,9 @@ export default function LearnPage() {
           <p style={{fontSize:12,color:'#cdbb80',lineHeight:1.8,marginTop:4}}>已通关真实任务：{missionDoneCount} 个。真正的等级增长，优先来自可检查的任务交付。</p>
         </div>
 
-        <div style={{display:'flex',flexDirection:'column',gap:10}}>
+        <details style={{border:'1px solid #1a1a1a',background:'rgba(255,255,255,0.022)',borderRadius:12,padding:'16px 18px'}}>
+          <summary style={{color:'#e8c96a',fontSize:14,fontWeight:950,cursor:'pointer'}}>按章节学习目录</summary>
+          <div style={{display:'flex',flexDirection:'column',gap:10,marginTop:16}}>
           {stages.map((stage,i)=>{
             const st=tools.filter(t=>t.stage===stage.id)
             const completed = stage.sections.filter((_, index) => progress[progressId(stage.id, index)]).length
@@ -287,7 +389,16 @@ export default function LearnPage() {
               </Link>
             )
           })}
-        </div>
+          </div>
+        </details>
+        <style>{`
+          @media (max-width: 920px) {
+            .learn-first-grid,
+            .learn-choice-grid {
+              grid-template-columns: 1fr !important;
+            }
+          }
+        `}</style>
       </div>
     </div>
   )

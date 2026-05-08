@@ -8,7 +8,6 @@ import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { missions } from "@/data/missions"
 import {
-  currentStepLabel,
   getMissionStepProofRequirement,
   getStoredMission,
   isMissionStepProofReady,
@@ -24,6 +23,13 @@ const principles = [
   "完整项目太大，就先做其中一个环节。",
   "第一个环节必须能交付、能检查、能复用。",
   "做完再发复盘，让经验变成自己的资产。",
+]
+
+const quickGoals = [
+  { label: "不知道做什么", desc: "默认做 6 页 PPT 初稿", goal: "做PPT" },
+  { label: "我要做 PPT", desc: "适合汇报、作业、方案", goal: "做PPT" },
+  { label: "我要整理资料", desc: "适合合同、文章、会议记录", goal: "办公" },
+  { label: "我要写内容", desc: "适合小红书、公众号、产品文案", goal: "写文章" },
 ]
 
 const goalMissionMap: { keywords: string[]; missionId: string }[] = [
@@ -66,9 +72,6 @@ export function StartClient() {
   const selectedProgress = getStoredMission(progress, selected.id)
   const currentStepIndex = Math.min(selectedProgress.currentStep || 0, selected.steps.length - 1)
   const currentStep = selected.steps[currentStepIndex]
-  const activeMission = missions.find((mission) => mission.id === progress.activeMissionId) ?? selected
-  const activeProgress = getStoredMission(progress, activeMission.id)
-  const activeStep = currentStepLabel(activeMission.id, Math.min(activeProgress.currentStep || 0, activeMission.steps.length - 1))
   const doneSteps = selected.steps.filter((_, index) => selectedProgress.completedSteps[index]).length
   const proofRequirement = getMissionStepProofRequirement(currentStep, currentStepIndex, selected.steps.length)
   const savedProof = selectedProgress.stepProofs?.[currentStepIndex]
@@ -79,6 +82,7 @@ export function StartClient() {
     updatedAt: new Date().toISOString(),
   }
   const proofReady = isMissionStepProofReady(proofRequirement, currentProof)
+  const selectedGoal = quickGoals.find((item) => missionFromGoalParam(item.goal) === selected.id)?.label || "当前任务"
 
   useEffect(() => {
     setProofText(savedProof?.text || "")
@@ -116,24 +120,50 @@ export function StartClient() {
       <NavBar />
       <main style={{ maxWidth: 1120, margin: "0 auto", padding: "64px clamp(16px,5vw,60px) 104px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.9)" }}>
         <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.34em", color: "#7a6230", textTransform: "uppercase", marginBottom: 12, fontWeight: 900 }}>Today 0-1 Step</p>
-        <h1 style={{ fontSize: 42, color: "#fff", fontWeight: 950, lineHeight: 1.22, marginBottom: 14 }}>今天先做完一个 AI 小环节</h1>
-        <p style={{ fontSize: 16, color: "#ccc", lineHeight: 1.9, maxWidth: 880, marginBottom: 24 }}>
-          不用先学完整课程，也不用挑半天工具。已经有 AI 工具也没关系，小白不只教你“一句话生成”，而是带你把资料约束、验收标准、改稿和复盘跑通。
+        <h1 style={{ fontSize: 42, color: "#fff", fontWeight: 950, lineHeight: 1.22, marginBottom: 14 }}>别想太多，先点一个能做成的目标</h1>
+        <p style={{ fontSize: 16, color: "#ccc", lineHeight: 1.9, maxWidth: 880, marginBottom: 18 }}>
+          第一次来不用理解 AI 生态，也不用先选工具。选下面一个目标，小白会直接给你当前这一步、复制用的提示词和完成判定。
         </p>
 
-        <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.055)", borderRadius: 12, padding: "18px 20px", marginBottom: 24, display: "grid", gridTemplateColumns: "1fr auto", gap: 14, alignItems: "center" }} className="max-sm:grid-cols-1">
-          <div>
-            <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>小白记得你上次做到这里</p>
-            <p style={{ color: "#ddd", fontSize: 14, lineHeight: 1.8 }}>
-              当前任务：<b>{activeMission.shortTitle}</b>。下一步建议：<b>{activeProgress.completed ? "发复盘，把经验沉淀下来" : activeStep}</b>。
-            </p>
-          </div>
-          <Link href={`/missions/${activeMission.id}`} className="btn-primary" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
-            继续上次任务 <ArrowRight size={14} />
-          </Link>
+        <section style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 10, marginBottom: 18 }} className="start-goal-grid">
+          {quickGoals.map((item) => {
+            const targetId = missionFromGoalParam(item.goal) || missions[0].id
+            const active = targetId === selected.id
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => chooseMission(targetId)}
+                style={{
+                  textAlign: "left",
+                  border: active ? "1px solid #8c7333" : "1px solid #1f1f1f",
+                  background: active ? "rgba(201,168,76,0.08)" : "rgba(255,255,255,0.026)",
+                  borderRadius: 10,
+                  padding: "14px 13px",
+                  minHeight: 104,
+                  cursor: "pointer",
+                }}
+              >
+                <span style={{ display: "block", color: active ? "#e8c96a" : "#fff", fontSize: 14, fontWeight: 950, lineHeight: 1.35, marginBottom: 6 }}>{item.label}</span>
+                <span style={{ display: "block", color: "#999", fontSize: 12, lineHeight: 1.6 }}>{item.desc}</span>
+              </button>
+            )
+          })}
         </section>
 
-        <section style={{ border: "1px solid #181818", background: "rgba(255,255,255,0.024)", borderRadius: 10, padding: "10px 12px", marginBottom: 18, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.055)", borderRadius: 12, padding: "18px 20px", marginBottom: 18, display: "grid", gridTemplateColumns: "1fr auto", gap: 14, alignItems: "center" }} className="max-sm:grid-cols-1">
+          <div>
+            <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>推荐你现在做这个</p>
+            <p style={{ color: "#ddd", fontSize: 14, lineHeight: 1.8 }}>
+              你选的是：<b>{selectedGoal}</b>。当前任务：<b>{selected.shortTitle}</b>。现在只做：<b>{selectedProgress.completed ? "发复盘，把经验沉淀下来" : currentStep.title}</b>。
+            </p>
+          </div>
+          <a href="#start-current-step" className="btn-primary" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
+            开始这一步 <ArrowRight size={14} />
+          </a>
+        </section>
+
+        <section style={{ border: "1px solid #181818", background: "rgba(255,255,255,0.024)", borderRadius: 10, padding: "10px 12px", marginBottom: 14, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <span style={{ color: "#cdbb80", fontSize: 12, fontWeight: 950, marginRight: 2 }}>做事路径</span>
           {principles.map((item, index) => (
             <span key={item} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#aaa", border: "1px solid #222", background: "rgba(0,0,0,0.22)", borderRadius: 999, padding: "6px 9px", fontSize: 11, fontWeight: 850 }}>
@@ -144,7 +174,7 @@ export function StartClient() {
         </section>
 
         <details style={{ border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.024)", borderRadius: 10, padding: "13px 14px", marginBottom: 18 }}>
-          <summary style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, cursor: "pointer" }}>不做 PPT？点这里换一个任务方向</summary>
+          <summary style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, cursor: "pointer" }}>想自己挑任务？展开全部方向</summary>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(210px,1fr))", gap: 8, marginTop: 12 }} className="start-mission-list">
             {missions.map((mission) => {
               const active = mission.id === selected.id
@@ -178,7 +208,7 @@ export function StartClient() {
         </details>
 
         <section style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 300px", gap: 18, alignItems: "start", marginBottom: 44 }} className="start-workspace">
-          <aside style={{ border: "1px solid #2a1f10", background: "linear-gradient(180deg,rgba(201,168,76,0.08),rgba(255,255,255,0.025))", borderRadius: 12, padding: "22px 24px", minHeight: 520 }}>
+          <aside id="start-current-step" style={{ border: "1px solid #2a1f10", background: "linear-gradient(180deg,rgba(201,168,76,0.08),rgba(255,255,255,0.025))", borderRadius: 12, padding: "22px 24px", minHeight: 520 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
               <div>
                 <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.18em", color: "#7a6230", fontWeight: 950, marginBottom: 6 }}>NEXT ACTION</p>
@@ -304,7 +334,8 @@ export function StartClient() {
             background: rgba(255,255,255,0.03);
           }
           @media (max-width: 980px) {
-            .start-workspace {
+            .start-workspace,
+            .start-goal-grid {
               grid-template-columns: 1fr !important;
             }
           }
