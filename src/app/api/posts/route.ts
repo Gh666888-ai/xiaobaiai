@@ -196,13 +196,14 @@ export async function POST(req: NextRequest) {
     const rateLimitMessage = await enforcePostRateLimit(userId, ipHash)
     if (rateLimitMessage) return NextResponse.json({ error: rateLimitMessage }, { status: 429 })
   } catch (error: any) {
-    console.error("[posts:rate-limit]", {
+    console.error("[posts:rate-limit:soft-fail]", {
       code: error?.code,
       message: error?.message,
       details: error?.details,
       hint: error?.hint,
     })
-    return NextResponse.json({ error: "发帖限流检查失败，请稍后再试。" }, { status: 500 })
+    // Rate-limit queries depend on optional schema / permissions in production.
+    // If that check fails, keep the post flow usable and rely on moderation.
   }
 
   const moderation = autoModeratePost(title, content, tags)
