@@ -12,6 +12,7 @@ import {
   currentStepLabel,
   emptyMissionProgress,
   getStoredMission,
+  MISSION_PROGRESS_KEY,
   readMissionProgress,
   type MissionProgressState,
 } from "@/lib/mission-progress"
@@ -78,6 +79,7 @@ export function FloatingChat() {
   const [remaining, setRemaining] = useState<number | null>(null)
   const [launcherMood, setLauncherMood] = useState<LauncherMood>("welcome")
   const [missionProgress, setMissionProgress] = useState<MissionProgressState>(() => emptyMissionProgress())
+  const [hasSavedMissionProgress, setHasSavedMissionProgress] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const hideOnFullChat = pathname === "/chat" || pathname === "/login"
@@ -86,6 +88,7 @@ export function FloatingChat() {
     const openChat = () => {
       setOpen(true)
       setMinimized(false)
+      setHasSavedMissionProgress(Boolean(window.localStorage.getItem(MISSION_PROGRESS_KEY)))
       setMissionProgress(readMissionProgress())
     }
     window.addEventListener("xiaobai:open-chat", openChat)
@@ -93,6 +96,7 @@ export function FloatingChat() {
   }, [])
 
   useEffect(() => {
+    setHasSavedMissionProgress(Boolean(window.localStorage.getItem(MISSION_PROGRESS_KEY)))
     setMissionProgress(readMissionProgress())
   }, [pathname, open])
 
@@ -166,7 +170,12 @@ export function FloatingChat() {
   const stepIndex = Math.min(activeProgress.currentStep || 0, activeMission.steps.length - 1)
   const doneSteps = activeMission.steps.filter((_, index) => activeProgress.completedSteps[index]).length
   const nextStep = activeProgress.completed ? "任务完成了，下一步发复盘拿 XP" : currentStepLabel(activeMission.id, stepIndex)
-  const hasProgress = doneSteps > 0 || activeProgress.currentStep > 0 || missionProgress.activeMissionId !== missions[0].id
+  const hasProgress = hasSavedMissionProgress && (doneSteps > 0 || activeProgress.currentStep > 0 || missionProgress.activeMissionId !== missions[0].id)
+  const reminderTitle = hasProgress ? "小白继续提醒" : "先做一个小任务"
+  const reminderText = hasProgress
+    ? `上次任务：${activeMission.shortTitle}。接下来：${nextStep}。`
+    : `推荐任务：${activeMission.shortTitle}。先完成第 1 步，小白再帮你记进度。`
+  const reminderAction = hasProgress ? "继续" : "开始"
 
   return (
     <div className="xiaobai-float">
@@ -208,10 +217,10 @@ export function FloatingChat() {
               <div className="xiaobai-continue-card">
                 <XiaobaiMascot size={34} mood="recommend" />
                 <div>
-                  <p>小白继续提醒</p>
-                  <span>上次任务：{activeMission.shortTitle}。接下来：{nextStep}。</span>
+                  <p>{reminderTitle}</p>
+                  <span>{reminderText}</span>
                 </div>
-                <Link href={`/missions/${activeMission.id}`}>继续</Link>
+                <Link href={`/missions/${activeMission.id}`}>{reminderAction}</Link>
               </div>
                 {messages.length <= 1 && (
                   <div className="xiaobai-empty">
@@ -278,6 +287,7 @@ export function FloatingChat() {
           type="button"
           className="xiaobai-continue-tip"
           onClick={() => {
+            setHasSavedMissionProgress(Boolean(window.localStorage.getItem(MISSION_PROGRESS_KEY)))
             setMissionProgress(readMissionProgress())
             setOpen(true)
             setMinimized(false)
@@ -292,6 +302,7 @@ export function FloatingChat() {
         type="button"
         className={`xiaobai-launcher ${open && !minimized ? "is-open" : ""}`}
         onClick={() => {
+          setHasSavedMissionProgress(Boolean(window.localStorage.getItem(MISSION_PROGRESS_KEY)))
           setMissionProgress(readMissionProgress())
           setOpen(true)
           setMinimized(false)

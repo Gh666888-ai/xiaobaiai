@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { BookOpen, Bot, Building2, Compass, Flag, GraduationCap, LogOut, Menu, MessageCircle, Newspaper, Search, Trophy, Users, Workflow, X } from "lucide-react"
+import { BookOpen, Bot, Building2, ChevronDown, Compass, Flag, GraduationCap, LogOut, Menu, MessageCircle, Newspaper, Search, Trophy, Users, Workflow, X } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/lib/AuthContext"
 import { LevelBadge } from "@/components/LevelBadge"
@@ -42,6 +42,7 @@ export function NavBar() {
   const { user, logout } = useAuth()
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const level = useMemo(() => getUserLevel(user?.xp || 0), [user?.xp])
   const next = useMemo(() => getNextLevel(user?.xp || 0), [user?.xp])
@@ -52,6 +53,7 @@ export function NavBar() {
 
   useEffect(() => {
     setMenuOpen(false)
+    setMoreOpen(false)
     setProfileOpen(false)
   }, [pathname])
 
@@ -77,6 +79,27 @@ export function NavBar() {
             <MessageCircle size={14} />
             问小白
           </button>
+          <div className="site-more-wrap">
+            <button type="button" className={`site-nav-link site-nav-button ${moreOpen ? "is-active" : ""}`} aria-expanded={moreOpen} onClick={() => setMoreOpen((open) => !open)}>
+              <Menu size={14} />
+              更多
+              <ChevronDown size={13} className={moreOpen ? "site-more-arrow is-open" : "site-more-arrow"} />
+            </button>
+            {moreOpen && (
+              <div className="site-more-popover">
+                {moreLinks.map((item) => {
+                  const Icon = item.icon
+                  const active = pathname === item.href || pathname?.startsWith(`${item.href}/`)
+                  return (
+                    <Link key={item.href} href={item.href} className={`site-more-link ${active ? "is-active" : ""}`}>
+                      <Icon size={14} />
+                      <span>{item.label}</span>
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="site-nav-auth">
@@ -407,6 +430,62 @@ export function NavBar() {
           align-items: center;
           gap: 10px;
           flex-shrink: 0;
+        }
+        .site-more-wrap {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+        }
+        .site-more-arrow {
+          transition: transform 0.18s;
+        }
+        .site-more-arrow.is-open {
+          transform: rotate(180deg);
+        }
+        .site-more-popover {
+          position: absolute;
+          top: calc(100% + 14px);
+          right: 0;
+          width: 240px;
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+          border: 1px solid #2a1f10;
+          border-radius: 12px;
+          background: rgba(5,5,5,0.98);
+          box-shadow: 0 22px 70px rgba(0,0,0,0.62), 0 0 28px rgba(201,168,76,0.12);
+          padding: 10px;
+          z-index: 110;
+        }
+        .site-more-link {
+          min-height: 38px;
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          border: 1px solid #202020;
+          border-radius: 9px;
+          background: rgba(255,255,255,0.03);
+          color: #ddd;
+          font-size: 12px;
+          font-weight: 900;
+          text-decoration: none;
+          padding: 8px 10px;
+          min-width: 0;
+        }
+        .site-more-link svg {
+          color: #7a6230;
+          flex-shrink: 0;
+        }
+        .site-more-link span {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .site-more-link.is-active,
+        .site-more-link:hover {
+          color: #e8c96a;
+          border-color: #7a6230;
+          background: rgba(201,168,76,0.07);
         }
         .site-login-link {
           display: inline-flex;
