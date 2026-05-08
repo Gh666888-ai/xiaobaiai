@@ -185,43 +185,31 @@ Mac：打开 Terminal。
 
 Windows PowerShell 复制下面这一整段，把 sk-你的DeepSeek_API_Key 换成自己的 Key：
 
-\`$env:ANTHROPIC_BASE_URL="https://api.deepseek.com/anthropic"\`
-
-\`$env:ANTHROPIC_AUTH_TOKEN="sk-你的DeepSeek_API_Key"\`
-
-\`$env:ANTHROPIC_MODEL="deepseek-v4-pro[1m]"\`
-
-\`$env:ANTHROPIC_DEFAULT_OPUS_MODEL="deepseek-v4-pro[1m]"\`
-
-\`$env:ANTHROPIC_DEFAULT_SONNET_MODEL="deepseek-v4-pro[1m]"\`
-
-\`$env:ANTHROPIC_DEFAULT_HAIKU_MODEL="deepseek-v4-flash"\`
-
-\`$env:CLAUDE_CODE_SUBAGENT_MODEL="deepseek-v4-flash"\`
-
-\`$env:CLAUDE_CODE_EFFORT_LEVEL="max"\`
-
-\`claude\`
+\`\`\`powershell
+$env:ANTHROPIC_BASE_URL="https://api.deepseek.com/anthropic"
+$env:ANTHROPIC_AUTH_TOKEN="sk-你的DeepSeek_API_Key"
+$env:ANTHROPIC_MODEL="deepseek-v4-pro[1m]"
+$env:ANTHROPIC_DEFAULT_OPUS_MODEL="deepseek-v4-pro[1m]"
+$env:ANTHROPIC_DEFAULT_SONNET_MODEL="deepseek-v4-pro[1m]"
+$env:ANTHROPIC_DEFAULT_HAIKU_MODEL="deepseek-v4-flash"
+$env:CLAUDE_CODE_SUBAGENT_MODEL="deepseek-v4-flash"
+$env:CLAUDE_CODE_EFFORT_LEVEL="max"
+claude
+\`\`\`
 
 Mac / Linux / WSL 复制下面这一整段：
 
-\`export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic\`
-
-\`export ANTHROPIC_AUTH_TOKEN=sk-你的DeepSeek_API_Key\`
-
-\`export ANTHROPIC_MODEL=deepseek-v4-pro[1m]\`
-
-\`export ANTHROPIC_DEFAULT_OPUS_MODEL=deepseek-v4-pro[1m]\`
-
-\`export ANTHROPIC_DEFAULT_SONNET_MODEL=deepseek-v4-pro[1m]\`
-
-\`export ANTHROPIC_DEFAULT_HAIKU_MODEL=deepseek-v4-flash\`
-
-\`export CLAUDE_CODE_SUBAGENT_MODEL=deepseek-v4-flash\`
-
-\`export CLAUDE_CODE_EFFORT_LEVEL=max\`
-
-\`claude\`
+\`\`\`bash
+export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic
+export ANTHROPIC_AUTH_TOKEN=sk-你的DeepSeek_API_Key
+export ANTHROPIC_MODEL=deepseek-v4-pro[1m]
+export ANTHROPIC_DEFAULT_OPUS_MODEL=deepseek-v4-pro[1m]
+export ANTHROPIC_DEFAULT_SONNET_MODEL=deepseek-v4-pro[1m]
+export ANTHROPIC_DEFAULT_HAIKU_MODEL=deepseek-v4-flash
+export CLAUDE_CODE_SUBAGENT_MODEL=deepseek-v4-flash
+export CLAUDE_CODE_EFFORT_LEVEL=max
+claude
+\`\`\`
 
 如果模型名不支持 deepseek-v4-pro[1m]，先把三处 deepseek-v4-pro[1m] 改成 deepseek-v4-pro；还不行就先用 deepseek-v4-flash 跑通。
 

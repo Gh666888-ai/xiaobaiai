@@ -2,28 +2,28 @@ import type { Section } from "./learning-path"
 
 const deepseekAnthropicWindowsLines = [
   "Windows PowerShell 完整版，复制这一整段，把 sk-你的DeepSeek_API_Key 换成自己的 Key：",
-  "    $env:ANTHROPIC_BASE_URL=\"https://api.deepseek.com/anthropic\"",
-  "    $env:ANTHROPIC_AUTH_TOKEN=\"sk-你的DeepSeek_API_Key\"",
-  "    $env:ANTHROPIC_MODEL=\"deepseek-v4-pro[1m]\"",
-  "    $env:ANTHROPIC_DEFAULT_OPUS_MODEL=\"deepseek-v4-pro[1m]\"",
-  "    $env:ANTHROPIC_DEFAULT_SONNET_MODEL=\"deepseek-v4-pro[1m]\"",
-  "    $env:ANTHROPIC_DEFAULT_HAIKU_MODEL=\"deepseek-v4-flash\"",
-  "    $env:CLAUDE_CODE_SUBAGENT_MODEL=\"deepseek-v4-flash\"",
-  "    $env:CLAUDE_CODE_EFFORT_LEVEL=\"max\"",
-  "    claude",
+  "$env:ANTHROPIC_BASE_URL=\"https://api.deepseek.com/anthropic\"",
+  "$env:ANTHROPIC_AUTH_TOKEN=\"sk-你的DeepSeek_API_Key\"",
+  "$env:ANTHROPIC_MODEL=\"deepseek-v4-pro[1m]\"",
+  "$env:ANTHROPIC_DEFAULT_OPUS_MODEL=\"deepseek-v4-pro[1m]\"",
+  "$env:ANTHROPIC_DEFAULT_SONNET_MODEL=\"deepseek-v4-pro[1m]\"",
+  "$env:ANTHROPIC_DEFAULT_HAIKU_MODEL=\"deepseek-v4-flash\"",
+  "$env:CLAUDE_CODE_SUBAGENT_MODEL=\"deepseek-v4-flash\"",
+  "$env:CLAUDE_CODE_EFFORT_LEVEL=\"max\"",
+  "claude",
 ]
 
 const deepseekAnthropicMacLines = [
   "Mac / Linux / WSL 完整版，复制这一整段：",
-  "    export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic",
-  "    export ANTHROPIC_AUTH_TOKEN=sk-你的DeepSeek_API_Key",
-  "    export ANTHROPIC_MODEL=deepseek-v4-pro[1m]",
-  "    export ANTHROPIC_DEFAULT_OPUS_MODEL=deepseek-v4-pro[1m]",
-  "    export ANTHROPIC_DEFAULT_SONNET_MODEL=deepseek-v4-pro[1m]",
-  "    export ANTHROPIC_DEFAULT_HAIKU_MODEL=deepseek-v4-flash",
-  "    export CLAUDE_CODE_SUBAGENT_MODEL=deepseek-v4-flash",
-  "    export CLAUDE_CODE_EFFORT_LEVEL=max",
-  "    claude",
+  "export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic",
+  "export ANTHROPIC_AUTH_TOKEN=sk-你的DeepSeek_API_Key",
+  "export ANTHROPIC_MODEL=deepseek-v4-pro[1m]",
+  "export ANTHROPIC_DEFAULT_OPUS_MODEL=deepseek-v4-pro[1m]",
+  "export ANTHROPIC_DEFAULT_SONNET_MODEL=deepseek-v4-pro[1m]",
+  "export ANTHROPIC_DEFAULT_HAIKU_MODEL=deepseek-v4-flash",
+  "export CLAUDE_CODE_SUBAGENT_MODEL=deepseek-v4-flash",
+  "export CLAUDE_CODE_EFFORT_LEVEL=max",
+  "claude",
 ]
 
 const deepseekV4FallbackLines = [
