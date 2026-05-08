@@ -7,6 +7,14 @@ import { ArrowUp, Loader2, LogIn, MessageCircle, Minus, UserRound, X } from "luc
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
 import { XiaobaiMascot } from "@/components/XiaobaiMascot"
+import { missions } from "@/data/missions"
+import {
+  currentStepLabel,
+  emptyMissionProgress,
+  getStoredMission,
+  readMissionProgress,
+  type MissionProgressState,
+} from "@/lib/mission-progress"
 
 type Message = {
   role: "user" | "assistant"
@@ -75,6 +83,7 @@ export function FloatingChat() {
   const [mode, setMode] = useState<ChatMode>("")
   const [remaining, setRemaining] = useState<number | null>(null)
   const [launcherMood, setLauncherMood] = useState<LauncherMood>("welcome")
+  const [missionProgress, setMissionProgress] = useState<MissionProgressState>(() => emptyMissionProgress())
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const hideOnFullChat = pathname === "/chat" || pathname === "/login"
@@ -83,10 +92,15 @@ export function FloatingChat() {
     const openChat = () => {
       setOpen(true)
       setMinimized(false)
+      setMissionProgress(readMissionProgress())
     }
     window.addEventListener("xiaobai:open-chat", openChat)
     return () => window.removeEventListener("xiaobai:open-chat", openChat)
   }, [])
+
+  useEffect(() => {
+    setMissionProgress(readMissionProgress())
+  }, [pathname, open])
 
   useEffect(() => {
     if (open && !minimized) bottomRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -153,6 +167,13 @@ export function FloatingChat() {
 
   if (hideOnFullChat) return null
 
+  const activeMission = missions.find((mission) => mission.id === missionProgress.activeMissionId) || missions[0]
+  const activeProgress = getStoredMission(missionProgress, activeMission.id)
+  const stepIndex = Math.min(activeProgress.currentStep || 0, activeMission.steps.length - 1)
+  const doneSteps = activeMission.steps.filter((_, index) => activeProgress.completedSteps[index]).length
+  const nextStep = activeProgress.completed ? "任务完成了，下一步发复盘拿 XP" : currentStepLabel(activeMission.id, stepIndex)
+  const hasProgress = doneSteps > 0 || activeProgress.currentStep > 0 || missionProgress.activeMissionId !== missions[0].id
+
   return (
     <div className="xiaobai-float">
       {open && !minimized && (
@@ -190,6 +211,14 @@ export function FloatingChat() {
                   </Link>
                 </div>
               )}
+              <div className="xiaobai-continue-card">
+                <XiaobaiMascot size={34} mood="recommend" />
+                <div>
+                  <p>小白继续提醒</p>
+                  <span>上次任务：{activeMission.shortTitle}。接下来：{nextStep}。</span>
+                </div>
+                <Link href={`/missions/${activeMission.id}`}>继续</Link>
+              </div>
                 {messages.length <= 1 && (
                   <div className="xiaobai-empty">
                     <XiaobaiMascot size={38} mood="recommend" />
@@ -258,10 +287,26 @@ export function FloatingChat() {
         </section>
       )}
 
+      {!open && (
+        <button
+          type="button"
+          className="xiaobai-continue-tip"
+          onClick={() => {
+            setMissionProgress(readMissionProgress())
+            setOpen(true)
+            setMinimized(false)
+          }}
+        >
+          <span>小白提醒</span>
+          <strong>{hasProgress ? `继续：${nextStep}` : "先选一个今天能完成的任务"}</strong>
+        </button>
+      )}
+
       <button
         type="button"
         className={`xiaobai-launcher ${open && !minimized ? "is-open" : ""}`}
         onClick={() => {
+          setMissionProgress(readMissionProgress())
           setOpen(true)
           setMinimized(false)
         }}
@@ -270,7 +315,7 @@ export function FloatingChat() {
         <XiaobaiMascot size={66} mood={open ? "happy" : launcherMood} />
         <span>
           <strong>问小白AI</strong>
-          <small>{launcherMood === "thinking" ? "小白雷达转起来" : launcherMood === "recommend" ? "帮你挑神器" : "当前页面陪跑"}</small>
+          <small>{hasProgress ? `上次 ${doneSteps}/${activeMission.steps.length}` : launcherMood === "thinking" ? "小白雷达转起来" : launcherMood === "recommend" ? "帮你挑神器" : "当前页面陪跑"}</small>
         </span>
         <MessageCircle size={17} />
       </button>
@@ -380,6 +425,38 @@ export function FloatingChat() {
           border-radius: 12px;
           background: rgba(201,168,76,0.04);
           padding: 10px;
+        }
+        .xiaobai-continue-card {
+          display: grid;
+          grid-template-columns: auto 1fr auto;
+          align-items: center;
+          gap: 10px;
+          border: 1px solid rgba(201,168,76,0.34);
+          border-radius: 12px;
+          background: rgba(201,168,76,0.06);
+          padding: 10px;
+        }
+        .xiaobai-continue-card p {
+          margin: 0 0 3px;
+          color: #fff;
+          font-size: 12px;
+          font-weight: 950;
+        }
+        .xiaobai-continue-card span {
+          color: #cdbb80;
+          font-size: 11px;
+          line-height: 1.55;
+        }
+        .xiaobai-continue-card a {
+          display: inline-flex;
+          align-items: center;
+          color: #111;
+          background: #e8c96a;
+          border-radius: 8px;
+          padding: 7px 9px;
+          font-size: 11px;
+          font-weight: 950;
+          text-decoration: none;
         }
         .xiaobai-login-note p {
           margin: 0 0 3px;
@@ -554,6 +631,33 @@ export function FloatingChat() {
           padding: 11px 14px;
           cursor: pointer;
           backdrop-filter: blur(14px);
+        }
+        .xiaobai-continue-tip {
+          width: min(292px, calc(100vw - 28px));
+          margin: 0 0 10px auto;
+          border: 1px solid rgba(201,168,76,0.38);
+          border-radius: 14px;
+          background: rgba(5,5,5,0.9);
+          color: #fff;
+          box-shadow: 0 16px 44px rgba(0,0,0,0.5);
+          backdrop-filter: blur(14px);
+          padding: 10px 12px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 4px;
+          cursor: pointer;
+          text-align: left;
+        }
+        .xiaobai-continue-tip span {
+          color: #c9a84c;
+          font-size: 11px;
+          font-weight: 950;
+        }
+        .xiaobai-continue-tip strong {
+          color: #f5f5f5;
+          font-size: 12px;
+          line-height: 1.45;
         }
         .xiaobai-launcher.is-open {
           border-color: #2a2a2a;
