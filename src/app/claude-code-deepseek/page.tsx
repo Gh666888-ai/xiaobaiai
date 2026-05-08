@@ -141,6 +141,9 @@ export default function ClaudeCodeDeepSeekPage() {
             </div>
             <div>
               <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 8 }}>国内 npm 慢时用镜像</p>
+              <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.8, marginBottom: 10 }}>
+                如果上一段安装很慢或失败，就复制下面这一段到终端，粘贴后按回车。
+              </p>
               <CodeBlock code={installCommands.mirror} />
             </div>
           </div>
