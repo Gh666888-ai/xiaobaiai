@@ -155,6 +155,32 @@ Mac：打开 Terminal。
 
 \`请先阅读这个项目，不要改文件，告诉我它是什么技术栈、主要目录和下一步建议。\`
 
+## 启动后连不上 Anthropic 官方服务
+
+如果你看到：
+
+\`Unable to connect to Anthropic services\`
+
+或者：
+
+\`Failed to connect to api.anthropic.com\`
+
+这不是安装失败。说明 Claude Code 已经打开了，但它默认去连接 Anthropic 官方服务，当前网络、地区或账号环境连不上。
+
+国内新手先用 DeepSeek 的 Anthropic 兼容接口跑通。
+
+在同一个 PowerShell 里复制下面几行，把 sk-你的DeepSeek_API_Key 换成自己的 Key：
+
+\`$env:ANTHROPIC_BASE_URL="https://api.deepseek.com/anthropic"\`
+
+\`$env:ANTHROPIC_AUTH_TOKEN="sk-你的DeepSeek_API_Key"\`
+
+\`$env:ANTHROPIC_MODEL="deepseek-v4-flash"\`
+
+\`claude\`
+
+如果你还没有 DeepSeek API Key，先去 platform.deepseek.com 创建一个。
+
 点右下角小白，告诉它：
 
 我已经装好 Claude Code，我是 Windows 还是 Mac，我想用它做什么。

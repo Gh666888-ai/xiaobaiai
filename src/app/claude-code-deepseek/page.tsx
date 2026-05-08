@@ -54,6 +54,10 @@ claude --version`,
 claude`,
   firstPrompt: `请先告诉我你能做什么，不要修改我的文件。`,
   projectPrompt: `请先阅读这个项目，不要改文件，告诉我它是什么技术栈、主要目录和下一步建议。`,
+  deepseekQuickStart: `$env:ANTHROPIC_BASE_URL="https://api.deepseek.com/anthropic"
+$env:ANTHROPIC_AUTH_TOKEN="sk-你的DeepSeek_API_Key"
+$env:ANTHROPIC_MODEL="deepseek-v4-flash"
+claude`,
 }
 
 const beginnerInstall = [
@@ -86,6 +90,7 @@ const steps = [
 const errors = [
   { title: "npm.ps1 被禁止运行", desc: "这是 Windows PowerShell 的执行策略拦住了 npm 脚本，不是 Node 或 Claude Code 坏了。先把命令里的 npm 改成 npm.cmd；如果还不行，再执行 Set-ExecutionPolicy -Scope CurrentUser RemoteSigned，确认输入 Y。" },
   { title: "npx.ps1 被禁止运行", desc: "如果 npm.cmd install 后看到 changed packages，说明已经安装成功。不要再用 npx @anthropic-ai/claude-code --version，直接用 claude --version 验证；如果找不到 claude，关闭 PowerShell 重新打开。" },
+  { title: "Unable to connect to Anthropic services", desc: "这说明 Claude Code 已经启动成功，但默认连接 Anthropic 官方服务失败。国内用户先配置 DeepSeek 的 Anthropic 兼容接口，再重新执行 claude。" },
   { title: "401 Unauthorized", desc: "Key 写错、复制少字符、前后有空格，或把其他平台 Key 填到了 ANTHROPIC_AUTH_TOKEN。" },
   { title: "model not found", desc: "模型名不匹配。先按官方或服务商面板写 deepseek-v4-pro[1m]、deepseek-v4-pro、deepseek-v4-flash 之一测试。" },
   { title: "请求超时", desc: "先缩小任务范围，再看网络和服务状态。大仓库第一次全量分析很容易慢。" },
@@ -187,6 +192,21 @@ export default function ClaudeCodeDeepSeekPage() {
           </div>
           <p style={{ color: "#9f8d57", fontSize: 12, lineHeight: 1.8, marginTop: 12 }}>
             如果 node -v 没有版本号，先别继续配置 DeepSeek，说明 Node.js 没装好或终端没有识别到环境变量。
+          </p>
+        </section>
+
+        <section style={{ border: "1px solid #4a251f", background: "rgba(180,60,40,0.08)", borderRadius: 12, padding: 22, marginBottom: 42 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+            <AlertTriangle size={18} style={{ color: "#ffb199" }} />
+            <h2 style={{ color: "#fff", fontSize: 22, fontWeight: 950 }}>启动后连不上 Anthropic 官方服务</h2>
+          </div>
+          <p style={{ color: "#d8c8bd", fontSize: 13, lineHeight: 1.85, marginBottom: 12 }}>
+            如果看到 Unable to connect to Anthropic services 或 api.anthropic.com，这不是安装失败。它表示 Claude Code 已经打开了，但默认去连接 Anthropic 官方服务，当前网络、地区或账号环境连不上。
+          </p>
+          <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 8 }}>国内新手先用 DeepSeek 跑通</p>
+          <CodeBlock code={installCommands.deepseekQuickStart} />
+          <p style={{ color: "#bfa795", fontSize: 12, lineHeight: 1.75, marginTop: 10 }}>
+            把 sk-你的DeepSeek_API_Key 换成你自己的 DeepSeek Key。如果你要使用 Anthropic 官方 Claude，需要确认账号、地区和网络能正常访问官方服务。
           </p>
         </section>
 

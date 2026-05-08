@@ -299,9 +299,19 @@ function beginnerClaudeCodeReply(message: string) {
     text.includes("unauthorizedaccess") ||
     text.includes("execution_policies")
   const hasNpxPolicyError = text.includes("npx.ps1") || text.includes("npx @anthropic-ai/claude-code")
-  const aboutClaudeCode = text.includes("claude code") || text.includes("claudecode") || hasPowerShellPolicyError
-  const aboutInstall = text.includes("安装") || text.includes("下载") || text.includes("终端") || text.includes("node") || text.includes("npm") || text.includes("npx") || hasPowerShellPolicyError
+  const hasAnthropicServiceError =
+    text.includes("unable to connect to anthropic services") ||
+    text.includes("api.anthropic.com") ||
+    text.includes("err_bad_request") ||
+    text.includes("supported-countries") ||
+    text.includes("might not be available in your country")
+  const aboutClaudeCode = text.includes("claude code") || text.includes("claudecode") || hasPowerShellPolicyError || hasAnthropicServiceError
+  const aboutInstall = text.includes("安装") || text.includes("下载") || text.includes("终端") || text.includes("node") || text.includes("npm") || text.includes("npx") || text.includes("启动") || hasPowerShellPolicyError || hasAnthropicServiceError
   if (!aboutClaudeCode || !aboutInstall) return ""
+
+  if (hasAnthropicServiceError) {
+    return "这不是安装失败。Claude Code 已经启动成功了，版本号也出来了。\n\n现在卡住的是：它默认去连接 Anthropic 官方服务 api.anthropic.com，但当前网络/地区/账号环境连不上，所以出现：\nUnable to connect to Anthropic services\n\n国内新手先不要走官方连接，先配置 DeepSeek 的 Anthropic 兼容接口。在同一个 PowerShell 里复制下面这几行，把 sk-你的Key 换成自己的 DeepSeek API Key：\n$env:ANTHROPIC_BASE_URL=\"https://api.deepseek.com/anthropic\"\n$env:ANTHROPIC_AUTH_TOKEN=\"sk-你的DeepSeek_API_Key\"\n$env:ANTHROPIC_MODEL=\"deepseek-v4-flash\"\nclaude\n\n如果你还没有 DeepSeek API Key，先去 platform.deepseek.com 创建一个。\n\n如果你想用 Anthropic 官方 Claude，就需要确认你的账号、地区和网络能正常访问官方服务。"
+  }
 
   if (hasNpxPolicyError) {
     return "这张图里的关键点：Claude Code 已经安装成功了。\n\n看到这一行就算成功：\nchanged 2 packages in 2s\n\n后面又红，是因为他用了 npx：\nnpx @anthropic-ai/claude-code --version\n\nPowerShell 又去执行 npx.ps1，所以再次被系统策略拦住。这里不需要 npx。\n\n现在让他直接复制这一行验证：\nclaude --version\n\n如果提示 claude 不是内部或外部命令，就关闭 PowerShell，重新打开，再执行：\nclaude --version\n\n验证成功后，启动 Claude Code 复制这一行：\nclaude\n\n第一次打开后，先输入这句话：\n请先告诉我你能做什么，不要修改我的文件。\n\n如果要在项目里用，先进入项目文件夹，再启动：\ncd 你的项目文件夹路径\nclaude\n\n这一步不要再用 npx。"
