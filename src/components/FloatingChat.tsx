@@ -21,7 +21,7 @@ type Message = {
   content: string
 }
 
-type LauncherMood = "welcome" | "thinking" | "recommend"
+type LauncherMood = "welcome" | "thinking" | "recommend" | "sleeping" | "peeking"
 type ChatMode = "ai" | "fallback" | "site" | ""
 type FloatAnchor = {
   right: number
@@ -124,11 +124,13 @@ export function FloatingChat() {
   const [floatAnchor, setFloatAnchor] = useState<FloatAnchor>(DEFAULT_FLOAT_ANCHOR)
   const [dragging, setDragging] = useState(false)
   const [walking, setWalking] = useState(false)
+  const [burrowing, setBurrowing] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const launcherRef = useRef<HTMLButtonElement>(null)
   const patrolIndexRef = useRef(0)
   const walkingTimerRef = useRef<number | null>(null)
+  const burrowTimerRef = useRef<number | null>(null)
   const suppressClickRef = useRef(false)
   const dragRef = useRef<{
     offsetX: number
@@ -238,12 +240,12 @@ export function FloatingChat() {
 
   useEffect(() => {
     if (open && !minimized) return
-    const moods: LauncherMood[] = ["welcome", "thinking", "recommend"]
+    const moods: LauncherMood[] = ["welcome", "peeking", "thinking", "sleeping", "welcome", "recommend"]
     let index = 0
     const timer = window.setInterval(() => {
       index = (index + 1) % moods.length
       setLauncherMood(moods[index])
-    }, 2600)
+    }, 4200)
     return () => window.clearInterval(timer)
   }, [open, minimized])
 
@@ -254,14 +256,21 @@ export function FloatingChat() {
     const timer = window.setInterval(() => {
       const points = getPatrolAnchors(getLauncherSize(launcherRef.current))
       patrolIndexRef.current = (patrolIndexRef.current + 1) % points.length
-      startWalking()
-      setFloatAnchor(clampFloatAnchor(points[patrolIndexRef.current], getLauncherSize(launcherRef.current)))
-    }, 8500)
+      const nextPoint = clampFloatAnchor(points[patrolIndexRef.current], getLauncherSize(launcherRef.current))
+      const shouldBurrow = patrolIndexRef.current === 1 || patrolIndexRef.current === 3
+      if (shouldBurrow) {
+        startBurrow(nextPoint)
+      } else {
+        startWalking()
+        setFloatAnchor(nextPoint)
+      }
+    }, 9200)
     return () => window.clearInterval(timer)
   }, [dragging, minimized, open])
 
   useEffect(() => () => {
     if (walkingTimerRef.current) window.clearTimeout(walkingTimerRef.current)
+    if (burrowTimerRef.current) window.clearTimeout(burrowTimerRef.current)
   }, [])
 
   function startWalking(duration = 1150) {
@@ -271,6 +280,19 @@ export function FloatingChat() {
       setWalking(false)
       walkingTimerRef.current = null
     }, duration)
+  }
+
+  function startBurrow(nextPoint: FloatAnchor) {
+    setWalking(false)
+    setBurrowing(true)
+    setLauncherMood("thinking")
+    if (burrowTimerRef.current) window.clearTimeout(burrowTimerRef.current)
+    window.setTimeout(() => setFloatAnchor(nextPoint), 260)
+    burrowTimerRef.current = window.setTimeout(() => {
+      setBurrowing(false)
+      burrowTimerRef.current = null
+      setLauncherMood("peeking")
+    }, 1280)
   }
 
   function handleLauncherPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
@@ -297,6 +319,7 @@ export function FloatingChat() {
       suppressClickRef.current = true
       setDragging(true)
       setWalking(false)
+      setBurrowing(false)
     }
     if (!drag.moved) return
 
@@ -396,9 +419,10 @@ export function FloatingChat() {
   const progressDots = hasProgress ? activeMission.steps.slice(0, 6) : []
   const launcherSize = getLauncherSize(launcherRef.current)
   const panelPosition = getPanelPosition(floatAnchor, launcherSize)
+  const liveMood: LauncherMood = walking || dragging || burrowing ? "thinking" : open ? "welcome" : launcherMood
 
   return (
-    <div className={`xiaobai-float ${dragging ? "is-dragging" : ""}`} style={{ right: floatAnchor.right, bottom: floatAnchor.bottom }}>
+    <div className={`xiaobai-float ${dragging ? "is-dragging" : ""} ${burrowing ? "is-burrowing" : ""}`} style={{ right: floatAnchor.right, bottom: floatAnchor.bottom }}>
       {open && !minimized && (
         <section className="xiaobai-panel" style={panelPosition} aria-label="小白AI浮动问答">
           <header className="xiaobai-panel-head">
@@ -475,7 +499,7 @@ export function FloatingChat() {
       <button
         ref={launcherRef}
         type="button"
-        className={`xiaobai-launcher ${open && !minimized ? "is-open" : ""} ${hasProgress ? "has-progress" : ""} ${walking ? "is-walking" : ""}`}
+        className={`xiaobai-launcher ${open && !minimized ? "is-open" : ""} ${hasProgress ? "has-progress" : ""} ${walking ? "is-walking" : ""} ${burrowing ? "is-burrowing" : ""} is-${liveMood}`}
         onPointerDown={handleLauncherPointerDown}
         onPointerMove={handleLauncherPointerMove}
         onPointerUp={finishLauncherDrag}
@@ -490,11 +514,19 @@ export function FloatingChat() {
         )}
         <span className="xiaobai-scan-ring" />
         <span className="xiaobai-scan-ring is-second" />
+        <span className="xiaobai-bagua" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+          <i />
+        </span>
+        <span className="xiaobai-burrow-flash" aria-hidden="true" />
+        <span className="xiaobai-peek-curtain" aria-hidden="true" />
         <span className="xiaobai-orbit" aria-hidden="true">
           <i />
         </span>
         <span className="xiaobai-body">
-          <XiaobaiMascot size={86} mood={open ? "happy" : launcherMood} />
+          <XiaobaiMascot size={86} mood={open ? "happy" : liveMood} />
         </span>
         <span className="xiaobai-footsteps" aria-hidden="true">
           <i />
@@ -523,6 +555,9 @@ export function FloatingChat() {
         }
         .xiaobai-float.is-dragging {
           transition: none;
+        }
+        .xiaobai-float.is-burrowing {
+          transition: right 0.36s cubic-bezier(.16,1,.3,1), bottom 0.36s cubic-bezier(.16,1,.3,1);
         }
         .xiaobai-panel {
           position: fixed;
@@ -749,6 +784,15 @@ export function FloatingChat() {
         .xiaobai-launcher.is-walking .xiaobai-body {
           animation: xiaobaiWalkBody 0.46s ease-in-out infinite;
         }
+        .xiaobai-launcher.is-burrowing .xiaobai-body {
+          animation: xiaobaiBurrowBody 1.24s cubic-bezier(.16,1,.3,1) both;
+        }
+        .xiaobai-launcher.is-sleeping .xiaobai-body {
+          animation: xiaobaiDozeBody 3.2s ease-in-out infinite;
+        }
+        .xiaobai-launcher.is-peeking .xiaobai-body {
+          animation: xiaobaiSneakPeek 2.8s ease-in-out infinite;
+        }
         .xiaobai-scan-ring {
           position: absolute;
           z-index: 1;
@@ -762,6 +806,95 @@ export function FloatingChat() {
         .xiaobai-scan-ring.is-second {
           border-color: rgba(232,201,106,0.3);
           animation-delay: 1.45s;
+        }
+        .xiaobai-launcher.is-burrowing .xiaobai-scan-ring {
+          opacity: 0;
+          animation-play-state: paused;
+        }
+        .xiaobai-bagua {
+          position: absolute;
+          z-index: 2;
+          left: 50%;
+          bottom: 4px;
+          width: 92px;
+          height: 92px;
+          border-radius: 50%;
+          border: 1px solid rgba(232,201,106,0.48);
+          transform: translateX(-50%) scale(0.42) rotate(0deg);
+          opacity: 0;
+          box-shadow: inset 0 0 24px rgba(232,201,106,0.08), 0 0 34px rgba(126,231,255,0.16);
+          pointer-events: none;
+        }
+        .xiaobai-bagua::before,
+        .xiaobai-bagua::after {
+          content: "";
+          position: absolute;
+          inset: 13px;
+          border-radius: 50%;
+          border: 1px dashed rgba(126,231,255,0.42);
+        }
+        .xiaobai-bagua::after {
+          inset: 30px;
+          border-style: solid;
+          border-color: rgba(232,201,106,0.42);
+        }
+        .xiaobai-bagua i {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 40px;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, rgba(232,201,106,0.9), transparent);
+          transform-origin: 0 50%;
+        }
+        .xiaobai-bagua i:nth-child(1) { transform: rotate(0deg) translateX(-50%); }
+        .xiaobai-bagua i:nth-child(2) { transform: rotate(45deg) translateX(-50%); }
+        .xiaobai-bagua i:nth-child(3) { transform: rotate(90deg) translateX(-50%); }
+        .xiaobai-bagua i:nth-child(4) { transform: rotate(135deg) translateX(-50%); }
+        .xiaobai-launcher.is-burrowing .xiaobai-bagua {
+          animation: xiaobaiBagua 1.24s ease-in-out both;
+        }
+        .xiaobai-burrow-flash {
+          position: absolute;
+          z-index: 3;
+          left: 50%;
+          bottom: 24px;
+          width: 15px;
+          height: 106px;
+          border-radius: 999px;
+          background: linear-gradient(180deg, transparent, rgba(126,231,255,0.9), rgba(232,201,106,0.78), transparent);
+          filter: blur(2px);
+          transform: translateX(-50%) scaleY(0.25);
+          opacity: 0;
+          pointer-events: none;
+        }
+        .xiaobai-launcher.is-burrowing .xiaobai-burrow-flash {
+          animation: xiaobaiBurrowFlash 1.24s ease-in-out both;
+        }
+        .xiaobai-launcher.is-sleeping .xiaobai-scan-ring,
+        .xiaobai-launcher.is-sleeping .xiaobai-orbit,
+        .xiaobai-launcher.is-peeking .xiaobai-orbit,
+        .xiaobai-launcher.is-burrowing .xiaobai-orbit {
+          opacity: 0;
+          animation-play-state: paused;
+        }
+        .xiaobai-peek-curtain {
+          position: absolute;
+          z-index: 3;
+          right: -8px;
+          top: 14px;
+          width: 30px;
+          height: 82px;
+          border-radius: 16px 0 0 16px;
+          background: linear-gradient(90deg, rgba(5,5,5,0.92), rgba(5,5,5,0.35), transparent);
+          border-left: 1px solid rgba(126,231,255,0.2);
+          opacity: 0;
+          transform: translateX(18px);
+          pointer-events: none;
+        }
+        .xiaobai-launcher.is-peeking .xiaobai-peek-curtain {
+          opacity: 1;
+          animation: xiaobaiCurtainPeek 2.8s ease-in-out infinite;
         }
         .xiaobai-orbit {
           position: absolute;
@@ -835,6 +968,9 @@ export function FloatingChat() {
         .xiaobai-launcher.is-walking .xiaobai-shadow {
           animation: xiaobaiWalkShadow 0.46s ease-in-out infinite;
         }
+        .xiaobai-launcher.is-burrowing .xiaobai-shadow {
+          animation: xiaobaiBurrowShadow 1.24s ease-in-out both;
+        }
         .xiaobai-footsteps {
           position: absolute;
           z-index: 3;
@@ -887,6 +1023,48 @@ export function FloatingChat() {
           25% { transform: translate(0, -9px) rotate(0deg) scaleX(1.02); }
           50% { transform: translate(4px, -1px) rotate(5deg) scaleX(0.98); }
           75% { transform: translate(0, -8px) rotate(0deg) scaleX(1.02); }
+        }
+        @keyframes xiaobaiBurrowBody {
+          0% { transform: translateY(0) scale(1) rotate(-1deg); opacity: 1; filter: blur(0); }
+          22% { transform: translateY(28px) scale(0.42) rotate(-18deg); opacity: 0.25; filter: blur(1px); }
+          36% { transform: translateY(34px) scale(0.18) rotate(-28deg); opacity: 0; filter: blur(3px); }
+          58% { transform: translateY(-34px) scale(0.18) rotate(22deg); opacity: 0; filter: blur(3px); }
+          78% { transform: translateY(-9px) scale(1.16) rotate(8deg); opacity: 1; filter: blur(0); }
+          100% { transform: translateY(0) scale(1) rotate(-1deg); opacity: 1; filter: blur(0); }
+        }
+        @keyframes xiaobaiBagua {
+          0% { transform: translateX(-50%) scale(0.26) rotate(0deg); opacity: 0; }
+          18% { transform: translateX(-50%) scale(1.04) rotate(90deg); opacity: 0.95; }
+          52% { transform: translateX(-50%) scale(0.72) rotate(270deg); opacity: 0.72; }
+          78% { transform: translateX(-50%) scale(1.16) rotate(430deg); opacity: 0.9; }
+          100% { transform: translateX(-50%) scale(1.45) rotate(560deg); opacity: 0; }
+        }
+        @keyframes xiaobaiBurrowFlash {
+          0%, 18% { transform: translateX(-50%) scaleY(0.1); opacity: 0; }
+          32% { transform: translateX(-50%) scaleY(1); opacity: 0.88; }
+          55% { transform: translateX(-50%) scaleY(0.35); opacity: 0.12; }
+          70% { transform: translateX(-50%) scaleY(1.14); opacity: 0.95; }
+          100% { transform: translateX(-50%) scaleY(0.2); opacity: 0; }
+        }
+        @keyframes xiaobaiBurrowShadow {
+          0% { transform: translateX(-50%) scale(1); opacity: 0.74; }
+          28% { transform: translateX(-50%) scale(0.18); opacity: 0.1; }
+          58% { transform: translateX(-50%) scale(0.24); opacity: 0.12; }
+          82% { transform: translateX(-50%) scale(1.3); opacity: 0.52; }
+          100% { transform: translateX(-50%) scale(1); opacity: 0.74; }
+        }
+        @keyframes xiaobaiDozeBody {
+          0%, 100% { transform: translate(2px, 3px) rotate(-7deg) scale(0.98); }
+          45% { transform: translate(4px, 6px) rotate(-9deg) scale(0.95); }
+        }
+        @keyframes xiaobaiSneakPeek {
+          0%, 100% { transform: translateX(0) rotate(-1deg); }
+          34% { transform: translateX(-8px) rotate(-5deg); }
+          62% { transform: translateX(6px) rotate(4deg); }
+        }
+        @keyframes xiaobaiCurtainPeek {
+          0%, 100% { transform: translateX(22px); opacity: 0; }
+          24%, 72% { transform: translateX(0); opacity: 1; }
         }
         @keyframes xiaobaiScan {
           0% { transform: scale(0.54); opacity: 0; }

@@ -223,7 +223,11 @@ export function StartClient() {
 const mainStyle: CSSProperties = {
   maxWidth: 700,
   margin: "0 auto",
-  padding: "56px clamp(16px,5vw,40px) 92px",
+  minHeight: "calc(100vh - 76px)",
+  padding: "36px clamp(16px,5vw,40px) 72px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
 }
 
 const panelStyle: CSSProperties = {

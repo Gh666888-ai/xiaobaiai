@@ -507,7 +507,7 @@ export function NavBar() {
           background: rgba(201,168,76,0.05);
         }
         .site-menu-button {
-          display: inline-flex;
+          display: none;
           width: 38px;
           height: 38px;
           border-radius: 10px;
@@ -573,6 +573,9 @@ export function NavBar() {
           }
           .site-nav-links {
             display: none;
+          }
+          .site-menu-button {
+            display: inline-flex;
           }
           .desktop-level {
             display: none;
