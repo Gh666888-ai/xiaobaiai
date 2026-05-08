@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import Link from "next/link"
-import { ArrowRight, Bot, CheckCircle2, LogIn, Route } from "lucide-react"
+import { Search } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
 import { useAuth } from "@/lib/AuthContext"
 import { getNextLevel } from "@/data/user"
@@ -14,12 +13,6 @@ const SYMBOLS = [
   "Θ", "Λ", "Φ", "Ξ", "Π", "Υ", "Ψ", "Ω",
   "+", "-", "×", "÷", "=", "≠", "<", ">", "≤", "≥",
   "∑", "∏", "∫", "∮", "∴", "∵", "⊥", "∥",
-]
-
-const agentSteps = [
-  { icon: <Bot size={18} />, title: "先问你", desc: "行业、岗位、想用 AI 做成什么。" },
-  { icon: <Route size={18} />, title: "再规划", desc: "该学哪些工具，先做哪个任务。" },
-  { icon: <CheckCircle2 size={18} />, title: "会检查", desc: "根据进度提醒下一步，后期看截图确认。" },
 ]
 
 export default function HomePage() {
@@ -123,48 +116,37 @@ export default function HomePage() {
             {pulseText}
           </div>
 
-          <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap", opacity: 0, animation: "fadeUp 0.8s ease forwards 1.18s" }}>
-            {user ? (
-              <Link href="/start" className="btn-primary" style={{ minHeight: 52, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
-                进入小白规划 <ArrowRight size={15} />
-              </Link>
-            ) : (
-              <Link href="/login?redirect=/start" className="btn-primary" style={{ minHeight: 52, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
-                注册登录 <LogIn size={15} />
-              </Link>
-            )}
-            <button type="button" onClick={() => window.dispatchEvent(new Event("xiaobai:open-chat"))} className="btn-outline" style={{ minHeight: 52, display: "inline-flex", alignItems: "center", gap: 8 }}>
-              点右下角小白 <Bot size={15} />
-            </button>
-          </div>
+          <section style={{ maxWidth: 680, margin: "0 auto", border: "1px solid rgba(201,168,76,0.18)", background: "rgba(6,6,6,0.66)", borderRadius: 12, padding: "22px clamp(16px,4vw,26px)", textAlign: "left", opacity: 0, animation: "fadeUp 0.8s ease forwards 1.18s" }}>
+            <p style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950, marginBottom: 10 }}>小白：</p>
+            <p style={{ color: "#fff", fontSize: "clamp(17px,2.4vw,22px)", lineHeight: 1.75, fontWeight: 850, marginBottom: 12 }}>
+              {user ? "我已经在右下角了。点我一下，告诉我你的行业和想做成的事，我来给你排下一步。" : "先跟我打个招呼也行。你还没登录时，我会先带你去注册；登录后，我会记住你的行业和任务进度。"}
+            </p>
+            <p style={{ color: "#9b9b9b", fontSize: 13, lineHeight: 1.8 }}>
+              我不会让你先看一堆教程。你说目标，我问清楚，再把工具、教程和任务按顺序给你。
+            </p>
+          </section>
 
           <p style={{ marginTop: 14, color: "#8e7d4b", fontSize: 12, lineHeight: 1.75, opacity: 0, animation: "fadeUp 0.8s ease forwards 1.28s" }}>
             {user ? `欢迎回来，${user.name} · ${homeXPLabel}` : "注册后小白会记住你的行业、目标和任务进度"}
           </p>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 10, margin: "42px auto 0", maxWidth: 780, opacity: 0, animation: "fadeUp 0.8s ease forwards 1.38s" }} className="home-agent-grid">
-            {agentSteps.map((item, index) => (
-              <div key={item.title} style={{ border: "1px solid rgba(201,168,76,0.16)", background: "rgba(6,6,6,0.72)", borderRadius: 10, padding: "17px 17px", textAlign: "left", minHeight: 128 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 13 }}>
-                  <span style={{ color: "#e8c96a", display: "inline-flex" }}>{item.icon}</span>
-                  <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#4b4b4b", fontSize: 12, fontWeight: 950 }}>0{index + 1}</span>
-                </div>
-                <h2 style={{ color: "#fff", fontSize: 16, fontWeight: 950, marginBottom: 8 }}>{item.title}</h2>
-                <p style={{ color: "#999", fontSize: 12, lineHeight: 1.7 }}>{item.desc}</p>
-              </div>
-            ))}
-          </div>
+          <form action="/search" style={{ display: "flex", alignItems: "center", background: "rgba(8,8,8,0.86)", border: "1px solid rgba(201,168,76,0.22)", borderRadius: 10, maxWidth: 620, margin: "24px auto 0", opacity: 0, animation: "fadeUp 0.8s ease forwards 1.32s" }}>
+            <Search size={15} style={{ marginLeft: 14, color: "#777", flexShrink: 0 }} />
+            <input
+              name="q"
+              type="search"
+              placeholder="搜索教程、资讯、工具：Claude Code、AI PPT、Dify、绘图"
+              style={{ flex: 1, background: "transparent", border: "none", outline: "none", padding: "12px 14px", fontSize: 13, fontWeight: 600, color: "#fff", fontFamily: "'Noto Sans SC', sans-serif", minWidth: 0 }}
+            />
+            <button type="submit" style={{ marginRight: 6, height: 34, padding: "0 14px", borderRadius: 8, border: "1px solid #7a6230", background: "rgba(201,168,76,0.12)", color: "#e8c96a", fontSize: 12, fontWeight: 950, cursor: "pointer" }}>搜索</button>
+          </form>
+
         </div>
       </section>
 
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes expandWidth { to { width: 120px; } }
-        @media (max-width: 760px) {
-          .home-agent-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
       `}</style>
     </div>
   )

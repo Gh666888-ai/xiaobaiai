@@ -8,6 +8,7 @@ import { inferContentVisualKind } from "@/components/ContentVisual"
 import { SmartImage } from "@/components/SmartImage"
 import { screenshotImageSources, sourceLogoSources } from "@/lib/visual-assets"
 import Link from "next/link"
+import { Search } from "lucide-react"
 
 function fmt(d:string){const diff=Math.floor((Date.now()-new Date(d).getTime())/86400000);if(diff===0)return"今天";if(diff===1)return"昨天";if(diff<7)return`${diff}天前`;return d}
 const INITIAL_VISIBLE_NEWS = 8
@@ -15,6 +16,7 @@ const NEWS_LOAD_STEP = 16
 
 export default function NewsPage() {
   const [cat,setCat]=useState<NewsCategory|null>(null)
+  const [query,setQuery]=useState("")
   const [fetched,setFetched]=useState<any[]>([])
   const [visibleCount,setVisibleCount]=useState(INITIAL_VISIBLE_NEWS)
 
@@ -30,12 +32,16 @@ export default function NewsPage() {
     }
   },[])
 
-  useEffect(()=>{setVisibleCount(INITIAL_VISIBLE_NEWS)},[cat])
+  useEffect(()=>{setVisibleCount(INITIAL_VISIBLE_NEWS)},[cat,query])
 
   const sorted = useMemo(()=>{
     let r = [...news, ...fetched];if(cat)r=r.filter((n:any)=>n.category===cat)
+    const q = query.trim().toLowerCase()
+    if(q) {
+      r = r.filter((n:any) => `${n.title || ""} ${n.summary || ""} ${n.category || ""} ${n.source || ""}`.toLowerCase().includes(q))
+    }
     return r.sort((a:any,b:any)=>b.importance-a.importance||new Date(b.publishedAt).getTime()-new Date(a.publishedAt).getTime())
-  },[cat,fetched])
+  },[cat,fetched,query])
 
   return (
     <div style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
@@ -43,7 +49,19 @@ export default function NewsPage() {
       <div style={{maxWidth:1080,margin:'0 auto',padding:'60px 60px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.88)'}} className="max-sm:px-4">
         <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.4em',color:'#7a6230',marginBottom:10,fontWeight:700}}>News Feed</p>
         <h1 style={{fontSize:36,fontWeight:900,color:'#fff',marginBottom:8}}>AI 资讯</h1>
-        <p style={{fontSize:14,color:'#ccc',marginBottom:32}}>Agent 自动聚合 + 用户投稿 · 每篇内容都有站内可读摘要和视觉速览</p>
+        <p style={{fontSize:14,color:'#ccc',lineHeight:1.8,marginBottom:18}}>资讯先看“对新手有什么用”，不用一上来钻太深。想找工具、模型、教程或关键词，直接搜。</p>
+
+        <div style={{display:'flex',alignItems:'center',background:'rgba(8,8,8,0.94)',border:'1px solid #2a2a2a',borderRadius:10,maxWidth:620,marginBottom:18}}>
+          <Search size={15} style={{marginLeft:14,color:'#777',flexShrink:0}} />
+          <input
+            value={query}
+            onChange={(event)=>setQuery(event.target.value)}
+            type="search"
+            placeholder="搜索资讯：Claude Code、DeepSeek、Sora、Dify、AI PPT"
+            style={{flex:1,background:'transparent',border:'none',outline:'none',padding:'13px 14px',fontSize:13,fontWeight:600,color:'#fff',fontFamily:"'Noto Sans SC', sans-serif",minWidth:0}}
+          />
+          {query && <button type="button" onClick={()=>setQuery("")} style={{marginRight:6,height:34,padding:'0 12px',borderRadius:8,border:'1px solid #2a2a2a',background:'rgba(255,255,255,0.035)',color:'#aaa',fontSize:12,fontWeight:900,cursor:'pointer'}}>清空</button>}
+        </div>
 
         <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:32}}>
           <button onClick={()=>setCat(null)} style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:700,padding:'5px 14px',border:`1px solid ${!cat?'#7a6230':'#1a1a1a'}`,color:!cat?'#e8c96a':'#888',background:!cat?'rgba(201,168,76,0.08)':'transparent',cursor:'pointer',borderRadius:6}}>全部</button>

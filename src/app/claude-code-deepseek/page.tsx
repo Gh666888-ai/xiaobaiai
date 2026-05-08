@@ -38,8 +38,32 @@ $env:CLAUDE_CODE_SUBAGENT_MODEL="deepseek-v4-flash"
 $env:CLAUDE_CODE_EFFORT_LEVEL="max"
 claude`
 
+const installCommands = {
+  mac: `node -v
+npm -v
+npm install -g @anthropic-ai/claude-code
+claude --version`,
+  mirror: `npm install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com
+claude --version`,
+}
+
+const beginnerInstall = [
+  {
+    title: "下载 Node.js LTS",
+    desc: "打开 nodejs.org，下载 LTS 版本。Windows 用户双击安装包，一路 Next；Mac 用户下载 macOS 安装包后照提示安装。Claude Code 需要 Node.js 18+。",
+  },
+  {
+    title: "打开终端",
+    desc: "Windows 打开 PowerShell；Mac 打开 Terminal。先输入 node -v 和 npm -v，能看到版本号，说明 Node 和 npm 已经装好。",
+  },
+  {
+    title: "安装 Claude Code",
+    desc: "先用官方 npm 安装命令。如果国内下载很慢，再换成 npmmirror 镜像命令。安装完成后输入 claude --version 验证。",
+  },
+]
+
 const steps = [
-  { title: "安装 Claude Code", desc: "先确认本机 Node.js 版本和 claude 命令能正常运行，不要一开始就怀疑模型接口。" },
+  { title: "先装好 Node.js 和 Claude Code", desc: "先确认本机 node、npm、claude 三个命令都能正常运行，不要一开始就怀疑模型接口。" },
   { title: "申请 DeepSeek API Key", desc: "进入 DeepSeek 开发者平台创建 Key，保存后不要公开发送，不要写进仓库。" },
   { title: "配置 Anthropic 兼容接口", desc: "Claude Code 读取的是 ANTHROPIC_BASE_URL 和 ANTHROPIC_AUTH_TOKEN 这一组变量。" },
   { title: "从小项目开始测试", desc: "先让它读 README、总结目录、列计划，再允许它改 1 到 2 个文件。" },
@@ -95,6 +119,35 @@ export default function ClaudeCodeDeepSeekPage() {
           <Link href="/claude-code-proxy" className="btn-outline" style={{ textDecoration: "none" }}>看国内中转站教程</Link>
           <Link href="/community/post-51" className="btn-outline" style={{ textDecoration: "none" }}>看社区配置案例</Link>
         </div>
+
+        <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.045)", borderRadius: 12, padding: 22, marginBottom: 42 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <TerminalSquare size={18} style={{ color: "#e8c96a" }} />
+            <h2 style={{ color: "#fff", fontSize: 22, fontWeight: 950 }}>小白先把软件下载好</h2>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 12, marginBottom: 14 }}>
+            {beginnerInstall.map((item, index) => (
+              <div key={item.title} style={{ border: "1px solid #242424", background: "rgba(0,0,0,0.24)", borderRadius: 10, padding: "16px 18px" }}>
+                <span style={{ display: "inline-flex", width: 26, height: 26, alignItems: "center", justifyContent: "center", borderRadius: 999, background: "rgba(201,168,76,0.1)", color: "#e8c96a", fontFamily: "'JetBrains Mono',monospace", fontSize: 11, fontWeight: 950, marginBottom: 12 }}>{index + 1}</span>
+                <h3 style={{ color: "#fff", fontSize: 16, fontWeight: 950, lineHeight: 1.45, marginBottom: 7 }}>{item.title}</h3>
+                <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.75 }}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }} className="max-sm:grid-cols-1">
+            <div>
+              <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 8 }}>官方安装命令</p>
+              <CodeBlock code={installCommands.mac} />
+            </div>
+            <div>
+              <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 8 }}>国内 npm 慢时用镜像</p>
+              <CodeBlock code={installCommands.mirror} />
+            </div>
+          </div>
+          <p style={{ color: "#9f8d57", fontSize: 12, lineHeight: 1.8, marginTop: 12 }}>
+            如果 node -v 没有版本号，先别继续配置 DeepSeek，说明 Node.js 没装好或终端没有识别到环境变量。
+          </p>
+        </section>
 
         <section style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: 12, marginBottom: 38 }} className="max-sm:grid-cols-1">
           {[

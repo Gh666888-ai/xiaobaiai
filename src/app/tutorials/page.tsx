@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { Search } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 
@@ -119,8 +120,19 @@ export default function TutorialsPage() {
         <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.35em", color: "#7a6230", textTransform: "uppercase", marginBottom: 12, fontWeight: 900 }}>AI Tutorials</p>
         <h1 style={{ fontSize: 42, color: "#fff", fontWeight: 900, lineHeight: 1.22, marginBottom: 16 }}>AI教程大全：零基础学AI、AI工具教程和实战指南</h1>
         <p style={{ fontSize: 16, color: "#ccc", lineHeight: 1.9, maxWidth: 840, marginBottom: 28 }}>
-          这里把小白AI站内最适合新手的教程集中起来：先从零基础和真实目标开始，再进入 ChatGPT、DeepSeek、Kimi、豆包、Gemini、AI绘图、AI视频、AI编程、Agent 和自动化。
+          这里把小白AI站内最适合新手的教程集中起来。先搜你要做的事，不懂安装、下载、打开终端，也从第一步开始看。
         </p>
+
+        <form action="/search" style={{ display: "flex", alignItems: "center", background: "rgba(8,8,8,0.94)", border: "1px solid #2a2a2a", borderRadius: 10, maxWidth: 680, marginBottom: 24 }}>
+          <Search size={15} style={{ marginLeft: 14, color: "#777", flexShrink: 0 }} />
+          <input
+            name="q"
+            type="search"
+            placeholder="搜索教程：Claude Code 安装、Node.js、Dify 知识库、AI PPT、视频生成"
+            style={{ flex: 1, background: "transparent", border: "none", outline: "none", padding: "13px 14px", fontSize: 13, fontWeight: 600, color: "#fff", fontFamily: "'Noto Sans SC', sans-serif", minWidth: 0 }}
+          />
+          <button type="submit" style={{ marginRight: 6, height: 36, padding: "0 15px", borderRadius: 8, border: "1px solid #7a6230", background: "rgba(201,168,76,0.12)", color: "#e8c96a", fontSize: 12, fontWeight: 950, cursor: "pointer" }}>搜索</button>
+        </form>
 
         <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12, marginBottom: 42 }}>
           {quickStart.map((item) => (

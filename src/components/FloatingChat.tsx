@@ -344,11 +344,13 @@ export function FloatingChat() {
   const reminderAction = hasProgress ? "继续" : user ? "告诉小白" : "登录"
   const reminderHref = hasProgress ? `/missions/${activeMission.id}` : user ? "/chat" : `/login?redirect=${encodeURIComponent(pathname || "/start")}`
   const progressDots = hasProgress ? activeMission.steps.slice(0, 6) : []
+  const launcherSize = getLauncherSize(launcherRef.current)
+  const panelPosition = getPanelPosition(floatAnchor, launcherSize)
 
   return (
     <div className={`xiaobai-float ${dragging ? "is-dragging" : ""}`} style={{ right: floatAnchor.right, bottom: floatAnchor.bottom }}>
       {open && !minimized && (
-        <section className="xiaobai-panel" aria-label="小白AI浮动问答">
+        <section className="xiaobai-panel" style={panelPosition} aria-label="小白AI浮动问答">
           <header className="xiaobai-panel-head">
             <div className="xiaobai-head-left">
               <XiaobaiMascot size={48} mood={sending ? "thinking" : user ? "happy" : "welcome"} />
@@ -503,9 +505,9 @@ export function FloatingChat() {
           transition: none;
         }
         .xiaobai-panel {
+          position: fixed;
           width: min(420px, calc(100vw - 28px));
           height: min(680px, calc(100vh - 110px));
-          margin-bottom: 12px;
           border: 1px solid #2a1f10;
           border-radius: 18px;
           background: rgba(5,5,5,0.96);
@@ -514,6 +516,7 @@ export function FloatingChat() {
           overflow: hidden;
           display: flex;
           flex-direction: column;
+          z-index: 130;
         }
         .xiaobai-panel-head {
           display: flex;
@@ -1014,6 +1017,25 @@ function getLauncherSize(element: HTMLElement | null) {
   if (!element) return { width: 112, height: 124 }
   const rect = element.getBoundingClientRect()
   return { width: rect.width, height: rect.height }
+}
+
+function getPanelPosition(anchor: FloatAnchor, launcherSize = { width: 112, height: 124 }) {
+  if (typeof window === "undefined") return { right: 14, bottom: 150 }
+  const margin = 14
+  const panelWidth = Math.min(420, window.innerWidth - margin * 2)
+  const launcherLeft = window.innerWidth - anchor.right - launcherSize.width
+  const launcherCenter = launcherLeft + launcherSize.width / 2
+  const left = Math.min(
+    Math.max(launcherCenter - panelWidth / 2, margin),
+    Math.max(margin, window.innerWidth - panelWidth - margin),
+  )
+  const preferredBottom = anchor.bottom + launcherSize.height + 12
+  const panelHeight = Math.min(680, window.innerHeight - 110)
+  const bottom = Math.min(
+    Math.max(preferredBottom, margin),
+    Math.max(margin, window.innerHeight - panelHeight - margin),
+  )
+  return { left, bottom }
 }
 
 function clampFloatAnchor(anchor: FloatAnchor, size = { width: 112, height: 124 }): FloatAnchor {

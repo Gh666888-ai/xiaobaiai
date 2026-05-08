@@ -63,6 +63,12 @@ export default function ClaudeCodeProxyPage() {
         <p style={{ fontSize: 16, color: "#ccc", lineHeight: 1.9, maxWidth: 860, marginBottom: 24 }}>
           国内中转站可以解决网络、支付和团队统一账单问题，但 Claude Code 对接口兼容性要求更高。这个页面不推荐具体站点，而是教你判断一个中转站能不能稳定接 DeepSeek V4 跑 Claude Code。
         </p>
+        <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.045)", borderRadius: 12, padding: "16px 18px", marginBottom: 18 }}>
+          <p style={{ color: "#fff", fontSize: 14, fontWeight: 950, marginBottom: 6 }}>还没安装 Claude Code？先别配中转站。</p>
+          <p style={{ color: "#cdbb80", fontSize: 13, lineHeight: 1.8 }}>
+            先去官方接入教程，把 Node.js LTS、npm、Claude Code 安装和 <code>claude --version</code> 验证跑通，再回来填中转站地址。
+          </p>
+        </section>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 38 }}>
           <Link href="/claude-code-deepseek" className="btn-primary" style={{ textDecoration: "none" }}>先看官方接入</Link>
           <Link href="/topics/claude-code-deepseek" className="btn-outline" style={{ textDecoration: "none" }}>进入完整专题</Link>
