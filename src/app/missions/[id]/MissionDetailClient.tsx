@@ -300,12 +300,23 @@ function StepCard({
   const [screenshotName, setScreenshotName] = useState(savedProof?.screenshotName || "")
   const [screenshotDataUrl, setScreenshotDataUrl] = useState(savedProof?.screenshotDataUrl || "")
   const [screenshotError, setScreenshotError] = useState("")
+  const [guideStep, setGuideStep] = useState(0)
   const checkedCount = proofChecks.filter(Boolean).length
   const proofReady = checkedCount >= proofRule.requiredChecks
     && proofText.trim().length >= proofRule.minLength
     && (!proofRule.screenshotRequired || screenshotDataUrl.startsWith("data:image/"))
   const recommendedTools = mission.toolIds.map((id) => tools.find((tool) => tool.id === id)).filter(Boolean) as typeof tools
   const primaryTool = recommendedTools[0]
+  const guidePhases = [
+    { key: "tool", label: "准备工具", doneText: step.toolAction ? "工具已打开/下载完成" : "我知道这一步用哪个工具了" },
+    ...(step.clickPath && step.clickPath.length > 0 ? [{ key: "path", label: "按路径操作", doneText: "我已按路径走到输入位置" }] : []),
+    { key: "prompt", label: "复制提示词", doneText: "我已复制并提交给 AI" },
+    { key: "check", label: "检查结果", doneText: "我已检查结果达标" },
+    { key: "proof", label: "确认完成", doneText: "" },
+  ]
+  const currentGuideStep = Math.min(guideStep, guidePhases.length - 1)
+  const currentPhase = guidePhases[currentGuideStep]
+  const isProofPhase = currentPhase.key === "proof"
 
   useEffect(() => {
     setProofText(savedProof?.text || "")
@@ -313,6 +324,7 @@ function StepCard({
     setScreenshotName(savedProof?.screenshotName || "")
     setScreenshotDataUrl(savedProof?.screenshotDataUrl || "")
     setScreenshotError("")
+    setGuideStep(0)
   }, [mission.id, stepIndex, savedProof])
 
   async function handleScreenshot(file: File | undefined) {
@@ -330,11 +342,9 @@ function StepCard({
       setScreenshotError("截图读取失败，请换一张图片再试。")
     }
   }
-  const quickActions = [
-    step.toolAction ? `打开：${step.toolAction.label}` : "看清这一步要做什么",
-    step.prompt && step.prompt !== "这一步不需要复制提示词。先把工具打开，确认可以进入创建演示稿页面。" ? "复制提示词给 AI / 工具" : "按页面路径操作",
-    "做到完成标准后点下一步",
-  ]
+  function nextGuideStep() {
+    setGuideStep((value) => Math.min(value + 1, guidePhases.length - 1))
+  }
 
   return (
     <article style={{ border: "1px solid #2a1f10", background: "linear-gradient(180deg,rgba(201,168,76,0.075),rgba(255,255,255,0.025))", borderRadius: 14, padding: "24px clamp(18px,3vw,30px)" }}>
@@ -354,125 +364,136 @@ function StepCard({
         <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.65 }}>{step.action}</p>
       </section>
 
-      <section style={{ border: "1px solid rgba(201,168,76,0.34)", background: "rgba(201,168,76,0.065)", borderRadius: 12, padding: "15px 17px", marginBottom: 12 }}>
-        <p style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950, marginBottom: 7 }}>这一步先用什么工具</p>
-        <p style={{ color: "#fff", fontSize: 14, fontWeight: 900, lineHeight: 1.7, marginBottom: 10 }}>
-          {step.toolAction
-            ? `先点下面的「${step.toolAction.label}」，打开工具后再复制提示词。`
-            : primaryTool
-              ? `先用「${primaryTool.name}」完成这一步；如果打不开，再从下面备用工具里换一个。`
-              : "先用你已经会打开的 AI 对话工具完成这一步，比如 Kimi、DeepSeek 或豆包。"}
-        </p>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {step.toolAction && (
-            <a href={step.toolAction.href} target="_blank" rel="noreferrer" style={toolChipButtonStyle}>
-              <ExternalLink size={13} /> 立即打开：{step.toolAction.label}
-            </a>
-          )}
-          {recommendedTools.slice(0, 4).map((tool) => (
-            <Link key={tool.id} href={toolPath(tool)} style={toolChipLinkStyle}>
-              {tool.name}
-            </Link>
+      <section style={guideShellStyle}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+          {guidePhases.map((phase, index) => (
+            <span
+              key={phase.key}
+              style={{
+                border: index === currentGuideStep ? "1px solid #7a6230" : "1px solid #252525",
+                background: index < currentGuideStep ? "rgba(61,165,99,0.09)" : index === currentGuideStep ? "rgba(201,168,76,0.12)" : "rgba(255,255,255,0.025)",
+                color: index <= currentGuideStep ? "#f0d985" : "#777",
+                borderRadius: 999,
+                padding: "7px 10px",
+                fontSize: 11,
+                fontWeight: 950,
+              }}
+            >
+              {index + 1}. {phase.label}
+            </span>
           ))}
-          {recommendedTools.length === 0 && (
-            <span style={toolChipTextStyle}>Kimi</span>
-          )}
         </div>
-      </section>
+        <p style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950, marginBottom: 7 }}>当前小步：{currentPhase.label}</p>
 
-      <section style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 8, marginBottom: 12 }} className="step-action-row">
-        {quickActions.map((item, index) => (
-          <div key={item} style={{ border: "1px solid #2a2a2a", background: "rgba(255,255,255,0.028)", borderRadius: 10, padding: "11px 12px", minHeight: 70 }}>
-            <p style={{ color: "#e8c96a", fontFamily: "'JetBrains Mono',monospace", fontSize: 10, fontWeight: 950, marginBottom: 6 }}>0{index + 1}</p>
-            <p style={{ color: "#ddd", fontSize: 12, lineHeight: 1.55, fontWeight: 900 }}>{item}</p>
-          </div>
-        ))}
-      </section>
-
-      {step.toolAction && (
-        <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }} className="step-action-row">
-          <a href={step.toolAction.href} target="_blank" rel="noreferrer" style={toolButtonStyle}>
-            <ExternalLink size={15} /> {step.toolAction.label}
-          </a>
-          <div style={{ border: "1px solid #242424", borderRadius: 10, padding: "13px 14px", background: "rgba(0,0,0,0.22)" }}>
-            <p style={{ color: "#cdbb80", fontSize: 12, fontWeight: 950, lineHeight: 1.6 }}>{step.toolAction.setupText}</p>
-            <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.6, marginTop: 5 }}>{step.toolAction.readyText}</p>
-          </div>
-        </section>
-      )}
-
-      {step.clickPath && step.clickPath.length > 0 && (
-        <section style={blockStyle}>
-          <h3 style={blockTitleStyle}>点击路径</h3>
-          <div style={{ display: "flex", gap: 7, flexWrap: "wrap", alignItems: "center" }}>
-            {step.clickPath.map((item, index) => (
-              <span key={`${item}-${index}`} style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
-                <span style={{ color: "#ddd", border: "1px solid #2a2a2a", background: "rgba(255,255,255,0.035)", borderRadius: 999, padding: "7px 10px", fontSize: 12, fontWeight: 850 }}>{item}</span>
-                {index < step.clickPath!.length - 1 && <ChevronRight size={13} color="#6f6f6f" />}
-              </span>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section style={primaryBlockStyle}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", marginBottom: 10 }}>
-          <h3 style={{ ...blockTitleStyle, marginBottom: 0 }}>直接复制这一段</h3>
-          <button type="button" onClick={() => onCopy("prompt", step.prompt)} style={miniButtonStyle}>
-            {copied === "prompt" ? <Check size={13} /> : <Clipboard size={13} />} {copied === "prompt" ? "已复制" : "复制"}
-          </button>
-        </div>
-        <p style={{ color: "#bbb", fontSize: 12, lineHeight: 1.85, whiteSpace: "pre-line" }}>{step.prompt}</p>
-      </section>
-
-      <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }} className="step-action-row">
-        {step.validation && step.validation.length > 0 && (
-          <div style={primaryBlockStyle}>
-            <h3 style={blockTitleStyle}>做到这样就可以下一步</h3>
-            <div style={{ display: "grid", gap: 8 }}>{step.validation.map((item) => <CheckLine key={item}>{item}</CheckLine>)}</div>
-          </div>
-        )}
-        {step.checklist && step.checklist.length > 0 && (
-          <details style={detailsStyle}>
-            <summary style={summaryStyle}>更多提醒</summary>
-            <div style={{ display: "grid", gap: 8, marginTop: 10 }}>{step.checklist.map((item) => <CheckLine key={item}>{item}</CheckLine>)}</div>
-          </details>
-        )}
-      </section>
-
-      {step.fixPrompt && (
-        <details style={detailsStyle}>
-          <summary style={summaryStyle}>结果不好？点这里复制补救提示词</summary>
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", marginBottom: 10 }}>
-            <h3 style={{ ...blockTitleStyle, marginBottom: 0 }}>补救提示词</h3>
-            <button type="button" onClick={() => onCopy("fix", step.fixPrompt!)} style={miniButtonStyle}>
-              {copied === "fix" ? <Check size={13} /> : <Clipboard size={13} />} {copied === "fix" ? "已复制" : "复制"}
-            </button>
-          </div>
-          <p style={{ color: "#bbb", fontSize: 12, lineHeight: 1.85 }}>{step.fixPrompt}</p>
-        </details>
-      )}
-
-      {step.troubleTips && step.troubleTips.length > 0 && (
-        <details style={detailsStyle}>
-          <summary style={summaryStyle}>卡住了再看</summary>
-          <div style={{ display: "grid", gap: 9 }}>
-            {step.troubleTips.map((tip) => (
-              <div key={tip.problem} style={{ border: "1px solid #222", borderRadius: 9, padding: "11px 12px", background: "rgba(0,0,0,0.18)" }}>
-                <p style={{ color: "#fff", fontSize: 12, fontWeight: 950, marginBottom: 4 }}>{tip.problem}</p>
-                <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.65 }}>{tip.fix}</p>
+        {currentPhase.key === "tool" && (
+          <div>
+            <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.7, marginBottom: 12 }}>
+              {step.toolAction
+                ? `先点下面的「${step.toolAction.label}」。如果还没装或没注册，就先按提示完成。完成后回来点确认。`
+                : primaryTool
+                  ? `先打开「${primaryTool.name}」。如果打不开，再从备用工具里换一个。打开后回来点确认。`
+                  : "先打开一个 AI 对话工具，比如 Kimi、DeepSeek 或豆包。打开后回来点确认。"}
+            </p>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+              {step.toolAction && (
+                <a href={step.toolAction.href} target="_blank" rel="noreferrer" style={toolChipButtonStyle}>
+                  <ExternalLink size={13} /> 立即打开：{step.toolAction.label}
+                </a>
+              )}
+              {recommendedTools.slice(0, 4).map((tool) => (
+                <Link key={tool.id} href={toolPath(tool)} style={toolChipLinkStyle}>
+                  {tool.name}
+                </Link>
+              ))}
+              {recommendedTools.length === 0 && <span style={toolChipTextStyle}>Kimi / DeepSeek / 豆包</span>}
+            </div>
+            {step.toolAction && (
+              <div style={quietTipStyle}>
+                <p style={{ color: "#cdbb80", fontSize: 12, fontWeight: 950, lineHeight: 1.65 }}>{step.toolAction.setupText}</p>
+                <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.65, marginTop: 5 }}>{step.toolAction.readyText}</p>
               </div>
-            ))}
+            )}
           </div>
-        </details>
-      )}
+        )}
 
-      <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.055)", borderRadius: 12, padding: "16px 18px", marginBottom: 12 }}>
-        <p style={{ color: "#888", fontSize: 11, fontWeight: 950, marginBottom: 7 }}>这一步交付物</p>
-        <p style={{ color: "#e8c96a", fontSize: 14, fontWeight: 950, lineHeight: 1.7 }}>{step.deliverable}</p>
+        {currentPhase.key === "path" && step.clickPath && (
+          <div>
+            <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.7, marginBottom: 12 }}>按下面顺序点，走到可以输入内容的位置。走到以后回来点确认。</p>
+            <div style={{ display: "flex", gap: 7, flexWrap: "wrap", alignItems: "center", marginBottom: 12 }}>
+              {step.clickPath.map((item, index) => (
+                <span key={`${item}-${index}`} style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+                  <span style={{ color: "#ddd", border: "1px solid #2a2a2a", background: "rgba(255,255,255,0.035)", borderRadius: 999, padding: "7px 10px", fontSize: 12, fontWeight: 850 }}>{item}</span>
+                  {index < step.clickPath!.length - 1 && <ChevronRight size={13} color="#6f6f6f" />}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {currentPhase.key === "prompt" && (
+          <div>
+            <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.7, marginBottom: 12 }}>复制下面这段，粘贴到刚才打开的 AI / 工具里。发出去以后回来点确认。</p>
+            <section style={primaryBlockStyle}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", marginBottom: 10 }}>
+                <h3 style={{ ...blockTitleStyle, marginBottom: 0 }}>直接复制这一段</h3>
+                <button type="button" onClick={() => onCopy("prompt", step.prompt)} style={miniButtonStyle}>
+                  {copied === "prompt" ? <Check size={13} /> : <Clipboard size={13} />} {copied === "prompt" ? "已复制" : "复制"}
+                </button>
+              </div>
+              <p style={{ color: "#bbb", fontSize: 12, lineHeight: 1.85, whiteSpace: "pre-line" }}>{step.prompt}</p>
+            </section>
+          </div>
+        )}
+
+        {currentPhase.key === "check" && (
+          <div>
+            <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.7, marginBottom: 12 }}>现在检查 AI 给你的结果。符合下面标准，再点确认。</p>
+            {step.validation && step.validation.length > 0 && (
+              <div style={primaryBlockStyle}>
+                <h3 style={blockTitleStyle}>做到这样就可以继续</h3>
+                <div style={{ display: "grid", gap: 8 }}>{step.validation.map((item) => <CheckLine key={item}>{item}</CheckLine>)}</div>
+              </div>
+            )}
+            <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.055)", borderRadius: 12, padding: "16px 18px", marginBottom: 12 }}>
+              <p style={{ color: "#888", fontSize: 11, fontWeight: 950, marginBottom: 7 }}>这一步交付物</p>
+              <p style={{ color: "#e8c96a", fontSize: 14, fontWeight: 950, lineHeight: 1.7 }}>{step.deliverable}</p>
+            </section>
+            {step.fixPrompt && (
+              <details style={detailsStyle}>
+                <summary style={summaryStyle}>结果不好？点这里复制补救提示词</summary>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", marginBottom: 10 }}>
+                  <h3 style={{ ...blockTitleStyle, marginBottom: 0 }}>补救提示词</h3>
+                  <button type="button" onClick={() => onCopy("fix", step.fixPrompt!)} style={miniButtonStyle}>
+                    {copied === "fix" ? <Check size={13} /> : <Clipboard size={13} />} {copied === "fix" ? "已复制" : "复制"}
+                  </button>
+                </div>
+                <p style={{ color: "#bbb", fontSize: 12, lineHeight: 1.85 }}>{step.fixPrompt}</p>
+              </details>
+            )}
+            {step.checklist && step.checklist.length > 0 && (
+              <details style={detailsStyle}>
+                <summary style={summaryStyle}>更多提醒</summary>
+                <div style={{ display: "grid", gap: 8, marginTop: 10 }}>{step.checklist.map((item) => <CheckLine key={item}>{item}</CheckLine>)}</div>
+              </details>
+            )}
+            {step.troubleTips && step.troubleTips.length > 0 && (
+              <details style={detailsStyle}>
+                <summary style={summaryStyle}>卡住了再看</summary>
+                <div style={{ display: "grid", gap: 9 }}>
+                  {step.troubleTips.map((tip) => (
+                    <div key={tip.problem} style={{ border: "1px solid #222", borderRadius: 9, padding: "11px 12px", background: "rgba(0,0,0,0.18)" }}>
+                      <p style={{ color: "#fff", fontSize: 12, fontWeight: 950, marginBottom: 4 }}>{tip.problem}</p>
+                      <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.65 }}>{tip.fix}</p>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            )}
+          </div>
+        )}
       </section>
-
-      <section style={{ border: "1px solid #29351f", background: "rgba(61,165,99,0.065)", borderRadius: 12, padding: "16px 18px", marginBottom: 16 }}>
+      {isProofPhase && (
+        <section style={{ border: "1px solid #29351f", background: "rgba(61,165,99,0.065)", borderRadius: 12, padding: "16px 18px", marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 10, flexWrap: "wrap" }}>
           <div>
             <p style={{ color: "#fff", fontSize: 14, fontWeight: 950, marginBottom: 5 }}>通关判定</p>
@@ -522,17 +543,31 @@ function StepCard({
             {screenshotError && <p style={{ color: "#ff9b9b", fontSize: 11, marginTop: 8 }}>{screenshotError}</p>}
           </div>
         )}
-      </section>
+        </section>
+      )}
 
-      <button
-        type="button"
-        onClick={() => onDone({ method: proofRule.method, text: proofText.trim(), checked: proofChecks, screenshotName, screenshotDataUrl, updatedAt: new Date().toISOString() })}
-        disabled={!proofReady}
-        className="btn-primary"
-        style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12, opacity: proofReady ? 1 : 0.48, cursor: proofReady ? "pointer" : "not-allowed" }}
-      >
-        我完成了这一步，进入下一步 <ArrowRight size={14} />
-      </button>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+        {currentGuideStep > 0 && (
+          <button type="button" onClick={() => setGuideStep((value) => Math.max(0, value - 1))} className="btn-outline" style={{ fontSize: 12 }}>
+            返回上一个小步
+          </button>
+        )}
+        {isProofPhase ? (
+          <button
+            type="button"
+            onClick={() => onDone({ method: proofRule.method, text: proofText.trim(), checked: proofChecks, screenshotName, screenshotDataUrl, updatedAt: new Date().toISOString() })}
+            disabled={!proofReady}
+            className="btn-primary"
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12, opacity: proofReady ? 1 : 0.48, cursor: proofReady ? "pointer" : "not-allowed" }}
+          >
+            我完成了这一步，进入下一步 <ArrowRight size={14} />
+          </button>
+        ) : (
+          <button type="button" onClick={nextGuideStep} className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12 }}>
+            {currentPhase.doneText} <ArrowRight size={14} />
+          </button>
+        )}
+      </div>
     </article>
   )
 }
@@ -619,6 +654,21 @@ const primaryBlockStyle: CSSProperties = {
   borderRadius: 12,
   padding: "15px 17px",
   marginBottom: 12,
+}
+
+const guideShellStyle: CSSProperties = {
+  border: "1px solid rgba(201,168,76,0.34)",
+  background: "rgba(201,168,76,0.055)",
+  borderRadius: 12,
+  padding: "16px 18px",
+  marginBottom: 14,
+}
+
+const quietTipStyle: CSSProperties = {
+  border: "1px solid #242424",
+  borderRadius: 10,
+  padding: "13px 14px",
+  background: "rgba(0,0,0,0.22)",
 }
 
 const detailsStyle: CSSProperties = {
