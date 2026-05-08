@@ -83,6 +83,12 @@ export function FloatingChat() {
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const hideOnFullChat = pathname === "/chat" || pathname === "/login"
+  const hideOnFocusedFlow =
+    pathname === "/start" ||
+    pathname === "/missions" ||
+    pathname?.startsWith("/missions/") ||
+    pathname === "/learn" ||
+    pathname?.startsWith("/learn/")
 
   useEffect(() => {
     const openChat = () => {
@@ -163,7 +169,7 @@ export function FloatingChat() {
     }
   }
 
-  if (hideOnFullChat) return null
+  if (hideOnFullChat || hideOnFocusedFlow) return null
 
   const activeMission = missions.find((mission) => mission.id === missionProgress.activeMissionId) || missions[0]
   const activeProgress = getStoredMission(missionProgress, activeMission.id)
@@ -280,22 +286,6 @@ export function FloatingChat() {
             </div>
           </>
         </section>
-      )}
-
-      {!open && (
-        <button
-          type="button"
-          className="xiaobai-continue-tip"
-          onClick={() => {
-            setHasSavedMissionProgress(Boolean(window.localStorage.getItem(MISSION_PROGRESS_KEY)))
-            setMissionProgress(readMissionProgress())
-            setOpen(true)
-            setMinimized(false)
-          }}
-        >
-          <span>小白提醒</span>
-          <strong>{hasProgress ? `继续：${nextStep}` : "先选一个今天能完成的任务"}</strong>
-        </button>
       )}
 
       <button
@@ -610,33 +600,6 @@ export function FloatingChat() {
           padding: 11px 14px;
           cursor: pointer;
           backdrop-filter: blur(14px);
-        }
-        .xiaobai-continue-tip {
-          width: min(292px, calc(100vw - 28px));
-          margin: 0 0 10px auto;
-          border: 1px solid rgba(201,168,76,0.38);
-          border-radius: 14px;
-          background: rgba(5,5,5,0.9);
-          color: #fff;
-          box-shadow: 0 16px 44px rgba(0,0,0,0.5);
-          backdrop-filter: blur(14px);
-          padding: 10px 12px;
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 4px;
-          cursor: pointer;
-          text-align: left;
-        }
-        .xiaobai-continue-tip span {
-          color: #c9a84c;
-          font-size: 11px;
-          font-weight: 950;
-        }
-        .xiaobai-continue-tip strong {
-          color: #f5f5f5;
-          font-size: 12px;
-          line-height: 1.45;
         }
         .xiaobai-launcher.is-open {
           border-color: #2a2a2a;
