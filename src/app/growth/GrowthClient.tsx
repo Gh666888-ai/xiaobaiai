@@ -68,8 +68,8 @@ function missionDoneKey(mission: { id: string; cadence?: string }, today: string
 function levelBadge(xp: number) {
   if (xp >= 1200) return { title: "高阶身份已点亮", subtitle: "名牌、边框和主页装饰开始压场", color: "#e8c96a", mood: "complete" as const }
   if (xp >= 700) return { title: "装饰权益已开启", subtitle: "社区里会比普通用户更显眼", color: "#3DA563", mood: "recommend" as const }
-  if (xp >= 360) return { title: "第一波爽点已到手", subtitle: "继续通关，下一档装饰会叠加", color: "#e8c96a", mood: "happy" as const }
-  if (xp >= 120) return { title: "快到第一个爽点", subtitle: "冲到 LV3 先拿钻石头像框体验", color: "#c9a84c", mood: "thinking" as const }
+  if (xp >= 360) return { title: "第一阶段奖励已到手", subtitle: "继续通关，下一档装饰会叠加", color: "#e8c96a", mood: "happy" as const }
+  if (xp >= 120) return { title: "快到第一个奖励", subtitle: "冲到 LV3 先拿钻石头像框体验", color: "#c9a84c", mood: "thinking" as const }
   return { title: "新手开局", subtitle: "第一天目标：冲 LV3，拿钻石头像框体验", color: "#c9a84c", mood: "welcome" as const }
 }
 
@@ -87,7 +87,6 @@ export default function GrowthClient() {
   const [learnDone, setLearnDone] = useState(0)
   const [claiming, setClaiming] = useState("")
   const [notice, setNotice] = useState("")
-  const [registeredUsers, setRegisteredUsers] = useState<number | null>(null)
   const [dailyLeaders, setDailyLeaders] = useState<LeaderboardUser[]>([])
   const [weeklyLeaders, setWeeklyLeaders] = useState<LeaderboardUser[]>([])
   const [viewerHint, setViewerHint] = useState<ViewerLeaderboardHint | null>(null)
@@ -98,15 +97,6 @@ export default function GrowthClient() {
     const progress = readLearningProgress()
     setLearnDone(Object.values(progress).filter(Boolean).length)
   }, [user?.userId, user?.xp])
-
-  useEffect(() => {
-    fetch("/api/stats")
-      .then((res) => res.json())
-      .then((data) => {
-        if (typeof data.registeredUsers === "number") setRegisteredUsers(data.registeredUsers)
-      })
-      .catch(() => undefined)
-  }, [])
 
   useEffect(() => {
     const token = readAppAuth()?.session?.access_token
@@ -127,6 +117,7 @@ export default function GrowthClient() {
   const doneCount = missions.filter((mission) => state.doneMissions[missionDoneKey(mission, today)]).length
   const currentLevel = LEVELS.slice().reverse().find((item) => state.xp >= item.minXP) || LEVELS[0]
   const nextLevel = LEVELS.find((item) => item.minXP > state.xp)
+  const displayXP = nextLevel ? state.xp : LEVELS[LEVELS.length - 1]?.minXP || state.xp
   const badge = levelBadge(state.xp)
   const levelBaseXP = currentLevel.minXP
   const levelNextXP = nextLevel?.minXP || Math.max(currentLevel.minXP + 1, state.xp)
@@ -335,9 +326,9 @@ export default function GrowthClient() {
         <section style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: 10, marginBottom: 18 }} className="max-sm:grid-cols-2">
           {[
             { icon: <Trophy size={18} />, label: "等级", value: `LV.${currentLevel.level} ${currentLevel.name}` },
-            { icon: <Sparkles size={18} />, label: "经验值", value: `${state.xp} XP` },
+            { icon: <Sparkles size={18} />, label: "成长积分", value: nextLevel ? `${displayXP} XP` : "已达最高档" },
             { icon: <Flame size={18} />, label: "连续打卡", value: `${state.streak} 天` },
-            { icon: <CheckCircle2 size={18} />, label: registeredUsers === null ? "今日任务" : "注册用户", value: registeredUsers === null ? `${doneCount}/${missions.length}` : `${registeredUsers} 人` },
+            { icon: <CheckCircle2 size={18} />, label: "今日任务", value: `${doneCount}/${missions.length}` },
           ].map((item) => (
             <div key={item.label} style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 18 }}>
               <div style={{ color: "#e8c96a", marginBottom: 10 }}>{item.icon}</div>
@@ -349,9 +340,9 @@ export default function GrowthClient() {
 
         <section style={{ border: "1px solid #2a1f10", borderRadius: 12, padding: 18, background: "rgba(201,168,76,0.05)", marginBottom: 18 }}>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 10, alignItems: "center" }}>
-            <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>下一关钩子</p>
+            <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>下一步目标</p>
             <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 12, fontWeight: 900 }}>
-              {nextLevel ? `${state.xp}/${nextLevel.minXP}` : `${state.xp} XP`}
+              {nextLevel ? `${displayXP}/${nextLevel.minXP}` : "最高档"}
             </p>
           </div>
               <div style={{ height: 9, background: "#111", border: "1px solid #242424", borderRadius: 999, overflow: "hidden" }}>
@@ -359,7 +350,7 @@ export default function GrowthClient() {
               </div>
               <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7, marginTop: 10 }}>
                 当前战利品：{currentLevel.reward.vanity}
-                {nextLevel ? ` 下一关再拿 ${nextLevel.minXP - state.xp} XP，解锁 LV.${nextLevel.level} ${nextLevel.name}：${nextLevel.reward.title}。` : " 你已经点亮最高身份。"}
+                {nextLevel ? ` 下一步再拿 ${nextLevel.minXP - state.xp} XP，解锁 LV.${nextLevel.level} ${nextLevel.name}：${nextLevel.reward.title}。` : " 你已经点亮最高身份。"}
               </p>
         </section>
 
@@ -474,16 +465,29 @@ export default function GrowthClient() {
         </div>
 
         <section style={{ marginTop: 18, border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 20 }}>
-          <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, marginBottom: 14 }}>段位奖励预告</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
-            {LEVELS.map((item) => (
-              <div key={item.level} style={{ border: `1px solid ${state.xp >= item.minXP ? item.color : "#242424"}`, borderRadius: 10, background: state.xp >= item.minXP ? `${item.color}12` : "rgba(0,0,0,0.24)", padding: "14px 15px" }}>
-                <p style={{ color: state.xp >= item.minXP ? item.accent : "#aaa", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>LV.{item.level} {item.name}</p>
-                <p style={{ color: state.xp >= item.minXP ? item.accent : "#bbb", fontSize: 12, fontWeight: 950, lineHeight: 1.55, marginBottom: 5 }}>{item.reward.title}</p>
-                <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginBottom: 8 }}>{item.reward.vanity}</p>
-                <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10 }}>{item.minXP} XP 解锁</p>
+          <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, marginBottom: 14 }}>当前档案</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }} className="max-sm:grid-cols-1">
+            <div style={{ border: `1px solid ${currentLevel.color}`, borderRadius: 10, background: `${currentLevel.color}12`, padding: "14px 15px" }}>
+              <p style={{ color: currentLevel.accent, fontSize: 13, fontWeight: 950, marginBottom: 6 }}>当前等级 · LV.{currentLevel.level} {currentLevel.name}</p>
+              <p style={{ color: currentLevel.accent, fontSize: 12, fontWeight: 950, lineHeight: 1.55, marginBottom: 5 }}>{currentLevel.reward.title}</p>
+              <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginBottom: 8 }}>{currentLevel.reward.vanity}</p>
+              <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10 }}>{currentLevel.minXP} XP 起解锁</p>
+            </div>
+            {nextLevel ? (
+              <div style={{ border: "1px solid #242424", borderRadius: 10, background: "rgba(0,0,0,0.24)", padding: "14px 15px" }}>
+                <p style={{ color: "#aaa", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>下一级预览 · LV.{nextLevel.level} {nextLevel.name}</p>
+                <p style={{ color: "#bbb", fontSize: 12, fontWeight: 950, lineHeight: 1.55, marginBottom: 5 }}>{nextLevel.reward.title}</p>
+                <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginBottom: 8 }}>{nextLevel.reward.vanity}</p>
+                <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10 }}>还差 {nextLevel.minXP - state.xp} XP</p>
               </div>
-            ))}
+            ) : (
+              <div style={{ border: "1px solid #2a1f10", borderRadius: 10, background: "rgba(201,168,76,0.045)", padding: "14px 15px" }}>
+                <p style={{ color: "#d6c28a", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>下一步</p>
+                <p style={{ color: "#fff", fontSize: 12, fontWeight: 950, lineHeight: 1.55, marginBottom: 5 }}>保持最高档</p>
+                <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginBottom: 8 }}>继续完成任务、发布复盘和参与共建，保留高阶身份展示。</p>
+                <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10 }}>已达最高档</p>
+              </div>
+            )}
           </div>
         </section>
       </main>

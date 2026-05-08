@@ -31,11 +31,11 @@ const levelNames = [
   "星环领航员",
   "曜石架构师",
   "皇冠导师",
-  "小白AI合伙人",
-  "AI宇宙领主",
-  "超神任务王",
-  "天启Agent主",
-  "小白AI共创神",
+  "小白AI共创伙伴",
+  "AI项目实践者",
+  "高级任务导师",
+  "Agent实践导师",
+  "小白AI共创导师",
 ]
 
 function minXPForLevel(level: number) {
@@ -78,27 +78,27 @@ function descForLevel(level: number) {
   if (level <= 14) return "复盘和流程开始沉淀，别人能看见你的方法。"
   if (level <= 17) return "能搭建知识库、自动化和多步任务，进入高阶玩家区。"
   if (level <= 18) return "能指挥 Agent 完成项目级交付，身份开始压场。"
-  return "小白AI核心共创身份，站内最高段位之一；未来共创收益计划优先候选席位，以正式规则为准。"
+  return "小白AI核心共创身份，代表长期完成任务、复盘和共建内容的高阶用户。"
 }
 
 function rewardForLevel(level: number): LevelReward {
   if (level >= 19) return {
-    title: "终局钩子：小白AI共创神",
-    vanity: "专属共创神名牌、终极头像框、社区置顶身份、内测优先席位；小白AI网站后期若启动盈利后的共创收益计划，本身份将作为优先候选权益池，具体范围、条件和发放规则以后续正式公告为准",
+    title: "小白AI共创导师身份",
+    vanity: "专属共创导师名牌、共创头像框、优先参与内测和内容共建；具体权益以后续正式公告为准",
   }
-  if (level >= 18) return { title: "天启Agent主装饰", vanity: "动态主页光效、Agent 指挥官名牌、评论区高亮边框" }
-  if (level >= 17) return { title: "超神任务王边框", vanity: "钻石动态边框、任务王称号、复盘卡片高级装饰" }
+  if (level >= 18) return { title: "Agent实践导师身份", vanity: "高阶身份名牌、Agent 实战标识、评论区高亮边框" }
+  if (level >= 17) return { title: "高级任务导师边框", vanity: "高级头像框、任务导师称号、复盘卡片装饰" }
   if (level >= 15) return { title: "皇冠导师身份", vanity: "皇冠名牌、导师标识、社区评论金色描边" }
   if (level >= 12) return { title: "曜石个性装饰", vanity: "曜石头像框、主页身份条、任务复盘卡片装饰" }
   if (level >= 8) return { title: "金色发光名牌", vanity: "金色等级名牌、评论区等级展示、个人主页进度条发光" }
   if (level >= 7) return { title: "下一章：星耀名牌体验", vanity: "星耀名牌 7 天体验、评论区高亮试用、主页身份条预览" }
-  if (level >= 6) return { title: "爽点加码：钻石边框体验", vanity: "钻石头像框 5 天体验、任务完成动效增强、昵称旁等级闪光" }
+  if (level >= 6) return { title: "钻石边框体验", vanity: "钻石头像框 5 天体验、任务完成动效增强、昵称旁等级闪光" }
   if (level >= 5) return { title: "铂金执行官名牌", vanity: "铂金名牌 5 天体验、社区昵称旁身份牌、复盘卡片装饰试用" }
   if (level >= 4) return { title: "双体验加成", vanity: "钻石头像框体验延长 2 天，再加评论区高亮 2 天体验" }
-  if (level >= 3) return { title: "第一波爽点：钻石头像框", vanity: "发放钻石头像框 2 天体验，先让你在社区里亮起来" }
+  if (level >= 3) return { title: "钻石头像框体验", vanity: "发放钻石头像框 2 天体验，先让你在社区里亮起来" }
   if (level >= 2) return { title: "青铜开悟标识", vanity: "青铜身份牌 3 天体验，下一关解锁钻石头像框体验" }
   if (level >= 1) return { title: "新手点火牌", vanity: "点火徽章、任务完成动效、成长页基础展示；再做一件事就能冲 LV3" }
-  return { title: "山门钩子", vanity: "完成第一个任务后点火，第一天目标是冲到 LV3 拿钻石头像框体验" }
+  return { title: "新手起步目标", vanity: "完成第一个任务后点亮成长记录，第一天目标是冲到 LV3 拿钻石头像框体验" }
 }
 
 // 更密的等级梯子：前期每完成一个完整任务基本都能升级或接近升级。

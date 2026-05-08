@@ -83,6 +83,7 @@ export function LevelBadge({ name, xp, compact = false }: LevelBadgeProps) {
   const level = getUserLevel(xp)
   const next = getNextLevel(xp)
   const progress = next ? Math.min(100, Math.round(((xp - level.minXP) / (next.level.minXP - level.minXP)) * 100)) : 100
+  const xpLabel = next ? `${xp} XP` : "已达最高档"
   const visual = badgeStyles[level.level] || badgeStyles[0]
   const Icon = visual.icon
   const isHigh = level.level >= 4
@@ -91,7 +92,7 @@ export function LevelBadge({ name, xp, compact = false }: LevelBadgeProps) {
 
   return (
     <span
-      title={`${level.name} · ${xp} XP · ${level.desc}${next ? ` · 距离 ${next.level.name} 还差 ${next.need} XP` : " · 已达最高身份"}`}
+      title={`${level.name} · ${xpLabel} · ${level.desc}${next ? ` · 距离 ${next.level.name} 还差 ${next.need} XP` : " · 已达最高档"}`}
       style={{
         display: "inline-flex",
         alignItems: "center",

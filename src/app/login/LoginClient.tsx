@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/AuthContext"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Gift, MessageCircle, Timer, Trophy, Zap } from "lucide-react"
+import { getNextLevel } from "@/data/user"
 
 function timeoutMessage(stage: string) {
   return `${stage}响应超时，请检查网络后再试。`
@@ -54,6 +55,7 @@ export default function LoginPage() {
   const [err, setErr] = useState("")
   const [notice, setNotice] = useState("")
   const [busy, setBusy] = useState(false)
+  const loggedInXPLabel = user ? (getNextLevel(user.xp) ? `${user.xp} XP` : "已达最高档") : ""
 
   useEffect(() => {
     setErr("")
@@ -109,7 +111,7 @@ export default function LoginPage() {
       <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid #1a1a1a", borderRadius: 14, padding: 42, maxWidth: 420, width: "100%", textAlign: "center" }}>
         <p style={{ fontSize: 36, marginBottom: 16 }}>小白AI</p>
         <h2 style={{ fontSize: 20, fontWeight: 800, color: "#fff", marginBottom: 4 }}>{user.name}</h2>
-        <p style={{ fontSize: 13, color: "#c9a84c", marginTop: 8 }}>已登录 · {user.xp} XP</p>
+        <p style={{ fontSize: 13, color: "#c9a84c", marginTop: 8 }}>已登录 · {loggedInXPLabel}</p>
         <p style={{ fontSize: 12, color: "#777", marginTop: 8 }}>{user.email}</p>
         <div style={{ textAlign: "left", marginTop: 24, fontSize: 12, color: "#999", lineHeight: 2, background: "rgba(255,255,255,0.02)", border: "1px solid #1a1a1a", borderRadius: 10, padding: 18 }}>
           <p style={{ color: "#e8c96a", fontWeight: 800, marginBottom: 8, fontSize: 13 }}>账号可以做什么</p>
@@ -183,7 +185,7 @@ export default function LoginPage() {
           <div style={{ background: "rgba(201,168,76,0.04)", border: "1px solid #2a1f10", borderRadius: 10, padding: "12px 14px" }}>
             <p style={{ fontSize: 12, color: "#d6c28a", lineHeight: 1.7 }}>
               <Zap size={13} style={{ display: "inline", verticalAlign: "-2px", marginRight: 4 }} />
-              登录后会回到原页面。注册用户可以领礼包、做任务、发帖评论冲今日经验榜。
+              登录后会回到原页面。账号会记录礼包、任务、发帖评论和今日经验榜进度。
             </p>
           </div>
 

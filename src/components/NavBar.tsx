@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation"
 import { useAuth } from "@/lib/AuthContext"
 import { LevelBadge } from "@/components/LevelBadge"
 import { XiaobaiLogo } from "@/components/XiaobaiLogo"
-import { LEVELS, getNextLevel, getUserLevel } from "@/data/user"
+import { getNextLevel, getUserLevel } from "@/data/user"
 
 const links = [
   { label: "开始", href: "/start", icon: Compass },
@@ -27,29 +27,20 @@ const moreLinks = [
   { label: "关于我们", href: "/about", icon: Building2 },
 ]
 
-const levelBenefits = [
-  "解锁成长档案，记录每日任务和在线经验",
-  "社区昵称显示星火等级，评论更有识别度",
-  "学习路径进度展示更完整，推荐更贴近新手",
-  "社区身份升级，发帖/评论显示金核徽章",
-  "Agent和工作流内容优先推荐，适合进阶用户",
-  "星环身份展示，后续优先开放高级模板",
-  "皇冠身份展示，社区高阶玩家标识",
-  "小白AI共创者身份，参与内测和共创展示",
-]
-
 export function NavBar() {
   const { user, logout } = useAuth()
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
-  const level = useMemo(() => getUserLevel(user?.xp || 0), [user?.xp])
-  const next = useMemo(() => getNextLevel(user?.xp || 0), [user?.xp])
-  const progress = next ? Math.min(100, Math.round((((user?.xp || 0) - level.minXP) / (next.level.minXP - level.minXP)) * 100)) : 100
+  const userXP = user?.xp || 0
+  const level = useMemo(() => getUserLevel(userXP), [userXP])
+  const next = useMemo(() => getNextLevel(userXP), [userXP])
+  const progress = next ? Math.min(100, Math.round(((userXP - level.minXP) / (next.level.minXP - level.minXP)) * 100)) : 100
   const xpNeed = next?.need || 0
   const idleMinutesNeed = xpNeed ? Math.ceil((xpNeed / 2) * 5) : 0
   const missionDaysNeed = xpNeed ? Math.ceil(xpNeed / 110) : 0
+  const xpLabel = next ? `${userXP} XP` : "已达最高档"
 
   useEffect(() => {
     setMenuOpen(false)
@@ -106,41 +97,53 @@ export function NavBar() {
           {user ? (
             <div className="site-profile-wrap">
               <button type="button" className="site-auth-link site-profile-button" aria-label={`${user.name} 的等级`} onClick={() => setProfileOpen((open) => !open)}>
-                <span className="desktop-level"><LevelBadge name={user.name} xp={user.xp} /></span>
-                <span className="mobile-level"><LevelBadge compact name={user.name} xp={user.xp} /></span>
+                <span className="desktop-level"><LevelBadge name={user.name} xp={userXP} /></span>
+                <span className="mobile-level"><LevelBadge compact name={user.name} xp={userXP} /></span>
               </button>
               {profileOpen && (
                 <div className="site-profile-popover">
                   <div className="profile-head">
-                    <LevelBadge compact name={user.name} xp={user.xp} />
+                    <LevelBadge compact name={user.name} xp={userXP} />
                     <div className="profile-title">
                       <p>{user.name}</p>
                       <span>{user.email}</span>
                     </div>
                   </div>
                   <div className="profile-xp-row">
-                    <span>{level.name}</span>
-                    <strong>{user.xp} XP</strong>
+                    <span>LV.{level.level} {level.name}</span>
+                    <strong>{xpLabel}</strong>
                   </div>
                   <div className="profile-progress">
                     <span style={{ width: `${progress}%` }} />
                   </div>
-                  <p className="profile-next">{next ? `距离 ${next.level.name} 还差 ${next.need} XP` : "已达最高身份，小白共创者"}</p>
+                  <p className="profile-next">{next ? `距离 LV.${next.level.level} ${next.level.name} 还差 ${next.need} XP` : "已达最高档，继续完成任务和复盘，保持共创身份。"}</p>
                   {next && (
                     <div className="profile-upgrade-hint">
                       <span>约挂机 {idleMinutesNeed} 分钟</span>
                       <span>或做 {missionDaysNeed} 天任务</span>
                     </div>
                   )}
-                  <p className="profile-benefit">当前权益：{levelBenefits[level.level] || levelBenefits[0]}</p>
-                  <div className="profile-levels" aria-label="等级图标">
-                    {LEVELS.map((item) => (
-                      <div key={item.level} className={`profile-level-item ${user.xp >= item.minXP ? "is-unlocked" : ""}`}>
-                        <LevelBadge compact name={`L${item.level}`} xp={item.minXP} />
-                        <span>{item.name}</span>
+                  <div className="profile-level-snapshot" aria-label="当前等级和下一级">
+                    <div className="profile-level-card is-current">
+                      <span>当前等级</span>
+                      <strong>LV.{level.level} {level.name}</strong>
+                      <p>{level.reward.title}</p>
+                    </div>
+                    {next ? (
+                      <div className="profile-level-card">
+                        <span>下一级预览</span>
+                        <strong>LV.{next.level.level} {next.level.name}</strong>
+                        <p>{next.level.reward.title}</p>
                       </div>
-                    ))}
+                    ) : (
+                      <div className="profile-level-card">
+                        <span>下一步</span>
+                        <strong>保持最高档</strong>
+                        <p>继续完成任务、发布复盘和参与共建。</p>
+                      </div>
+                    )}
                   </div>
+                  <p className="profile-benefit">当前权益：{level.reward.vanity}</p>
                   <div className="profile-actions">
                     <Link href="/growth" className="profile-action-primary">做任务升级</Link>
                     <button type="button" className="profile-action-ghost" onClick={() => logout()}>
@@ -329,35 +332,44 @@ export function NavBar() {
           font-size: 11px;
           font-weight: 850;
         }
-        .profile-levels {
+        .profile-level-snapshot {
           display: grid;
           grid-template-columns: repeat(2, minmax(0,1fr));
           gap: 8px;
           margin: 14px 0;
         }
-        .profile-level-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
+        .profile-level-card {
           min-width: 0;
           border: 1px solid #1f1f1f;
           border-radius: 10px;
           background: rgba(255,255,255,0.025);
-          padding: 8px;
-          opacity: 0.48;
+          padding: 10px;
         }
-        .profile-level-item.is-unlocked {
-          opacity: 1;
+        .profile-level-card.is-current {
           border-color: rgba(122,98,48,0.72);
           background: rgba(201,168,76,0.045);
         }
-        .profile-level-item span {
-          color: #ddd;
-          font-size: 11px;
-          font-weight: 850;
+        .profile-level-card span {
+          display: block;
+          color: #777;
+          font-size: 10px;
+          font-weight: 900;
+          margin-bottom: 5px;
+        }
+        .profile-level-card strong {
+          display: block;
+          color: #fff;
+          font-size: 12px;
+          font-weight: 950;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+        }
+        .profile-level-card p {
+          color: #aaa;
+          font-size: 11px;
+          line-height: 1.55;
+          margin: 6px 0 0;
         }
         .profile-actions {
           display: flex;

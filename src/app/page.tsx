@@ -9,6 +9,7 @@ import { MissionContinuePanel } from "@/components/MissionContinuePanel"
 import { NavBar } from "@/components/NavBar"
 import { useAuth } from "@/lib/AuthContext"
 import { DAILY_ONLINE_XP_CAP } from "@/data/growth"
+import { getNextLevel } from "@/data/user"
 
 const SYMBOLS = [
   "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
@@ -48,6 +49,7 @@ export default function HomePage() {
   const { user } = useAuth()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const homeXPLabel = user ? (getNextLevel(user.xp) ? `${user.xp} XP` : "已达最高档") : ""
 
   function goSearch(e?: React.KeyboardEvent) {
     if (e && e.key !== "Enter") return
@@ -164,7 +166,7 @@ export default function HomePage() {
           </div>
 
           <p style={{ marginTop: 14, color: "#9f8d57", fontSize: 12, lineHeight: 1.75, opacity: 0, animation: "fadeUp 0.8s ease forwards 1.5s" }}>
-            {user ? `欢迎回来，${user.name} · ${user.xp} XP` : "完成第一个任务 +60XP，登录后小白会记住进度"}
+            {user ? `欢迎回来，${user.name} · ${homeXPLabel}` : "完成第一个任务 +60XP，登录后小白会记住进度"}
             <span style={{ color: "#6f6f6f" }}> · 在线每天最多 {DAILY_ONLINE_XP_CAP}XP</span>
           </p>
         </div>
