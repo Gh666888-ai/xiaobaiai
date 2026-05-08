@@ -147,9 +147,9 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
             <p style={{ fontSize: 15, color: "#cfcfcf", lineHeight: 1.85, maxWidth: 850 }}>{mission.tagline}</p>
           </div>
           <div style={{ minWidth: 190, border: "1px solid #2a1f10", background: "rgba(201,168,76,0.06)", borderRadius: 12, padding: "14px 16px" }}>
-            <p style={{ color: "#888", fontSize: 11, fontWeight: 950, marginBottom: 7 }}>完整任务奖励</p>
+            <p style={{ color: "#999", fontSize: 13, fontWeight: 950, marginBottom: 7 }}>完整任务奖励</p>
             <p style={{ color: "#e8c96a", fontSize: 22, fontWeight: 950, marginBottom: 6 }}>+{mission.xp} XP</p>
-            <p style={{ color: willLevelUp ? "#3DA563" : "#aaa", fontSize: 12, lineHeight: 1.65 }}>
+            <p style={{ color: willLevelUp ? "#3DA563" : "#bbb", fontSize: 13, lineHeight: 1.65 }}>
               {willLevelUp ? `完成后可升到 LV.${nextAfterMission?.level} ${nextAfterMission?.name}` : nextLevel ? `距离 LV.${nextLevel.level.level} 还差 ${nextLevel.need} XP` : "你已到达当前最高等级"}
             </p>
           </div>
@@ -160,9 +160,9 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
               <div>
                 <p style={{ color: "#fff", fontSize: 15, fontWeight: 950, marginBottom: 5 }}>任务导图</p>
-                <p style={{ color: "#888", fontSize: 12 }}>{doneSteps}/{mission.steps.length} 步完成</p>
+                <p style={{ color: "#999", fontSize: 13 }}>{doneSteps}/{mission.steps.length} 步完成</p>
               </div>
-              <span style={{ color: "#e8c96a", fontFamily: "'JetBrains Mono',monospace", fontSize: 12, fontWeight: 950 }}>{percent}%</span>
+              <span style={{ color: "#e8c96a", fontFamily: "'JetBrains Mono',monospace", fontSize: 13, fontWeight: 950 }}>{percent}%</span>
             </div>
             <div style={{ height: 8, background: "#151515", borderRadius: 999, overflow: "hidden", marginBottom: 16 }}>
               <div style={{ height: "100%", width: `${percent}%`, background: "#c9a84c" }} />
@@ -185,12 +185,12 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
                       padding: "11px 12px",
                     }}
                   >
-                    <span style={{ width: 24, height: 24, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", background: done ? "rgba(61,165,99,0.16)" : active ? "rgba(201,168,76,0.16)" : "#121212", color: done ? "#3DA563" : active ? "#e8c96a" : "#666", fontSize: 12, fontWeight: 950 }}>
+                    <span style={{ width: 27, height: 27, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", background: done ? "rgba(61,165,99,0.16)" : active ? "rgba(201,168,76,0.16)" : "#121212", color: done ? "#3DA563" : active ? "#e8c96a" : "#666", fontSize: 13, fontWeight: 950 }}>
                       {done ? <Check size={13} /> : active ? index + 1 : <Lock size={11} />}
                     </span>
                     <div>
-                      <p style={{ color: done || active ? "#fff" : "#999", fontSize: 12, fontWeight: 950, lineHeight: 1.45 }}>{step.title}</p>
-                      {active && <p style={{ color: "#cdbb80", fontSize: 10, marginTop: 5, fontWeight: 900 }}>当前正在做</p>}
+                      <p style={{ color: done || active ? "#fff" : "#aaa", fontSize: 14, fontWeight: 950, lineHeight: 1.5 }}>{step.title}</p>
+                      {active && <p style={{ color: "#cdbb80", fontSize: 12, marginTop: 5, fontWeight: 900 }}>当前正在做</p>}
                     </div>
                   </div>
                 )
@@ -226,7 +226,7 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
                     <Link key={post.id} href={`/community/${post.id}`} style={{ border: "1px solid #242424", borderRadius: 10, background: "rgba(0,0,0,0.24)", padding: "14px 15px", textDecoration: "none", minHeight: 126 }}>
                       <p style={{ color: "#c9a84c", fontSize: 10, fontWeight: 900, marginBottom: 7 }}>{post.category}</p>
                       <h3 style={{ color: "#fff", fontSize: 13, lineHeight: 1.5, fontWeight: 950, marginBottom: 8 }}>{post.title}</h3>
-                      <p style={{ color: "#888", fontSize: 11 }}>{post.author} · {post.likes} 赞</p>
+                      <p style={{ color: "#999", fontSize: 12 }}>{post.author} · {post.likes} 赞</p>
                     </Link>
                   ))}
                 </div>
@@ -291,21 +291,21 @@ function StepCard({
   }
 
   return (
-    <article style={{ border: "1px solid #2a1f10", background: "linear-gradient(180deg,rgba(201,168,76,0.075),rgba(255,255,255,0.025))", borderRadius: 14, padding: "24px clamp(18px,3vw,30px)" }}>
+    <article style={{ border: "1px solid rgba(255,255,255,0.1)", background: "rgba(14,14,14,0.92)", borderRadius: 14, padding: "28px clamp(20px,3vw,34px)", boxShadow: "0 18px 50px rgba(0,0,0,0.28)" }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 16, alignItems: "start", marginBottom: 18 }} className="mission-step-top">
         <div>
-          <p style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950, marginBottom: 8 }}>第 {stepIndex + 1} 步 / 共 {mission.steps.length} 步</p>
+          <p style={{ color: "#e8c96a", fontSize: 14, fontWeight: 950, marginBottom: 8 }}>第 {stepIndex + 1} 步 / 共 {mission.steps.length} 步</p>
           <h2 style={{ color: "#fff", fontSize: "clamp(23px,3.5vw,32px)", fontWeight: 950, lineHeight: 1.25, marginBottom: 10 }}>{step.title}</h2>
           <p style={{ color: "#cfcfcf", fontSize: 14, lineHeight: 1.85 }}>{step.desc}</p>
         </div>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#e8c96a", fontFamily: "'JetBrains Mono',monospace", fontSize: 12, fontWeight: 950 }}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#e8c96a", fontFamily: "'Noto Sans SC',sans-serif", fontSize: 13, fontWeight: 950 }}>
           <Trophy size={15} /> +{mission.xp}XP 完整任务
         </span>
       </div>
 
-      <section style={{ border: "1px solid #242424", background: "rgba(0,0,0,0.28)", borderRadius: 12, padding: "16px 18px", marginBottom: 12 }}>
-        <p style={{ color: "#888", fontSize: 11, fontWeight: 950, marginBottom: 7 }}>先别想太多，现在只做这一件事</p>
-        <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.65 }}>{currentAction}</p>
+      <section style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.045)", borderRadius: 12, padding: "18px 20px", marginBottom: 14 }}>
+        <p style={{ color: "#9a9a9a", fontSize: 13, fontWeight: 900, marginBottom: 8 }}>先别想太多，现在只做这一件事</p>
+        <p style={{ color: "#fff", fontSize: 18, fontWeight: 950, lineHeight: 1.7 }}>{currentAction}</p>
       </section>
 
       <section style={guideShellStyle}>
@@ -318,8 +318,8 @@ function StepCard({
                 background: index < currentGuideStep ? "rgba(61,165,99,0.09)" : index === currentGuideStep ? "rgba(201,168,76,0.12)" : "rgba(255,255,255,0.025)",
                 color: index <= currentGuideStep ? "#f0d985" : "#777",
                 borderRadius: 999,
-                padding: "7px 10px",
-                fontSize: 11,
+                padding: "8px 12px",
+                fontSize: 13,
                 fontWeight: 950,
               }}
             >
@@ -327,7 +327,7 @@ function StepCard({
             </span>
           ))}
         </div>
-        <p style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950, marginBottom: 7 }}>当前小步：{currentPhase.label}</p>
+        <p style={{ color: "#e8c96a", fontSize: 14, fontWeight: 950, marginBottom: 9 }}>当前小步：{currentPhase.label}</p>
 
         {currentPhase.key === "tool" && (
           <div>
@@ -353,8 +353,8 @@ function StepCard({
             </div>
             {step.toolAction && (
               <div style={quietTipStyle}>
-                <p style={{ color: "#cdbb80", fontSize: 12, fontWeight: 950, lineHeight: 1.65 }}>{step.toolAction.setupText}</p>
-                <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.65, marginTop: 5 }}>{step.toolAction.readyText}</p>
+                <p style={{ color: "#dfca88", fontSize: 14, fontWeight: 950, lineHeight: 1.7 }}>{step.toolAction.setupText}</p>
+                <p style={{ color: "#c8c8c8", fontSize: 14, lineHeight: 1.7, marginTop: 6 }}>{step.toolAction.readyText}</p>
               </div>
             )}
           </div>
@@ -366,7 +366,7 @@ function StepCard({
             <div style={{ display: "flex", gap: 7, flexWrap: "wrap", alignItems: "center", marginBottom: 12 }}>
               {step.clickPath.map((item, index) => (
                 <span key={`${item}-${index}`} style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
-                  <span style={{ color: "#ddd", border: "1px solid #2a2a2a", background: "rgba(255,255,255,0.035)", borderRadius: 999, padding: "7px 10px", fontSize: 12, fontWeight: 850 }}>{item}</span>
+                  <span style={{ color: "#eee", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.055)", borderRadius: 999, padding: "9px 12px", fontSize: 14, fontWeight: 850 }}>{item}</span>
                   {index < step.clickPath!.length - 1 && <ChevronRight size={13} color="#6f6f6f" />}
                 </span>
               ))}
@@ -384,7 +384,7 @@ function StepCard({
                   {copied === "prompt" ? <Check size={13} /> : <Clipboard size={13} />} {copied === "prompt" ? "已复制" : "复制"}
                 </button>
               </div>
-              <p style={{ color: "#bbb", fontSize: 12, lineHeight: 1.85, whiteSpace: "pre-line" }}>{step.prompt}</p>
+              <p style={{ color: "#d7d7d7", fontSize: 15, lineHeight: 1.9, whiteSpace: "pre-line" }}>{step.prompt}</p>
             </section>
           </div>
         )}
@@ -411,8 +411,8 @@ function StepCard({
               </div>
             )}
             <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.055)", borderRadius: 12, padding: "16px 18px", marginBottom: 12 }}>
-              <p style={{ color: "#888", fontSize: 11, fontWeight: 950, marginBottom: 7 }}>这一步交付物</p>
-              <p style={{ color: "#e8c96a", fontSize: 14, fontWeight: 950, lineHeight: 1.7 }}>{step.deliverable}</p>
+              <p style={{ color: "#999", fontSize: 13, fontWeight: 950, marginBottom: 7 }}>这一步交付物</p>
+              <p style={{ color: "#e8c96a", fontSize: 15, fontWeight: 950, lineHeight: 1.75 }}>{step.deliverable}</p>
             </section>
             {step.fixPrompt && (
               <details style={detailsStyle}>
@@ -423,7 +423,7 @@ function StepCard({
                     {copied === "fix" ? <Check size={13} /> : <Clipboard size={13} />} {copied === "fix" ? "已复制" : "复制"}
                   </button>
                 </div>
-                <p style={{ color: "#bbb", fontSize: 12, lineHeight: 1.85 }}>{step.fixPrompt}</p>
+                <p style={{ color: "#d7d7d7", fontSize: 15, lineHeight: 1.9 }}>{step.fixPrompt}</p>
               </details>
             )}
             {step.checklist && step.checklist.length > 0 && (
@@ -438,8 +438,8 @@ function StepCard({
                 <div style={{ display: "grid", gap: 9 }}>
                   {step.troubleTips.map((tip) => (
                     <div key={tip.problem} style={{ border: "1px solid #222", borderRadius: 9, padding: "11px 12px", background: "rgba(0,0,0,0.18)" }}>
-                      <p style={{ color: "#fff", fontSize: 12, fontWeight: 950, marginBottom: 4 }}>{tip.problem}</p>
-                      <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.65 }}>{tip.fix}</p>
+                      <p style={{ color: "#fff", fontSize: 14, fontWeight: 950, marginBottom: 5 }}>{tip.problem}</p>
+                      <p style={{ color: "#cfcfcf", fontSize: 14, lineHeight: 1.75 }}>{tip.fix}</p>
                     </div>
                   ))}
                 </div>
@@ -450,14 +450,14 @@ function StepCard({
       </section>
       {isDonePhase && (
         <section style={{ border: "1px solid #29351f", background: "rgba(61,165,99,0.065)", borderRadius: 12, padding: "16px 18px", marginBottom: 16 }}>
-          <p style={{ color: "#fff", fontSize: 14, fontWeight: 950, marginBottom: 5 }}>确认一下就进入下一步</p>
-          <p style={{ color: "#9fcfaf", fontSize: 12, lineHeight: 1.75 }}>这是小白引导型学习任务，不需要上传截图，也不需要填证明。你确认自己已经完成当前小步，就继续往下走。</p>
+          <p style={{ color: "#fff", fontSize: 16, fontWeight: 950, marginBottom: 6 }}>确认一下就进入下一步</p>
+          <p style={{ color: "#b6dfc1", fontSize: 14, lineHeight: 1.75 }}>这是小白引导型学习任务，不需要上传截图，也不需要填证明。你确认自己已经完成当前小步，就继续往下走。</p>
         </section>
       )}
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
         {currentGuideStep > 0 && (
-          <button type="button" onClick={() => setGuideStep((value) => Math.max(0, value - 1))} className="btn-outline" style={{ fontSize: 12 }}>
+          <button type="button" onClick={() => setGuideStep((value) => Math.max(0, value - 1))} style={missionSecondaryButtonStyle}>
             返回上一个小步
           </button>
         )}
@@ -465,13 +465,12 @@ function StepCard({
           <button
             type="button"
             onClick={() => onDone({ method: "self-check", text: "", checked: [], updatedAt: new Date().toISOString() })}
-            className="btn-primary"
-            style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12 }}
+            style={missionPrimaryButtonStyle}
           >
             我完成了这一步，进入下一步 <ArrowRight size={14} />
           </button>
         ) : (
-          <button type="button" onClick={nextGuideStep} className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12 }}>
+          <button type="button" onClick={nextGuideStep} style={missionPrimaryButtonStyle}>
             {currentPhase.doneText} <ArrowRight size={14} />
           </button>
         )}
@@ -502,16 +501,16 @@ function CompleteCard({
         小白：这不是看完一篇教程，这是你真的做完了一件事。领取 XP，推进等级；发一篇复盘，把这次通关变成别人能看见的战绩。
       </p>
       <div style={{ border: "1px solid #242424", background: "rgba(0,0,0,0.26)", borderRadius: 10, padding: "14px 15px", marginBottom: 16 }}>
-        <p style={{ color: "#bbb", fontSize: 12, lineHeight: 1.75, whiteSpace: "pre-line" }}>{mission.recapTemplate}</p>
+        <p style={{ color: "#d7d7d7", fontSize: 15, lineHeight: 1.85, whiteSpace: "pre-line" }}>{mission.recapTemplate}</p>
       </div>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <button type="button" onClick={onClaim} disabled={claiming} className="btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+        <button type="button" onClick={onClaim} disabled={claiming} style={missionPrimaryButtonStyle}>
           {claiming ? "领取中..." : `领取 ${mission.xp}XP 通关奖励`} <Trophy size={14} />
         </button>
-        <button type="button" onClick={onCopy} className="btn-outline" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+        <button type="button" onClick={onCopy} style={missionSecondaryButtonStyle}>
           {copied ? <Check size={14} /> : <Clipboard size={14} />} {copied ? "已复制复盘" : "复制复盘模板"}
         </button>
-        <Link href="/community/new" className="btn-outline" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
+        <Link href="/community/new" style={{ ...missionSecondaryButtonStyle, textDecoration: "none" }}>
           发复盘 <MessageCircle size={14} />
         </Link>
       </div>
@@ -521,39 +520,39 @@ function CompleteCard({
 }
 
 const primaryBlockStyle: CSSProperties = {
-  border: "1px solid #302711",
-  background: "rgba(201,168,76,0.045)",
+  border: "1px solid rgba(255,255,255,0.09)",
+  background: "rgba(255,255,255,0.04)",
+  borderRadius: 12,
+  padding: "18px 20px",
+  marginBottom: 14,
+}
+
+const guideShellStyle: CSSProperties = {
+  border: "1px solid rgba(255,255,255,0.09)",
+  background: "rgba(255,255,255,0.035)",
+  borderRadius: 12,
+  padding: "18px 20px",
+  marginBottom: 16,
+}
+
+const quietTipStyle: CSSProperties = {
+  border: "1px solid rgba(255,255,255,0.09)",
+  borderRadius: 10,
+  padding: "14px 16px",
+  background: "rgba(255,255,255,0.035)",
+}
+
+const detailsStyle: CSSProperties = {
+  border: "1px solid rgba(255,255,255,0.09)",
+  background: "rgba(255,255,255,0.03)",
   borderRadius: 12,
   padding: "15px 17px",
   marginBottom: 12,
 }
 
-const guideShellStyle: CSSProperties = {
-  border: "1px solid rgba(201,168,76,0.34)",
-  background: "rgba(201,168,76,0.055)",
-  borderRadius: 12,
-  padding: "16px 18px",
-  marginBottom: 14,
-}
-
-const quietTipStyle: CSSProperties = {
-  border: "1px solid #242424",
-  borderRadius: 10,
-  padding: "13px 14px",
-  background: "rgba(0,0,0,0.22)",
-}
-
-const detailsStyle: CSSProperties = {
-  border: "1px solid #202020",
-  background: "rgba(0,0,0,0.18)",
-  borderRadius: 12,
-  padding: "13px 15px",
-  marginBottom: 12,
-}
-
 const summaryStyle: CSSProperties = {
   color: "#cdbb80",
-  fontSize: 13,
+  fontSize: 15,
   fontWeight: 950,
   cursor: "pointer",
   listStyle: "none",
@@ -561,7 +560,7 @@ const summaryStyle: CSSProperties = {
 
 const blockTitleStyle: CSSProperties = {
   color: "#fff",
-  fontSize: 14,
+  fontSize: 16,
   fontWeight: 950,
   marginBottom: 10,
 }
@@ -571,12 +570,12 @@ const toolChipButtonStyle: CSSProperties = {
   background: "rgba(201,168,76,0.16)",
   color: "#f2dc91",
   borderRadius: 999,
-  padding: "8px 11px",
+  padding: "10px 13px",
   display: "inline-flex",
   alignItems: "center",
   gap: 6,
   textDecoration: "none",
-  fontSize: 12,
+  fontSize: 14,
   fontWeight: 950,
 }
 
@@ -585,11 +584,11 @@ const toolChipLinkStyle: CSSProperties = {
   background: "rgba(0,0,0,0.28)",
   color: "#ddd",
   borderRadius: 999,
-  padding: "8px 11px",
+  padding: "10px 13px",
   display: "inline-flex",
   alignItems: "center",
   textDecoration: "none",
-  fontSize: 12,
+  fontSize: 14,
   fontWeight: 900,
 }
 
@@ -598,30 +597,64 @@ const toolChipTextStyle: CSSProperties = {
   background: "rgba(0,0,0,0.28)",
   color: "#ddd",
   borderRadius: 999,
-  padding: "8px 11px",
+  padding: "10px 13px",
   display: "inline-flex",
   alignItems: "center",
-  fontSize: 12,
+  fontSize: 14,
   fontWeight: 900,
 }
 
 const miniButtonStyle: CSSProperties = {
-  border: "1px solid #3a321d",
-  background: "rgba(201,168,76,0.08)",
+  border: "1px solid rgba(201,168,76,0.46)",
+  background: "rgba(201,168,76,0.12)",
   color: "#e8c96a",
   borderRadius: 8,
-  padding: "7px 10px",
+  padding: "9px 12px",
   display: "inline-flex",
   alignItems: "center",
   gap: 6,
   cursor: "pointer",
-  fontSize: 12,
+  fontSize: 14,
+  fontWeight: 950,
+}
+
+const missionPrimaryButtonStyle: CSSProperties = {
+  border: "1px solid #8f7635",
+  background: "rgba(201,168,76,0.16)",
+  color: "#f4dc8a",
+  borderRadius: 10,
+  padding: "13px 18px",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 8,
+  cursor: "pointer",
+  fontFamily: "'Noto Sans SC', sans-serif",
+  fontSize: 15,
+  fontWeight: 950,
+  letterSpacing: 0,
+  lineHeight: 1.2,
+}
+
+const missionSecondaryButtonStyle: CSSProperties = {
+  border: "1px solid rgba(255,255,255,0.14)",
+  background: "rgba(255,255,255,0.035)",
+  color: "#d7d7d7",
+  borderRadius: 10,
+  padding: "13px 18px",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 8,
+  cursor: "pointer",
+  fontFamily: "'Noto Sans SC', sans-serif",
+  fontSize: 15,
   fontWeight: 900,
+  letterSpacing: 0,
+  lineHeight: 1.2,
 }
 
 function CheckLine({ children }: { children: ReactNode }) {
   return (
-    <p style={{ display: "grid", gridTemplateColumns: "18px 1fr", gap: 8, alignItems: "start", color: "#bbb", fontSize: 12, lineHeight: 1.65 }}>
+    <p style={{ display: "grid", gridTemplateColumns: "20px 1fr", gap: 9, alignItems: "start", color: "#d5d5d5", fontSize: 14, lineHeight: 1.75 }}>
       <span style={{ width: 18, height: 18, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", background: "rgba(201,168,76,0.1)", color: "#e8c96a", marginTop: 1 }}>
         <Check size={11} />
       </span>
