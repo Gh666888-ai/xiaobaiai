@@ -118,7 +118,7 @@ export function StartClient() {
         <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.34em", color: "#7a6230", textTransform: "uppercase", marginBottom: 12, fontWeight: 900 }}>Today 0-1 Step</p>
         <h1 style={{ fontSize: 42, color: "#fff", fontWeight: 950, lineHeight: 1.22, marginBottom: 14 }}>今天先做完一个 AI 小环节</h1>
         <p style={{ fontSize: 16, color: "#ccc", lineHeight: 1.9, maxWidth: 880, marginBottom: 24 }}>
-          不用先学完整课程，也不用挑半天工具。小白先给你一个默认任务：做出一份 AI PPT 初稿的第一步。做完这一小步，系统会记住证明，再带你继续下一步。
+          不用先学完整课程，也不用挑半天工具。已经有 AI 工具也没关系，小白不只教你“一句话生成”，而是带你把资料约束、验收标准、改稿和复盘跑通。
         </p>
 
         <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.055)", borderRadius: 12, padding: "18px 20px", marginBottom: 24, display: "grid", gridTemplateColumns: "1fr auto", gap: 14, alignItems: "center" }} className="max-sm:grid-cols-1">
@@ -273,7 +273,7 @@ export function StartClient() {
             <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 12, padding: "18px 20px" }}>
               <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, marginBottom: 8 }}>第一个任务之后不会没事做</h2>
               <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.85, marginBottom: 12 }}>
-                完成 PPT 第一步后，继续生成初稿、检查空话、导出复盘；完整通关后会进入长文档分析、内容流水线、知识库 Bot、自动化和工程 Agent。学习主线会按产物解锁下一段。
+                完成第一步后，继续做需求单、生成初稿、检查事实、改掉空话、导出复盘；完整通关后会进入长文档分析、内容流水线、知识库 Bot、自动化和工程 Agent。学习主线会按产物解锁下一段。
               </p>
               <Link href="/learn" className="btn-outline" style={{ textDecoration: "none", display: "inline-flex" }}>查看深度学习主线</Link>
             </section>
