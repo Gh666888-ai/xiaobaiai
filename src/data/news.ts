@@ -97,6 +97,34 @@ Mac：打开 Terminal。
 
 然后重新执行安装命令。
 
+## 常见红字：npx.ps1 被禁止运行
+
+如果你先看到：
+
+\`changed 2 packages in 2s\`
+
+这说明 Claude Code 已经安装成功了。
+
+如果后面你又输入了：
+
+\`npx @anthropic-ai/claude-code --version\`
+
+然后出现 npx.ps1 被禁止运行，不要继续折腾 npx。
+
+原因是 PowerShell 又拦住了 npx.ps1。这里不需要 npx。
+
+直接复制这一行验证：
+
+\`claude --version\`
+
+如果提示找不到 claude，关闭 PowerShell，重新打开，再执行：
+
+\`claude --version\`
+
+如果还是找不到，再复制这一行：
+
+\`where.exe claude\`
+
 ## 第四步：确认安装成功
 
 复制这一行到终端，按回车：

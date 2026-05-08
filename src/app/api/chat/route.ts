@@ -293,13 +293,19 @@ function beginnerClaudeCodeReply(message: string) {
   const text = message.toLowerCase()
   const hasPowerShellPolicyError =
     text.includes("npm.ps1") ||
+    text.includes("npx.ps1") ||
     text.includes("禁止运行脚本") ||
     text.includes("pssecurityexception") ||
     text.includes("unauthorizedaccess") ||
     text.includes("execution_policies")
+  const hasNpxPolicyError = text.includes("npx.ps1") || text.includes("npx @anthropic-ai/claude-code")
   const aboutClaudeCode = text.includes("claude code") || text.includes("claudecode") || hasPowerShellPolicyError
-  const aboutInstall = text.includes("安装") || text.includes("下载") || text.includes("终端") || text.includes("node") || text.includes("npm") || hasPowerShellPolicyError
+  const aboutInstall = text.includes("安装") || text.includes("下载") || text.includes("终端") || text.includes("node") || text.includes("npm") || text.includes("npx") || hasPowerShellPolicyError
   if (!aboutClaudeCode || !aboutInstall) return ""
+
+  if (hasNpxPolicyError) {
+    return "这张图里的关键点：Claude Code 已经安装成功了。\n\n看到这一行就算成功：\nchanged 2 packages in 2s\n\n后面又红，是因为他用了 npx：\nnpx @anthropic-ai/claude-code --version\n\nPowerShell 又去执行 npx.ps1，所以再次被系统策略拦住。这里不需要 npx。\n\n现在让他直接复制这一行验证：\nclaude --version\n\n如果提示 claude 不是内部或外部命令，就关闭 PowerShell，重新打开，再执行：\nclaude --version\n\n如果还不行，再执行：\nwhere.exe claude\n\n这一步只是找 Claude Code 的位置，不要再用 npx。"
+  }
 
   if (hasPowerShellPolicyError && !text.includes("claude code") && !text.includes("claudecode")) {
     return "这个红字的意思很简单：Windows PowerShell 不让 npm.ps1 脚本运行。\n\n不是 Node 坏了，也不是你要安装的工具坏了。\n\n你把刚才那条命令里的 npm 改成 npm.cmd，再复制执行。\n\n比如原来是：\nnpm install -g 工具名\n\n就改成：\nnpm.cmd install -g 工具名\n\n如果还是同样红字，再复制这一行，按回车：\nSet-ExecutionPolicy -Scope CurrentUser RemoteSigned\n\n它问你确认时，输入 Y，再按回车。\n\n然后重新执行 npm.cmd 那条安装命令。"

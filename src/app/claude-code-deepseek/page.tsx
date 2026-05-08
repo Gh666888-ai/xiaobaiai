@@ -47,6 +47,8 @@ claude --version`,
 claude --version`,
   powershellPolicy: `npm.cmd install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com`,
   powershellFix: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`,
+  verify: `claude --version`,
+  locateClaude: `where.exe claude`,
 }
 
 const beginnerInstall = [
@@ -73,6 +75,7 @@ const steps = [
 
 const errors = [
   { title: "npm.ps1 被禁止运行", desc: "这是 Windows PowerShell 的执行策略拦住了 npm 脚本，不是 Node 或 Claude Code 坏了。先把命令里的 npm 改成 npm.cmd；如果还不行，再执行 Set-ExecutionPolicy -Scope CurrentUser RemoteSigned，确认输入 Y。" },
+  { title: "npx.ps1 被禁止运行", desc: "如果 npm.cmd install 后看到 changed packages，说明已经安装成功。不要再用 npx @anthropic-ai/claude-code --version，直接用 claude --version 验证；如果找不到 claude，关闭 PowerShell 重新打开。" },
   { title: "401 Unauthorized", desc: "Key 写错、复制少字符、前后有空格，或把其他平台 Key 填到了 ANTHROPIC_AUTH_TOKEN。" },
   { title: "model not found", desc: "模型名不匹配。先按官方或服务商面板写 deepseek-v4-pro[1m]、deepseek-v4-pro、deepseek-v4-flash 之一测试。" },
   { title: "请求超时", desc: "先缩小任务范围，再看网络和服务状态。大仓库第一次全量分析很容易慢。" },
@@ -160,6 +163,17 @@ export default function ClaudeCodeDeepSeekPage() {
               如果还是报同样错误，再复制下面这行，出现确认时输入 Y，然后重新执行上面的安装命令。
             </p>
             <CodeBlock code={installCommands.powershellFix} />
+          </div>
+          <div style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.045)", borderRadius: 10, padding: "14px 16px", marginTop: 14 }}>
+            <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 7 }}>如果看到 changed packages 后，npx 又报红</p>
+            <p style={{ color: "#d8c8bd", fontSize: 13, lineHeight: 1.8, marginBottom: 10 }}>
+              changed packages 表示 Claude Code 已经装好了。后面 npx 报红，是 PowerShell 拦住了 npx.ps1。这里不要再用 npx，直接复制下面这行验证。
+            </p>
+            <CodeBlock code={installCommands.verify} />
+            <p style={{ color: "#bfa795", fontSize: 12, lineHeight: 1.75, margin: "10px 0 8px" }}>
+              如果提示找不到 claude，关闭 PowerShell 重新打开再试；还不行再用下面这行查看安装位置。
+            </p>
+            <CodeBlock code={installCommands.locateClaude} />
           </div>
           <p style={{ color: "#9f8d57", fontSize: 12, lineHeight: 1.8, marginTop: 12 }}>
             如果 node -v 没有版本号，先别继续配置 DeepSeek，说明 Node.js 没装好或终端没有识别到环境变量。
