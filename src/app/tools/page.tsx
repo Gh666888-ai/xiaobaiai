@@ -38,6 +38,8 @@ const categoryIntro: Record<string, string> = {
   AI效率: "任务管理、自动化、日程、邮件、个人知识库和效率插件。",
 }
 
+const focusCategoryKeys = ["对话AI", "AI编程", "AI办公", "AI绘图", "Agent平台", "模型平台"]
+
 export default function ToolsPage() {
   const collectionJsonLd = {
     "@context": "https://schema.org",
@@ -84,12 +86,15 @@ export default function ToolsPage() {
           </form>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 12 }}>
-          {categories.map((cat) => {
+        <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 12, padding: "20px 22px", marginBottom: 18 }}>
+          <h2 style={{ fontSize: 22, color: "#fff", fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>先看这 6 个入口</h2>
+          <p style={{ fontSize: 13, color: "#aaa", lineHeight: 1.8, marginBottom: 14 }}>不要一上来翻完整工具库。先按你今天要做的事选一个方向，再进去看工具。</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,250px),1fr))", gap: 10 }}>
+          {categories.filter((cat) => focusCategoryKeys.includes(cat.key)).map((cat) => {
             const items = tools.filter((tool) => tool.category === cat.key)
             const featured = items.filter((tool) => tool.featured).slice(0, 2)
             return (
-              <Link key={cat.key} href={categoryPath(cat.key)} className="card-cat" style={{ display: "block", textDecoration: "none", background: "rgba(255,255,255,0.03)", border: "1px solid #1a1a1a", borderRadius: 12, padding: "20px 22px", minHeight: 172 }}>
+              <Link key={cat.key} href={categoryPath(cat.key)} className="card-cat" style={{ display: "block", textDecoration: "none", background: "rgba(0,0,0,0.25)", border: "1px solid #2b2618", borderRadius: 10, padding: "18px 19px", minHeight: 164 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
                   <CategoryIcon category={cat.key} size={22} />
                   <div style={{ flex: 1 }}>
@@ -105,7 +110,34 @@ export default function ToolsPage() {
               </Link>
             )
           })}
-        </div>
+          </div>
+        </section>
+
+        <details style={{ border: "1px solid #1f1f1f", background: "rgba(255,255,255,0.022)", borderRadius: 12, padding: "16px 18px" }}>
+          <summary style={{ color: "#e8c96a", fontSize: 14, fontWeight: 950, cursor: "pointer" }}>展开全部工具分类</summary>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 12, paddingTop: 18 }}>
+            {categories.map((cat) => {
+              const items = tools.filter((tool) => tool.category === cat.key)
+              const featured = items.filter((tool) => tool.featured).slice(0, 2)
+              return (
+                <Link key={cat.key} href={categoryPath(cat.key)} className="card-cat" style={{ display: "block", textDecoration: "none", background: "rgba(255,255,255,0.03)", border: "1px solid #1a1a1a", borderRadius: 10, padding: "18px 20px", minHeight: 164 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+                    <CategoryIcon category={cat.key} size={22} />
+                    <div style={{ flex: 1 }}>
+                      <h2 style={{ fontSize: 18, color: "#fff", fontWeight: 900 }}>{cat.label}</h2>
+                      <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: "#999", marginTop: 2, fontWeight: 800 }}>{items.length} tools</p>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: 13, color: "#bbb", lineHeight: 1.7, minHeight: 44, marginBottom: 14 }}>{categoryIntro[cat.key] || "精选 AI 工具分类，适合按场景逐步探索。"}</p>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", borderTop: "1px solid #1f1f1f", paddingTop: 12 }}>
+                    {featured.map((tool) => <span key={tool.id} className="tag tag-gray" style={{ fontSize: 12, color: "#999", fontWeight: 850 }}>{tool.name}</span>)}
+                    {featured.length === 0 && <span className="tag tag-gray" style={{ fontSize: 12, color: "#999", fontWeight: 850 }}>进入查看</span>}
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </details>
       </main>
       <style>{`.card-cat:hover{background:rgba(201,168,76,0.06)!important;border-color:#7a6230!important}`}</style>
     </div>

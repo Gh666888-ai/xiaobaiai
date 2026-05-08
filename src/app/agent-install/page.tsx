@@ -10,6 +10,10 @@ const desktopCategories = new Set(["桌面 AI 助理", "桌面知识库 Agent", 
 const agentDesktopGuides = agentInstallGuides.filter((guide) => agentDesktopCategories.has(guide.category))
 const desktopGuides = agentInstallGuides.filter((guide) => desktopCategories.has(guide.category))
 const engineeringGuides = agentInstallGuides.filter((guide) => !desktopCategories.has(guide.category) && !agentDesktopCategories.has(guide.category))
+const firstChoiceSlugs = ["openclaw", "clawx", "cherry-studio", "cline"]
+const firstChoiceGuides = firstChoiceSlugs
+  .map((slug) => agentInstallGuides.find((guide) => guide.slug === slug))
+  .filter((guide): guide is (typeof agentInstallGuides)[number] => Boolean(guide))
 
 export const metadata: Metadata = {
   title: "主流Agent和桌面AI助理安装 - Claude Code、Codex、OpenClaw、ChatGPT Desktop、Cherry Studio教程",
@@ -66,21 +70,33 @@ export default function AgentInstallPage() {
           <button type="submit" style={{ marginRight: 6, height: 34, padding: "0 14px", border: "1px solid #7a6230", borderRadius: 8, background: "rgba(201,168,76,0.13)", color: "#e8c96a", fontSize: 12, fontWeight: 950, cursor: "pointer" }}>搜索</button>
         </form>
 
-        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,260px),1fr))", gap: 12, marginBottom: 34 }}>
-          {[
-            { icon: <TerminalSquare size={18} />, title: "先安装", desc: "每个教程先让小白复制最少命令，看到版本号或能回答再继续。" },
-            { icon: <KeyRound size={18} />, title: "再接 API", desc: "教程底部统一放 DeepSeek、Kimi、OpenAI 等模型接口填法。" },
-            { icon: <ShieldCheck size={18} />, title: "不乱填 Key", desc: "API Key 等同支付密钥，不发群、不写仓库、不交给陌生中转站。" },
-          ].map((item) => (
-            <div key={item.title} style={{ border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: "18px 20px" }}>
-              <div style={{ color: "#e8c96a", marginBottom: 10 }}>{item.icon}</div>
-              <h2 style={{ color: "#fff", fontSize: 17, fontWeight: 950, marginBottom: 8 }}>{item.title}</h2>
-              <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.75 }}>{item.desc}</p>
+        <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.045)", borderRadius: 12, padding: "22px 24px", marginBottom: 24 }}>
+          <div style={{ display: "flex", alignItems: "end", justifyContent: "space-between", gap: 14, flexWrap: "wrap", marginBottom: 16 }}>
+            <div>
+              <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, lineHeight: 1.35, marginBottom: 7 }}>不知道选哪个，先从这 4 个开始</h2>
+              <p style={{ color: "#aaa", fontSize: 13, lineHeight: 1.8 }}>一个工程 Agent、一个 OpenClaw 桌面壳、一个桌面 AI 客户端、一个 VS Code Agent 插件。先跑通其中一个，再看全部列表。</p>
             </div>
-          ))}
+            <span style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950, display: "inline-flex", alignItems: "center", gap: 7 }}>
+              <ShieldCheck size={14} /> Key 不写进仓库
+            </span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,230px),1fr))", gap: 10 }}>
+            {firstChoiceGuides.map((guide) => (
+              <Link key={guide.slug} href={`/agent-install/${guide.slug}`} style={{ textDecoration: "none", border: "1px solid #2b2618", background: "rgba(0,0,0,0.26)", borderRadius: 10, padding: "16px 17px", minHeight: 172, display: "flex", flexDirection: "column" }}>
+                <span style={{ color: guide.category === "Agent 桌面应用" ? "#8fd8cc" : "#e8c96a", fontSize: 11, fontWeight: 950, marginBottom: 8 }}>{guide.category}</span>
+                <h3 style={{ color: "#fff", fontSize: 18, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>{guide.name}</h3>
+                <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.65, flex: 1 }}>{guide.tagline}</p>
+                <span style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950, marginTop: 12, display: "inline-flex", alignItems: "center", gap: 7 }}>
+                  直接看教程 <ArrowRight size={13} />
+                </span>
+              </Link>
+            ))}
+          </div>
         </section>
 
-        <section style={{ marginBottom: 42 }}>
+        <details style={{ border: "1px solid #1f1f1f", background: "rgba(255,255,255,0.025)", borderRadius: 12, padding: "16px 18px", marginBottom: 16 }}>
+          <summary style={{ color: "#e8c96a", fontSize: 14, fontWeight: 950, cursor: "pointer" }}>展开工程 Agent 本体</summary>
+        <section style={{ paddingTop: 18 }}>
           <div style={{ display: "flex", alignItems: "end", justifyContent: "space-between", gap: 16, flexWrap: "wrap", marginBottom: 16 }}>
             <div>
               <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>工程 Agent 本体</h2>
@@ -112,8 +128,11 @@ export default function AgentInstallPage() {
             ))}
           </div>
         </section>
+        </details>
 
-        <section style={{ marginBottom: 42 }}>
+        <details style={{ border: "1px solid rgba(82,148,139,0.24)", background: "rgba(82,148,139,0.028)", borderRadius: 12, padding: "16px 18px", marginBottom: 16 }}>
+          <summary style={{ color: "#8fd8cc", fontSize: 14, fontWeight: 950, cursor: "pointer" }}>展开 Agent 桌面端应用</summary>
+        <section style={{ paddingTop: 18 }}>
           <div style={{ marginBottom: 16 }}>
             <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>Agent 桌面端应用</h2>
             <p style={{ color: "#aaa", fontSize: 14, lineHeight: 1.8 }}>
@@ -143,8 +162,11 @@ export default function AgentInstallPage() {
             ))}
           </div>
         </section>
+        </details>
 
-        <section style={{ marginBottom: 42 }}>
+        <details style={{ border: "1px solid rgba(82,148,139,0.24)", background: "rgba(82,148,139,0.028)", borderRadius: 12, padding: "16px 18px", marginBottom: 20 }}>
+          <summary style={{ color: "#8fd8cc", fontSize: 14, fontWeight: 950, cursor: "pointer" }}>展开桌面版 AI 助理应用</summary>
+        <section style={{ paddingTop: 18 }}>
           <div style={{ marginBottom: 16 }}>
             <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>桌面版 AI 助理应用</h2>
             <p style={{ color: "#aaa", fontSize: 14, lineHeight: 1.8 }}>
@@ -174,6 +196,7 @@ export default function AgentInstallPage() {
             ))}
           </div>
         </section>
+        </details>
 
         <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 12, padding: "24px 26px" }}>
           <h2 style={{ color: "#fff", fontSize: 21, fontWeight: 950, marginBottom: 10 }}>小白怎么选第一款？</h2>

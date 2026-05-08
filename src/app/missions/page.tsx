@@ -16,6 +16,8 @@ export const metadata: Metadata = {
 }
 
 export default function MissionsPage() {
+  const firstMissions = missions.slice(0, 4)
+
   return (
     <div style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
       <MathRain />
@@ -35,6 +37,34 @@ export default function MissionsPage() {
         <MissionContinuePanel title="回来先接着上次做" casePosts={posts} />
 
         <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.045)", borderRadius: 12, padding: "22px 24px", marginBottom: 18 }}>
+          <div style={{ display: "flex", alignItems: "end", justifyContent: "space-between", gap: 14, flexWrap: "wrap", marginBottom: 14 }}>
+            <div>
+              <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.22em", color: "#7a6230", textTransform: "uppercase", fontWeight: 950, marginBottom: 8 }}>Start Today</p>
+              <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>今天只选一个任务</h2>
+              <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.85 }}>不用先看完整任务库。先做一个能交付、能检查、能复盘的小结果。</p>
+            </div>
+            <Link href="/start" className="btn-primary" style={{ textDecoration: "none" }}>让小白带我选</Link>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,240px),1fr))", gap: 10 }}>
+            {firstMissions.map((mission) => (
+              <Link key={mission.id} href={`/missions/${mission.id}`} style={{ textDecoration: "none", border: "1px solid #2b2618", background: "rgba(0,0,0,0.25)", borderRadius: 10, padding: "17px 18px", minHeight: 188, display: "flex", flexDirection: "column" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
+                  <span className="tag tag-gold" style={{ fontSize: 11, color: "#e8c96a", fontWeight: 950 }}>{mission.difficulty}</span>
+                  <span style={{ color: "#e8c96a", fontFamily: "'JetBrains Mono',monospace", fontSize: 11, fontWeight: 950 }}>+{mission.xp}XP</span>
+                </div>
+                <h3 style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.38, marginBottom: 8 }}>{mission.title}</h3>
+                <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7, flex: 1 }}>{mission.tagline}</p>
+                <span style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950, marginTop: 12, display: "inline-flex", alignItems: "center", gap: 7 }}>
+                  开始 <ArrowRight size={13} />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <details style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.035)", borderRadius: 12, padding: "16px 18px", marginBottom: 18 }}>
+          <summary style={{ color: "#e8c96a", fontSize: 14, fontWeight: 950, cursor: "pointer" }}>展开行业任务路线</summary>
+        <section style={{ paddingTop: 18 }}>
           <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.22em", color: "#7a6230", textTransform: "uppercase", fontWeight: 950, marginBottom: 8 }}>Industry Tracks</p>
           <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, lineHeight: 1.35, marginBottom: 9 }}>按行业从前到后做</h2>
           <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.85, marginBottom: 16 }}>
@@ -60,8 +90,11 @@ export default function MissionsPage() {
             ))}
           </div>
         </section>
+        </details>
 
-        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,300px),1fr))", gap: 14 }}>
+        <details style={{ border: "1px solid #1f1f1f", background: "rgba(255,255,255,0.022)", borderRadius: 12, padding: "16px 18px" }}>
+          <summary style={{ color: "#e8c96a", fontSize: 14, fontWeight: 950, cursor: "pointer" }}>展开全部任务库</summary>
+        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,300px),1fr))", gap: 14, paddingTop: 18 }}>
           {missions.map((mission) => (
             <Link key={mission.id} href={`/missions/${mission.id}`} style={{ textDecoration: "none", border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: "22px 24px", display: "flex", flexDirection: "column", minHeight: 330 }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
@@ -88,6 +121,7 @@ export default function MissionsPage() {
             </Link>
           ))}
         </section>
+        </details>
       </main>
     </div>
   )
