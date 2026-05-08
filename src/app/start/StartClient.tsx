@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import type { CSSProperties } from "react"
 import Link from "next/link"
 import {
@@ -10,12 +10,9 @@ import {
   Clipboard,
   Image as ImageIcon,
   MessageCircle,
-  Shuffle,
-  SkipForward,
   Upload,
 } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
-import { findIndustrySeries, industrySeries, type IndustrySeries } from "@/data/industry-series"
 import { missions } from "@/data/missions"
 import {
   getMissionStepProofRequirement,
@@ -28,111 +25,23 @@ import {
   type MissionProgressState,
 } from "@/lib/mission-progress"
 
-const starterChoices = [
-  { label: "不知道，从最简单开始", desc: "先做一个能看的 6 页 PPT 初稿。", goal: "做PPT" },
-  { label: "我手里有资料", desc: "让 AI 读资料，列摘要和下一步。", goal: "办公" },
-  { label: "我想做内容", desc: "先写一条能发的草稿。", goal: "写文章" },
-]
-
-const moreGoals = [
-  { label: "做动漫样片", desc: "60 秒剧情、分镜和角色提示词。", goal: "动漫漫剧" },
-  { label: "写故事样章", desc: "设定、大纲、正文和审稿。", goal: "网文故事" },
-  { label: "给 AI 加技能", desc: "找 Skill，先做安全检查。", goal: "找Skill" },
-  { label: "本地跑模型", desc: "Ollama / LM Studio 首次跑通。", goal: "本地模型" },
-  { label: "行业配 Skill", desc: "给一个行业场景选 3 个能力。", goal: "行业技能" },
-]
-
-const guideExamples = [
-  { industry: "电商/店铺", direction: "想用 AI 做客服、商品文案、短视频", seriesId: "ecommerce-store" },
-  { industry: "教育/培训", direction: "想用 AI 做课件、题目、课程资料整理", seriesId: "education-training" },
-  { industry: "自媒体/短视频", direction: "想用 AI 做选题、脚本、动漫视频", seriesId: "creator-media" },
-]
-
-const goalMissionMap: { keywords: string[]; missionId: string }[] = [
-  { keywords: ["动漫", "漫剧", "短剧", "短视频剧情", "分镜", "角色一致", "AI视频", "AI 视频"], missionId: "ai-comic-video-first-episode" },
-  { keywords: ["网文", "小说", "故事", "剧本", "写作", "样章"], missionId: "ai-webnovel-first-chapter" },
-  { keywords: ["本地", "本地模型", "部署", "Ollama", "LM Studio", "隐私"], missionId: "local-model-first-run" },
-  { keywords: ["行业技能", "行业Skill", "行业 Skill", "技能包", "自动化技能"], missionId: "industry-skill-stack-plan" },
-  { keywords: ["写文章", "文章", "小红书", "内容", "做视频", "视频", "做图片", "图片", "封面"], missionId: "xiaohongshu-ai-content-loop" },
-  { keywords: ["ppt", "PPT", "做PPT", "做 PPT", "演示", "幻灯片", "汇报"], missionId: "ai-ppt-first-deck" },
-  { keywords: ["办公", "文档", "资料", "总结", "分析"], missionId: "kimi-k26-long-doc" },
-  { keywords: ["编程", "代码", "开发", "小功能"], missionId: "codex-small-feature" },
-  { keywords: ["claude", "Claude", "deepseek", "DeepSeek", "工程"], missionId: "claude-code-deepseek-project" },
-  { keywords: ["agent", "Agent", "知识库", "客服", "店铺", "公司"], missionId: "dify-knowledge-base-bot" },
-  { keywords: ["skill", "Skill", "技能", "插件", "MCP", "找Skill", "加技能"], missionId: "agent-skill-first-install" },
-  { keywords: ["自动化", "n8n", "日报", "提醒"], missionId: "n8n-ai-news-automation" },
-]
-
-const missionDirections: Record<string, string> = {
-  "ai-ppt-first-deck": "office",
-  "kimi-k26-long-doc": "office",
-  "xiaohongshu-ai-content-loop": "content",
-  "ai-comic-video-first-episode": "content",
-  "ai-webnovel-first-chapter": "content",
-  "dify-knowledge-base-bot": "agent-app",
-  "n8n-ai-news-automation": "automation",
-  "agent-skill-first-install": "agent-skill",
-  "industry-skill-stack-plan": "agent-skill",
-  "local-model-first-run": "local-model",
-  "codex-small-feature": "engineering",
-  "claude-code-deepseek-project": "engineering",
-}
-
-function missionFromGoalParam(goal: string | null) {
-  if (!goal) return null
-  const decoded = goal.trim()
-  return goalMissionMap.find((item) => item.keywords.some((keyword) => decoded.includes(keyword)))?.missionId || null
-}
-
-function missionFromIndustryGuide(text: string) {
-  const value = text.toLowerCase()
-  if (["客服", "知识库", "售后", "咨询", "客户", "门店"].some((keyword) => value.includes(keyword))) return "dify-knowledge-base-bot"
-  if (["日报", "周报", "自动", "提醒", "表单", "同步", "重复"].some((keyword) => value.includes(keyword))) return "n8n-ai-news-automation"
-  if (["合同", "资料", "文档", "会议", "论文", "报告", "分析"].some((keyword) => value.includes(keyword))) return "kimi-k26-long-doc"
-  if (["课件", "培训", "讲课", "汇报", "路演", "方案"].some((keyword) => value.includes(keyword))) return "ai-ppt-first-deck"
-  if (["商品", "种草", "小红书", "公众号", "文案", "账号", "IP", "ip"].some((keyword) => value.includes(keyword))) return "xiaohongshu-ai-content-loop"
-  if (["编程", "代码", "网站", "小程序", "开发"].some((keyword) => value.includes(keyword))) return "codex-small-feature"
-  if (["skill", "Skill", "插件", "mcp", "MCP", "行业"].some((keyword) => value.includes(keyword))) return "industry-skill-stack-plan"
-  return null
-}
-
-function pickRandomMissionId(pool: typeof missions, fallbackId: string) {
-  if (pool.length === 0) return fallbackId
-  return pool[Math.floor(Math.random() * pool.length)].id
-}
-
-function missionDirection(id: string) {
-  return missionDirections[id] || "other"
-}
+const initialMission = missions[0]
 
 export function StartClient() {
-  const [progress, setProgress] = useState<MissionProgressState>(() => ({ activeMissionId: missions[0].id, missions: {} }))
-  const [selectedId, setSelectedId] = useState(missions[0].id)
+  const [progress, setProgress] = useState<MissionProgressState>(() => ({ activeMissionId: initialMission.id, missions: {} }))
   const [copied, setCopied] = useState<"prompt" | "recap" | null>(null)
   const [proofText, setProofText] = useState("")
   const [proofChecks, setProofChecks] = useState<boolean[]>([])
   const [screenshotName, setScreenshotName] = useState("")
   const [screenshotDataUrl, setScreenshotDataUrl] = useState("")
   const [screenshotError, setScreenshotError] = useState("")
-  const [industryInput, setIndustryInput] = useState("")
-  const [directionInput, setDirectionInput] = useState("")
-  const [guideNote, setGuideNote] = useState("")
-  const [selectedSeries, setSelectedSeries] = useState<IndustrySeries | null>(null)
 
   useEffect(() => {
     const saved = readMissionProgress()
-    const goalId = missionFromGoalParam(new URLSearchParams(window.location.search).get("goal"))
-    const activeId = goalId && missions.some((mission) => mission.id === goalId)
-      ? goalId
-      : missions.some((mission) => mission.id === saved.activeMissionId)
-        ? saved.activeMissionId
-        : missions[0].id
-    const next = goalId ? selectMission(saved, activeId) : saved
-    setProgress(next)
-    setSelectedId(activeId)
+    setProgress(selectMission(saved, initialMission.id))
   }, [])
 
-  const selected = useMemo(() => missions.find((mission) => mission.id === selectedId) ?? missions[0], [selectedId])
+  const selected = initialMission
   const selectedProgress = getStoredMission(progress, selected.id)
   const currentStepIndex = Math.min(selectedProgress.currentStep || 0, selected.steps.length - 1)
   const currentStep = selected.steps[currentStepIndex]
@@ -160,52 +69,6 @@ export function StartClient() {
   function persist(next: MissionProgressState) {
     setProgress(next)
     writeMissionProgress(next)
-  }
-
-  function chooseMission(id: string) {
-    setSelectedId(id)
-    persist(selectMission(progress, id))
-  }
-
-  function chooseGoal(goal: string) {
-    chooseMission(missionFromGoalParam(goal) || missions[0].id)
-  }
-
-  function chooseGuideExample(industry: string, direction: string, seriesId?: string) {
-    setIndustryInput(industry)
-    setDirectionInput(direction)
-    const series = industrySeries.find((item) => item.id === seriesId) || findIndustrySeries(`${industry} ${direction}`)
-    const missionId = series?.firstMissionId || missionFromGoalParam(`${industry} ${direction}`) || missionFromIndustryGuide(`${industry} ${direction}`) || missions[0].id
-    chooseMission(missionId)
-    setSelectedSeries(series)
-    setGuideNote(series ? `小白给你切到「${series.shortTitle}」系列，先做第 1 关。` : `小白按“${industry}”和“${direction}”给你换好了，先做下面这一步。`)
-  }
-
-  function guideByXiaobai() {
-    const combined = `${industryInput} ${directionInput}`.trim()
-    if (!combined) {
-      setGuideNote("先随便写一句也行，比如：我是做电商的，想用 AI 做商品文案。")
-      return
-    }
-    const series = findIndustrySeries(combined)
-    const missionId = series?.firstMissionId || missionFromGoalParam(combined) || missionFromIndustryGuide(combined) || missions[0].id
-    chooseMission(missionId)
-    setSelectedSeries(series)
-    setGuideNote(series ? `小白给你切到「${series.shortTitle}」系列。先别想完整路线，先做第 1 关。` : "小白已经按你的行业/方向换好了。先别想完整路线，照着下面第一步做。")
-  }
-
-  function switchRandomMission() {
-    const nextId = pickRandomMissionId(missions.filter((mission) => mission.id !== selected.id), missions[0].id)
-    chooseMission(nextId)
-  }
-
-  function skipCurrentDirection() {
-    const currentDirection = missionDirection(selected.id)
-    const nextId = pickRandomMissionId(
-      missions.filter((mission) => mission.id !== selected.id && missionDirection(mission.id) !== currentDirection),
-      missions.find((mission) => mission.id !== selected.id)?.id || missions[0].id,
-    )
-    chooseMission(nextId)
   }
 
   function finishCurrentStep() {
@@ -245,73 +108,11 @@ export function StartClient() {
       <main style={mainStyle}>
         <section style={focusCardStyle}>
           <p style={eyebrowStyle}>小白入口</p>
-          <h1 style={heroTitleStyle}>{selectedProgress.completed ? "这条做完了，发个复盘" : "你想用 AI 做哪件事？"}</h1>
-          <p style={heroCopyStyle}>小白先问两句：你是什么行业/岗位，想用 AI 做什么。填完后，我直接给你第一步。</p>
-
-          {!selectedProgress.completed && (
-            <section style={guideCardStyle}>
-              <div style={xiaobaiQuestionStyle}>
-                <MessageCircle size={15} />
-                <span>先告诉我你的行业和方向，我不让你自己翻任务库。</span>
-              </div>
-              <div className="start-guide-grid" style={guideInputGridStyle}>
-                <label style={guideLabelStyle}>
-                  <span>你现在做什么</span>
-                  <input
-                    value={industryInput}
-                    onChange={(event) => setIndustryInput(event.target.value)}
-                    placeholder="例如：电商、老师、设计、短视频、餐饮老板"
-                    style={guideInputStyle}
-                  />
-                </label>
-                <label style={guideLabelStyle}>
-                  <span>想用 AI 做什么</span>
-                  <input
-                    value={directionInput}
-                    onChange={(event) => setDirectionInput(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") guideByXiaobai()
-                    }}
-                    placeholder="例如：做客服、做课件、做动漫、整理资料"
-                    style={guideInputStyle}
-                  />
-                </label>
-              </div>
-              <button type="button" onClick={guideByXiaobai} className="btn-primary" style={guideButtonStyle}>
-                让小白给我第一步 <ArrowRight size={15} />
-              </button>
-              <div style={guideExampleRowStyle}>
-                {guideExamples.map((item) => (
-                  <button key={item.industry} type="button" onClick={() => chooseGuideExample(item.industry, item.direction, item.seriesId)} style={guideExampleStyle}>
-                    {item.industry}
-                  </button>
-                ))}
-              </div>
-              {guideNote && <p style={guideNoteStyle}>{guideNote}</p>}
-            </section>
-          )}
-
-          {!selectedProgress.completed && selectedSeries && (
-            <section style={seriesPreviewStyle}>
-              <p style={microLabelStyle}>你的行业系列</p>
-              <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, lineHeight: 1.4, marginBottom: 7 }}>{selectedSeries.title}</h2>
-              <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7, marginBottom: 12 }}>{selectedSeries.promise}</p>
-              <div style={seriesStepListStyle}>
-                {selectedSeries.steps.map((step, index) => (
-                  <button key={`${step.phase}-${step.missionId}`} type="button" onClick={() => chooseMission(step.missionId)} style={seriesStepStyle(step.missionId === selected.id)}>
-                    <span style={{ color: step.missionId === selected.id ? "#e8c96a" : "#777", fontFamily: "'JetBrains Mono',monospace", fontSize: 10, fontWeight: 950 }}>{String(index + 1).padStart(2, "0")}</span>
-                    <span>
-                      <strong style={{ display: "block", color: "#fff", fontSize: 12, lineHeight: 1.45, marginBottom: 3 }}>{step.title}</strong>
-                      <small style={{ display: "block", color: "#888", fontSize: 11, lineHeight: 1.45 }}>{step.deliverable}</small>
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </section>
-          )}
+          <h1 style={heroTitleStyle}>{selectedProgress.completed ? "这条做完了，发个复盘" : "先做这一个小结果"}</h1>
+          <p style={heroCopyStyle}>不用先选工具，也不用先看一堆教程。现在只看下面这一句，照着做完再回来点确认。</p>
 
           <div style={currentTaskStyle}>
-            <p style={microLabelStyle}>推荐任务</p>
+            <p style={microLabelStyle}>初始任务</p>
             <h2 style={{ color: "#fff", fontSize: 22, fontWeight: 950, lineHeight: 1.35, marginBottom: 12 }}>{selected.shortTitle}</h2>
             <div style={stepBoxStyle}>
               <p style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950, marginBottom: 7 }}>现在只做</p>
@@ -334,10 +135,11 @@ export function StartClient() {
                 做完了，去确认 <ArrowRight size={16} />
               </a>
             )}
-            <button type="button" onClick={switchRandomMission} className="btn-outline" style={secondaryActionStyle}>
-              <Shuffle size={14} /> 换一个
+            <button type="button" onClick={() => window.dispatchEvent(new Event("xiaobai:open-chat"))} className="btn-outline" style={secondaryActionStyle}>
+              <MessageCircle size={14} /> 登录让小白定制
             </button>
           </div>
+          <p style={loginHintStyle}>想换成你行业需要的任务？点右下角小白 AI，登录后会按行业给你定制学习工具和路线。</p>
         </section>
 
         {!selectedProgress.completed && (
@@ -420,49 +222,8 @@ export function StartClient() {
           </section>
         )}
 
-        <details style={detailsStyle}>
-          <summary style={summaryStyle}>不是这个？换个方向</summary>
-          <div style={choiceGridStyle}>
-            {[...starterChoices, ...moreGoals].map((item) => {
-              const active = missionFromGoalParam(item.goal) === selected.id
-              return (
-                <button key={item.label} type="button" onClick={() => chooseGoal(item.goal)} style={choiceButtonStyle(active)}>
-                  <span style={{ color: active ? "#e8c96a" : "#fff", fontSize: 13, fontWeight: 950, lineHeight: 1.4 }}>{item.label}</span>
-                  <span style={{ color: "#999", fontSize: 12, lineHeight: 1.55, marginTop: 5 }}>{item.desc}</span>
-                </button>
-              )
-            })}
-          </div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
-            <button type="button" onClick={switchRandomMission} className="btn-outline" style={smallActionStyle}>
-              <Shuffle size={14} /> 随机换一个
-            </button>
-            <button type="button" onClick={skipCurrentDirection} className="btn-outline" style={smallActionStyle}>
-              <SkipForward size={14} /> 跳过这个方向
-            </button>
-          </div>
-        </details>
-
-        <details style={detailsStyle}>
-          <summary style={summaryStyle}>想自己挑完整任务库</summary>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(190px,1fr))", gap: 8, marginTop: 12 }}>
-            {missions.map((mission) => (
-              <button key={mission.id} type="button" onClick={() => chooseMission(mission.id)} style={compactChoiceStyle}>
-                <span style={{ color: "#fff", fontSize: 12, fontWeight: 950 }}>{mission.shortTitle}</span>
-                <span style={{ color: "#888", fontSize: 11, lineHeight: 1.5 }}>{mission.minutes} · {mission.difficulty}</span>
-              </button>
-            ))}
-          </div>
-          <Link href={`/missions/${selected.id}`} className="btn-outline" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8, marginTop: 12 }}>
-            打开当前任务详情 <ArrowRight size={14} />
-          </Link>
-        </details>
-
         <style>{`
           @media (max-width: 720px) {
-            .start-guide-grid {
-              grid-template-columns: 1fr !important;
-            }
             .btn-primary,
             .btn-outline {
               width: 100%;
@@ -500,20 +261,6 @@ function compressProofImage(file: File): Promise<string> {
     }
     reader.readAsDataURL(file)
   })
-}
-
-function choiceButtonStyle(active: boolean): CSSProperties {
-  return {
-    textAlign: "left",
-    border: active ? "1px solid #8c7333" : "1px solid #202020",
-    background: active ? "rgba(201,168,76,0.075)" : "rgba(255,255,255,0.025)",
-    borderRadius: 10,
-    padding: "15px 14px",
-    minHeight: 96,
-    display: "flex",
-    flexDirection: "column",
-    cursor: "pointer",
-  }
 }
 
 const mainStyle: CSSProperties = {
@@ -563,113 +310,6 @@ const currentTaskStyle: CSSProperties = {
   padding: "17px 18px",
 }
 
-const guideCardStyle: CSSProperties = {
-  border: "1px solid #232323",
-  background: "rgba(255,255,255,0.028)",
-  borderRadius: 12,
-  padding: "15px",
-  marginBottom: 16,
-}
-
-const xiaobaiQuestionStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 8,
-  color: "#e8c96a",
-  fontSize: 13,
-  fontWeight: 950,
-  lineHeight: 1.6,
-  marginBottom: 12,
-}
-
-const guideInputGridStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(2,minmax(0,1fr))",
-  gap: 10,
-  marginBottom: 10,
-}
-
-const guideLabelStyle: CSSProperties = {
-  display: "grid",
-  gap: 6,
-  color: "#aaa",
-  fontSize: 12,
-  fontWeight: 900,
-}
-
-const guideInputStyle: CSSProperties = {
-  width: "100%",
-  border: "1px solid #2a2a2a",
-  background: "rgba(0,0,0,0.34)",
-  color: "#fff",
-  borderRadius: 9,
-  padding: "11px 12px",
-  fontSize: 13,
-  lineHeight: 1.4,
-  outline: "none",
-}
-
-const guideButtonStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: 8,
-  minHeight: 44,
-}
-
-const guideExampleRowStyle: CSSProperties = {
-  display: "flex",
-  gap: 7,
-  flexWrap: "wrap",
-  marginTop: 10,
-}
-
-const guideExampleStyle: CSSProperties = {
-  border: "1px solid #2a2a2a",
-  background: "rgba(0,0,0,0.26)",
-  color: "#cfcfcf",
-  borderRadius: 999,
-  padding: "7px 10px",
-  fontSize: 12,
-  fontWeight: 900,
-  cursor: "pointer",
-}
-
-const guideNoteStyle: CSSProperties = {
-  color: "#9fcfaf",
-  fontSize: 12,
-  lineHeight: 1.65,
-  marginTop: 9,
-}
-
-const seriesPreviewStyle: CSSProperties = {
-  border: "1px solid #29351f",
-  background: "rgba(61,165,99,0.045)",
-  borderRadius: 12,
-  padding: "15px",
-  marginBottom: 16,
-}
-
-const seriesStepListStyle: CSSProperties = {
-  display: "grid",
-  gap: 7,
-}
-
-function seriesStepStyle(active: boolean): CSSProperties {
-  return {
-    display: "grid",
-    gridTemplateColumns: "24px 1fr",
-    gap: 9,
-    alignItems: "start",
-    textAlign: "left",
-    border: active ? "1px solid #7a6230" : "1px solid #242424",
-    background: active ? "rgba(201,168,76,0.08)" : "rgba(0,0,0,0.2)",
-    borderRadius: 9,
-    padding: "10px 11px",
-    cursor: "pointer",
-  }
-}
-
 const microLabelStyle: CSSProperties = {
   color: "#e8c96a",
   fontSize: 12,
@@ -709,23 +349,11 @@ const secondaryActionStyle: CSSProperties = {
   minHeight: 50,
 }
 
-const smallActionStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 8,
-  minHeight: 40,
-}
-
-const compactChoiceStyle: CSSProperties = {
-  textAlign: "left",
-  border: "1px solid #202020",
-  background: "rgba(255,255,255,0.025)",
-  borderRadius: 9,
-  padding: "11px 12px",
-  minHeight: 70,
-  display: "grid",
-  gap: 5,
-  cursor: "pointer",
+const loginHintStyle: CSSProperties = {
+  color: "#8d8d8d",
+  fontSize: 12,
+  lineHeight: 1.7,
+  marginTop: 12,
 }
 
 const detailsStyle: CSSProperties = {
@@ -760,13 +388,6 @@ const checkItemStyle: CSSProperties = {
   fontSize: 13,
   lineHeight: 1.6,
   cursor: "pointer",
-}
-
-const choiceGridStyle: CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))",
-  gap: 8,
-  marginTop: 12,
 }
 
 const miniButtonStyle: CSSProperties = {

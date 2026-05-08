@@ -84,7 +84,6 @@ export function FloatingChat() {
 
   const hideOnFullChat = pathname === "/chat" || pathname === "/login"
   const hideOnFocusedFlow =
-    pathname === "/start" ||
     pathname === "/missions" ||
     pathname?.startsWith("/missions/") ||
     pathname === "/learn" ||
@@ -131,7 +130,7 @@ export function FloatingChat() {
         ...prev,
         {
           role: "assistant",
-          content: "这个问题要进入智能探索模式。先登录一下，小白就能放开脑袋帮你深挖；站内入口、工具、学习路线这些我现在就能答。",
+          content: "想让小白按你的行业推荐该学哪些 AI 工具、先做哪些任务，需要先注册登录。登录后我会记住你的行业、目标和进度，不会每次都从头问。",
         },
       ])
       setSpeaking(true)
@@ -177,11 +176,12 @@ export function FloatingChat() {
   const doneSteps = activeMission.steps.filter((_, index) => activeProgress.completedSteps[index]).length
   const nextStep = activeProgress.completed ? "任务完成了，下一步发复盘拿 XP" : currentStepLabel(activeMission.id, stepIndex)
   const hasProgress = hasSavedMissionProgress && (doneSteps > 0 || activeProgress.currentStep > 0 || missionProgress.activeMissionId !== missions[0].id)
-  const reminderTitle = hasProgress ? "小白继续提醒" : "先做一个小任务"
+  const reminderTitle = hasProgress ? "小白继续提醒" : "按行业定制"
   const reminderText = hasProgress
     ? `上次任务：${activeMission.shortTitle}。接下来：${nextStep}。`
-    : `推荐任务：${activeMission.shortTitle}。先完成第 1 步，小白再帮你记进度。`
-  const reminderAction = hasProgress ? "继续" : "开始"
+    : "登录后告诉小白你的行业，我会推荐你该学的 AI 工具和一整条任务路线。"
+  const reminderAction = hasProgress ? "继续" : user ? "告诉小白" : "登录"
+  const reminderHref = hasProgress ? `/missions/${activeMission.id}` : user ? "/chat" : `/login?redirect=${encodeURIComponent(pathname || "/start")}`
 
   return (
     <div className="xiaobai-float">
@@ -212,7 +212,7 @@ export function FloatingChat() {
                   <XiaobaiMascot size={36} mood="welcome" />
                   <div>
                     <p>小白速答已待命</p>
-                    <span>问工具、学习、模型、资讯、社区、登录这些站内问题，我可以马上带路；深度探索登录后开启。</span>
+                    <span>注册登录后，小白会根据你的行业和想做的方向，推荐需要学习的 AI 工具、任务路线和下一步。</span>
                   </div>
                   <Link href={`/login?redirect=${encodeURIComponent(pathname || "/")}`}>
                     <LogIn size={13} />
@@ -226,14 +226,14 @@ export function FloatingChat() {
                   <p>{reminderTitle}</p>
                   <span>{reminderText}</span>
                 </div>
-                <Link href={`/missions/${activeMission.id}`}>{reminderAction}</Link>
+                <Link href={reminderHref}>{reminderAction}</Link>
               </div>
                 {messages.length <= 1 && (
                   <div className="xiaobai-empty">
                     <XiaobaiMascot size={38} mood="recommend" />
                     <div>
-                      <p>不知道怎么问也没关系</p>
-                      <span>直接说“我想用 AI 做什么”，我会帮你拆成可执行步骤。</span>
+                      <p>我可以按行业给你带路</p>
+                      <span>告诉小白你做什么行业，我会推荐该学哪些 AI 工具，以及从第 1 个任务到后续进阶怎么走。</span>
                     </div>
                   </div>
                 )}
@@ -278,7 +278,7 @@ export function FloatingChat() {
                 }}
                 disabled={loading}
                 rows={2}
-                placeholder={user ? "直接问：我想用 AI 做……" : "先问站内问题，深度探索登录开启"}
+                placeholder={user ? "说你的行业：比如电商，想用 AI 做客服和短视频" : "注册后可按行业定制推荐"}
               />
               <button type="button" onClick={() => send()} disabled={sending || !input.trim() || loading} aria-label="发送给小白AI">
                 <ArrowUp size={18} />
@@ -302,7 +302,7 @@ export function FloatingChat() {
         <XiaobaiMascot size={66} mood={open ? "happy" : launcherMood} />
         <span>
           <strong>问小白AI</strong>
-          <small>{hasProgress ? `上次 ${doneSteps}/${activeMission.steps.length}` : launcherMood === "thinking" ? "小白雷达转起来" : launcherMood === "recommend" ? "帮你挑神器" : "当前页面陪跑"}</small>
+          <small>{hasProgress ? `上次 ${doneSteps}/${activeMission.steps.length}` : launcherMood === "thinking" ? "按行业问我" : launcherMood === "recommend" ? "定制学习工具" : "注册后定制"}</small>
         </span>
         <MessageCircle size={17} />
       </button>
