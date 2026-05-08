@@ -94,41 +94,6 @@ const curriculumFlow = [
   },
 ]
 
-const learningLoop = [
-  { title: "学概念", desc: "先知道这个东西解决什么问题。" },
-  { title: "照着做", desc: "用教程跑通一次，不追求完美。" },
-  { title: "换场景", desc: "把同一方法迁移到自己的任务。" },
-  { title: "看案例", desc: "从别人踩坑里补边界和经验。" },
-  { title: "发复盘", desc: "把自己的流程沉淀成社区内容。" },
-]
-
-const immersionSystem = [
-  {
-    name: "今日 15 分钟",
-    borrowedFrom: "Duolingo / Brilliant",
-    desc: "每天只推一个小动作，降低开始成本，让用户觉得“现在就能做”。",
-    xiaobai: "今天不要求学完一门课，只要求完成一个 AI 环节。",
-  },
-  {
-    name: "掌握度回路",
-    borrowedFrom: "Khan Academy",
-    desc: "不只记录看过，还要记录能不能复用、能不能迁移。",
-    xiaobai: "章节完成只是进度，阶段通关要交付一个可检查产物。",
-  },
-  {
-    name: "路径 + 项目",
-    borrowedFrom: "Codecademy / freeCodeCamp",
-    desc: "学习路径告诉顺序，项目让学习变成作品。",
-    xiaobai: "每个 L 级别都绑定一个 0-1 交付物，而不是空泛知识点。",
-  },
-  {
-    name: "徽章 + 作品架",
-    borrowedFrom: "Trailhead / DataCamp",
-    desc: "奖励不是装饰，而是把用户做过的东西沉淀出来。",
-    xiaobai: "阶段 XP、社区复盘和案例库一起形成个人成长痕迹。",
-  },
-]
-
 const todayActions = [
   { title: "选一个目标", desc: "不是选工具，而是说清楚你想做成什么事。", href: "/start" },
   { title: "做一个环节", desc: "只交付表格、脚本、提示词、流程图或一个小 diff。", href: "/missions" },
@@ -186,38 +151,10 @@ export default function LearnPage() {
               </Link>
             ))}
           </div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:8}}>
-            {learningLoop.map((item,index)=>(
-              <div key={item.title} style={{border:'1px solid #1a1a1a',background:'rgba(255,255,255,0.025)',borderRadius:8,padding:'12px 13px'}}>
-                <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950,color:'#7a6230',marginBottom:5}}>LOOP {index+1}</p>
-                <p style={{fontSize:13,fontWeight:950,color:'#fff',marginBottom:4}}>{item.title}</p>
-                <p style={{fontSize:12,color:'#aaa',lineHeight:1.6}}>{item.desc}</p>
-              </div>
-            ))}
-          </div>
+          <p style={{fontSize:13,color:'#cdbb80',lineHeight:1.8,borderTop:'1px solid #242424',paddingTop:14}}>学习顺序很简单：先看懂概念，照着做一次，再换成自己的场景，最后把结果发成复盘。</p>
         </section>
 
-        <section style={{border:'1px solid #1f1f1f',background:'rgba(255,255,255,0.025)',borderRadius:12,padding:'22px 24px',marginBottom:28}}>
-          <div style={{display:'flex',alignItems:'flex-end',justifyContent:'space-between',gap:16,flexWrap:'wrap',marginBottom:18}}>
-            <div>
-              <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.2em',color:'#7a6230',fontWeight:900,marginBottom:6}}>XIAOBAI IMMERSION LOOP</p>
-              <h2 style={{fontSize:24,fontWeight:950,color:'#fff',lineHeight:1.35}}>小白AI专属沉浸飞轮</h2>
-              <p style={{fontSize:14,color:'#aaa',lineHeight:1.8,marginTop:8,maxWidth:760}}>借鉴成熟教学网站，但不照搬：我们的目标不是让用户刷课，而是让用户每天把 AI 用进一个真实目标，哪怕只完成其中一个环节。</p>
-            </div>
-            <Link href="/start" className="btn-primary" style={{textDecoration:'none'}}>今天开始一个环节</Link>
-          </div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:14}}>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:10}}>
-              {immersionSystem.map((item)=>(
-                <div key={item.name} style={{border:'1px solid #1a1a1a',background:'rgba(0,0,0,0.22)',borderRadius:10,padding:'16px 17px'}}>
-                  <p style={{fontSize:15,fontWeight:950,color:'#fff',marginBottom:6}}>{item.name}</p>
-                  <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#7a6230',fontWeight:900,marginBottom:8}}>参考：{item.borrowedFrom}</p>
-                  <p style={{fontSize:12,color:'#aaa',lineHeight:1.7,marginBottom:9}}>{item.desc}</p>
-                  <p style={{fontSize:12,color:'#cdbb80',lineHeight:1.7,borderTop:'1px solid #242424',paddingTop:9}}>小白AI做法：{item.xiaobai}</p>
-                </div>
-              ))}
-            </div>
-            <div style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.045)',borderRadius:10,padding:'18px 19px'}}>
+        <section style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.045)',borderRadius:12,padding:'20px 22px',marginBottom:28}}>
               <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950,color:'#7a6230',letterSpacing:'0.14em',marginBottom:8}}>TODAY QUEST</p>
               <h3 style={{fontSize:19,fontWeight:950,color:'#fff',lineHeight:1.35,marginBottom:12}}>今天只做三件小事</h3>
               <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:16}}>
@@ -232,8 +169,6 @@ export default function LearnPage() {
                 ))}
               </div>
               <p style={{fontSize:12,color:'#bbb',lineHeight:1.8}}>做完以后，回到阶段页标记章节、领取阶段 XP。真正的沉浸感来自“今天我推进了我的事”，而不是“今天我又看了很多内容”。</p>
-            </div>
-          </div>
         </section>
 
         <div style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.05)',borderRadius:12,padding:'16px 18px',marginBottom:28}}>
@@ -248,17 +183,6 @@ export default function LearnPage() {
             章节阅读先保存在当前浏览器；任务通关证明会在领取 XP 时写入服务器。后续作品墙、等级名牌、共创身份都应该以服务端任务证明为准。
           </p>
           <p style={{fontSize:12,color:'#cdbb80',lineHeight:1.8,marginTop:4}}>已通关真实任务：{missionDoneCount} 个。真正的等级增长，优先来自可检查的任务交付。</p>
-        </div>
-
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:10,marginBottom:48}}>
-          {[
-            {v:stages.length,l:'STAGES'},{v:stages.reduce((s,st)=>s+st.sections.length,0),l:'CHAPTERS'},{v:tools.length,l:'TOOLS'}
-          ].map(x=>(
-            <div key={x.l} style={{background:'rgba(255,255,255,0.03)',border:'1px solid #1a1a1a',borderRadius:16,padding:'36px 24px',textAlign:'center'}}>
-              <p style={{fontSize:42,fontWeight:900,color:'#e8c96a',fontFamily:"'JetBrains Mono',monospace"}}>{x.v}</p>
-              <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:700,color:'#ccc',marginTop:6,letterSpacing:'0.15em'}}>{x.l}</p>
-            </div>
-          ))}
         </div>
 
         <div style={{display:'flex',flexDirection:'column',gap:10}}>

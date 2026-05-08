@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { tools, categories } from "@/data/tools"
-import { categoryPath, isDomesticTool } from "@/data/tool-meta"
+import { categoryPath } from "@/data/tool-meta"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { CategoryIcon } from "@/components/CategoryIcon"
@@ -67,22 +67,19 @@ export default function ToolsPage() {
       <main style={{ maxWidth: 1120, margin: "0 auto", padding: "60px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.86)" }} className="max-sm:px-4">
         <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.4em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 700 }}>Directory</p>
         <h1 style={{ fontSize: 36, fontWeight: 900, color: "#fff", letterSpacing: "0.02em", marginBottom: 8 }}>AI工具导航大全</h1>
-        <p style={{ fontSize: 15, color: "#ccc", marginBottom: 18 }}>精选对话AI、AI绘图、AI视频、AI编程、AI办公、Agent平台和模型平台等真实主流工具。先选分类，再看工具排行、免费情况、中文支持和新手推荐。</p>
+        <p style={{ fontSize: 15, color: "#ccc", marginBottom: 18, lineHeight: 1.8 }}>先按你要做的事选分类，再看适合新手的工具。这里保留工具入口，但不让工具名盖过任务本身。</p>
 
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 36 }}>
-          <Link href="/search" className="btn-outline" style={{ textDecoration: "none" }}>搜索全部工具</Link>
-          <Link href="/learn/1" className="btn-outline" style={{ textDecoration: "none" }}>我完全不会 AI</Link>
           <Link href="/search?q=帮我选一个 AI 工具" className="btn-primary" style={{ textDecoration: "none" }}>帮我选工具</Link>
+          <Link href="/search" className="btn-outline" style={{ textDecoration: "none" }}>搜索全部工具</Link>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 12 }}>
           {categories.map((cat) => {
             const items = tools.filter((tool) => tool.category === cat.key)
-            const freeCount = items.filter((tool) => tool.pricing === "免费" || tool.pricing === "有免费额度").length
-            const cnCount = items.filter(isDomesticTool).length
-            const featured = items.filter((tool) => tool.featured).slice(0, 3)
+            const featured = items.filter((tool) => tool.featured).slice(0, 2)
             return (
-              <Link key={cat.key} href={categoryPath(cat.key)} className="card-cat" style={{ display: "block", textDecoration: "none", background: "rgba(255,255,255,0.03)", border: "1px solid #1a1a1a", borderRadius: 12, padding: "22px 24px", minHeight: 220 }}>
+              <Link key={cat.key} href={categoryPath(cat.key)} className="card-cat" style={{ display: "block", textDecoration: "none", background: "rgba(255,255,255,0.03)", border: "1px solid #1a1a1a", borderRadius: 12, padding: "20px 22px", minHeight: 172 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
                   <CategoryIcon category={cat.key} size={22} />
                   <div style={{ flex: 1 }}>
@@ -90,13 +87,8 @@ export default function ToolsPage() {
                     <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, color: "#777", marginTop: 2 }}>{items.length} tools</p>
                   </div>
                 </div>
-                <p style={{ fontSize: 13, color: "#bbb", lineHeight: 1.7, minHeight: 44 }}>{categoryIntro[cat.key] || "精选 AI 工具分类，适合按场景逐步探索。"}</p>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, margin: "18px 0" }}>
-                  <div><p style={{ fontSize: 18, color: "#e8c96a", fontWeight: 900 }}>{freeCount}</p><p style={{ fontSize: 10, color: "#777" }}>免费/额度</p></div>
-                  <div><p style={{ fontSize: 18, color: "#e8c96a", fontWeight: 900 }}>{cnCount}</p><p style={{ fontSize: 10, color: "#777" }}>中文友好</p></div>
-                  <div><p style={{ fontSize: 18, color: "#e8c96a", fontWeight: 900 }}>{featured.length}</p><p style={{ fontSize: 10, color: "#777" }}>推荐</p></div>
-                </div>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                <p style={{ fontSize: 13, color: "#bbb", lineHeight: 1.7, minHeight: 44, marginBottom: 14 }}>{categoryIntro[cat.key] || "精选 AI 工具分类，适合按场景逐步探索。"}</p>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", borderTop: "1px solid #1f1f1f", paddingTop: 12 }}>
                   {featured.map((tool) => <span key={tool.id} className="tag tag-gray" style={{ fontSize: 10 }}>{tool.name}</span>)}
                   {featured.length === 0 && <span className="tag tag-gray" style={{ fontSize: 10 }}>进入查看</span>}
                 </div>

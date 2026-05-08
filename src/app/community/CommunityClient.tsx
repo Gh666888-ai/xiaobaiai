@@ -9,10 +9,9 @@ import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisua
 import { SmartImage } from "@/components/SmartImage"
 import { LevelBadge } from "@/components/LevelBadge"
 import { getUserLevel } from "@/data/user"
-import { inferPostScenarios, scenarioFilters, type ContentScenario } from "@/lib/content-taxonomy"
 import { communityImage } from "@/lib/visual-assets"
 import Link from "next/link"
-import { Heart, MessageCircle, Pin, Search, Trophy, Zap } from "lucide-react"
+import { Heart, MessageCircle, Pin, Search, Trophy } from "lucide-react"
 
 const cats = ["全部","经验分享","踩坑记录","全自动实战","AI分析","问题求助"] as const
 const PAGE_SIZE = 60
@@ -35,7 +34,6 @@ function levelSortPriority(xp: number) {
 
 export default function CommunityPage() {
   const [cat, setCat] = useState<string>("全部")
-  const [scene, setScene] = useState<"all" | ContentScenario>("all")
   const [search, setSearch] = useState("")
   const [posts, setPosts] = useState<any[]>(seedPosts)
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
@@ -60,19 +58,11 @@ export default function CommunityPage() {
 
   useEffect(()=>{setVisibleCount(PAGE_SIZE)},[cat,search])
 
-  useEffect(() => {
-    const value = new URLSearchParams(window.location.search).get("scene")
-    if (scenarioFilters.some((item) => item.key === value)) {
-      setScene(value as "all" | ContentScenario)
-    }
-  }, [])
-
   const authorName = (p:any) => p.author_name || p.author || "匿名用户"
   const authorXP = (p:any) => Number(p.author_xp ?? p.authorXp ?? (authorName(p) === "小白站长" ? 100000 : 0))
 
   const filtered = posts.filter((p:any) => {
     if (cat !== "全部" && p.category !== cat) return false
-    if (scene !== "all" && !inferPostScenarios(p).includes(scene)) return false
     if (search.trim() && !p.title.includes(search) && !p.content.includes(search) && !(p.tags||[]).some((t:any)=>t.includes(search))) return false
     return true
   }).sort((a,b) => {
@@ -93,33 +83,23 @@ export default function CommunityPage() {
       <div style={{maxWidth:1080,margin:'0 auto',padding:'60px 60px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.88)'}} className="max-sm:px-4">
         <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.4em',color:'#7a6230',textTransform:'uppercase',marginBottom:10,fontWeight:700}}>Community</p>
         <h1 style={{fontSize:36,fontWeight:900,color:'#fff',letterSpacing:'0.02em',marginBottom:8}}>社区</h1>
-        <p style={{fontSize:15,fontWeight:500,color:'#ccc',marginBottom:18}}>Agent 实战经验 · 踩坑记录 · AI 可行性分析 · 真实案例看板</p>
+        <p style={{fontSize:15,fontWeight:500,color:'#ccc',marginBottom:18}}>真实复盘、踩坑记录和可复用提示词，优先展示做过一件事的人。</p>
 
         <section style={{display:'grid',gridTemplateColumns:'1fr auto',gap:14,alignItems:'center',border:'1px solid rgba(201,168,76,0.36)',background:'rgba(201,168,76,0.055)',borderRadius:12,padding:'15px 16px',marginBottom:18}} className="max-sm:grid-cols-1">
           <div style={{display:'flex',alignItems:'flex-start',gap:11}}>
             <Trophy size={18} style={{color:'#e8c96a',marginTop:2,flexShrink:0}} />
             <div>
-              <p style={{color:'#fff',fontSize:14,fontWeight:950,marginBottom:4}}>今日发帖 +10XP，评论 +3XP，冲今日经验榜</p>
-              <p style={{color:'#d6c28a',fontSize:12,lineHeight:1.7}}>真实使用经验、提示词案例、避坑记录和工作流过程更容易被审核通过，也更容易被推荐。</p>
+              <p style={{color:'#fff',fontSize:14,fontWeight:950,marginBottom:4}}>做完任务后，把步骤和坑点发出来</p>
+              <p style={{color:'#d6c28a',fontSize:12,lineHeight:1.7}}>真实经验、提示词、失败记录和结果截图，比泛泛评价更有用。</p>
             </div>
           </div>
-          <Link href="/growth" style={{display:'inline-flex',alignItems:'center',justifyContent:'center',gap:7,minHeight:36,padding:'8px 13px',borderRadius:9,border:'1px solid #7a6230',color:'#e8c96a',textDecoration:'none',fontSize:12,fontWeight:950,whiteSpace:'nowrap'}}>
-            <Zap size={14} /> 看今日榜
+          <Link href="/community/new" style={{display:'inline-flex',alignItems:'center',justifyContent:'center',gap:7,minHeight:36,padding:'8px 13px',borderRadius:9,border:'1px solid #7a6230',color:'#e8c96a',textDecoration:'none',fontSize:12,fontWeight:950,whiteSpace:'nowrap'}}>
+            发我的复盘
           </Link>
         </section>
 
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3, 1fr)',gap:8,marginBottom:28}} className="max-sm:grid-cols-1">
-          {[
-            {t:'提交你的 AI 使用案例',h:'/community/new'},
-            {t:'分享踩坑记录',h:'/community/new'},
-            {t:'我想让 AI 帮我分析一个需求',h:'/search?q=我想让 AI 帮我分析一个需求'},
-          ].map(item=>(
-            <Link key={item.t} href={item.h} style={{textDecoration:'none',border:'1px solid #1a1a1a',background:'rgba(255,255,255,0.03)',borderRadius:10,padding:'14px 16px',fontSize:13,fontWeight:700,color:'#ddd',textAlign:'center'}}>{item.t}</Link>
-          ))}
-        </div>
-
         {/* 搜索 */}
-        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:32}}>
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:18}}>
           <div style={{display:'flex',alignItems:'center',background:'rgba(255,255,255,0.04)',border:'1px solid #222',borderRadius:10,maxWidth:400,flex:1}}>
             <Search size={14} style={{marginLeft:14,color:'#777'}} />
             <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="搜索帖子..."
@@ -129,18 +109,7 @@ export default function CommunityPage() {
         </div>
 
         {/* 分类 */}
-        <div style={{marginBottom:20}}>
-          <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:800,color:'#777',letterSpacing:'0.18em',textTransform:'uppercase',marginBottom:10}}>By Scenario</p>
-          <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
-            {scenarioFilters.map(item=>{
-              const isSel = scene===item.key
-              return <button key={item.key} onClick={()=>setScene(item.key)} title={item.desc}
-                style={{fontSize:12,fontWeight:800,padding:'6px 13px',border:`1px solid ${isSel?'#7a6230':'#1a1a1a'}`,color:isSel?'#e8c96a':'#999',background:isSel?'rgba(201,168,76,0.08)':'rgba(255,255,255,0.015)',cursor:'pointer',transition:'0.2s',borderRadius:999,fontFamily:"'Noto Sans SC', sans-serif"}}>{item.label}</button>
-            })}
-          </div>
-        </div>
-
-        <div style={{display:'flex',gap:6,marginBottom:32,flexWrap:'wrap'}}>
+        <div style={{display:'flex',gap:6,marginBottom:24,flexWrap:'wrap'}}>
           {cats.map(c=>{
             const isSel = cat===c
             return <button key={c} onClick={()=>setCat(c)}
