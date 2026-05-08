@@ -45,7 +45,7 @@ function resolveAward(body: any, now = new Date()) {
   const today = dayKey(now)
 
   if (reason === "welcome") {
-    return { ok: true as const, reason, eventKey: "welcome", dayKey: today, amount: 50 }
+    return { ok: false as const, error: "新手礼包已改为完成真实任务后发放，请先进入开始页选择一个任务。" }
   }
 
   if (reason === "check-in") {
@@ -56,6 +56,7 @@ function resolveAward(body: any, now = new Date()) {
     const missionId = String(body?.missionId || "").trim()
     const mission = missionById.get(missionId)
     if (!mission || mission.id === "welcome") return { ok: false as const, error: "任务类型不合法。" }
+    if (mission.claimMode !== "action") return { ok: false as const, error: "这个任务需要在对应页面完成动作后领取。" }
     const eventKey = mission.cadence === "once" ? `mission:${mission.id}` : `mission:${today}:${mission.id}`
     return { ok: true as const, reason: `mission:${mission.id}`, eventKey, dayKey: mission.cadence === "daily" ? today : "", amount: mission.xp }
   }

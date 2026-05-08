@@ -26,7 +26,8 @@ const principles = [
 
 const goalMissionMap: { keywords: string[]; missionId: string }[] = [
   { keywords: ["写文章", "文章", "小红书", "内容", "做视频", "视频", "做图片", "图片", "封面"], missionId: "xiaohongshu-ai-content-loop" },
-  { keywords: ["ppt", "PPT", "办公", "文档", "汇报"], missionId: "kimi-k26-long-doc" },
+  { keywords: ["ppt", "PPT", "做PPT", "做 PPT", "演示", "幻灯片", "汇报"], missionId: "ai-ppt-first-deck" },
+  { keywords: ["办公", "文档", "资料", "总结", "分析"], missionId: "kimi-k26-long-doc" },
   { keywords: ["编程", "代码", "开发", "小功能"], missionId: "codex-small-feature" },
   { keywords: ["claude", "Claude", "deepseek", "DeepSeek", "工程"], missionId: "claude-code-deepseek-project" },
   { keywords: ["agent", "Agent", "知识库", "客服", "店铺", "公司"], missionId: "dify-knowledge-base-bot" },

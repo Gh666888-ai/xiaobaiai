@@ -1,6 +1,6 @@
-export const CHECK_IN_XP = 15
-export const ONLINE_XP_PER_HEARTBEAT = 2
-export const DAILY_ONLINE_XP_CAP = 60
+export const CHECK_IN_XP = 5
+export const ONLINE_XP_PER_HEARTBEAT = 1
+export const DAILY_ONLINE_XP_CAP = 20
 export const LEARNING_STAGE_XP = 80
 
 export type GrowthMission = {
@@ -10,32 +10,40 @@ export type GrowthMission = {
   xp: number
   href: string
   cadence: "once" | "daily"
+  claimMode: "action" | "auto" | "external"
+  proofHint: string
 }
 
 export const GROWTH_MISSIONS: GrowthMission[] = [
   {
     id: "welcome",
-    title: "领取新手启动礼包",
-    desc: "注册登录后先领一份启动 XP，立刻点亮成长舱和右上角等级进度。",
-    xp: 50,
-    href: "/growth",
+    title: "完成新手入门动作",
+    desc: "不是登录就领。先进入开始页，选一个你今天真的想完成的小任务。",
+    xp: 20,
+    href: "/start",
     cadence: "once",
+    claimMode: "external",
+    proofHint: "进入 /start 选定任务后，后续在任务页完成步骤领取经验。",
   },
   {
     id: "ask-ai",
     title: "问 AI 一个真实问题",
-    desc: "不要问泛泛的问题，直接拿今天的工作、学习或生活需求试一次。",
+    desc: "拿今天的工作、学习或生活需求问小白，不奖励空问题。",
     xp: 20,
-    href: "/search?q=我想让 AI 帮我分析一个需求",
+    href: "/chat",
     cadence: "daily",
+    claimMode: "external",
+    proofHint: "完成一次真实提问后，后续可在聊天页接入自动发放。",
   },
   {
     id: "choose-tool",
     title: "完成一次工具选择",
-    desc: "用 AI 工具选择器选出今天最适合你的工具。",
+    desc: "用工具选择器选出今天最适合你的工具，记录为什么选它。",
     xp: 30,
     href: "/choose-tool",
     cadence: "daily",
+    claimMode: "external",
+    proofHint: "需要在选择器里完成问答或保存推荐结果后发放。",
   },
   {
     id: "learn-section",
@@ -44,38 +52,38 @@ export const GROWTH_MISSIONS: GrowthMission[] = [
     xp: 40,
     href: "/learn",
     cadence: "daily",
+    claimMode: "external",
+    proofHint: "章节页已有完成状态，阶段通关后在学习页领取奖励。",
   },
   {
     id: "read-community",
-    title: "读一篇社区经验",
-    desc: "看一篇真实案例，把能复用的一步记下来。",
-    xp: 25,
+    title: "读一篇真实复盘并评论",
+    desc: "看一篇真实案例，补充你的用法、问题或替代工具。",
+    xp: 3,
     href: "/community",
     cadence: "daily",
+    claimMode: "external",
+    proofHint: "评论成功后由评论接口发放经验。",
   },
   {
-    id: "claude-code-deepseek-project",
-    title: "完成 Claude Code + DeepSeek V4 实战任务",
-    desc: "跑通模型后端接入，让工程 Agent 完成一个小 diff 并发复盘。",
-    xp: 80,
-    href: "/missions/claude-code-deepseek-project",
+    id: "ai-ppt-first-deck",
+    title: "完成 AI PPT 初稿任务",
+    desc: "按步骤打开工具、整理资料、生成 6 页初稿、导出并复盘。",
+    xp: 65,
+    href: "/missions/ai-ppt-first-deck",
     cadence: "once",
-  },
-  {
-    id: "codex-small-feature",
-    title: "完成 Codex 小功能实战任务",
-    desc: "让 Codex 在真实项目里完成一个小功能，并用 build/test 验证。",
-    xp: 75,
-    href: "/missions/codex-small-feature",
-    cadence: "once",
+    claimMode: "action",
+    proofHint: "必须在任务详情页完成全部步骤后领取。",
   },
   {
     id: "kimi-k26-long-doc",
-    title: "完成 Kimi K2.6 长文档分析任务",
-    desc: "把一份长文档整理成摘要、风险和行动清单。",
+    title: "完成长文档分析任务",
+    desc: "上传或粘贴资料，生成摘要、风险和行动清单。",
     xp: 60,
     href: "/missions/kimi-k26-long-doc",
     cadence: "once",
+    claimMode: "action",
+    proofHint: "必须在任务详情页完成全部步骤后领取。",
   },
   {
     id: "dify-knowledge-base-bot",
@@ -84,6 +92,8 @@ export const GROWTH_MISSIONS: GrowthMission[] = [
     xp: 70,
     href: "/missions/dify-knowledge-base-bot",
     cadence: "once",
+    claimMode: "action",
+    proofHint: "必须在任务详情页完成全部步骤后领取。",
   },
   {
     id: "n8n-ai-news-automation",
@@ -92,13 +102,37 @@ export const GROWTH_MISSIONS: GrowthMission[] = [
     xp: 75,
     href: "/missions/n8n-ai-news-automation",
     cadence: "once",
+    claimMode: "action",
+    proofHint: "必须在任务详情页完成全部步骤后领取。",
   },
   {
     id: "xiaohongshu-ai-content-loop",
     title: "完成小红书 AI 内容流水线任务",
-    desc: "完成选题、正文、配图提示词和发布检查清单。",
+    desc: "完成选题、正文、配图提示词和发布检查。",
     xp: 60,
     href: "/missions/xiaohongshu-ai-content-loop",
     cadence: "once",
+    claimMode: "action",
+    proofHint: "必须在任务详情页完成全部步骤后领取。",
+  },
+  {
+    id: "codex-small-feature",
+    title: "完成 Codex 小功能实战任务",
+    desc: "让 Codex 在真实项目里完成一个小功能，并用 build/test 验证。",
+    xp: 75,
+    href: "/missions/codex-small-feature",
+    cadence: "once",
+    claimMode: "action",
+    proofHint: "必须在任务详情页完成全部步骤后领取。",
+  },
+  {
+    id: "claude-code-deepseek-project",
+    title: "完成 Claude Code + DeepSeek V4 实战任务",
+    desc: "跑通模型后端接入，让工程 Agent 完成一个小 diff 并发复盘。",
+    xp: 80,
+    href: "/missions/claude-code-deepseek-project",
+    cadence: "once",
+    claimMode: "action",
+    proofHint: "必须在任务详情页完成全部步骤后领取。",
   },
 ]

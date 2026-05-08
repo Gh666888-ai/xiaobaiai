@@ -39,17 +39,6 @@ const GROWTH_KEY = "xiaobaiai:growth:v1"
 
 const missions = GROWTH_MISSIONS
 
-const levelBenefits = [
-  "解锁成长档案，记录每日任务和在线经验。",
-  "社区昵称显示星火等级，评论更容易被看见。",
-  "学习路径进度展示更完整，推荐更贴近新手。",
-  "社区身份升级，发帖和评论显示金核徽章。",
-  "Agent和工作流内容优先推荐，适合进阶用户。",
-  "星环身份展示，后续优先开放高级模板。",
-  "皇冠身份展示，社区高阶玩家标识。",
-  "小白AI共创者身份，参与内测和共创展示。",
-]
-
 function todayKey() {
   return new Date().toISOString().slice(0, 10)
 }
@@ -76,19 +65,11 @@ function missionDoneKey(mission: { id: string; cadence?: string }, today: string
   return mission.cadence === "once" ? `once:${mission.id}` : `${today}:${mission.id}`
 }
 
-function levelName(xp: number) {
-  if (xp >= 1200) return { name: "Agent 实战者", next: 1600 }
-  if (xp >= 700) return { name: "工作流搭建者", next: 1200 }
-  if (xp >= 360) return { name: "AI 工具熟手", next: 700 }
-  if (xp >= 120) return { name: "提示词练习生", next: 360 }
-  return { name: "AI 新手", next: 120 }
-}
-
 function levelBadge(xp: number) {
-  if (xp >= 1200) return { title: "实战徽章", subtitle: "已经能独立搭 Agent", color: "#e8c96a", mood: "complete" as const }
-  if (xp >= 700) return { title: "工作流徽章", subtitle: "能把工具串成流程", color: "#3DA563", mood: "recommend" as const }
-  if (xp >= 360) return { title: "工具熟手徽章", subtitle: "能判断工具适不适合", color: "#e8c96a", mood: "happy" as const }
-  if (xp >= 120) return { title: "练习生徽章", subtitle: "开始稳定练提示词", color: "#c9a84c", mood: "thinking" as const }
+  if (xp >= 1200) return { title: "高级身份已点亮", subtitle: "名牌、边框和主页装饰会逐步变亮", color: "#e8c96a", mood: "complete" as const }
+  if (xp >= 700) return { title: "个性装饰已解锁", subtitle: "社区身份会比普通用户更显眼", color: "#3DA563", mood: "recommend" as const }
+  if (xp >= 360) return { title: "金色名牌已解锁", subtitle: "评论和主页开始有等级辨识度", color: "#e8c96a", mood: "happy" as const }
+  if (xp >= 120) return { title: "基础头像框已解锁", subtitle: "开始有自己的成长身份", color: "#c9a84c", mood: "thinking" as const }
   return { title: "新手徽章", subtitle: "从第一步开始发光", color: "#c9a84c", mood: "welcome" as const }
 }
 
@@ -144,9 +125,12 @@ export default function GrowthClient() {
   const today = todayKey()
   const checkedToday = state.lastCheckIn === today
   const doneCount = missions.filter((mission) => state.doneMissions[missionDoneKey(mission, today)]).length
-  const level = levelName(state.xp)
+  const currentLevel = LEVELS.slice().reverse().find((item) => state.xp >= item.minXP) || LEVELS[0]
+  const nextLevel = LEVELS.find((item) => item.minXP > state.xp)
   const badge = levelBadge(state.xp)
-  const levelPercent = Math.min(100, Math.round((state.xp / level.next) * 100))
+  const levelBaseXP = currentLevel.minXP
+  const levelNextXP = nextLevel?.minXP || Math.max(currentLevel.minXP + 1, state.xp)
+  const levelPercent = Math.min(100, Math.round(((state.xp - levelBaseXP) / Math.max(1, levelNextXP - levelBaseXP)) * 100))
   const currentDailyXP = viewerHint?.dailyXP || 0
   const topDailyXP = dailyLeaders[0]?.xp || 68
   const needToTop = Math.max(0, topDailyXP - currentDailyXP + 1)
@@ -154,13 +138,13 @@ export default function GrowthClient() {
   const welcomeDone = !!welcomeMission && !!state.doneMissions[missionDoneKey(welcomeMission, today)]
   const starterSteps = [
     {
-      title: "领新手礼包",
-      desc: "先拿 50XP，今天就有机会进入榜单前排。",
-      xp: 50,
+      title: "先选一个真实任务",
+      desc: "不再登录就领经验。先选今天要做成什么，完整完成后再拿大额 XP。",
+      xp: 0,
       done: welcomeDone || state.xp >= 50,
       href: "/growth",
-      action: user ? "领取礼包" : "注册领取",
-      onClick: () => user ? finishMission("welcome") : requireLogin(),
+      action: "去开始",
+      onClick: () => router.push("/start"),
     },
     {
       title: "评论一条经验",
@@ -242,6 +226,10 @@ export default function GrowthClient() {
     if (!user) return requireLogin()
     const mission = missions.find((item) => item.id === missionId)
     if (!mission) return
+    if (mission.claimMode !== "action") {
+      router.push(mission.href)
+      return
+    }
     const key = missionDoneKey(mission, today)
     if (state.doneMissions[key] || claiming) return
     setNotice("")
@@ -317,9 +305,9 @@ export default function GrowthClient() {
             </div>
             <div style={{ border: "1px solid rgba(201,168,76,0.38)", borderRadius: 10, background: "rgba(0,0,0,0.22)", padding: "10px 12px", minWidth: 190 }}>
               <p style={{ color: "#aaa", fontSize: 11, marginBottom: 4 }}>今日进度</p>
-              <p style={{ color: "#fff", fontSize: 15, fontWeight: 950 }}>{user ? `${currentDailyXP} XP` : "注册后从 50XP 起步"}</p>
+              <p style={{ color: "#fff", fontSize: 15, fontWeight: 950 }}>{user ? `${currentDailyXP} XP` : "登录后记录真实完成"}</p>
               <p style={{ color: needToTop <= 0 ? "#3DA563" : "#d6c28a", fontSize: 11, lineHeight: 1.65, marginTop: 4 }}>
-                {!user ? "领完礼包就能冲前排" : needToTop <= 0 ? "你今天已经有机会冲第一" : `再拿 ${needToTop} XP 可冲今日第 1`}
+                {!user ? "经验来自任务、学习、发帖和评论" : needToTop <= 0 ? "你今天已经有机会冲第一" : `再拿 ${needToTop} XP 可冲今日第 1`}
               </p>
             </div>
           </div>
@@ -333,8 +321,8 @@ export default function GrowthClient() {
                 <p style={{ color: "#fff", fontSize: 15, fontWeight: 950, marginBottom: 6 }}>{step.title}</p>
                 <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7, flex: 1 }}>{step.desc}</p>
                 {index === 0 ? (
-                  <button type="button" onClick={step.onClick} disabled={!!user && (step.done || claiming === "welcome")} className={step.done ? "btn-outline" : "btn-primary"} style={{ marginTop: 12, justifyContent: "center", fontSize: 12 }}>
-                    {!user ? step.action : claiming === "welcome" ? "写入中..." : step.done ? "已完成" : step.action}
+                  <button type="button" onClick={step.onClick} className="btn-primary" style={{ marginTop: 12, justifyContent: "center", fontSize: 12 }}>
+                    {step.action}
                   </button>
                 ) : (
                   <Link href={step.href} className="btn-outline" style={{ marginTop: 12, justifyContent: "center", fontSize: 12, textDecoration: "none" }}>{step.action}</Link>
@@ -346,7 +334,7 @@ export default function GrowthClient() {
 
         <section style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: 10, marginBottom: 18 }} className="max-sm:grid-cols-2">
           {[
-            { icon: <Trophy size={18} />, label: "等级", value: level.name },
+            { icon: <Trophy size={18} />, label: "等级", value: `LV.${currentLevel.level} ${currentLevel.name}` },
             { icon: <Sparkles size={18} />, label: "经验值", value: `${state.xp} XP` },
             { icon: <Flame size={18} />, label: "连续打卡", value: `${state.streak} 天` },
             { icon: <CheckCircle2 size={18} />, label: registeredUsers === null ? "今日任务" : "注册用户", value: registeredUsers === null ? `${doneCount}/${missions.length}` : `${registeredUsers} 人` },
@@ -362,11 +350,16 @@ export default function GrowthClient() {
         <section style={{ border: "1px solid #2a1f10", borderRadius: 12, padding: 18, background: "rgba(201,168,76,0.05)", marginBottom: 18 }}>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 10, alignItems: "center" }}>
             <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>等级进度</p>
-            <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 12, fontWeight: 900 }}>{state.xp}/{level.next}</p>
+            <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 12, fontWeight: 900 }}>
+              {nextLevel ? `${state.xp}/${nextLevel.minXP}` : `${state.xp} XP`}
+            </p>
           </div>
-          <div style={{ height: 9, background: "#111", border: "1px solid #242424", borderRadius: 999, overflow: "hidden" }}>
-            <div style={{ height: "100%", width: `${levelPercent}%`, background: "linear-gradient(90deg,#7a6230,#e8c96a)", transition: "width 0.3s" }} />
-          </div>
+              <div style={{ height: 9, background: "#111", border: "1px solid #242424", borderRadius: 999, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${levelPercent}%`, background: "linear-gradient(90deg,#7a6230,#e8c96a)", transition: "width 0.3s" }} />
+              </div>
+              <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7, marginTop: 10 }}>
+                当前权益：{currentLevel.reward.vanity}{nextLevel ? `。再拿 ${nextLevel.minXP - state.xp} XP 解锁 LV.${nextLevel.level} ${nextLevel.name}。` : "。你已经点亮最高身份。"}
+              </p>
         </section>
 
         <section style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 20, marginBottom: 18 }}>
@@ -436,9 +429,16 @@ export default function GrowthClient() {
                     </div>
                     <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
                       <Link href={mission.href} className="btn-outline" style={{ fontSize: 11, padding: "6px 13px", textDecoration: "none" }}>去完成</Link>
-                      <button onClick={() => finishMission(mission.id)} disabled={!!user && (done || claiming === mission.id)} className={done ? "btn-outline" : "btn-primary"} style={{ fontSize: 11, padding: "6px 13px" }}>
-                        {!user ? "登录领取" : claiming === mission.id ? "写入中..." : done ? "已领取" : "领取经验"}
-                      </button>
+                      {mission.claimMode === "action" ? (
+                        <Link href={mission.href} className={done ? "btn-outline" : "btn-primary"} style={{ fontSize: 11, padding: "6px 13px", textDecoration: "none" }}>
+                          {done ? "已领取" : "完成后领取"}
+                        </Link>
+                      ) : (
+                        <Link href={mission.href} className="btn-outline" style={{ fontSize: 11, padding: "6px 13px", textDecoration: "none" }}>
+                          去完成动作
+                        </Link>
+                      )}
+                      <p style={{ color: "#777", fontSize: 11, lineHeight: 1.65, width: "100%", marginTop: 4 }}>{mission.proofHint}</p>
                     </div>
                   </div>
                 )
@@ -475,10 +475,11 @@ export default function GrowthClient() {
         <section style={{ marginTop: 18, border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 20 }}>
           <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, marginBottom: 14 }}>升级有什么好处</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
-            {LEVELS.map((item, index) => (
+            {LEVELS.map((item) => (
               <div key={item.level} style={{ border: `1px solid ${state.xp >= item.minXP ? item.color : "#242424"}`, borderRadius: 10, background: state.xp >= item.minXP ? `${item.color}12` : "rgba(0,0,0,0.24)", padding: "14px 15px" }}>
                 <p style={{ color: state.xp >= item.minXP ? item.accent : "#aaa", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>LV.{item.level} {item.name}</p>
-                <p style={{ color: "#bbb", fontSize: 12, lineHeight: 1.75, marginBottom: 8 }}>{levelBenefits[index]}</p>
+                <p style={{ color: state.xp >= item.minXP ? item.accent : "#bbb", fontSize: 12, fontWeight: 950, lineHeight: 1.55, marginBottom: 5 }}>{item.reward.title}</p>
+                <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginBottom: 8 }}>{item.reward.vanity}</p>
                 <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10 }}>{item.minXP} XP 解锁</p>
               </div>
             ))}
