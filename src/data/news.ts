@@ -61,13 +61,41 @@ Mac：打开 Terminal。
 
 ## 第三步：安装 Claude Code
 
-继续复制这一行到终端，按回车：
+如果你用的是 Windows PowerShell，复制这一行到终端，按回车：
 
-\`npm install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com\`
+\`npm.cmd install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com\`
+
+如果你用的是 Mac，复制这一行：
+
+\`npm install -g @anthropic-ai/claude-code\`
 
 它会自己下载，等它跑完。
 
 如果中途停住，先别乱改，把截图发给右下角小白。
+
+## 常见红字：npm.ps1 被禁止运行
+
+如果你看到这种红字：
+
+\`无法加载文件 ... npm.ps1，因为在此系统上禁止运行脚本\`
+
+这不是 Node.js 没装好，也不是 Claude Code 安装包坏了。
+
+原因是 Windows PowerShell 的安全策略拦住了 npm 的脚本文件。
+
+小白先用最简单的解决法：把命令里的 npm 改成 npm.cmd。
+
+复制这一行重新执行：
+
+\`npm.cmd install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com\`
+
+如果还是不行，再复制这一行，按回车：
+
+\`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned\`
+
+出现确认时输入 Y，再按回车。
+
+然后重新执行安装命令。
 
 ## 第四步：确认安装成功
 
@@ -86,6 +114,229 @@ Mac：打开 Terminal。
 我已经装好 Claude Code，我是 Windows 还是 Mac，我想用它做什么。
 
 小白会根据你的电脑和目标，继续给你下一步复制命令。`
+
+const deepseekApiBeginnerGuide = [
+  "## 先选最简单路线",
+  "",
+  "如果你不会写代码，先不用看 Python / Node.js。",
+  "",
+  "你只做三件事：注册 DeepSeek、复制 API Key、填进 Chatbox 或 Cherry Studio。",
+  "",
+  "## 第一步：注册并获取 API Key",
+  "",
+  "1. 打开浏览器。",
+  "2. 输入 platform.deepseek.com。",
+  "3. 用手机号或邮箱注册。",
+  "4. 进入 API Keys / 密钥管理。",
+  "5. 点击创建 API Key。",
+  "6. 复制 sk- 开头的密钥。",
+  "",
+  "注意：API Key 通常只完整显示一次。复制后先粘到自己的记事本里，不要发群里。",
+  "",
+  "## 第二步：零代码使用",
+  "",
+  "1. 打开 chatboxai.app，下载 Chatbox。",
+  "2. 双击安装。",
+  "3. 打开 Chatbox。",
+  "4. 进入设置。",
+  "5. 模型提供方选「自定义」或「OpenAI Compatible」。",
+  "6. API 地址填：",
+  "",
+  "    https://api.deepseek.com/v1",
+  "",
+  "7. API Key 填你刚才复制的 sk- 密钥。",
+  "8. 模型名填：",
+  "",
+  "    deepseek-chat",
+  "",
+  "9. 保存后问一句：你好，请用中文回答。",
+  "",
+  "能回答，就说明接入成功。",
+  "",
+  "## 第三步：会写代码的人再看这一段",
+  "",
+  "如果你已经会 Python，可以复制下面代码测试：",
+  "",
+  "    from openai import OpenAI",
+  "    client = OpenAI(api_key=\"sk-xxx\", base_url=\"https://api.deepseek.com/v1\")",
+  "    response = client.chat.completions.create(",
+  "        model=\"deepseek-chat\",",
+  "        messages=[{\"role\":\"user\",\"content\":\"你好\"}]",
+  "    )",
+  "    print(response.choices[0].message.content)",
+  "",
+  "如果你看不懂这段代码，先跳过，不影响你正常用 AI。",
+  "",
+  "## 常见问题",
+  "",
+  "401：API Key 填错了，检查有没有多空格。",
+  "",
+  "402 或 insufficient balance：余额不足，先去 DeepSeek 控制台充值。",
+  "",
+  "model not found：模型名写错，先用 deepseek-chat 测试。",
+  "",
+  "timeout：网络不稳定，稍后重试。",
+].join("\n")
+
+const codexBeginnerGuide = [
+  "## 先做最小成功",
+  "",
+  "这一页只做一件事：让 Codex 能在你的电脑上打开。",
+  "",
+  "## 第一步：安装 Codex",
+  "",
+  "Windows 最简单：",
+  "",
+  "1. 打开微软商店。",
+  "2. 搜「Codex」。",
+  "3. 点获取。",
+  "4. 安装完成后打开。",
+  "",
+  "如果你用的是终端版，先打开 PowerShell，再输入：",
+  "",
+  "    codex --version",
+  "",
+  "能显示版本号，说明安装成功。",
+  "",
+  "## 第二步：获取 API Key",
+  "",
+  "如果你用中转站，流程一般是：注册 → 充值 → 创建 API Key → 复制 sk- 开头的密钥。",
+  "",
+  "小白提醒：先少量充值测试，不要一开始充很多。",
+  "",
+  "## 第三步：创建 Codex 配置文件",
+  "",
+  "Windows 用户打开文件夹，在地址栏输入：",
+  "",
+  "    %USERPROFILE%\\.codex",
+  "",
+  "如果没有这个文件夹，就新建一个 .codex 文件夹。",
+  "",
+  "在里面新建 config.toml，内容复制下面这段：",
+  "",
+  "    model_provider = \"myproxy\"",
+  "    model = \"gpt-5.5\"",
+  "    [model_providers.myproxy]",
+  "    name = \"myproxy\"",
+  "    base_url = \"https://api.aicode007.com/v1\"",
+  "    wire_api = \"responses\"",
+  "    env_key = \"OPENAI_API_KEY\"",
+  "",
+  "再新建 auth.json，内容复制下面这段，把 sk-你的密钥 换成自己的 Key：",
+  "",
+  "    {\"OPENAI_API_KEY\":\"sk-你的密钥\"}",
+  "",
+  "## 第四步：启动",
+  "",
+  "打开 PowerShell，输入：",
+  "",
+  "    codex",
+  "",
+  "如果让你选择登录方式，选 Provide your own API key。",
+  "",
+  "## 常见红字",
+  "",
+  "/status 显示未连接：检查 base_url 有没有 /v1。",
+  "",
+  "反复重连：中转站或网络不稳定，等几分钟再试。",
+  "",
+  "桌面版卡住：先用终端版 codex 测试，更容易看到报错。",
+].join("\n")
+
+const proxyBeginnerGuide = [
+  "## 先说人话",
+  "",
+  "中转站就是：你不用海外信用卡，直接用人民币买模型 API 额度。",
+  "",
+  "小白只需要记住两样东西：",
+  "",
+  "1. base_url：服务地址。",
+  "2. API Key：你的密钥。",
+  "",
+  "## Claude Code 配置模板",
+  "",
+  "Windows PowerShell 不要复制 export。Windows 复制下面这段：",
+  "",
+  "    $env:ANTHROPIC_BASE_URL=\"https://api.aicode007.com\"",
+  "    $env:ANTHROPIC_AUTH_TOKEN=\"sk-你的密钥\"",
+  "    claude",
+  "",
+  "Mac / Linux / WSL 才复制下面这段：",
+  "",
+  "    export ANTHROPIC_BASE_URL=https://api.aicode007.com",
+  "    export ANTHROPIC_AUTH_TOKEN=sk-你的密钥",
+  "    claude",
+  "",
+  "如果你在 Windows PowerShell 里复制 export，会报错。那不是模型问题，是命令用错系统了。",
+  "",
+  "## Codex 配置模板",
+  "",
+  "config.toml 里填：",
+  "",
+  "    base_url = \"https://api.aicode007.com/v1\"",
+  "    wire_api = \"responses\"",
+  "    env_key = \"OPENAI_API_KEY\"",
+  "",
+  "auth.json 里填：",
+  "",
+  "    {\"OPENAI_API_KEY\":\"sk-你的密钥\"}",
+  "",
+  "## 不要做的事",
+  "",
+  "不要把 API Key 发群里。",
+  "",
+  "不要截图发带完整 Key 的页面。",
+  "",
+  "不要一次充很多钱，先充小额跑通。",
+  "",
+  "价格低到离谱的平台先别碰，先看有没有长期运营记录。",
+].join("\n")
+
+const ollamaBeginnerGuide = [
+  "## 第一步：安装 Ollama",
+  "",
+  "1. 打开浏览器。",
+  "2. 输入 ollama.com。",
+  "3. 点击 Download。",
+  "4. 选择你的系统版本。",
+  "5. Windows 下载后双击安装，一路 Next / Install / Finish。",
+  "",
+  "## 第二步：打开终端",
+  "",
+  "Windows：按 Win 键，输入 cmd，打开「命令提示符」。",
+  "",
+  "Mac：打开 Terminal。",
+  "",
+  "## 第三步：先跑一个小模型",
+  "",
+  "新手不要一上来下载 32B。先复制这一行：",
+  "",
+  "    ollama run qwen3:7b",
+  "",
+  "第一次会自动下载，等它跑完。",
+  "",
+  "看到 >>> 以后，直接输入中文问题。",
+  "",
+  "## 第四步：电脑配置够再下载大模型",
+  "",
+  "16GB 内存可以试：",
+  "",
+  "    ollama run qwen3:14b",
+  "",
+  "32GB 内存再试：",
+  "",
+  "    ollama run deepseek-r1:32b",
+  "",
+  "## 常见红字",
+  "",
+  "ollama 不是内部或外部命令：关闭终端重新打开。如果还不行，重启电脑，再打开 cmd。",
+  "",
+  "下载很慢：模型很大，不是卡死。先用 qwen3:7b，小模型更容易成功。",
+  "",
+  "电脑很卡：模型太大，按 Ctrl+C 退出，换 qwen3:7b。",
+  "",
+  "出现 >>>：说明已经成功，可以开始问问题。",
+].join("\n")
 
 const baseNews: NewsItem[] = [
   {
@@ -229,12 +480,12 @@ const baseNews: NewsItem[] = [
   {id:"news-49",title:"苹果调整资本策略：千亿美元回购 + AI 研发成第一优先级",summary:"苹果宣布放弃「净现金中性」目标，候任CEO特努斯将优先留存现金用于 AI 研发、战略性并购和顶尖人才引进，同时批准新一轮1000亿美元股票回购计划。此举意在追赶微软、谷歌在 AI 领域的巨额投入。",url:"#",source:"综合报道",category:"行业动态",publishedAt:"2026-05-05",content:"",importance:7,isAutoGenerated:true},
   {id:"news-50",title:"《Science》重磅：OpenAI o1 急诊诊断准确率超越人类主治医师",summary:"《Science》发表的最新研究显示，OpenAI o1 在急诊科诊断准确率达67.1%，显著超过人类主治医师的55.3%和住院医师的50.0%。这是 AI 在临床医学领域首次在严格对照试验中超越人类专家。",url:"#",source:"Science",category:"深度解读",publishedAt:"2026-05-05",content:"",importance:7,isAutoGenerated:true},
   // ===== 2026年5月新增教程 =====
-  {id:"news-62",title:"小白安装 Claude Code：只做到能看到版本号",summary:claudeCodeBeginnerSummary,url:"#",source:"小白AI 原创",category:"教程资源",publishedAt:"2026-05-06",content:claudeCodeBeginnerGuide,importance:9,isAutoGenerated:true},
-  {id:"news-63",title:"DeepSeek V4 API接入全攻略：注册→充值→代码实战（极简版）",summary:"DeepSeek V4是当前性价比最高的AI模型之一，API价格全球最低。本文覆盖：①注册DeepSeek开发者账号（送免费额度）②获取API Key ③Python/Node.js接入代码示例 ④用Chatbox/Cherry Studio等客户端零代码使用。",url:"https://platform.deepseek.com/api-docs",source:"AI第一站 原创",category:"教程资源",publishedAt:"2026-05-06",content:"## 第一步：注册并获取API Key\n\n访问 platform.deepseek.com → 用手机号注册 → 进入「API Keys」→ 创建新Key。新用户送500万token免费额度。\n\n## 第二步：Python接入（5行代码）\n\n```python\nfrom openai import OpenAI\nclient = OpenAI(api_key=\"sk-xxx\", base_url=\"https://api.deepseek.com/v1\")\nresponse = client.chat.completions.create(\n    model=\"deepseek-chat\",\n    messages=[{\"role\":\"user\",\"content\":\"你好\"}]\n)\nprint(response.choices[0].message.content)\n```\n\n## 第三步：零代码使用\n\n下载Chatbox（chatboxai.app）→ 设置 → 模型提供方选「自定义」→ API地址填 `https://api.deepseek.com/v1` → 填入Key → 模型选deepseek-chat。搞定！\n\n## 价格对比\n\n- DeepSeek V4：输入¥1/百万token，输出¥2/百万token\n- GPT-5.5：输入$5/百万token，输出$30/百万token\n- 同样任务DeepSeek便宜30-50倍\n\n## 适用场景\n\n日常开发、数据分析、客服机器人 → DeepSeek V4完全够用\n复杂Agent推理、多步编程 → 建议GPT-5.5",importance:9,isAutoGenerated:true},
-  {id:"news-64",title:"Codex国内使用终极指南：从安装到配置中转站全流程",summary:"OpenAI Codex于2026年5月正式登陆Windows桌面版，但国内用户面临三重障碍。本指南逐一击破：①微软商店直接安装 ②config.toml配中转站 ③API Key获取渠道对比。",url:"#",source:"AI第一站 原创",category:"教程资源",publishedAt:"2026-05-06",content:"## 第一步：安装Codex\n\n最简单：打开微软商店，搜「Codex」，点获取。不需要翻墙。\n\n## 第二步：获取API Key\n\n推荐AICode007（aicode007.com）：注册→充值（微信¥10起）→创建API Key。\n\n## 第三步：配置中转\n\n创建配置文件 `C:\\Users\\你的用户名\\.codex\\config.toml`：\n```toml\nmodel_provider = \"myproxy\"\nmodel = \"gpt-5.5\"\n[model_providers.myproxy]\nname = \"myproxy\"\nbase_url = \"https://api.aicode007.com/v1\"\nwire_api = \"responses\"\nenv_key = \"OPENAI_API_KEY\"\n```\n\n创建 `auth.json`：\n```json\n{\"OPENAI_API_KEY\":\"sk-你的密钥\"}\n```\n\n## 第四步：启动\n\n终端输入 `codex`，选择「Provide your own API key」，粘贴密钥。如果卡在启动页，开一下代理让它完成初始化，后续不需要。\n\n## 常见坑\n\n- /status显示未连接→检查base_url有没有/v1后缀\n- 反复重连→中转站波动，等几分钟或换网络\n- 桌面版卡住→用CLI版更稳定",importance:9,isAutoGenerated:true},
+  {id:"news-62",title:"小白安装 Claude Code：只做到能看到版本号",summary:claudeCodeBeginnerSummary,url:"#",source:"小白AI 原创",category:"教程资源",publishedAt:"2026-05-06",content:claudeCodeBeginnerGuide,importance:12,isAutoGenerated:true},
+  {id:"news-63",title:"DeepSeek V4 API接入全攻略：注册→充值→零代码使用",summary:"先不让小白看代码，先注册 DeepSeek、复制 API Key、填进 Chatbox 或 Cherry Studio。会写代码的人再看 Python 示例。",url:"https://platform.deepseek.com/api-docs",source:"AI第一站 原创",category:"教程资源",publishedAt:"2026-05-06",content:deepseekApiBeginnerGuide,importance:11,isAutoGenerated:true},
+  {id:"news-64",title:"Codex国内使用指南：从安装到配置中转站全流程",summary:"把 Codex 安装、API Key、config.toml、auth.json 和启动命令拆成小白能复制的步骤，优先解决 Windows 终端看不懂的问题。",url:"#",source:"AI第一站 原创",category:"教程资源",publishedAt:"2026-05-06",content:codexBeginnerGuide,importance:12,isAutoGenerated:true},
   {id:"news-65",title:"2026年5月AI模型选型指南：GPT-5.5 vs DeepSeek V4 vs Claude Opus 4.7",summary:"三大旗舰模型价格差高达100倍，实际能力差距有多大？从编程、推理、中文、长文本四个维度实测对比，附各场景最优选择建议。",url:"#",source:"AI第一站 原创",category:"深度解读",publishedAt:"2026-05-06",content:"## 编程能力\n\n- SWE-Bench：DeepSeek V4 80.6% > GPT-5.5 58.6%\n- Terminal-Bench：GPT-5.5 82.7% > DeepSeek V4 67.9%\n- 纯代码生成：DeepSeek更强\n- 自主调试+工程决策：GPT-5.5更强\n\n## 推理能力\n\nGPQA Diamond：GPT-5.5 93.6% > DeepSeek V4 90.1% > Claude Opus 4.7 89.8%\n\n## 中文能力\n\n三旗舰中GPT-5.5中文最强，DeepSeek原生中文也不弱，Claude中文稍逊但写作质量高。\n\n## 价格\n\n- DeepSeek V4：¥1-2/百万token\n- GPT-5.5：$5-30/百万token\n- Claude Opus 4.7：$5-25/百万token\n\n## 选型建议\n\n- 日常开发/性价比 → DeepSeek V4\n- 复杂Agent/高精度推理 → GPT-5.5\n- 创意写作/长文 → Claude Opus 4.7\n- 钱少活多 → DeepSeek V4打底，复杂任务切GPT-5.5",importance:9,isAutoGenerated:true},
-  {id:"news-66",title:"手把手教你用AI中转站：零门槛接入GPT-5.5和Claude",summary:"不用海外信用卡、不用翻墙、10分钟搞定。对比主流中转站的价格、延迟、稳定性，附配置模板。",url:"#",source:"AI第一站 原创",category:"教程资源",publishedAt:"2026-05-06",content:"## 什么是中转站？\n\n中转站=服务商批发买API额度→在国内搭代理→你用人民币按量付费。只需改一个base_url就能接入GPT/Claude。\n\n## 主流中转站对比\n\n| 平台 | 起充 | 价格 | 特点 |\n|------|------|------|------|\n| AICode007 | ¥10 | 按量 | Codex/Claude专用，配置简单 |\n| ModaPlex | ¥0.3=1刀 | 按量 | 新用户送5刀，多工具统一 |\n| proaiapi | ¥10 | 折扣3-5折 | 性价比最高，延迟300ms内 |\n| n1n.ai | ¥50 | 1:1汇率 | 企业级，SLA 99.9% |\n\n## 配置模板（Claude Code）\n\n```bash\nexport ANTHROPIC_BASE_URL=https://api.aicode007.com\nexport ANTHROPIC_API_KEY=sk-你的密钥\n```\n\n## Codex配置\n\nconfig.toml里：\n```toml\nbase_url = \"https://api.aicode007.com/v1\"\nwire_api = \"responses\"\nenv_key = \"OPENAI_API_KEY\"\n```\n\nauth.json里：\n```json\n{\"OPENAI_API_KEY\":\"sk-你的密钥\"}\n```\n\n## 注意事项\n\n- 少量充值、用多少充多少\n- 优先选有长期运营记录的平台\n- 避开价格异常低的野鸡站",importance:8,isAutoGenerated:true},
-  {id:"news-67",title:"本地跑DeepSeek V4：Ollama安装+模型下载+128K上下文实战",summary:"DeepSeek V4可在本地运行（需16GB+内存）。本教程覆盖Ollama安装、模型下载、超长上下文配置。完全免费，数据不出门。",url:"https://ollama.com",source:"AI第一站 原创",category:"教程资源",publishedAt:"2026-05-06",content:"## 系统要求\n\n- 最低16GB内存\n- 推荐32GB+内存或12GB+显存\n- Windows/Mac/Linux全支持\n\n## 第一步：安装Ollama\n\n访问 ollama.com → 下载对应系统版本 → 双击安装。\n\n## 第二步：下载DeepSeek V4\n\n```bash\nollama pull deepseek-r1:32b\n```\n\n32B版本约20GB，下载需要20-40分钟。配置好的电脑可以跑70B版本。\n\n## 第三步：开始对话\n\n```bash\nollama run deepseek-r1:32b\n```\n\n出现>>>就可以输入中文了。\n\n## 对比API版本\n\n| 维度 | 本地 | API |\n|------|------|-----|\n| 费用 | 免费 | ¥1-2/百万token |\n| 速度 | 取决于配置 | 极快 |\n| 隐私 | 数据不出门 | 经过第三方 |\n| 模型大小 | 受限 | 可用最大版本 |\n\n## 建议\n\n日常聊天写文案→本地32B够用\n编程推理→API版更快更强\n数据敏感→优先本地",importance:8,isAutoGenerated:true},
+  {id:"news-66",title:"手把手教你用AI中转站：Windows 和 Mac 命令分开复制",summary:"中转站教程改成小白版：Windows PowerShell 不复制 export，Mac/Linux/WSL 才用 export，并提醒 API Key 不要外泄。",url:"#",source:"AI第一站 原创",category:"教程资源",publishedAt:"2026-05-06",content:proxyBeginnerGuide,importance:11,isAutoGenerated:true},
+  {id:"news-67",title:"Ollama安装+模型下载：先跑小模型，再跑DeepSeek",summary:"本地模型教程改成先安装 Ollama、打开 cmd、复制 ollama run qwen3:7b。32B 大模型放到后面，避免小白第一步就卡住。",url:"https://ollama.com",source:"AI第一站 原创",category:"教程资源",publishedAt:"2026-05-06",content:ollamaBeginnerGuide,importance:11,isAutoGenerated:true},
   {id:"news-68",title:"AI写代码哪家强？2026年5月主流工具横向评测",summary:"实测对比GPT-5.5 Codex、Claude Code、Cursor、GitHub Copilot、通义灵码、MarsCode等12款AI编程工具。",url:"#",source:"AI第一站 原创",category:"深度解读",publishedAt:"2026-05-06",content:"## 评测工具\n\n| 工具 | 安装难度 | 代码准确率 | Debug | 中文 | 价格 |\n|------|---------|-----------|-------|------|------|\n| Claude Code | ★★★★ | 95% | ★★★★★ | ★★★ | 付费 |\n| GPT-5.5 Codex | ★★★ | 94% | ★★★★★ | ★★★★ | 按量 |\n| Cursor | ★★ | 90% | ★★★★ | ★★★ | ¥140/月 |\n| GitHub Copilot | ★ | 85% | ★★★ | ★★★ | $10/月 |\n| 通义灵码 | ★ | 80% | ★★ | ★★★★★ | 免费 |\n| MarsCode | ★ | 78% | ★★ | ★★★★★ | 免费 |\n\n## 选型建议\n\n- 追求最强能力 → Claude Code或GPT-5.5 Codex\n- 日常开发性价比 → Cursor\n- 纯中文场景免费 → 通义灵码\n- 不想折腾 → MarsCode在线IDE",importance:8,isAutoGenerated:true},
   {id:"news-69",title:"用Dify+DeepSeek V4搭建个人知识库问答系统（零代码）",summary:"DeepSeek V4的128K上下文+极低API价格，是搭建知识库QA的最佳组合。全程零代码，30分钟搞定。",url:"https://docs.dify.ai",source:"AI第一站 原创",category:"教程资源",publishedAt:"2026-05-06",content:"## 第一步：注册Dify\n\n访问 cloud.dify.ai → 邮箱注册 → 登录。\n\n## 第二步：配置DeepSeek V4\n\n设置→模型供应商→添加DeepSeek→填入API Key。\n\n## 第三步：创建知识库\n\n上传你的文档（PDF/Word/网页）→ AI自动分段处理 → 等待2-3分钟。\n\n关键设置：索引模式选「高质量」、检索策略选「混合检索」、Top K设为5。\n\n## 第四步：创建聊天助手\n\n选择知识库+DeepSeek模型 → 写系统提示词 → 测试 → 发布。30分钟搞定一个能回答你文档内容问题的AI助手。\n\n## 发布渠道\n\n- 网页嵌入（iframe）\n- API调用\n- 飞书/微信/钉钉（插件配置）",importance:8,isAutoGenerated:true},
 
@@ -243,7 +494,7 @@ const baseNews: NewsItem[] = [
   {id:"news-52",title:"DeepSeek + Chatbox：零成本搭建个人AI助手全流程",summary:"注册DeepSeek获取API Key（送免费额度）→下载Chatbox→填入API Key→开始使用。全程10分钟，不花一分钱。本教程还教你如何切换模型、调整温度参数、设置系统提示词，让AI更懂你的需求。",url:"https://platform.deepseek.com",source:"AI第一站 原创",category:"教程资源",publishedAt:"2026-05-05",content:"",importance:8,isAutoGenerated:true},
   {id:"news-53",title:"用Dify搭建RAG知识库问答系统（零代码完整教程）",summary:"企业内部总有各种手册、制度、流程文档——查起来费时费力。本教程教你用Dify搭建知识库问答机器人：上传文档→AI自动分块→配置检索策略→测试问答效果。员工可以用自然语言直接提问，AI从你的文档中找到答案并引用来源。",url:"https://docs.dify.ai/guides/knowledge-base",source:"Dify 官方文档",category:"教程资源",publishedAt:"2026-05-04",content:"",importance:8,isAutoGenerated:true},
   {id:"news-54",title:"小白也能懂的Prompt Engineering：10个万能模板",summary:"为什么别人用AI效果那么好，你用就答非所问？关键在于提示词。本文整理了10个万能提示词模板，覆盖：角色扮演、分步推理、格式约束、举例引导等常用技巧。掌握这些模板，AI立刻变聪明10倍。",url:"#",source:"AI第一站 原创",category:"教程资源",publishedAt:"2026-05-04",content:"",importance:8,isAutoGenerated:true},
-  {id:"news-55",title:"Claude Code从安装到上手：10条命令搞定AI终端编程",summary:"Claude Code是Anthropic出品的命令行AI编程助手，可以直接读写文件、管理Git、调试代码。本教程覆盖：安装Node.js→npm安装Claude Code→API Key认证→10个最常用命令（/init、/edit、/commit、/review等）→实战：用一句话让AI帮你修Bug。",url:"https://developer.aliyun.com/article/1705912",source:"阿里云开发者",category:"教程资源",publishedAt:"2026-05-03",content:"",importance:8,isAutoGenerated:true},
+  {id:"news-55",title:"Claude Code从安装到上手：10条命令搞定AI终端编程",summary:"Claude Code是命令行AI编程助手。Windows PowerShell 用户安装时优先用 npm.cmd；如果出现 npm.ps1 被禁止运行，先看站内「小白安装 Claude Code」教程。",url:"https://developer.aliyun.com/article/1705912",source:"阿里云开发者",category:"教程资源",publishedAt:"2026-05-03",content:"",importance:8,isAutoGenerated:true},
   {id:"news-56",title:"用OpenClaw让AI自动处理你的微信消息和邮件",summary:"OpenClaw是AI Agent的操作系统——装上它，AI就能操控微信、邮箱、浏览器等。本教程从安装QClaw（腾讯版OpenClaw套壳）开始，逐步教你：配置微信接入→编写自动回复规则→设置邮件分类→定时推送新闻。最终实现：AI帮你过滤微信消息、自动回复常见问题、整理邮件。",url:"https://qclaw.qq.com",source:"AI第一站 原创",category:"教程资源",publishedAt:"2026-05-03",content:"",importance:8,isAutoGenerated:true},
   {id:"news-57",title:"零代码自动化入门：用n8n串联微信+飞书+邮箱",summary:"n8n是开源的可视化自动化工具，内置400+应用连接器。本教程用三个简单案例带你入门：①新邮件到达→飞书通知 ②定时抓取天气预报→微信推送 ③表格新增行→自动发送欢迎邮件。全程拖拽，无需写代码。",url:"https://blog.n8n.io/ai-automation-workflows/",source:"n8n 官方博客",category:"教程资源",publishedAt:"2026-05-02",content:"",importance:8,isAutoGenerated:true},
   {id:"news-58",title:"AI绘画从入门到商用：工具选择+提示词+变现路径",summary:"想做AI绘画但不知道从哪里开始？本文覆盖完整路径：①工具推荐（即梦免费入门→Midjourney品质进阶→SD本地无限）②提示词核心公式（主体+风格+构图+画质）③商用变现（接单平台/素材库/电商主图）。看完就能产出第一张能卖钱的图。",url:"#",source:"AI第一站 原创",category:"教程资源",publishedAt:"2026-05-02",content:"",importance:8,isAutoGenerated:true},

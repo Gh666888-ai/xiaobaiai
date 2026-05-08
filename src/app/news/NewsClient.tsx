@@ -13,6 +13,14 @@ import { Search } from "lucide-react"
 function fmt(d:string){const diff=Math.floor((Date.now()-new Date(d).getTime())/86400000);if(diff===0)return"今天";if(diff===1)return"昨天";if(diff<7)return`${diff}天前`;return d}
 const INITIAL_VISIBLE_NEWS = 8
 const NEWS_LOAD_STEP = 16
+const installTutorialPattern = /安装|下载|配置|终端|PowerShell|Node\.?js|npm|Ollama|Claude Code|Codex|中转站/i
+
+function installTutorialRank(item: any) {
+  const text = `${item.title || ""} ${item.summary || ""} ${item.category || ""}`
+  if (item.category === "教程资源" && installTutorialPattern.test(text)) return 4
+  if (installTutorialPattern.test(text)) return 1
+  return 0
+}
 
 export default function NewsPage() {
   const [cat,setCat]=useState<NewsCategory|null>(null)
@@ -40,7 +48,7 @@ export default function NewsPage() {
     if(q) {
       r = r.filter((n:any) => `${n.title || ""} ${n.summary || ""} ${n.category || ""} ${n.source || ""}`.toLowerCase().includes(q))
     }
-    return r.sort((a:any,b:any)=>b.importance-a.importance||new Date(b.publishedAt).getTime()-new Date(a.publishedAt).getTime())
+    return r.sort((a:any,b:any)=>installTutorialRank(b)-installTutorialRank(a)||b.importance-a.importance||new Date(b.publishedAt).getTime()-new Date(a.publishedAt).getTime())
   },[cat,fetched,query])
 
   return (

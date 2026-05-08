@@ -43,8 +43,10 @@ const installCommands = {
 npm -v
 npm install -g @anthropic-ai/claude-code
 claude --version`,
-  mirror: `npm install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com
+  mirror: `npm.cmd install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com
 claude --version`,
+  powershellPolicy: `npm.cmd install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com`,
+  powershellFix: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`,
 }
 
 const beginnerInstall = [
@@ -58,7 +60,7 @@ const beginnerInstall = [
   },
   {
     title: "安装 Claude Code",
-    desc: "先用官方 npm 安装命令。如果国内下载很慢，再换成 npmmirror 镜像命令。安装完成后输入 claude --version 验证。",
+    desc: "Windows PowerShell 用户优先用 npm.cmd 安装，避免 npm.ps1 被系统策略拦住。安装完成后输入 claude --version 验证。",
   },
 ]
 
@@ -70,6 +72,7 @@ const steps = [
 ]
 
 const errors = [
+  { title: "npm.ps1 被禁止运行", desc: "这是 Windows PowerShell 的执行策略拦住了 npm 脚本，不是 Node 或 Claude Code 坏了。先把命令里的 npm 改成 npm.cmd；如果还不行，再执行 Set-ExecutionPolicy -Scope CurrentUser RemoteSigned，确认输入 Y。" },
   { title: "401 Unauthorized", desc: "Key 写错、复制少字符、前后有空格，或把其他平台 Key 填到了 ANTHROPIC_AUTH_TOKEN。" },
   { title: "model not found", desc: "模型名不匹配。先按官方或服务商面板写 deepseek-v4-pro[1m]、deepseek-v4-pro、deepseek-v4-flash 之一测试。" },
   { title: "请求超时", desc: "先缩小任务范围，再看网络和服务状态。大仓库第一次全量分析很容易慢。" },
@@ -142,10 +145,21 @@ export default function ClaudeCodeDeepSeekPage() {
             <div>
               <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 8 }}>国内 npm 慢时用镜像</p>
               <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.8, marginBottom: 10 }}>
-                如果上一段安装很慢或失败，就复制下面这一段到终端，粘贴后按回车。
+                Windows PowerShell 用户直接复制下面这一段，粘贴后按回车。
               </p>
               <CodeBlock code={installCommands.mirror} />
             </div>
+          </div>
+          <div style={{ border: "1px solid #4a251f", background: "rgba(180,60,40,0.08)", borderRadius: 10, padding: "14px 16px", marginTop: 14 }}>
+            <p style={{ color: "#ffb199", fontSize: 13, fontWeight: 950, marginBottom: 7 }}>如果出现红字：npm.ps1 被禁止运行</p>
+            <p style={{ color: "#d8c8bd", fontSize: 13, lineHeight: 1.8, marginBottom: 10 }}>
+              这说明 PowerShell 安全策略拦住了 npm 脚本，不是 Node.js 没装好，也不是 Claude Code 包坏了。先不要乱改环境变量，复制下面这行重新安装。
+            </p>
+            <CodeBlock code={installCommands.powershellPolicy} />
+            <p style={{ color: "#bfa795", fontSize: 12, lineHeight: 1.75, margin: "10px 0 8px" }}>
+              如果还是报同样错误，再复制下面这行，出现确认时输入 Y，然后重新执行上面的安装命令。
+            </p>
+            <CodeBlock code={installCommands.powershellFix} />
           </div>
           <p style={{ color: "#9f8d57", fontSize: 12, lineHeight: 1.8, marginTop: 12 }}>
             如果 node -v 没有版本号，先别继续配置 DeepSeek，说明 Node.js 没装好或终端没有识别到环境变量。

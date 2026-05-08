@@ -29,6 +29,15 @@ const quickStart = [
   { href: "/cases", title: "直接看实战案例", desc: "从办公、Dify、AI编程和内容创作案例里，找一个能照着做的场景。" },
 ]
 
+const installFirst = [
+  { href: "/claude-code-deepseek", label: "Claude Code 安装先看这里", note: "Windows npm.ps1 红字、Node.js、npm.cmd、版本号验证，一步一步复制。" },
+  { href: "/news/news-62", label: "只做到能看到版本号", note: "不先讲 API Key 和模型名，先把电脑里的 Claude Code 装成功。" },
+  { href: "/codex", label: "Codex 安装与配置", note: "桌面版、终端启动、API Key、中转站配置和常见卡住问题。" },
+  { href: "/deepseek-api-key", label: "DeepSeek API Key 申请", note: "注册、创建密钥、充值额度、填到工具里的最短路径。" },
+  { href: "/news/news-67", label: "Ollama 本地模型安装", note: "Windows/Mac 下载、打开命令提示符、复制 ollama run 命令和报错处理。" },
+  { href: "/dify", label: "Dify 网页版入门", note: "不用装软件，先注册登录，再搭一个能回答文档问题的助手。" },
+]
+
 const topicGroups = [
   {
     title: "热门工具教程",
@@ -99,8 +108,7 @@ const tutorialJsonLd = {
   },
   mainEntity: {
     "@type": "ItemList",
-    itemListElement: topicGroups
-      .flatMap((group) => group.links)
+    itemListElement: [...installFirst, ...topicGroups.flatMap((group) => group.links)]
       .map((item, index) => ({
         "@type": "ListItem",
         position: index + 1,
@@ -133,6 +141,23 @@ export default function TutorialsPage() {
           />
           <button type="submit" style={{ marginRight: 6, height: 36, padding: "0 15px", borderRadius: 8, border: "1px solid #7a6230", background: "rgba(201,168,76,0.12)", color: "#e8c96a", fontSize: 12, fontWeight: 950, cursor: "pointer" }}>搜索</button>
         </form>
+
+        <section style={{ marginBottom: 36 }}>
+          <div style={{ marginBottom: 14 }}>
+            <h2 style={{ fontSize: 22, color: "#fff", fontWeight: 900, marginBottom: 8 }}>先把工具装好</h2>
+            <p style={{ fontSize: 14, color: "#aaa", lineHeight: 1.8 }}>
+              安装类教程放在前面。小白先跟着复制命令，看到版本号或登录成功，再进入后面的实战任务。
+            </p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
+            {installFirst.map((item) => (
+              <Link key={item.href} href={item.href} style={{ display: "block", textDecoration: "none", border: "1px solid #2a1f10", background: "rgba(201,168,76,0.055)", borderRadius: 10, padding: "18px 20px" }}>
+                <h3 style={{ fontSize: 16, color: "#fff", fontWeight: 900, marginBottom: 8 }}>{item.label}</h3>
+                <p style={{ fontSize: 13, color: "#cfcfcf", lineHeight: 1.75 }}>{item.note}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
 
         <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12, marginBottom: 42 }}>
           {quickStart.map((item) => (

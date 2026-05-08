@@ -291,11 +291,25 @@ function siteReply(message: string) {
 
 function beginnerClaudeCodeReply(message: string) {
   const text = message.toLowerCase()
-  const aboutClaudeCode = text.includes("claude code") || text.includes("claudecode")
-  const aboutInstall = text.includes("安装") || text.includes("下载") || text.includes("终端") || text.includes("node") || text.includes("npm")
+  const hasPowerShellPolicyError =
+    text.includes("npm.ps1") ||
+    text.includes("禁止运行脚本") ||
+    text.includes("pssecurityexception") ||
+    text.includes("unauthorizedaccess") ||
+    text.includes("execution_policies")
+  const aboutClaudeCode = text.includes("claude code") || text.includes("claudecode") || hasPowerShellPolicyError
+  const aboutInstall = text.includes("安装") || text.includes("下载") || text.includes("终端") || text.includes("node") || text.includes("npm") || hasPowerShellPolicyError
   if (!aboutClaudeCode || !aboutInstall) return ""
 
-  return "先别管 API Key 和模型名，我们只做安装。\n\n第 1 步：打开浏览器，去 nodejs.org，下载 LTS 版本，双击安装。\n\n第 2 步：打开终端。\nWindows：搜索 PowerShell。\nMac：打开 Terminal。\n\n第 3 步：复制这一行，粘贴到终端，按回车：\nnode -v\n\n看到 v 开头的版本号，就继续。\n\n第 4 步：复制这一行，粘贴到终端，按回车：\nnpm install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com\n\n第 5 步：等它跑完，再复制这一行，按回车：\nclaude --version\n\n看到版本号，就算安装完成。下一步你告诉我：你是 Windows 还是 Mac，我再给你下一条要复制的命令。"
+  if (hasPowerShellPolicyError && !text.includes("claude code") && !text.includes("claudecode")) {
+    return "这个红字的意思很简单：Windows PowerShell 不让 npm.ps1 脚本运行。\n\n不是 Node 坏了，也不是你要安装的工具坏了。\n\n你把刚才那条命令里的 npm 改成 npm.cmd，再复制执行。\n\n比如原来是：\nnpm install -g 工具名\n\n就改成：\nnpm.cmd install -g 工具名\n\n如果还是同样红字，再复制这一行，按回车：\nSet-ExecutionPolicy -Scope CurrentUser RemoteSigned\n\n它问你确认时，输入 Y，再按回车。\n\n然后重新执行 npm.cmd 那条安装命令。"
+  }
+
+  if (hasPowerShellPolicyError) {
+    return "这个红字不是 Node 没装好，也不是 Claude Code 包坏了。\n\n原因：Windows PowerShell 禁止运行 npm.ps1 脚本。\n\n先复制这一行，粘贴到 PowerShell，按回车：\nnpm.cmd install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com\n\n如果还是同样红字，再复制这一行，按回车：\nSet-ExecutionPolicy -Scope CurrentUser RemoteSigned\n\n它问你确认时，输入 Y，再按回车。\n\n然后重新执行第一条 npm.cmd 安装命令。安装完后再输入：\nclaude --version\n\n看到版本号，就说明装好了。"
+  }
+
+  return "先别管 API Key 和模型名，我们只做安装。\n\n第 1 步：打开浏览器，去 nodejs.org，下载 LTS 版本，双击安装。\n\n第 2 步：打开终端。\nWindows：搜索 PowerShell。\nMac：打开 Terminal。\n\n第 3 步：复制这一行，粘贴到终端，按回车：\nnode -v\n\n看到 v 开头的版本号，就继续。\n\n第 4 步：Windows PowerShell 复制这一行，粘贴到终端，按回车：\nnpm.cmd install -g @anthropic-ai/claude-code --registry=https://registry.npmmirror.com\n\nMac 复制这一行：\nnpm install -g @anthropic-ai/claude-code\n\n第 5 步：等它跑完，再复制这一行，按回车：\nclaude --version\n\n看到版本号，就算安装完成。下一步你告诉我：你是 Windows 还是 Mac，我再给你下一条要复制的命令。"
 }
 
 export async function POST(req: NextRequest) {
