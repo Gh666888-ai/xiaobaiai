@@ -90,43 +90,15 @@ export function getMissionStepProofRequirement(
   stepIndex: number,
   totalSteps: number,
 ): MissionStepProofRequirement {
-  const fallback =
-    stepIndex === totalSteps - 1
-      ? {
-          method: "recap" as const,
-          label: "最后一步要留下复盘，并补一张结果截图，方便领取完整任务经验。",
-          placeholder: "例如：已导出 PPTX，复盘里记录了工具、资料、最好用的提示词和下次改进点。",
-          minLength: 20,
-          requiredChecks: 2,
-          screenshotRequired: true,
-          screenshotHint: "上传导出文件、成品页面、复盘草稿或工具结果页截图。",
-        }
-      : stepIndex >= 2
-        ? {
-            method: "artifact" as const,
-            label: "这一步开始需要结果截图。上传一张工具页面、生成结果或文件截图，比长篇填写更省事。",
-            placeholder: "可选：补一句说明截图里是什么结果。",
-            minLength: 0,
-            requiredChecks: 1,
-            screenshotRequired: true,
-            screenshotHint: "上传能看出你确实做过这一步的截图，系统会压缩后保存在任务证明里。",
-          }
-        : stepIndex >= 1
-          ? {
-              method: "artifact" as const,
-              label: "前期只做轻量证明：勾选完成标准，再粘贴一句结果或文件名即可。",
-              placeholder: "例如：生成了 6 页 PPT 初稿 / 得到 3 个选题 / 完成 5 条测试记录。",
-              minLength: 10,
-              requiredChecks: 1,
-              screenshotRequired: false,
-            }
-        : {
-            method: "self-check" as const,
-            label: "新手第一步只做轻量确认，先把工具或页面打开，不需要截图。",
-            minLength: 0,
-            requiredChecks: 1,
-            screenshotRequired: false,
-          }
+  const fallback = {
+    method: "self-check" as const,
+    label: "这是小白引导型学习任务，只需要确认当前步骤已经完成。",
+    placeholder: "",
+    minLength: 0,
+    requiredChecks: 0,
+    screenshotRequired: false,
+    screenshotHint: "",
+  }
 
   const proof = step.proof || fallback
   const method = proof.method

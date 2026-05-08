@@ -10,13 +10,10 @@ import {
   ChevronRight,
   Clipboard,
   ExternalLink,
-  Flag,
-  Image as ImageIcon,
   Lock,
   MessageCircle,
   Sparkles,
   Trophy,
-  Upload,
 } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
@@ -29,7 +26,6 @@ import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
 import {
   getStoredMission,
-  getMissionStepProofRequirement,
   markMissionStepDone,
   readMissionProgress,
   selectMission,
@@ -70,8 +66,6 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
   const currentStepIndex = Math.min(current.currentStep || 0, mission.steps.length - 1)
   const doneSteps = mission.steps.filter((_, index) => current.completedSteps[index]).length
   const percent = Math.round((doneSteps / mission.steps.length) * 100)
-  const currentStep = mission.steps[currentStepIndex]
-  const relatedTools = mission.toolIds.map((id) => tools.find((tool) => tool.id === id)).filter(Boolean)
   const relatedCases = getCasePostsForMission(mission.id, posts).slice(0, 3)
   const userLevel = getUserLevel(user?.xp || 0)
   const nextLevel = getNextLevel(user?.xp || 0)
@@ -161,7 +155,7 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
           </div>
         </section>
 
-        <section style={{ display: "grid", gridTemplateColumns: "300px 1fr 280px", gap: 16, alignItems: "start" }} className="mission-shell">
+        <section style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 16, alignItems: "start" }} className="mission-shell">
           <aside style={{ border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.028)", borderRadius: 12, padding: 16, position: "sticky", top: 74 }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
               <div>
@@ -213,7 +207,6 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
                 stepIndex={currentStepIndex}
                 copied={copied}
                 onCopy={copyText}
-                savedProof={current.stepProofs?.[currentStepIndex]}
                 onDone={(proof) => markDone(currentStepIndex, proof)}
               />
             )}
@@ -240,25 +233,6 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
               </section>
             )}
           </section>
-
-          <aside style={{ display: "grid", gap: 12, position: "sticky", top: 74 }}>
-            <InfoCard title="适合谁" body={mission.audience} icon={<Flag size={17} />} />
-            <InfoCard title="最终产出" body={mission.outcome} icon={<CheckCircle2 size={17} />} />
-            <div style={sideCardStyle}>
-              <h2 style={sideTitleStyle}>需要工具</h2>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {relatedTools.map((tool) => (
-                  <Link key={tool!.id} href={toolPath(tool!)} className="tag tag-gray" style={{ textDecoration: "none", fontSize: 10 }}>{tool!.name}</Link>
-                ))}
-              </div>
-            </div>
-            <div style={sideCardStyle}>
-              <h2 style={sideTitleStyle}>材料清单</h2>
-              <div style={{ display: "grid", gap: 8 }}>
-                {mission.materials.map((item) => <CheckLine key={item}>{item}</CheckLine>)}
-              </div>
-            </div>
-          </aside>
         </section>
 
         <style>{`
@@ -276,72 +250,42 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
     </div>
   )
 }
-
 function StepCard({
   mission,
   stepIndex,
   copied,
   onCopy,
-  savedProof,
   onDone,
 }: {
   mission: Mission
   stepIndex: number
   copied: "prompt" | "fix" | "recap" | null
   onCopy: (kind: "prompt" | "fix" | "recap", text: string) => void
-  savedProof?: MissionStepProof
   onDone: (proof: MissionStepProof) => void
 }) {
   const step = mission.steps[stepIndex]
-  const proofRule = getMissionStepProofRequirement(step, stepIndex, mission.steps.length)
-  const proofItems = proofRule.proofItems
-  const [proofText, setProofText] = useState(savedProof?.text || "")
-  const [proofChecks, setProofChecks] = useState<boolean[]>(savedProof?.checked || [])
-  const [screenshotName, setScreenshotName] = useState(savedProof?.screenshotName || "")
-  const [screenshotDataUrl, setScreenshotDataUrl] = useState(savedProof?.screenshotDataUrl || "")
-  const [screenshotError, setScreenshotError] = useState("")
   const [guideStep, setGuideStep] = useState(0)
-  const checkedCount = proofChecks.filter(Boolean).length
-  const proofReady = checkedCount >= proofRule.requiredChecks
-    && proofText.trim().length >= proofRule.minLength
-    && (!proofRule.screenshotRequired || screenshotDataUrl.startsWith("data:image/"))
   const recommendedTools = mission.toolIds.map((id) => tools.find((tool) => tool.id === id)).filter(Boolean) as typeof tools
   const primaryTool = recommendedTools[0]
+  const currentAction = stepIndex === 0
+    ? "先把这个任务要用的 AI 工具打开或登录好。能看到输入框、创建按钮或工作台以后，回来点确认。"
+    : step.action
   const guidePhases = [
-    { key: "tool", label: "准备工具", doneText: step.toolAction ? "工具已打开/下载完成" : "我知道这一步用哪个工具了" },
-    ...(step.clickPath && step.clickPath.length > 0 ? [{ key: "path", label: "按路径操作", doneText: "我已按路径走到输入位置" }] : []),
-    { key: "prompt", label: "复制提示词", doneText: "我已复制并提交给 AI" },
-    { key: "check", label: "检查结果", doneText: "我已检查结果达标" },
-    { key: "proof", label: "确认完成", doneText: "" },
+    ...(stepIndex === 0 ? [{ key: "tool", label: "下载/打开工具", doneText: step.toolAction ? "工具已经打开/下载完成" : "我已经打开可用工具" }] : []),
+    ...(stepIndex === 0 && step.clickPath && step.clickPath.length > 0 ? [{ key: "path", label: "按路径操作", doneText: "我已经走到输入位置" }] : []),
+    ...(stepIndex > 0 ? [{ key: "prompt", label: "复制模板", doneText: "我已经复制并点击生成" }] : []),
+    ...(stepIndex > 0 && step.promptRules && step.promptRules.length > 0 ? [{ key: "rules", label: "提示词规则", doneText: "我看懂了这些规则" }] : []),
+    ...(stepIndex > 0 ? [{ key: "check", label: "检查结果", doneText: "我已经检查结果" }] : []),
+    { key: "done", label: "确认完成", doneText: "" },
   ]
   const currentGuideStep = Math.min(guideStep, guidePhases.length - 1)
   const currentPhase = guidePhases[currentGuideStep]
-  const isProofPhase = currentPhase.key === "proof"
+  const isDonePhase = currentPhase.key === "done"
 
   useEffect(() => {
-    setProofText(savedProof?.text || "")
-    setProofChecks(savedProof?.checked || [])
-    setScreenshotName(savedProof?.screenshotName || "")
-    setScreenshotDataUrl(savedProof?.screenshotDataUrl || "")
-    setScreenshotError("")
     setGuideStep(0)
-  }, [mission.id, stepIndex, savedProof])
+  }, [mission.id, stepIndex])
 
-  async function handleScreenshot(file: File | undefined) {
-    setScreenshotError("")
-    if (!file) return
-    if (!file.type.startsWith("image/")) {
-      setScreenshotError("请上传图片格式的截图。")
-      return
-    }
-    try {
-      const dataUrl = await compressProofImage(file)
-      setScreenshotDataUrl(dataUrl)
-      setScreenshotName(file.name)
-    } catch {
-      setScreenshotError("截图读取失败，请换一张图片再试。")
-    }
-  }
   function nextGuideStep() {
     setGuideStep((value) => Math.min(value + 1, guidePhases.length - 1))
   }
@@ -361,7 +305,7 @@ function StepCard({
 
       <section style={{ border: "1px solid #242424", background: "rgba(0,0,0,0.28)", borderRadius: 12, padding: "16px 18px", marginBottom: 12 }}>
         <p style={{ color: "#888", fontSize: 11, fontWeight: 950, marginBottom: 7 }}>先别想太多，现在只做这一件事</p>
-        <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.65 }}>{step.action}</p>
+        <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.65 }}>{currentAction}</p>
       </section>
 
       <section style={guideShellStyle}>
@@ -389,10 +333,10 @@ function StepCard({
           <div>
             <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.7, marginBottom: 12 }}>
               {step.toolAction
-                ? `先点下面的「${step.toolAction.label}」。如果还没装或没注册，就先按提示完成。完成后回来点确认。`
+                ? `先点下面的「${step.toolAction.label}」。如果这个任务还会用到其他工具，也一起打开或登录好。完成后回来点确认。`
                 : primaryTool
-                  ? `先打开「${primaryTool.name}」。如果打不开，再从备用工具里换一个。打开后回来点确认。`
-                  : "先打开一个 AI 对话工具，比如 Kimi、DeepSeek 或豆包。打开后回来点确认。"}
+                  ? `先打开「${primaryTool.name}」。如果下面还有其他工具，也一起打开或登录好。打开后回来点确认。`
+                  : "先打开一个 AI 对话工具，比如 Kimi、DeepSeek 或豆包。能看到输入框以后回来点确认。"}
             </p>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
               {step.toolAction && (
@@ -432,7 +376,7 @@ function StepCard({
 
         {currentPhase.key === "prompt" && (
           <div>
-            <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.7, marginBottom: 12 }}>复制下面这段，粘贴到刚才打开的 AI / 工具里。发出去以后回来点确认。</p>
+            <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.7, marginBottom: 12 }}>这是小白先写好的通用模板。复制下面这段，粘贴到刚才打开的 AI / 工具里，然后点生成。</p>
             <section style={primaryBlockStyle}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", marginBottom: 10 }}>
                 <h3 style={{ ...blockTitleStyle, marginBottom: 0 }}>直接复制这一段</h3>
@@ -441,6 +385,18 @@ function StepCard({
                 </button>
               </div>
               <p style={{ color: "#bbb", fontSize: 12, lineHeight: 1.85, whiteSpace: "pre-line" }}>{step.prompt}</p>
+            </section>
+          </div>
+        )}
+
+        {currentPhase.key === "rules" && step.promptRules && (
+          <div>
+            <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.7, marginBottom: 12 }}>先不用自己发明提示词，记住下面几条规则就够了。</p>
+            <section style={primaryBlockStyle}>
+              <h3 style={blockTitleStyle}>这类提示词怎么写</h3>
+              <div style={{ display: "grid", gap: 8 }}>
+                {step.promptRules.map((item) => <CheckLine key={item}>{item}</CheckLine>)}
+              </div>
             </section>
           </div>
         )}
@@ -492,57 +448,10 @@ function StepCard({
           </div>
         )}
       </section>
-      {isProofPhase && (
+      {isDonePhase && (
         <section style={{ border: "1px solid #29351f", background: "rgba(61,165,99,0.065)", borderRadius: 12, padding: "16px 18px", marginBottom: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 10, flexWrap: "wrap" }}>
-          <div>
-            <p style={{ color: "#fff", fontSize: 14, fontWeight: 950, marginBottom: 5 }}>通关判定</p>
-            <p style={{ color: "#9fcfaf", fontSize: 12, lineHeight: 1.65 }}>{proofRule.label}</p>
-          </div>
-          <span style={{ color: proofReady ? "#3DA563" : "#888", fontSize: 11, fontWeight: 950 }}>{proofReady ? "可以进入下一步" : "先留下完成证明"}</span>
-        </div>
-        {proofItems.length > 0 && (
-          <div style={{ display: "grid", gap: 7, marginBottom: proofRule.minLength > 0 ? 12 : 0 }}>
-            {proofItems.map((item, index) => (
-              <label key={item} style={{ display: "grid", gridTemplateColumns: "18px 1fr", gap: 8, alignItems: "start", color: "#cfcfcf", fontSize: 12, lineHeight: 1.6, cursor: "pointer" }}>
-                <input
-                  type="checkbox"
-                  checked={!!proofChecks[index]}
-                  onChange={() => setProofChecks((prev) => {
-                    const next = [...prev]
-                    next[index] = !next[index]
-                    return next
-                  })}
-                  style={{ width: 15, height: 15, marginTop: 2, accentColor: "#3DA563" }}
-                />
-                <span>{item}</span>
-              </label>
-            ))}
-          </div>
-        )}
-        {proofRule.minLength > 0 && (
-          <textarea
-            value={proofText}
-            onChange={(event) => setProofText(event.target.value)}
-            placeholder={proofRule.placeholder || "粘贴一句结果、文件名、链接或你生成出来的关键内容。"}
-            rows={3}
-            style={{ width: "100%", resize: "vertical", border: "1px solid #28412e", background: "rgba(0,0,0,0.32)", color: "#e9f6ed", borderRadius: 10, padding: "11px 12px", fontSize: 12, lineHeight: 1.65, outline: "none" }}
-          />
-        )}
-        {proofRule.screenshotRequired && (
-          <div style={{ marginTop: 12, border: "1px solid #28412e", background: "rgba(0,0,0,0.24)", borderRadius: 10, padding: "12px 13px" }}>
-            <p style={{ color: "#d7f4df", fontSize: 12, fontWeight: 950, marginBottom: 6, display: "flex", alignItems: "center", gap: 7 }}>
-              <ImageIcon size={14} /> 截图证明
-            </p>
-            <p style={{ color: "#9fcfaf", fontSize: 12, lineHeight: 1.65, marginBottom: 10 }}>{proofRule.screenshotHint || "上传一张能看出完成结果的截图。"}</p>
-            <label style={{ display: "inline-flex", alignItems: "center", gap: 8, border: "1px solid #3b5f43", background: "rgba(61,165,99,0.09)", color: "#d7f4df", borderRadius: 8, padding: "8px 10px", fontSize: 12, fontWeight: 900, cursor: "pointer" }}>
-              <Upload size={14} /> {screenshotName ? "更换截图" : "上传截图"}
-              <input type="file" accept="image/*" onChange={(event) => handleScreenshot(event.target.files?.[0])} style={{ display: "none" }} />
-            </label>
-            {screenshotName && <p style={{ color: "#8fd6a0", fontSize: 11, marginTop: 8 }}>已保存截图：{screenshotName}</p>}
-            {screenshotError && <p style={{ color: "#ff9b9b", fontSize: 11, marginTop: 8 }}>{screenshotError}</p>}
-          </div>
-        )}
+          <p style={{ color: "#fff", fontSize: 14, fontWeight: 950, marginBottom: 5 }}>确认一下就进入下一步</p>
+          <p style={{ color: "#9fcfaf", fontSize: 12, lineHeight: 1.75 }}>这是小白引导型学习任务，不需要上传截图，也不需要填证明。你确认自己已经完成当前小步，就继续往下走。</p>
         </section>
       )}
 
@@ -552,13 +461,12 @@ function StepCard({
             返回上一个小步
           </button>
         )}
-        {isProofPhase ? (
+        {isDonePhase ? (
           <button
             type="button"
-            onClick={() => onDone({ method: proofRule.method, text: proofText.trim(), checked: proofChecks, screenshotName, screenshotDataUrl, updatedAt: new Date().toISOString() })}
-            disabled={!proofReady}
+            onClick={() => onDone({ method: "self-check", text: "", checked: [], updatedAt: new Date().toISOString() })}
             className="btn-primary"
-            style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12, opacity: proofReady ? 1 : 0.48, cursor: proofReady ? "pointer" : "not-allowed" }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12 }}
           >
             我完成了这一步，进入下一步 <ArrowRight size={14} />
           </button>
@@ -571,34 +479,6 @@ function StepCard({
     </article>
   )
 }
-
-function compressProofImage(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onerror = () => reject(new Error("read failed"))
-    reader.onload = () => {
-      const img = new Image()
-      img.onerror = () => reject(new Error("image failed"))
-      img.onload = () => {
-        const maxWidth = 1200
-        const scale = Math.min(1, maxWidth / img.width)
-        const canvas = document.createElement("canvas")
-        canvas.width = Math.max(1, Math.round(img.width * scale))
-        canvas.height = Math.max(1, Math.round(img.height * scale))
-        const ctx = canvas.getContext("2d")
-        if (!ctx) {
-          reject(new Error("canvas failed"))
-          return
-        }
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-        resolve(canvas.toDataURL("image/jpeg", 0.72))
-      }
-      img.src = String(reader.result || "")
-    }
-    reader.readAsDataURL(file)
-  })
-}
-
 function CompleteCard({
   mission,
   copied,
@@ -638,14 +518,6 @@ function CompleteCard({
       {notice && <p style={{ color: notice.includes("到账") ? "#3DA563" : "#cdbb80", fontSize: 13, lineHeight: 1.7, marginTop: 12 }}>{notice}</p>}
     </article>
   )
-}
-
-const blockStyle: CSSProperties = {
-  border: "1px solid #242424",
-  background: "rgba(0,0,0,0.24)",
-  borderRadius: 12,
-  padding: "16px 18px",
-  marginBottom: 14,
 }
 
 const primaryBlockStyle: CSSProperties = {
@@ -692,35 +564,6 @@ const blockTitleStyle: CSSProperties = {
   fontSize: 14,
   fontWeight: 950,
   marginBottom: 10,
-}
-
-const sideCardStyle: CSSProperties = {
-  border: "1px solid #1a1a1a",
-  background: "rgba(255,255,255,0.03)",
-  borderRadius: 12,
-  padding: "18px 20px",
-}
-
-const sideTitleStyle: CSSProperties = {
-  color: "#fff",
-  fontSize: 16,
-  fontWeight: 950,
-  marginBottom: 12,
-}
-
-const toolButtonStyle: CSSProperties = {
-  border: "1px solid #7a6230",
-  background: "rgba(201,168,76,0.12)",
-  color: "#e8c96a",
-  borderRadius: 10,
-  padding: "14px 16px",
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: 8,
-  textDecoration: "none",
-  fontSize: 13,
-  fontWeight: 950,
 }
 
 const toolChipButtonStyle: CSSProperties = {
@@ -784,15 +627,5 @@ function CheckLine({ children }: { children: ReactNode }) {
       </span>
       <span>{children}</span>
     </p>
-  )
-}
-
-function InfoCard({ title, body, icon }: { title: string; body: string; icon: ReactNode }) {
-  return (
-    <div style={sideCardStyle}>
-      <div style={{ color: "#e8c96a", marginBottom: 9 }}>{icon}</div>
-      <h2 style={{ color: "#fff", fontSize: 15, fontWeight: 950, marginBottom: 7 }}>{title}</h2>
-      <p style={{ color: "#bbb", fontSize: 12, lineHeight: 1.75 }}>{body}</p>
-    </div>
   )
 }
