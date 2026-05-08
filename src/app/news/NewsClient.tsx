@@ -11,7 +11,7 @@ import Link from "next/link"
 import { Search } from "lucide-react"
 
 function fmt(d:string){const diff=Math.floor((Date.now()-new Date(d).getTime())/86400000);if(diff===0)return"今天";if(diff===1)return"昨天";if(diff<7)return`${diff}天前`;return d}
-const INITIAL_VISIBLE_NEWS = 8
+const INITIAL_VISIBLE_NEWS = 5
 const NEWS_LOAD_STEP = 16
 const installTutorialPattern = /安装|下载|配置|终端|PowerShell|Node\.?js|npm|Ollama|Claude Code|Codex|中转站/i
 

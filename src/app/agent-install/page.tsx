@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowRight, Bot, KeyRound, Search, ShieldCheck, TerminalSquare } from "lucide-react"
+import { ArrowRight, Search, ShieldCheck } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { agentInstallGuides } from "@/data/agent-install-guides"
@@ -14,6 +14,22 @@ const firstChoiceSlugs = ["openclaw", "clawx", "cherry-studio", "cline"]
 const firstChoiceGuides = firstChoiceSlugs
   .map((slug) => agentInstallGuides.find((guide) => guide.slug === slug))
   .filter((guide): guide is (typeof agentInstallGuides)[number] => Boolean(guide))
+
+function CompactGuideList({ guides, accent = "#e8c96a" }: { guides: typeof agentInstallGuides; accent?: string }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,220px),1fr))", gap: 8, paddingTop: 14 }}>
+      {guides.map((guide) => (
+        <Link key={guide.slug} href={`/agent-install/${guide.slug}`} style={{ minHeight: 54, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, textDecoration: "none", border: "1px solid #202020", background: "rgba(0,0,0,0.22)", borderRadius: 9, padding: "10px 12px" }}>
+          <span style={{ minWidth: 0 }}>
+            <span style={{ display: "block", color: "#fff", fontSize: 13, fontWeight: 950, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{guide.name}</span>
+            <span style={{ display: "block", color: "#888", fontSize: 11, fontWeight: 850, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{guide.category} · {guide.minutes}</span>
+          </span>
+          <ArrowRight size={14} style={{ color: accent, flexShrink: 0 }} />
+        </Link>
+      ))}
+    </div>
+  )
+}
 
 export const metadata: Metadata = {
   title: "主流Agent和桌面AI助理安装 - Claude Code、Codex、OpenClaw、ChatGPT Desktop、Cherry Studio教程",
@@ -96,106 +112,17 @@ export default function AgentInstallPage() {
 
         <details style={{ border: "1px solid #1f1f1f", background: "rgba(255,255,255,0.025)", borderRadius: 12, padding: "16px 18px", marginBottom: 16 }}>
           <summary style={{ color: "#e8c96a", fontSize: 14, fontWeight: 950, cursor: "pointer" }}>展开工程 Agent 本体</summary>
-        <section style={{ paddingTop: 18 }}>
-          <div style={{ display: "flex", alignItems: "end", justifyContent: "space-between", gap: 16, flexWrap: "wrap", marginBottom: 16 }}>
-            <div>
-              <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>工程 Agent 本体</h2>
-              <p style={{ color: "#aaa", fontSize: 14, lineHeight: 1.8 }}>先把 Agent 本体跑通。能接 API 的教程下面会放接口配置，Skills 和桌面壳会放在对应生态区域。</p>
-            </div>
-            <Link href="/tutorials" className="btn-outline" style={{ textDecoration: "none" }}>全部教程</Link>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,300px),1fr))", gap: 14 }}>
-            {engineeringGuides.map((guide) => (
-              <Link key={guide.slug} href={`/agent-install/${guide.slug}`} style={{ textDecoration: "none", border: "1px solid #2a1f10", background: "rgba(201,168,76,0.052)", borderRadius: 10, padding: "20px 22px", minHeight: 244, display: "flex", flexDirection: "column" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 14 }}>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 7, color: "#e8c96a", fontSize: 12, fontWeight: 950 }}>
-                    <Bot size={15} /> {guide.category}
-                  </span>
-                  <span style={{ color: "#999", fontSize: 11, fontWeight: 900 }}>{guide.minutes}</span>
-                </div>
-                <h3 style={{ color: "#fff", fontSize: 21, fontWeight: 950, lineHeight: 1.35, marginBottom: 9 }}>{guide.name}</h3>
-                <p style={{ color: "#cfcfcf", fontSize: 13, lineHeight: 1.8, marginBottom: 12 }}>{guide.tagline}</p>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
-                  {guide.bestFor.slice(0, 3).map((item) => (
-                    <span key={item} className="tag tag-gold" style={{ fontSize: 11, color: "#e8c96a", fontWeight: 900 }}>{item}</span>
-                  ))}
-                </div>
-                <span style={{ marginTop: "auto", color: "#e8c96a", fontSize: 13, fontWeight: 950, display: "inline-flex", alignItems: "center", gap: 8 }}>
-                  查看安装教程 <ArrowRight size={14} />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
+          <CompactGuideList guides={engineeringGuides} />
         </details>
 
         <details style={{ border: "1px solid rgba(82,148,139,0.24)", background: "rgba(82,148,139,0.028)", borderRadius: 12, padding: "16px 18px", marginBottom: 16 }}>
           <summary style={{ color: "#8fd8cc", fontSize: 14, fontWeight: 950, cursor: "pointer" }}>展开 Agent 桌面端应用</summary>
-        <section style={{ paddingTop: 18 }}>
-          <div style={{ marginBottom: 16 }}>
-            <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>Agent 桌面端应用</h2>
-            <p style={{ color: "#aaa", fontSize: 14, lineHeight: 1.8 }}>
-              这里放有官方版和第三方生态版的 Agent 桌面应用，例如 OpenClaw 的 Claw Desktop / ClawX，以及 Cursor、Windsurf、Kiro、TRAE、Qoder 这类桌面 Agent IDE。
-            </p>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,300px),1fr))", gap: 14 }}>
-            {agentDesktopGuides.map((guide) => (
-              <Link key={guide.slug} href={`/agent-install/${guide.slug}`} style={{ textDecoration: "none", border: "1px solid rgba(82,148,139,0.28)", background: "rgba(82,148,139,0.055)", borderRadius: 10, padding: "20px 22px", minHeight: 244, display: "flex", flexDirection: "column" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 14 }}>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 7, color: "#8fd8cc", fontSize: 12, fontWeight: 950 }}>
-                    <Bot size={15} /> {guide.category}
-                  </span>
-                  <span style={{ color: "#999", fontSize: 11, fontWeight: 900 }}>{guide.minutes}</span>
-                </div>
-                <h3 style={{ color: "#fff", fontSize: 21, fontWeight: 950, lineHeight: 1.35, marginBottom: 9 }}>{guide.name}</h3>
-                <p style={{ color: "#cfcfcf", fontSize: 13, lineHeight: 1.8, marginBottom: 12 }}>{guide.tagline}</p>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
-                  {guide.bestFor.slice(0, 3).map((item) => (
-                    <span key={item} className="tag" style={{ borderColor: "rgba(82,148,139,0.38)", color: "#9ee5d9", fontSize: 11, fontWeight: 900 }}>{item}</span>
-                  ))}
-                </div>
-                <span style={{ marginTop: "auto", color: "#8fd8cc", fontSize: 13, fontWeight: 950, display: "inline-flex", alignItems: "center", gap: 8 }}>
-                  查看安装教程 <ArrowRight size={14} />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
+          <CompactGuideList guides={agentDesktopGuides} accent="#8fd8cc" />
         </details>
 
         <details style={{ border: "1px solid rgba(82,148,139,0.24)", background: "rgba(82,148,139,0.028)", borderRadius: 12, padding: "16px 18px", marginBottom: 20 }}>
           <summary style={{ color: "#8fd8cc", fontSize: 14, fontWeight: 950, cursor: "pointer" }}>展开桌面版 AI 助理应用</summary>
-        <section style={{ paddingTop: 18 }}>
-          <div style={{ marginBottom: 16 }}>
-            <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>桌面版 AI 助理应用</h2>
-            <p style={{ color: "#aaa", fontSize: 14, lineHeight: 1.8 }}>
-              不想先碰终端，就先从这些桌面软件开始。能接 API 的会教你填 DeepSeek、Kimi、OpenAI；官方账号型应用会明确告诉你不能填第三方 Key。
-            </p>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,300px),1fr))", gap: 14 }}>
-            {desktopGuides.map((guide) => (
-              <Link key={guide.slug} href={`/agent-install/${guide.slug}`} style={{ textDecoration: "none", border: "1px solid rgba(82,148,139,0.28)", background: "rgba(82,148,139,0.055)", borderRadius: 10, padding: "20px 22px", minHeight: 244, display: "flex", flexDirection: "column" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 14 }}>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 7, color: "#8fd8cc", fontSize: 12, fontWeight: 950 }}>
-                    <Bot size={15} /> {guide.category}
-                  </span>
-                  <span style={{ color: "#999", fontSize: 11, fontWeight: 900 }}>{guide.minutes}</span>
-                </div>
-                <h3 style={{ color: "#fff", fontSize: 21, fontWeight: 950, lineHeight: 1.35, marginBottom: 9 }}>{guide.name}</h3>
-                <p style={{ color: "#cfcfcf", fontSize: 13, lineHeight: 1.8, marginBottom: 12 }}>{guide.tagline}</p>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
-                  {guide.bestFor.slice(0, 3).map((item) => (
-                    <span key={item} className="tag" style={{ borderColor: "rgba(82,148,139,0.38)", color: "#9ee5d9", fontSize: 11, fontWeight: 900 }}>{item}</span>
-                  ))}
-                </div>
-                <span style={{ marginTop: "auto", color: "#8fd8cc", fontSize: 13, fontWeight: 950, display: "inline-flex", alignItems: "center", gap: 8 }}>
-                  查看安装教程 <ArrowRight size={14} />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
+          <CompactGuideList guides={desktopGuides} accent="#8fd8cc" />
         </details>
 
         <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 12, padding: "24px 26px" }}>

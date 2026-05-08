@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { BookOpen, Bot, Building2, ChevronDown, Compass, Flag, GraduationCap, LogOut, Menu, Newspaper, Search, TerminalSquare, Trophy, Users, Workflow, X } from "lucide-react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/AuthContext"
 import { LevelBadge } from "@/components/LevelBadge"
 import { XiaobaiLogo } from "@/components/XiaobaiLogo"
@@ -31,6 +31,7 @@ const moreLinks = [
 export function NavBar() {
   const { user, logout } = useAuth()
   const pathname = usePathname()
+  const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
@@ -42,6 +43,9 @@ export function NavBar() {
   const idleMinutesNeed = xpNeed ? Math.ceil((xpNeed / 2) * 5) : 0
   const missionDaysNeed = xpNeed ? Math.ceil(xpNeed / 110) : 0
   const xpLabel = next ? `${userXP} XP` : "已达最高档"
+  const prefetchRoute = (href: string) => {
+    router.prefetch(href)
+  }
 
   useEffect(() => {
     setMenuOpen(false)
@@ -61,7 +65,7 @@ export function NavBar() {
             const Icon = item.icon
             const active = pathname === item.href || pathname?.startsWith(`${item.href}/`)
             return (
-              <Link key={item.href} href={item.href} className={`site-nav-link ${active ? "is-active" : ""}`}>
+              <Link key={item.href} href={item.href} prefetch className={`site-nav-link ${active ? "is-active" : ""}`} onMouseEnter={() => prefetchRoute(item.href)} onFocus={() => prefetchRoute(item.href)}>
                 <Icon size={14} />
                 {item.label}
               </Link>
@@ -79,7 +83,7 @@ export function NavBar() {
                   const Icon = item.icon
                   const active = pathname === item.href || pathname?.startsWith(`${item.href}/`)
                   return (
-                    <Link key={item.href} href={item.href} className={`site-more-link ${active ? "is-active" : ""}`}>
+                    <Link key={item.href} href={item.href} prefetch className={`site-more-link ${active ? "is-active" : ""}`} onMouseEnter={() => prefetchRoute(item.href)} onFocus={() => prefetchRoute(item.href)}>
                       <Icon size={14} />
                       <span>{item.label}</span>
                     </Link>
@@ -168,7 +172,7 @@ export function NavBar() {
             const Icon = item.icon
             const active = pathname === item.href || pathname?.startsWith(`${item.href}/`)
             return (
-              <Link key={item.href} href={item.href} className={`site-mobile-link ${active ? "is-active" : ""}`}>
+              <Link key={item.href} href={item.href} prefetch className={`site-mobile-link ${active ? "is-active" : ""}`} onTouchStart={() => prefetchRoute(item.href)} onMouseEnter={() => prefetchRoute(item.href)} onFocus={() => prefetchRoute(item.href)}>
                 <Icon size={15} />
                 <span>{item.label}</span>
               </Link>
@@ -181,7 +185,7 @@ export function NavBar() {
                 const Icon = item.icon
                 const active = pathname === item.href || pathname?.startsWith(`${item.href}/`)
                 return (
-                  <Link key={item.href} href={item.href} className={`site-mobile-link site-mobile-link-secondary ${active ? "is-active" : ""}`}>
+                  <Link key={item.href} href={item.href} prefetch className={`site-mobile-link site-mobile-link-secondary ${active ? "is-active" : ""}`} onTouchStart={() => prefetchRoute(item.href)} onMouseEnter={() => prefetchRoute(item.href)} onFocus={() => prefetchRoute(item.href)}>
                     <Icon size={14} />
                     <span>{item.label}</span>
                   </Link>

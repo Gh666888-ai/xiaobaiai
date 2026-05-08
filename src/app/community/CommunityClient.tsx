@@ -14,7 +14,7 @@ import Link from "next/link"
 import { Heart, MessageCircle, Pin, Search, Trophy } from "lucide-react"
 
 const cats = ["全部","经验分享","踩坑记录","全自动实战","AI分析","问题求助"] as const
-const PAGE_SIZE = 60
+const PAGE_SIZE = 8
 
 function levelPerkLabel(xp: number) {
   const level = getUserLevel(xp).level
