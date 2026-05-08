@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { BookOpen, Bot, Building2, ChevronDown, Compass, Flag, GraduationCap, LogOut, Menu, Newspaper, Search, Trophy, Users, Workflow, X } from "lucide-react"
+import { BookOpen, Bot, Building2, ChevronDown, Compass, Flag, GraduationCap, LogOut, Menu, Newspaper, Search, TerminalSquare, Trophy, Users, Workflow, X } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/lib/AuthContext"
 import { LevelBadge } from "@/components/LevelBadge"
@@ -13,6 +13,7 @@ const links = [
   { label: "开始", href: "/start", icon: Compass },
   { label: "任务", href: "/missions", icon: Flag },
   { label: "工具", href: "/tools", icon: Compass },
+  { label: "Agent安装", href: "/agent-install", icon: TerminalSquare },
   { label: "学习", href: "/learn", icon: GraduationCap },
   { label: "案例", href: "/cases", icon: BookOpen },
   { label: "社区", href: "/community", icon: Users },

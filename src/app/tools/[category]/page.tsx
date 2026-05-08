@@ -55,6 +55,22 @@ export default function ToolCategoryPage({ params }: { params: { category: strin
       description: tool.description,
     })),
   }
+  const metaPillStyle = {
+    minHeight: 32,
+    justifyContent: "center",
+    border: "1px solid rgba(201,168,76,0.2)",
+    background: "rgba(255,255,255,0.055)",
+    color: "#d8d8d8",
+    fontSize: 13,
+    fontWeight: 900,
+    letterSpacing: 0,
+  }
+  const goldPillStyle = {
+    ...metaPillStyle,
+    border: "1px solid rgba(232,201,106,0.38)",
+    background: "rgba(201,168,76,0.12)",
+    color: "#f0d77a",
+  }
 
   return (
     <div style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
@@ -82,16 +98,16 @@ export default function ToolCategoryPage({ params }: { params: { category: strin
                   <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, color: index < 3 ? "#e8c96a" : "#666", fontWeight: 900, width: 28 }}>#{index + 1}</span>
                   <ToolLogo name={tool.name} url={tool.url} logo={tool.logo} size={34} radius={9} />
                   <h2 style={{ fontSize: 17, color: "#fff", fontWeight: 900, flex: 1 }}>{tool.name}</h2>
-                  {tool.featured && <span className="tag tag-gold" style={{ fontSize: 10 }}>推荐</span>}
+                  {tool.featured && <span className="tag tag-gold" style={{ fontSize: 12, fontWeight: 950, color: "#f0d77a" }}>推荐</span>}
                 </div>
                 <p style={{ fontSize: 13, color: "#bbb", lineHeight: 1.7, minHeight: 68 }}>{tool.description}</p>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8, marginTop: 14 }}>
-                  <span className="tag tag-gray">阶段 {tool.stage}</span>
-                  <span className="tag tag-gray">{tool.pricing}</span>
-                  <span className="tag tag-gray">网络：{meta.magicNetwork}</span>
-                  <span className="tag tag-gray">中文：{meta.chineseSupport}</span>
-                  <span className="tag tag-gray">难度：{meta.difficulty}</span>
-                  <span className="tag tag-gold">推荐 {meta.newbieScore}</span>
+                  <span className="tag" style={metaPillStyle}>阶段 {tool.stage}</span>
+                  <span className="tag" style={metaPillStyle}>{tool.pricing}</span>
+                  <span className="tag" style={metaPillStyle}>网络：{meta.magicNetwork}</span>
+                  <span className="tag" style={metaPillStyle}>中文：{meta.chineseSupport}</span>
+                  <span className="tag" style={metaPillStyle}>难度：{meta.difficulty}</span>
+                  <span className="tag" style={goldPillStyle}>推荐 {meta.newbieScore}</span>
                 </div>
               </Link>
             )
