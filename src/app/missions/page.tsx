@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle2, Trophy } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { MissionContinuePanel } from "@/components/MissionContinuePanel"
+import { industrySeries } from "@/data/industry-series"
 import { missions } from "@/data/missions"
 import { posts } from "@/data/community"
 
@@ -32,6 +33,33 @@ export default function MissionsPage() {
         </div>
 
         <MissionContinuePanel title="回来先接着上次做" casePosts={posts} />
+
+        <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.045)", borderRadius: 12, padding: "22px 24px", marginBottom: 18 }}>
+          <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.22em", color: "#7a6230", textTransform: "uppercase", fontWeight: 950, marginBottom: 8 }}>Industry Tracks</p>
+          <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, lineHeight: 1.35, marginBottom: 9 }}>按行业从前到后做</h2>
+          <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.85, marginBottom: 16 }}>
+            不同人不该走同一条学习路线。电商先做商品资料和客服，老师先做课件和答疑，自媒体先做选题和样片；每条线都从第一个可交付结果开始，再往知识库、自动化和复盘延伸。
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,260px),1fr))", gap: 10 }}>
+            {industrySeries.map((series) => (
+              <Link key={series.id} href={`/start?goal=${encodeURIComponent(series.keywords[0])}`} style={{ textDecoration: "none", border: "1px solid #2b2618", background: "rgba(0,0,0,0.24)", borderRadius: 10, padding: "15px 16px", minHeight: 176, display: "flex", flexDirection: "column" }}>
+                <h3 style={{ color: "#fff", fontSize: 16, fontWeight: 950, lineHeight: 1.4, marginBottom: 7 }}>{series.shortTitle}</h3>
+                <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7, marginBottom: 12 }}>{series.promise}</p>
+                <div style={{ marginTop: "auto", display: "grid", gap: 6 }}>
+                  {series.steps.slice(0, 3).map((step, index) => (
+                    <p key={`${series.id}-${step.title}`} style={{ color: "#cfcfcf", fontSize: 11, lineHeight: 1.45, display: "grid", gridTemplateColumns: "18px 1fr", gap: 6 }}>
+                      <span style={{ color: "#e8c96a", fontFamily: "'JetBrains Mono',monospace", fontWeight: 950 }}>{index + 1}</span>
+                      <span>{step.title}</span>
+                    </p>
+                  ))}
+                  <span style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950, display: "inline-flex", alignItems: "center", gap: 7, marginTop: 5 }}>
+                    让小白按这个行业带路 <ArrowRight size={13} />
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
 
         <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,300px),1fr))", gap: 14 }}>
           {missions.map((mission) => (

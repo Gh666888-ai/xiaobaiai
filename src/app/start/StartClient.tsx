@@ -15,6 +15,7 @@ import {
   Upload,
 } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
+import { findIndustrySeries, industrySeries, type IndustrySeries } from "@/data/industry-series"
 import { missions } from "@/data/missions"
 import {
   getMissionStepProofRequirement,
@@ -42,9 +43,9 @@ const moreGoals = [
 ]
 
 const guideExamples = [
-  { industry: "电商/店铺", direction: "想用 AI 做客服、商品文案、短视频" },
-  { industry: "教育/培训", direction: "想用 AI 做课件、题目、课程资料整理" },
-  { industry: "自媒体/短视频", direction: "想用 AI 做选题、脚本、动漫视频" },
+  { industry: "电商/店铺", direction: "想用 AI 做客服、商品文案、短视频", seriesId: "ecommerce-store" },
+  { industry: "教育/培训", direction: "想用 AI 做课件、题目、课程资料整理", seriesId: "education-training" },
+  { industry: "自媒体/短视频", direction: "想用 AI 做选题、脚本、动漫视频", seriesId: "creator-media" },
 ]
 
 const goalMissionMap: { keywords: string[]; missionId: string }[] = [
@@ -116,6 +117,7 @@ export function StartClient() {
   const [industryInput, setIndustryInput] = useState("")
   const [directionInput, setDirectionInput] = useState("")
   const [guideNote, setGuideNote] = useState("")
+  const [selectedSeries, setSelectedSeries] = useState<IndustrySeries | null>(null)
 
   useEffect(() => {
     const saved = readMissionProgress()
@@ -169,12 +171,14 @@ export function StartClient() {
     chooseMission(missionFromGoalParam(goal) || missions[0].id)
   }
 
-  function chooseGuideExample(industry: string, direction: string) {
+  function chooseGuideExample(industry: string, direction: string, seriesId?: string) {
     setIndustryInput(industry)
     setDirectionInput(direction)
-    const missionId = missionFromGoalParam(`${industry} ${direction}`) || missionFromIndustryGuide(`${industry} ${direction}`) || missions[0].id
+    const series = industrySeries.find((item) => item.id === seriesId) || findIndustrySeries(`${industry} ${direction}`)
+    const missionId = series?.firstMissionId || missionFromGoalParam(`${industry} ${direction}`) || missionFromIndustryGuide(`${industry} ${direction}`) || missions[0].id
     chooseMission(missionId)
-    setGuideNote(`小白按“${industry}”和“${direction}”给你换好了，先做下面这一步。`)
+    setSelectedSeries(series)
+    setGuideNote(series ? `小白给你切到「${series.shortTitle}」系列，先做第 1 关。` : `小白按“${industry}”和“${direction}”给你换好了，先做下面这一步。`)
   }
 
   function guideByXiaobai() {
@@ -183,9 +187,11 @@ export function StartClient() {
       setGuideNote("先随便写一句也行，比如：我是做电商的，想用 AI 做商品文案。")
       return
     }
-    const missionId = missionFromGoalParam(combined) || missionFromIndustryGuide(combined) || missions[0].id
+    const series = findIndustrySeries(combined)
+    const missionId = series?.firstMissionId || missionFromGoalParam(combined) || missionFromIndustryGuide(combined) || missions[0].id
     chooseMission(missionId)
-    setGuideNote("小白已经按你的行业/方向换好了。先别想完整路线，照着下面第一步做。")
+    setSelectedSeries(series)
+    setGuideNote(series ? `小白给你切到「${series.shortTitle}」系列。先别想完整路线，先做第 1 关。` : "小白已经按你的行业/方向换好了。先别想完整路线，照着下面第一步做。")
   }
 
   function switchRandomMission() {
@@ -276,12 +282,31 @@ export function StartClient() {
               </button>
               <div style={guideExampleRowStyle}>
                 {guideExamples.map((item) => (
-                  <button key={item.industry} type="button" onClick={() => chooseGuideExample(item.industry, item.direction)} style={guideExampleStyle}>
+                  <button key={item.industry} type="button" onClick={() => chooseGuideExample(item.industry, item.direction, item.seriesId)} style={guideExampleStyle}>
                     {item.industry}
                   </button>
                 ))}
               </div>
               {guideNote && <p style={guideNoteStyle}>{guideNote}</p>}
+            </section>
+          )}
+
+          {!selectedProgress.completed && selectedSeries && (
+            <section style={seriesPreviewStyle}>
+              <p style={microLabelStyle}>你的行业系列</p>
+              <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, lineHeight: 1.4, marginBottom: 7 }}>{selectedSeries.title}</h2>
+              <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7, marginBottom: 12 }}>{selectedSeries.promise}</p>
+              <div style={seriesStepListStyle}>
+                {selectedSeries.steps.map((step, index) => (
+                  <button key={`${step.phase}-${step.missionId}`} type="button" onClick={() => chooseMission(step.missionId)} style={seriesStepStyle(step.missionId === selected.id)}>
+                    <span style={{ color: step.missionId === selected.id ? "#e8c96a" : "#777", fontFamily: "'JetBrains Mono',monospace", fontSize: 10, fontWeight: 950 }}>{String(index + 1).padStart(2, "0")}</span>
+                    <span>
+                      <strong style={{ display: "block", color: "#fff", fontSize: 12, lineHeight: 1.45, marginBottom: 3 }}>{step.title}</strong>
+                      <small style={{ display: "block", color: "#888", fontSize: 11, lineHeight: 1.45 }}>{step.deliverable}</small>
+                    </span>
+                  </button>
+                ))}
+              </div>
             </section>
           )}
 
@@ -615,6 +640,34 @@ const guideNoteStyle: CSSProperties = {
   fontSize: 12,
   lineHeight: 1.65,
   marginTop: 9,
+}
+
+const seriesPreviewStyle: CSSProperties = {
+  border: "1px solid #29351f",
+  background: "rgba(61,165,99,0.045)",
+  borderRadius: 12,
+  padding: "15px",
+  marginBottom: 16,
+}
+
+const seriesStepListStyle: CSSProperties = {
+  display: "grid",
+  gap: 7,
+}
+
+function seriesStepStyle(active: boolean): CSSProperties {
+  return {
+    display: "grid",
+    gridTemplateColumns: "24px 1fr",
+    gap: 9,
+    alignItems: "start",
+    textAlign: "left",
+    border: active ? "1px solid #7a6230" : "1px solid #242424",
+    background: active ? "rgba(201,168,76,0.08)" : "rgba(0,0,0,0.2)",
+    borderRadius: 9,
+    padding: "10px 11px",
+    cursor: "pointer",
+  }
 }
 
 const microLabelStyle: CSSProperties = {
