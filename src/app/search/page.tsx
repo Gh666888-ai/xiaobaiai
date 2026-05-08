@@ -79,8 +79,8 @@ export default function SearchPage({ searchParams }: { searchParams?: { q?: stri
         <h1 style={{ fontSize: 36, fontWeight: 950, color: "#fff", marginBottom: 10 }}>站内搜索</h1>
         <p style={{ fontSize: 14, color: "#ccc", marginBottom: 28 }}>统一搜索工具、模型、教程、任务、资讯和工作流。也支持地址：/search?q=关键词。</p>
 
-        <form action="/search" style={{ display: "flex", gap: 10, marginBottom: 18 }}>
-          <input name="q" defaultValue={q} placeholder="搜工具、模型、技能、教程..." className="form-input" style={{ flex: 1, height: 46, fontSize: 15 }} autoFocus />
+        <form action="/search" autoComplete="off" style={{ display: "flex", gap: 10, marginBottom: 18 }}>
+          <input name="q" defaultValue={q} placeholder="搜工具、模型、技能、教程..." className="form-input" style={{ flex: 1, height: 46, fontSize: 15 }} autoComplete="off" autoFocus />
           <button className="btn-primary" style={{ justifyContent: "center", whiteSpace: "nowrap" }}>搜索</button>
         </form>
 

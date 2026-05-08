@@ -67,6 +67,18 @@ body {
 }
 .form-input:focus { border-color: #7a6230; }
 .form-input::placeholder { color: #333; }
+.form-input:-webkit-autofill,
+.form-input:-webkit-autofill:hover,
+.form-input:-webkit-autofill:focus,
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f0f0f0 !important;
+  caret-color: #f0f0f0;
+  box-shadow: 0 0 0 1000px #050505 inset !important;
+  border-color: #7a6230 !important;
+  transition: background-color 9999s ease-out 0s;
+}
 
 /* 链接 */
 .link { color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.2s; }

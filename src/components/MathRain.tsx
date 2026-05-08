@@ -34,13 +34,13 @@ export function MathRain() {
 
     function draw() {
       if (paused) return
-      ctx.fillStyle = 'rgba(0,0,0,0.06)'; ctx.fillRect(0,0,c.width,c.height)
+      ctx.fillStyle = 'rgba(0,0,0,0.045)'; ctx.fillRect(0,0,c.width,c.height)
       for(let i=0;i<drops.length;i++){
         const char = SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)]
         const x = i*18; const y = drops[i]*18; const depth = y/c.height
-        const alpha = 0.12 + depth*0.5; const bright = Math.floor(depth*160+60)
+        const alpha = 0.2 + depth*0.55; const bright = Math.floor(depth*175+88)
         ctx.fillStyle = `rgba(${bright},${bright*0.75},${bright*0.3},${alpha})`
-        ctx.font = '12px JetBrains Mono, monospace'; ctx.fillText(char, x, y)
+        ctx.font = '13px JetBrains Mono, monospace'; ctx.fillText(char, x, y)
         if(y > c.height && Math.random()>0.975) drops[i] = Math.random() * -30; drops[i]++
       }
     }
