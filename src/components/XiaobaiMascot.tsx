@@ -14,6 +14,7 @@ export function XiaobaiMascot({ size = 44, mood = "idle" }: XiaobaiMascotProps) 
 
   return (
     <div
+      className={`xiaobai-mascot xiaobai-mascot-${mood}`}
       aria-label="小白AI助手"
       title="小白AI助手"
       style={{
@@ -44,6 +45,7 @@ export function XiaobaiMascot({ size = 44, mood = "idle" }: XiaobaiMascotProps) 
       }}
     >
       <img
+        className="xiaobai-mascot-img"
         src="/xiaobai-mascot-cutout.png"
         alt=""
         style={{
@@ -55,6 +57,16 @@ export function XiaobaiMascot({ size = 44, mood = "idle" }: XiaobaiMascotProps) 
           userSelect: "none",
         }}
       />
+
+      <span className="xiaobai-ear left" />
+      <span className="xiaobai-ear right" />
+      <span className="xiaobai-face-layer" aria-hidden="true">
+        <span className="xiaobai-brow left" />
+        <span className="xiaobai-brow right" />
+        <span className="xiaobai-eye left"><i /></span>
+        <span className="xiaobai-eye right"><i /></span>
+        <span className="xiaobai-mouth" />
+      </span>
 
       {isSleeping && (
         <div style={{ position: "absolute", right: -12, top: -22, width: Math.max(30, size * 0.58), height: Math.max(28, size * 0.54), pointerEvents: "none" }}>
@@ -107,6 +119,147 @@ export function XiaobaiMascot({ size = 44, mood = "idle" }: XiaobaiMascotProps) 
       )}
 
       <style>{`
+        .xiaobai-mascot-img {
+          animation: xiaobaiFurBreath 3.8s ease-in-out infinite;
+          transform-origin: 50% 70%;
+        }
+        .xiaobai-face-layer {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 58%;
+          height: 44%;
+          transform: translate(-50%, -48%);
+          pointer-events: none;
+          animation: xiaobaiFaceLook 5.4s ease-in-out infinite;
+        }
+        .xiaobai-eye {
+          position: absolute;
+          top: 36%;
+          width: 14%;
+          height: 16%;
+          border-radius: 999px;
+          background: rgba(5, 35, 48, 0.72);
+          box-shadow: inset 0 0 0 1px rgba(255,255,255,0.22), 0 0 10px rgba(126,231,255,0.22);
+          overflow: hidden;
+          animation: xiaobaiBlinkEyes 4.8s ease-in-out infinite;
+        }
+        .xiaobai-brow {
+          position: absolute;
+          top: 29%;
+          width: 18%;
+          height: 3px;
+          border-radius: 999px;
+          background: rgba(5,35,48,0.52);
+          opacity: 0.32;
+          transform-origin: 50% 50%;
+        }
+        .xiaobai-brow.left {
+          left: 20%;
+          transform: rotate(-8deg);
+        }
+        .xiaobai-brow.right {
+          right: 20%;
+          transform: rotate(8deg);
+        }
+        .xiaobai-eye.left {
+          left: 24%;
+        }
+        .xiaobai-eye.right {
+          right: 24%;
+          animation-delay: 0.06s;
+        }
+        .xiaobai-eye i {
+          position: absolute;
+          left: 44%;
+          top: 38%;
+          width: 38%;
+          height: 42%;
+          border-radius: 50%;
+          background: #7ee7ff;
+          box-shadow: 0 0 8px rgba(126,231,255,0.95);
+          animation: xiaobaiPupilPatrol 3.9s ease-in-out infinite;
+        }
+        .xiaobai-eye i::after {
+          content: "";
+          position: absolute;
+          right: 16%;
+          top: 12%;
+          width: 38%;
+          height: 38%;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.9);
+        }
+        .xiaobai-mouth {
+          position: absolute;
+          left: 50%;
+          top: 61%;
+          width: 16%;
+          height: 7%;
+          border-radius: 0 0 999px 999px;
+          border-bottom: 2px solid rgba(5,35,48,0.72);
+          transform: translateX(-50%);
+          opacity: 0.78;
+        }
+        .xiaobai-ear {
+          position: absolute;
+          top: 11%;
+          width: 10%;
+          height: 14%;
+          border-radius: 70% 70% 50% 50%;
+          background: rgba(126,231,255,0.12);
+          border: 1px solid rgba(126,231,255,0.22);
+          pointer-events: none;
+          opacity: 0.55;
+          transform-origin: 50% 90%;
+          animation: xiaobaiEarTwitch 6s ease-in-out infinite;
+        }
+        .xiaobai-ear.left {
+          left: 26%;
+          transform: rotate(-18deg);
+        }
+        .xiaobai-ear.right {
+          right: 26%;
+          transform: rotate(18deg);
+          animation-delay: 0.18s;
+        }
+        .xiaobai-mascot-talking .xiaobai-face-layer {
+          animation: xiaobaiTalkFace 0.55s ease-in-out infinite;
+        }
+        .xiaobai-mascot-talking .xiaobai-mouth {
+          height: 13%;
+          width: 13%;
+          border: 0;
+          border-radius: 999px;
+          background: rgba(5,35,48,0.72);
+          animation: xiaobaiTalkMouth 0.28s ease-in-out infinite;
+        }
+        .xiaobai-mascot-thinking .xiaobai-eye i {
+          animation: xiaobaiPupilThink 1.45s ease-in-out infinite;
+        }
+        .xiaobai-mascot-thinking .xiaobai-brow {
+          opacity: 0.76;
+        }
+        .xiaobai-mascot-sleeping .xiaobai-eye {
+          height: 2px;
+          top: 43%;
+          background: rgba(5,35,48,0.64);
+          animation: none;
+        }
+        .xiaobai-mascot-sleeping .xiaobai-eye i,
+        .xiaobai-mascot-sleeping .xiaobai-mouth {
+          opacity: 0;
+        }
+        .xiaobai-mascot-peeking .xiaobai-eye i {
+          animation: xiaobaiPupilPeekAround 1.8s ease-in-out infinite;
+        }
+        .xiaobai-mascot-happy .xiaobai-mouth,
+        .xiaobai-mascot-complete .xiaobai-mouth {
+          width: 20%;
+          height: 10%;
+          border-radius: 0 0 999px 999px;
+          border-bottom-width: 3px;
+        }
         @keyframes xiaobaiSpeak {
           0%, 100% { transform: translateY(0) scale(1); }
           50% { transform: translateY(-2px) scale(1.045); }
@@ -142,6 +295,51 @@ export function XiaobaiMascot({ size = 44, mood = "idle" }: XiaobaiMascotProps) 
           0% { transform: translateX(-100%); opacity: 0; }
           35% { opacity: 1; }
           100% { transform: translateX(100%); opacity: 0; }
+        }
+        @keyframes xiaobaiFurBreath {
+          0%, 100% { transform: translateY(0) scale(1); }
+          48% { transform: translateY(-1px) scale(1.018); }
+        }
+        @keyframes xiaobaiFaceLook {
+          0%, 100% { transform: translate(-50%, -48%) rotate(0deg); }
+          28% { transform: translate(-52%, -49%) rotate(-1.4deg); }
+          54% { transform: translate(-48%, -47%) rotate(1.2deg); }
+          76% { transform: translate(-50%, -50%) rotate(-0.8deg); }
+        }
+        @keyframes xiaobaiBlinkEyes {
+          0%, 88%, 100% { transform: scaleY(1); }
+          91%, 93% { transform: scaleY(0.12); }
+          95% { transform: scaleY(1); }
+        }
+        @keyframes xiaobaiPupilPatrol {
+          0%, 100% { transform: translate(0, 0); }
+          24% { transform: translate(-36%, -8%); }
+          48% { transform: translate(22%, 10%); }
+          68% { transform: translate(34%, -12%); }
+          82% { transform: translate(-12%, 8%); }
+        }
+        @keyframes xiaobaiPupilThink {
+          0%, 100% { transform: translate(-30%, -8%) scale(0.94); }
+          50% { transform: translate(34%, 8%) scale(1.05); }
+        }
+        @keyframes xiaobaiPupilPeekAround {
+          0%, 100% { transform: translate(-42%, -4%) scale(0.95); }
+          45% { transform: translate(42%, 4%) scale(1.04); }
+          72% { transform: translate(10%, -12%) scale(1); }
+        }
+        @keyframes xiaobaiTalkFace {
+          0%, 100% { transform: translate(-50%, -48%) scale(1); }
+          50% { transform: translate(-50%, -50%) scale(1.035); }
+        }
+        @keyframes xiaobaiTalkMouth {
+          0%, 100% { transform: translateX(-50%) scaleY(0.55); }
+          50% { transform: translateX(-50%) scaleY(1.18); }
+        }
+        @keyframes xiaobaiEarTwitch {
+          0%, 74%, 100% { translate: 0 0; }
+          78% { translate: 0 -2px; }
+          82% { translate: 0 0; }
+          86% { translate: 0 -1px; }
         }
       `}</style>
     </div>

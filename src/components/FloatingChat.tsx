@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import type { PointerEvent as ReactPointerEvent } from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { ArrowUp, Loader2, Minus, UserRound, X } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
@@ -13,8 +13,11 @@ import {
   getStoredMission,
   MISSION_PROGRESS_KEY,
   readMissionProgress,
+  selectMission,
   type MissionProgressState,
+  writeMissionProgress,
 } from "@/lib/mission-progress"
+import { recommendMissionFromGoal } from "@/lib/mission-recommender"
 
 type Message = {
   role: "user" | "assistant"
@@ -103,6 +106,7 @@ function looksLikeIndustryGoal(message: string) {
 
 export function FloatingChat() {
   const pathname = usePathname()
+  const router = useRouter()
   const { user, loading } = useAuth()
   const [open, setOpen] = useState(false)
   const [minimized, setMinimized] = useState(false)
@@ -359,6 +363,29 @@ export function FloatingChat() {
     setLauncherHint("")
   }
 
+  async function assignMissionFromGoal(goal: string) {
+    const mission = recommendMissionFromGoal(goal)
+    const nextProgress = selectMission(readMissionProgress(), mission.id)
+    writeMissionProgress(nextProgress)
+    setMissionProgress(nextProgress)
+    setHasSavedMissionProgress(true)
+    window.localStorage.setItem(ONBOARDING_PROFILE_KEY, goal.slice(0, 240))
+
+    const token = readAppAuth()?.session?.access_token
+    if (user && token) {
+      fetch("/api/mission-progress", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ progress: nextProgress }),
+      }).catch(() => undefined)
+    }
+
+    return mission
+  }
+
   async function send(text = input) {
     const value = text.trim()
     if (!value || sending) return
@@ -382,7 +409,20 @@ export function FloatingChat() {
     setSending(true)
     setSpeaking(false)
     if (user && looksLikeIndustryGoal(value)) {
-      window.localStorage.setItem(ONBOARDING_PROFILE_KEY, value.slice(0, 240))
+      const mission = await assignMissionFromGoal(value)
+      setMode("site")
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: `我给你定好了：${mission.title}\n\n现在不继续聊建议了，直接进任务页。第一步只做一件事：${mission.steps[0]?.action || "先打开任务页开始。"}\n\n我会记住进度，下次点开始会回到这条路线。`,
+        },
+      ])
+      setSpeaking(true)
+      window.setTimeout(() => setSpeaking(false), 1800)
+      window.setTimeout(() => router.push(`/missions/${mission.id}`), 650)
+      setSending(false)
+      return
     }
     try {
       const token = readAppAuth()?.session?.access_token
@@ -527,6 +567,14 @@ export function FloatingChat() {
         </span>
         <span className="xiaobai-body">
           <XiaobaiMascot size={86} mood={open ? "happy" : liveMood} />
+        </span>
+        <span className="xiaobai-hand-seals" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
         </span>
         <span className="xiaobai-footsteps" aria-hidden="true">
           <i />
@@ -787,6 +835,36 @@ export function FloatingChat() {
         .xiaobai-launcher.is-burrowing .xiaobai-body {
           animation: xiaobaiBurrowBody 1.24s cubic-bezier(.16,1,.3,1) both;
         }
+        .xiaobai-launcher.is-burrowing .xiaobai-face-layer {
+          animation: xiaobaiSeriousFace 0.42s ease-in-out infinite;
+        }
+        .xiaobai-launcher.is-burrowing .xiaobai-brow {
+          opacity: 1;
+          background: rgba(3,22,30,0.86);
+        }
+        .xiaobai-launcher.is-burrowing .xiaobai-brow.left {
+          transform: rotate(17deg) translateY(1px);
+        }
+        .xiaobai-launcher.is-burrowing .xiaobai-brow.right {
+          transform: rotate(-17deg) translateY(1px);
+        }
+        .xiaobai-launcher.is-burrowing .xiaobai-eye {
+          height: 11%;
+          top: 39%;
+          background: rgba(3,22,30,0.86);
+          animation: xiaobaiSeriousBlink 0.72s ease-in-out infinite;
+        }
+        .xiaobai-launcher.is-burrowing .xiaobai-eye i {
+          animation: xiaobaiSealFocus 0.36s steps(2, end) infinite;
+        }
+        .xiaobai-launcher.is-burrowing .xiaobai-mouth {
+          width: 15%;
+          height: 2px;
+          top: 65%;
+          border: 0;
+          background: rgba(3,22,30,0.72);
+          border-radius: 999px;
+        }
         .xiaobai-launcher.is-sleeping .xiaobai-body {
           animation: xiaobaiDozeBody 3.2s ease-in-out infinite;
         }
@@ -870,6 +948,55 @@ export function FloatingChat() {
         }
         .xiaobai-launcher.is-burrowing .xiaobai-burrow-flash {
           animation: xiaobaiBurrowFlash 1.24s ease-in-out both;
+        }
+        .xiaobai-hand-seals {
+          position: absolute;
+          z-index: 6;
+          left: 50%;
+          bottom: 34px;
+          width: 58px;
+          height: 38px;
+          transform: translateX(-50%);
+          opacity: 0;
+          pointer-events: none;
+          filter: drop-shadow(0 0 10px rgba(232,201,106,0.52));
+        }
+        .xiaobai-hand-seals i {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 25px;
+          height: 9px;
+          border-radius: 999px 999px 7px 7px;
+          background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(178,245,255,0.9));
+          border: 1px solid rgba(126,231,255,0.76);
+          box-shadow: inset 0 -2px 4px rgba(0,0,0,0.12);
+          transform-origin: 50% 50%;
+        }
+        .xiaobai-hand-seals i:nth-child(1) { transform: translate(-96%, -52%) rotate(31deg); }
+        .xiaobai-hand-seals i:nth-child(2) { transform: translate(-8%, -52%) rotate(-31deg); }
+        .xiaobai-hand-seals i:nth-child(3) { width: 20px; transform: translate(-72%, -5%) rotate(-18deg); }
+        .xiaobai-hand-seals i:nth-child(4) { width: 20px; transform: translate(-28%, -5%) rotate(18deg); }
+        .xiaobai-hand-seals i:nth-child(5) { width: 16px; transform: translate(-86%, 38%) rotate(18deg); opacity: 0.86; }
+        .xiaobai-hand-seals i:nth-child(6) { width: 16px; transform: translate(-16%, 38%) rotate(-18deg); opacity: 0.86; }
+        .xiaobai-launcher.is-burrowing .xiaobai-hand-seals {
+          opacity: 1;
+          animation: xiaobaiSealBurst 0.18s steps(2, end) 0s 5, xiaobaiSealVanish 1.24s ease-in-out both;
+        }
+        .xiaobai-launcher.is-burrowing .xiaobai-hand-seals::before,
+        .xiaobai-launcher.is-burrowing .xiaobai-hand-seals::after {
+          content: "";
+          position: absolute;
+          inset: -8px;
+          border-radius: 50%;
+          border: 1px solid rgba(232,201,106,0.34);
+          transform: scale(0.68);
+          opacity: 0;
+          animation: xiaobaiSealRing 0.32s ease-out 3;
+        }
+        .xiaobai-launcher.is-burrowing .xiaobai-hand-seals::after {
+          animation-delay: 0.08s;
+          border-color: rgba(126,231,255,0.38);
         }
         .xiaobai-launcher.is-sleeping .xiaobai-scan-ring,
         .xiaobai-launcher.is-sleeping .xiaobai-orbit,
@@ -1045,6 +1172,33 @@ export function FloatingChat() {
           55% { transform: translateX(-50%) scaleY(0.35); opacity: 0.12; }
           70% { transform: translateX(-50%) scaleY(1.14); opacity: 0.95; }
           100% { transform: translateX(-50%) scaleY(0.2); opacity: 0; }
+        }
+        @keyframes xiaobaiSeriousFace {
+          0%, 100% { transform: translate(-50%, -48%) scale(1) rotate(0deg); }
+          50% { transform: translate(-50%, -50%) scale(0.98) rotate(-1deg); }
+        }
+        @keyframes xiaobaiSeriousBlink {
+          0%, 100% { transform: scaleY(1); }
+          48% { transform: scaleY(0.78); }
+        }
+        @keyframes xiaobaiSealFocus {
+          0% { transform: translate(-30%, -8%) scale(0.92); }
+          100% { transform: translate(24%, -4%) scale(1.04); }
+        }
+        @keyframes xiaobaiSealBurst {
+          0% { transform: translateX(-50%) scale(0.92) rotate(-8deg); }
+          50% { transform: translateX(-50%) scale(1.08) rotate(8deg); }
+          100% { transform: translateX(-50%) scale(0.98) rotate(-4deg); }
+        }
+        @keyframes xiaobaiSealVanish {
+          0%, 58% { opacity: 1; }
+          78% { opacity: 0.65; transform: translateX(-50%) translateY(4px) scale(0.72); }
+          100% { opacity: 0; transform: translateX(-50%) translateY(16px) scale(0.2); }
+        }
+        @keyframes xiaobaiSealRing {
+          0% { transform: scale(0.5) rotate(0deg); opacity: 0; }
+          28% { opacity: 1; }
+          100% { transform: scale(1.24) rotate(80deg); opacity: 0; }
         }
         @keyframes xiaobaiBurrowShadow {
           0% { transform: translateX(-50%) scale(1); opacity: 0.74; }

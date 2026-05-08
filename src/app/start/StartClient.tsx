@@ -23,12 +23,23 @@ function starterProgress(): MissionProgressState {
 }
 
 function progressUpdatedAt(state: MissionProgressState) {
-  const mission = getStoredMission(state, initialMission.id)
-  return new Date(mission.updatedAt || 0).getTime()
+  const activeMission = getStoredMission(state, state.activeMissionId || initialMission.id)
+  const missionTimes = Object.values(state.missions || {}).map((mission) => new Date(mission.updatedAt || 0).getTime())
+  return Math.max(new Date(activeMission.updatedAt || 0).getTime(), ...missionTimes, 0)
 }
 
 function newerProgress(local: MissionProgressState, remote: MissionProgressState) {
   return progressUpdatedAt(remote) > progressUpdatedAt(local) ? remote : local
+}
+
+function normalizeProgress(state?: Partial<MissionProgressState> | null): MissionProgressState {
+  const activeMissionId = missions.some((mission) => mission.id === state?.activeMissionId)
+    ? String(state?.activeMissionId)
+    : initialMission.id
+  return {
+    activeMissionId,
+    missions: state?.missions && typeof state.missions === "object" ? state.missions : {},
+  }
 }
 
 export function StartClient() {
@@ -37,7 +48,7 @@ export function StartClient() {
   const [copied, setCopied] = useState(false)
   const [syncState, setSyncState] = useState("本机已记录")
 
-  const selected = initialMission
+  const selected = missions.find((mission) => mission.id === progress.activeMissionId) || initialMission
   const selectedProgress = getStoredMission(progress, selected.id)
   const currentStepIndex = Math.min(selectedProgress.currentStep || 0, selected.steps.length - 1)
   const currentStep = selected.steps[currentStepIndex]
@@ -48,7 +59,7 @@ export function StartClient() {
   const stepLabel = completed ? "已完成" : `第 ${currentStepIndex + 1} 步 / 共 ${totalSteps} 步`
 
   useEffect(() => {
-    const saved = selectMission(readMissionProgress(), initialMission.id)
+    const saved = normalizeProgress(readMissionProgress())
     setProgress(saved)
   }, [])
 
@@ -70,7 +81,7 @@ export function StartClient() {
         }
         if (cancelled) return
         setProgress((local) => {
-          const next = newerProgress(local, selectMission(data.progress, initialMission.id))
+          const next = newerProgress(local, normalizeProgress(data.progress))
           writeMissionProgress(next)
           return next
         })
@@ -164,6 +175,7 @@ export function StartClient() {
             <div>
               <p style={eyebrowStyle}>开始</p>
               <h1 style={titleStyle}>{completed ? "这个任务做完了" : currentStep.title}</h1>
+              <p style={missionTitleStyle}>{selected.shortTitle} · {selected.stage}</p>
             </div>
             <span style={statusPillStyle}>{stepLabel}</span>
           </div>
@@ -258,6 +270,14 @@ const titleStyle: CSSProperties = {
   fontWeight: 950,
   lineHeight: 1.08,
   margin: 0,
+}
+
+const missionTitleStyle: CSSProperties = {
+  color: "#cdbb80",
+  fontSize: 13,
+  fontWeight: 900,
+  lineHeight: 1.6,
+  marginTop: 10,
 }
 
 const statusPillStyle: CSSProperties = {
