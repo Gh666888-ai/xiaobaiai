@@ -10,6 +10,12 @@ export type ToolMeta = {
   caution: string
 }
 
+export type ToolTrustTag = {
+  label: string
+  detail: string
+  tone: "good" | "warn" | "neutral"
+}
+
 const domesticKeywords = [
   "通义", "豆包", "文心", "讯飞", "Kimi", "DeepSeek", "即梦", "可灵", "剪映",
   "腾讯", "阿里", "百度", "字节", "月之暗面", "秘塔", "火山", "硅基流动",
@@ -85,4 +91,37 @@ export function getToolMeta(tool: Tool): ToolMeta {
         ? "海外服务可能存在网络、支付或账号限制，正式使用前建议准备备用方案。"
         : "正式处理重要资料前，先确认隐私、版权和输出准确性。",
   }
+}
+
+export function getToolTrustTags(tool: Tool): ToolTrustTag[] {
+  const meta = getToolMeta(tool)
+  const pricingTone = tool.pricing === "免费" || tool.pricing === "有免费额度" ? "good" : tool.pricing === "免费+付费" ? "neutral" : "warn"
+
+  return [
+    {
+      label: meta.magicNetwork === "不需要" ? "国内可访问" : meta.magicNetwork === "建议准备" ? "网络待确认" : "通常需要网络准备",
+      detail: meta.magicNetwork === "不需要" ? "更适合中文新手直接开始" : meta.magicNetwork === "建议准备" ? "使用前建议先测试访问稳定性" : "建议准备备用工具或服务商",
+      tone: meta.magicNetwork === "不需要" ? "good" : meta.magicNetwork === "建议准备" ? "neutral" : "warn",
+    },
+    {
+      label: meta.chineseSupport === "优秀" ? "中文体验好" : meta.chineseSupport === "良好" ? "中文可用" : "中文一般",
+      detail: meta.chineseSupport === "优秀" ? "提示词、界面或内容理解对中文更友好" : meta.chineseSupport === "良好" ? "可以处理中文任务，复杂场景要多检查" : "更适合英文或进阶用户",
+      tone: meta.chineseSupport === "优秀" ? "good" : meta.chineseSupport === "良好" ? "neutral" : "warn",
+    },
+    {
+      label: tool.pricing,
+      detail: tool.pricing === "免费" ? "适合零预算先体验" : tool.pricing === "有免费额度" ? "先用免费额度验证效果" : tool.pricing === "免费+付费" ? "基础功能可试，重度使用再考虑付费" : "正式使用前先确认价格和退款规则",
+      tone: pricingTone,
+    },
+    {
+      label: "站内已收录入口",
+      detail: "进入官网前仍建议核对域名、价格和账号要求",
+      tone: "neutral",
+    },
+    {
+      label: meta.difficulty,
+      detail: meta.difficulty === "新手友好" ? "适合从一个 10 分钟小任务开始" : meta.difficulty === "需要练习" ? "建议先跟教程完成一次标准流程" : "适合已经有明确任务边界的用户",
+      tone: meta.difficulty === "新手友好" ? "good" : meta.difficulty === "需要练习" ? "neutral" : "warn",
+    },
+  ]
 }

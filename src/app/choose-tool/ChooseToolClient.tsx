@@ -87,6 +87,17 @@ const levelBoost: Record<Level, number> = {
   进阶使用: 4,
 }
 
+const goalRecommendSlug: Record<Goal, string> = {
+  写作: "free-ai-writing-tools-cn",
+  编程: "ai-coding-agent-tools",
+  做图: "ai-tools-for-xiaohongshu",
+  客服: "ai-agent-tools-for-small-business",
+  自动化: "ai-agent-tools-for-small-business",
+  办公: "ai-ppt-tools-for-beginners",
+  学习: "free-ai-writing-tools-cn",
+  视频: "ai-tools-for-xiaohongshu",
+}
+
 const questions = [
   {
     key: "goal",
@@ -166,6 +177,7 @@ export default function ChooseToolClient() {
     const missions = getMissionsForGoal(answers.goal).slice(0, 2)
     return { goal, ranked, stage, missions }
   }, [answers])
+  const recommendHref = `/recommend/${goalRecommendSlug[answers.goal]}`
 
   return (
     <div style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
@@ -231,6 +243,14 @@ export default function ChooseToolClient() {
               <h2 style={{ fontSize: 18, color: "#fff", fontWeight: 950 }}>推荐结论</h2>
             </div>
             <p style={{ color: "#d8d8d8", fontSize: 14, lineHeight: 1.9, marginBottom: 18 }}>{result.goal.reason}</p>
+
+            <Link href={recommendHref} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, border: "1px solid rgba(201,168,76,0.38)", borderRadius: 10, padding: "14px 15px", background: "rgba(201,168,76,0.06)", textDecoration: "none", marginBottom: 14 }}>
+              <div>
+                <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>打开可分享推荐页</p>
+                <p style={{ color: "#cdbb80", fontSize: 12, marginTop: 4 }}>包含推荐工具、第一步、检查清单和复盘模板</p>
+              </div>
+              <ChevronRight size={18} style={{ color: "#c9a84c", flexShrink: 0 }} />
+            </Link>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 8, marginBottom: 18 }} className="max-sm:grid-cols-1">
               {result.goal.labels.map((label, index) => (

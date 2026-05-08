@@ -4,6 +4,7 @@ import { posts } from "@/data/community"
 import { stages } from "@/data/learning-path"
 import { categories, tools } from "@/data/tools"
 import { categoryPath, toolPath } from "@/data/tool-meta"
+import { recommendationPages } from "@/data/recommendations"
 
 const siteUrl = "https://www.xiaobaiai.cn"
 const lastModified = new Date()
@@ -82,6 +83,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.78,
   }))
 
+  const recommendationRoutes = recommendationPages.map((page) => ({
+    url: url(`/recommend/${encodeURIComponent(page.slug)}`),
+    lastModified,
+    changeFrequency: "weekly" as const,
+    priority: 0.82,
+  }))
+
   const communityRoutes = posts.map((post) => ({
     url: url(`/community/${encodeURIComponent(post.id)}`),
     lastModified: post.publishedAt ? new Date(post.publishedAt) : lastModified,
@@ -89,5 +97,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: post.pinned ? 0.78 : 0.68,
   }))
 
-  return [...staticRoutes, ...categoryRoutes, ...toolRoutes, ...newsRoutes, ...learnRoutes, ...communityRoutes]
+  return [...staticRoutes, ...categoryRoutes, ...toolRoutes, ...newsRoutes, ...learnRoutes, ...recommendationRoutes, ...communityRoutes]
 }

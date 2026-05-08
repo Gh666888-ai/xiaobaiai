@@ -9,15 +9,15 @@ import { getUserLevel } from "@/data/user"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
 
-type TemplateKey = "经验分享" | "踩坑记录" | "自动化实战" | "AI 分析" | "问题求助"
+type TemplateKey = "实战复盘" | "踩坑记录" | "任务成果" | "AI 分析" | "问题求助"
 
 const templates: Record<TemplateKey, { title: string; tags: string; content: string; hint: string }> = {
-  经验分享: {
-    title: "我用 AI 解决了一个真实问题：",
-    tags: "经验分享,工具推荐,新手友好",
-    hint: "适合分享你已经跑通的方法、工具组合和效果。",
+  实战复盘: {
+    title: "我用 AI 完成了一个真实任务：",
+    tags: "实战复盘,工具组合,新手友好",
+    hint: "适合沉淀行业、目标、工具、步骤、提示词、成本、效果和坑点。",
     content:
-      "背景：\n我遇到的问题是……\n\n使用的工具：\n1. \n2. \n\n具体做法：\n第一步：\n第二步：\n第三步：\n\n结果：\n节省了多少时间、成本或精力？\n\n给新手的建议：\n",
+      "我是谁/行业是什么：\n\n我要解决什么问题：\n\n我用了哪些工具：\n1. \n2. \n\n具体步骤：\n第一步：\n第二步：\n第三步：\n\n可复制提示词：\n\n花了多少钱/多久：\n\n最后效果：\n\n踩坑和建议：\n\n适合谁照着做：\n",
   },
   踩坑记录: {
     title: "我在使用 AI 时踩过的坑：",
@@ -26,12 +26,12 @@ const templates: Record<TemplateKey, { title: string; tags: string; content: str
     content:
       "问题现象：\n我当时看到的报错/异常是……\n\n错误原因：\n后来发现是因为……\n\n解决步骤：\n1. \n2. \n3. \n\n最终结果：\n\n提醒大家：\n",
   },
-  自动化实战: {
-    title: "我搭了一个 AI 自动化流程：",
-    tags: "自动化实战,Agent,工作流",
-    hint: "适合分享 Agent、Dify、n8n、QClaw、OpenClaw 等流程。",
+  任务成果: {
+    title: "我完成了小白 AI 的一个 0-1 任务：",
+    tags: "任务成果,0-1,成长任务",
+    hint: "适合把 /start 或 /missions 里的任务结果发出来，形成可复制案例。",
     content:
-      "自动化目标：\n我想让 AI 自动完成……\n\n流程设计：\n触发条件：\n处理步骤：\n输出结果：\n人工审核点：\n\n使用工具：\n\n实际效果：\n\n还能优化的地方：\n",
+      "选择的任务：\n\n为什么选它：\n\n准备材料：\n\n我做到的环节：\n\n用到的工具：\n\n最终交付物：\n\n完成后获得的收获：\n\n下一步想挑战：\n",
   },
   "AI 分析": {
     title: "AI 能不能做这件事？我的可行性分析：",
@@ -45,7 +45,7 @@ const templates: Record<TemplateKey, { title: string; tags: string; content: str
     tags: "问题求助,需求分析,新手提问",
     hint: "适合把你的真实需求发出来，让社区帮你拆解。",
     content:
-      "我的目标：\n\n现在的情况：\n\n我已经试过：\n\n卡住的地方：\n\n希望大家帮我判断：\n1. 该用什么工具？\n2. 大概怎么搭？\n3. 有没有更简单的方案？\n",
+      "我的目标：\n\n当前材料：\n\n我试过的工具：\n\n卡住点：\n\n预算/网络限制：\n\n希望社区帮我判断：\n1. 该用什么工具？\n2. 第一环节怎么开始？\n3. 有没有更简单的方案？\n",
   },
 }
 
@@ -60,10 +60,10 @@ function polishDraft(title: string, content: string, cat: TemplateKey) {
 export default function NewPostPage() {
   const router = useRouter()
   const { user, refresh } = useAuth()
-  const [title, setTitle] = useState(templates["经验分享"].title)
-  const [content, setContent] = useState(templates["经验分享"].content)
-  const [cat, setCat] = useState<TemplateKey>("经验分享")
-  const [tags, setTags] = useState(templates["经验分享"].tags)
+  const [title, setTitle] = useState(templates["实战复盘"].title)
+  const [content, setContent] = useState(templates["实战复盘"].content)
+  const [cat, setCat] = useState<TemplateKey>("实战复盘")
+  const [tags, setTags] = useState(templates["实战复盘"].tags)
   const [author, setAuthor] = useState("")
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState("")
@@ -156,11 +156,11 @@ export default function NewPostPage() {
       <NavBar />
       <main style={{ maxWidth: 980, margin: "0 auto", padding: "60px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.86)" }} className="max-sm:px-4">
         <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.35em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 800 }}>Community Draft</p>
-        <h1 style={{ fontSize: 34, fontWeight: 950, color: "#fff", marginBottom: 10 }}>发布社区帖子</h1>
-        <p style={{ fontSize: 14, color: "#bbb", lineHeight: 1.9, marginBottom: 16 }}>选择模板、填入你的真实经历，再用本地 AI 润色器整理结构。不要发布 API Key、账号密码、客户隐私和未授权内容。</p>
+        <h1 style={{ fontSize: 34, fontWeight: 950, color: "#fff", marginBottom: 10 }}>发布 AI 实战复盘</h1>
+        <p style={{ fontSize: 14, color: "#bbb", lineHeight: 1.9, marginBottom: 16 }}>这里不是普通灌水区。请把“行业、目标、工具、步骤、提示词、成本、效果、坑点”写清楚，让后来的人能照着完成第一步。不要发布 API Key、账号密码、客户隐私和未授权内容。</p>
         <div style={{ border: "1px solid rgba(201,168,76,0.36)", borderRadius: 12, background: "rgba(201,168,76,0.055)", padding: "14px 16px", marginBottom: 18 }}>
-          <p style={{ color: "#fff", fontSize: 14, fontWeight: 950, marginBottom: 5 }}>发布 AI 使用经验 +10XP，今天也能冲经验榜</p>
-          <p style={{ color: "#d6c28a", fontSize: 12, lineHeight: 1.75 }}>越具体越容易通过：写清楚使用场景、工具名称、操作步骤、失败点、最终效果。优质内容后续会优先推荐。</p>
+          <p style={{ color: "#fff", fontSize: 14, fontWeight: 950, marginBottom: 5 }}>审核通过 +10XP，优质复盘会进入案例库</p>
+          <p style={{ color: "#d6c28a", fontSize: 12, lineHeight: 1.75 }}>越像真实复盘越容易通过：写清楚你是谁、想做什么、怎么做、花了多久、最后效果如何、别人照着做要注意什么。</p>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "center", border: "1px solid rgba(201,168,76,0.35)", borderRadius: 12, background: "rgba(201,168,76,0.055)", padding: "14px 16px", marginBottom: 18 }} className="max-sm:grid-cols-1">
           <p style={{ color: "#ddd", fontSize: 13, lineHeight: 1.75 }}>
@@ -173,7 +173,7 @@ export default function NewPostPage() {
           <aside style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 18 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
               <Lightbulb size={16} style={{ color: "#e8c96a" }} />
-              <h2 style={{ fontSize: 15, color: "#fff", fontWeight: 900 }}>帖子模板</h2>
+              <h2 style={{ fontSize: 15, color: "#fff", fontWeight: 900 }}>复盘模板</h2>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {(Object.keys(templates) as TemplateKey[]).map((key) => (

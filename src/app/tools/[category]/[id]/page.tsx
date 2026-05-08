@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { categories, stageLabels, tools } from "@/data/tools"
-import { categoryPath, getToolAlternatives, getToolMeta, toolPath } from "@/data/tool-meta"
+import { categoryPath, getToolAlternatives, getToolMeta, getToolTrustTags, toolPath } from "@/data/tool-meta"
 import { ToolLogo } from "@/components/ToolLogo"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
@@ -197,6 +197,7 @@ export default function ToolDetailPage({ params }: { params: { category: string;
   if (!tool) notFound()
   const category = categories.find((item) => item.key === tool.category)
   const meta = getToolMeta(tool)
+  const trustTags = getToolTrustTags(tool)
   const alternatives = getToolAlternatives(tool)
   const useCases = getToolUseCases(tool, meta)
   const faqs = getToolFaqs(tool, meta)
@@ -289,6 +290,38 @@ export default function ToolDetailPage({ params }: { params: { category: string;
           </div>
           <a href={tool.url} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ textDecoration: "none", whiteSpace: "nowrap" }}>访问官网</a>
         </div>
+
+        <section style={{ border: "1px solid rgba(201,168,76,0.34)", background: "linear-gradient(180deg,rgba(201,168,76,0.075),rgba(255,255,255,0.025))", borderRadius: 12, padding: "20px 22px", marginBottom: 28 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 14, alignItems: "start", marginBottom: 16 }} className="max-sm:grid-cols-1">
+            <div>
+              <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.22em", color: "#7a6230", textTransform: "uppercase", fontWeight: 950, marginBottom: 7 }}>Xiaobai Decision Card</p>
+              <h2 style={{ fontSize: 20, color: "#fff", fontWeight: 950, marginBottom: 8 }}>小白判断卡：先看它能不能帮你完成第一步</h2>
+              <p style={{ color: "#cfcfcf", fontSize: 14, lineHeight: 1.8 }}>不要只看工具名。先确认国内可用、免费情况、中文体验、上手难度和常见坑，再决定要不要投入时间。</p>
+            </div>
+            <div style={{ textAlign: "right" }} className="max-sm:text-left">
+              <p style={{ color: "#e8c96a", fontSize: 28, fontWeight: 950, fontFamily: "'JetBrains Mono',monospace", lineHeight: 1 }}>{meta.newbieScore}</p>
+              <p style={{ color: "#888", fontSize: 11, fontWeight: 900, marginTop: 4 }}>新手推荐指数</p>
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))", gap: 10, marginBottom: 16 }}>
+            {trustTags.map((tag) => (
+              <div key={tag.label} style={{ border: `1px solid ${tag.tone === "good" ? "rgba(82,145,82,0.42)" : tag.tone === "warn" ? "rgba(217,164,65,0.42)" : "#242424"}`, borderRadius: 10, background: tag.tone === "good" ? "rgba(82,145,82,0.08)" : tag.tone === "warn" ? "rgba(217,164,65,0.06)" : "rgba(0,0,0,0.22)", padding: "13px 14px" }}>
+                <p style={{ color: tag.tone === "good" ? "#9fd18b" : tag.tone === "warn" ? "#D9A441" : "#ddd", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>{tag.label}</p>
+                <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.6 }}>{tag.detail}</p>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }} className="max-sm:grid-cols-1">
+            <div style={{ border: "1px solid #242424", borderRadius: 10, background: "rgba(0,0,0,0.24)", padding: "14px 15px" }}>
+              <p style={{ color: "#fff", fontSize: 13, fontWeight: 950, marginBottom: 7 }}>第一次怎么开始</p>
+              <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.75 }}>{meta.quickStart[0]}</p>
+            </div>
+            <div style={{ border: "1px solid #242424", borderRadius: 10, background: "rgba(0,0,0,0.24)", padding: "14px 15px" }}>
+              <p style={{ color: "#fff", fontSize: 13, fontWeight: 950, marginBottom: 7 }}>常见坑</p>
+              <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.75 }}>{meta.caution}</p>
+            </div>
+          </div>
+        </section>
 
         <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10, marginBottom: 34 }}>
           {compare.map(([label, value]) => (

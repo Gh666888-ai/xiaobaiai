@@ -24,6 +24,21 @@ const principles = [
   "做完再发复盘，让经验变成自己的资产。",
 ]
 
+const goalMissionMap: { keywords: string[]; missionId: string }[] = [
+  { keywords: ["写文章", "文章", "小红书", "内容", "做视频", "视频", "做图片", "图片", "封面"], missionId: "xiaohongshu-ai-content-loop" },
+  { keywords: ["ppt", "PPT", "办公", "文档", "汇报"], missionId: "kimi-k26-long-doc" },
+  { keywords: ["编程", "代码", "开发", "小功能"], missionId: "codex-small-feature" },
+  { keywords: ["claude", "Claude", "deepseek", "DeepSeek", "工程"], missionId: "claude-code-deepseek-project" },
+  { keywords: ["agent", "Agent", "知识库", "客服", "店铺", "公司"], missionId: "dify-knowledge-base-bot" },
+  { keywords: ["自动化", "n8n", "日报", "提醒"], missionId: "n8n-ai-news-automation" },
+]
+
+function missionFromGoalParam(goal: string | null) {
+  if (!goal) return null
+  const decoded = goal.trim()
+  return goalMissionMap.find((item) => item.keywords.some((keyword) => decoded.includes(keyword)))?.missionId || null
+}
+
 export function StartClient() {
   const [progress, setProgress] = useState<MissionProgressState>(() => ({ activeMissionId: missions[0].id, missions: {} }))
   const [selectedId, setSelectedId] = useState(missions[0].id)
@@ -31,8 +46,14 @@ export function StartClient() {
 
   useEffect(() => {
     const saved = readMissionProgress()
-    const activeId = missions.some((mission) => mission.id === saved.activeMissionId) ? saved.activeMissionId : missions[0].id
-    setProgress(saved)
+    const goalId = missionFromGoalParam(new URLSearchParams(window.location.search).get("goal"))
+    const activeId = goalId && missions.some((mission) => mission.id === goalId)
+      ? goalId
+      : missions.some((mission) => mission.id === saved.activeMissionId)
+        ? saved.activeMissionId
+        : missions[0].id
+    const next = goalId ? selectMission(saved, activeId) : saved
+    setProgress(next)
     setSelectedId(activeId)
   }, [])
 

@@ -19,6 +19,17 @@ const SYMBOLS = [
   '∑','∏','∫','∮','∴','∵','⊥','∥'
 ]
 
+const taskEntrances = [
+  { label: "写文章", href: "/start?goal=写文章", desc: "先产出一篇能发布的草稿" },
+  { label: "做 PPT", href: "/start?goal=做PPT", desc: "把材料变成汇报结构" },
+  { label: "做视频", href: "/start?goal=做视频", desc: "脚本、配图、发布检查" },
+  { label: "做图片", href: "/start?goal=做图片", desc: "先生成一组可用封面" },
+  { label: "学编程", href: "/start?goal=学编程", desc: "让 Agent 完成小功能" },
+  { label: "搭 Agent", href: "/start?goal=搭Agent", desc: "先搭知识库或工作流" },
+  { label: "做自动化", href: "/start?goal=做自动化", desc: "日报、提醒、审核流" },
+  { label: "店铺用 AI", href: "/start?goal=店铺用AI", desc: "客服、营销、资料助手" },
+]
+
 function letter(n:string){return /^[a-zA-Z]/.test(n)?n[0].toUpperCase():n[0]}
 function avatarColor(n:string){const c=["#c9a84c","#7a6230","#e8c96a","#5a8a5a"];let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return c[Math.abs(h)%c.length]}
 
@@ -103,7 +114,19 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div style={{maxWidth:680,margin:'18px auto 0',display:'grid',gridTemplateColumns:'1fr auto',gap:12,alignItems:'center',border:'1px solid rgba(201,168,76,0.34)',background:'rgba(6,6,6,0.9)',borderRadius:12,padding:'13px 15px',opacity:0,animation:'fadeUp 0.8s ease forwards 1.45s',position:'relative',zIndex:20}} className="home-growth-cta">
+          <div style={{maxWidth:900,margin:'18px auto 0',opacity:0,animation:'fadeUp 0.8s ease forwards 1.4s',position:'relative',zIndex:25}}>
+            <p style={{fontSize:12,color:'#cdbb80',fontWeight:950,marginBottom:10,letterSpacing:'0.08em'}}>我现在最想用 AI 完成什么？</p>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(0,1fr))',gap:9}} className="home-task-grid">
+              {taskEntrances.map(item=>(
+                <Link key={item.href} href={item.href} style={{textAlign:'left',textDecoration:'none',border:'1px solid rgba(201,168,76,0.28)',background:'rgba(7,7,7,0.82)',borderRadius:10,padding:'11px 12px',minHeight:68}}>
+                  <span style={{display:'block',color:'#fff',fontSize:13,fontWeight:950,marginBottom:4}}>{item.label}</span>
+                  <span style={{display:'block',color:'#888',fontSize:11,lineHeight:1.45}}>{item.desc}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div style={{maxWidth:680,margin:'18px auto 0',display:'grid',gridTemplateColumns:'1fr auto',gap:12,alignItems:'center',border:'1px solid rgba(201,168,76,0.34)',background:'rgba(6,6,6,0.9)',borderRadius:12,padding:'13px 15px',opacity:0,animation:'fadeUp 0.8s ease forwards 1.48s',position:'relative',zIndex:20}} className="home-growth-cta">
             <div style={{textAlign:'left'}}>
               <p style={{fontSize:13,fontWeight:950,color:'#fff',marginBottom:4}}>
                 {user ? `欢迎回来，${user.name} · ${user.xp} XP` : registeredUsers === null ? '注册领 50XP 新手礼包' : `已有 ${registeredUsers} 位用户加入成长系统`}
@@ -197,6 +220,9 @@ export default function HomePage() {
           }
           .home-growth-cta a {
             width: 100%;
+          }
+          .home-task-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
           }
         }
       `}</style>
