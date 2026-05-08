@@ -39,11 +39,11 @@ export function MathRain() {
 
     function draw() {
       if (paused) return
-      ctx.fillStyle = 'rgba(0,0,0,0.04)'; ctx.fillRect(0,0,c.width,c.height)
+      ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0,0,c.width,c.height)
       for(let i=0;i<drops.length;i++){
         const char = SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)]
         const x = i*18; const y = drops[i]*18; const depth = y/c.height
-        const alpha = 0.24 + depth*0.58; const bright = Math.floor(depth*180+96)
+        const alpha = 0.17 + depth*0.45; const bright = Math.floor(depth*150+74)
         ctx.fillStyle = `rgba(${bright},${bright*0.75},${bright*0.3},${alpha})`
         ctx.font = '13px JetBrains Mono, monospace'; ctx.fillText(char, x, y)
         if(y > c.height && Math.random()>0.975) drops[i] = Math.random() * -30; drops[i]++

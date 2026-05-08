@@ -49,15 +49,15 @@ export default function HomePage() {
 
     function draw() {
       if (paused || !ctx || !canvas) return
-      ctx.fillStyle = "rgba(0,0,0,0.045)"
+      ctx.fillStyle = "rgba(0,0,0,0.052)"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
       for (let i = 0; i < drops.length; i++) {
         const char = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]
         const x = i * 13
         const y = drops[i] * 13
         const depth = y / canvas.height
-        const alpha = 0.22 + depth * 0.62
-        const bright = Math.floor(depth * 180 + 96)
+        const alpha = 0.16 + depth * 0.46
+        const bright = Math.floor(depth * 150 + 76)
         ctx.fillStyle = `rgba(${bright},${bright * 0.75},${bright * 0.3},${alpha})`
         ctx.font = "13px JetBrains Mono, monospace"
         ctx.fillText(char, x, y)
