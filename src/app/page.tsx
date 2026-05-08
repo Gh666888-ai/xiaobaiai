@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { Search } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
 import { LevelBadge } from "@/components/LevelBadge"
@@ -18,7 +18,6 @@ const SYMBOLS = [
 export default function HomePage() {
   const { user } = useAuth()
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [pulseText, setPulseText] = useState("正在等待你登录")
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -76,19 +75,6 @@ export default function HomePage() {
     }
   }, [])
 
-  useEffect(() => {
-    const lines = user
-      ? ["成长档案在线", "小白智能体待命", "任务系统就绪"]
-      : ["小白智能体待命", "AI工作流就绪", "新手起步模式"]
-    let index = 0
-    setPulseText(lines[0])
-    const timer = window.setInterval(() => {
-      index = (index + 1) % lines.length
-      setPulseText(lines[index])
-    }, 2200)
-    return () => window.clearInterval(timer)
-  }, [user])
-
   return (
     <div style={{ background: "#000", minHeight: "100vh", color: "#f0f0f0", fontFamily: "'Noto Sans SC', sans-serif", overflowX: "hidden" }}>
       <NavBar />
@@ -105,24 +91,18 @@ export default function HomePage() {
           <p style={{ fontSize: "clamp(22px, 3.2vw, 38px)", fontWeight: 950, lineHeight: 1.45, color: "#fff", maxWidth: 820, margin: "0 auto 22px", opacity: 0, animation: "fadeUp 0.8s ease forwards 0.82s" }}>
             我们立志让所有不懂 AI 的人，1 小时内成熟利用 AI 完成工作
           </p>
+          <p style={{ fontSize: 13, fontWeight: 850, lineHeight: 1.8, color: "#b9a463", maxWidth: 620, margin: "0 auto 20px", opacity: 0, animation: "fadeUp 0.8s ease forwards 0.96s" }}>
+            AI时代来了，学会利用AI能让你领先百分之九十的人
+          </p>
 
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 9, border: "1px solid rgba(201,168,76,0.3)", background: "rgba(8,8,8,0.84)", borderRadius: 999, padding: "8px 13px", color: "#cdbb80", fontSize: 12, fontWeight: 900, marginBottom: 22, opacity: 0, animation: "fadeUp 0.8s ease forwards 1.08s" }}>
-            <span style={{ width: 7, height: 7, borderRadius: 999, background: "#e8c96a", boxShadow: "0 0 18px rgba(232,201,106,0.8)" }} />
-            {pulseText}
-          </div>
+          {user ? (
+            <div style={{ marginTop: 14, marginBottom: 22, color: "#8e7d4b", fontSize: 12, lineHeight: 1.75, opacity: 0, animation: "fadeUp 0.8s ease forwards 1.08s", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
+              <span>欢迎回来</span>
+              <LevelBadge name={user.name} xp={user.xp} compact />
+            </div>
+          ) : null}
 
-          <div style={{ marginTop: 14, color: "#8e7d4b", fontSize: 12, lineHeight: 1.75, opacity: 0, animation: "fadeUp 0.8s ease forwards 1.28s", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
-            {user ? (
-              <>
-                <span>欢迎回来</span>
-                <LevelBadge name={user.name} xp={user.xp} compact />
-              </>
-            ) : (
-              <span>AI 新手工作台已就绪</span>
-            )}
-          </div>
-
-          <form action="/search" style={{ display: "flex", alignItems: "center", background: "rgba(8,8,8,0.86)", border: "1px solid rgba(201,168,76,0.22)", borderRadius: 10, maxWidth: 620, margin: "24px auto 0", opacity: 0, animation: "fadeUp 0.8s ease forwards 1.32s" }}>
+          <form action="/search" style={{ display: "flex", alignItems: "center", background: "rgba(8,8,8,0.86)", border: "1px solid rgba(201,168,76,0.22)", borderRadius: 10, maxWidth: 620, margin: user ? "0 auto" : "24px auto 0", opacity: 0, animation: "fadeUp 0.8s ease forwards 1.32s" }}>
             <Search size={15} style={{ marginLeft: 14, color: "#777", flexShrink: 0 }} />
             <input
               name="q"
