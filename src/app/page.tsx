@@ -26,7 +26,7 @@ export default function HomePage() {
     const ctx = canvas.getContext("2d")
     if (!ctx) return
     let cols = Math.floor(window.innerWidth / 13)
-    const drops: number[] = Array(cols).fill(0).map(() => Math.random() * -100)
+    const drops: number[] = []
     let paused = false
 
     function resize() {
@@ -34,9 +34,9 @@ export default function HomePage() {
       canvas.width = window.innerWidth
       canvas.height = window.innerHeight
       cols = Math.floor(canvas.width / 13)
-      if (drops.length < cols) {
-        drops.length = cols
-        for (let i = 0; i < cols; i++) if (drops[i] === undefined) drops[i] = Math.random() * -100
+      drops.length = cols
+      for (let i = 0; i < cols; i++) {
+        if (drops[i] === undefined) drops[i] = Math.random() * (canvas.height / 13)
       }
     }
 
@@ -49,15 +49,15 @@ export default function HomePage() {
 
     function draw() {
       if (paused || !ctx || !canvas) return
-      ctx.fillStyle = "rgba(0,0,0,0.06)"
+      ctx.fillStyle = "rgba(0,0,0,0.045)"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
       for (let i = 0; i < drops.length; i++) {
         const char = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]
         const x = i * 13
         const y = drops[i] * 13
         const depth = y / canvas.height
-        const alpha = 0.12 + depth * 0.5
-        const bright = Math.floor(depth * 160 + 60)
+        const alpha = 0.22 + depth * 0.62
+        const bright = Math.floor(depth * 180 + 96)
         ctx.fillStyle = `rgba(${bright},${bright * 0.75},${bright * 0.3},${alpha})`
         ctx.font = "13px JetBrains Mono, monospace"
         ctx.fillText(char, x, y)
@@ -95,8 +95,8 @@ export default function HomePage() {
 
       <section style={{ position: "relative", minHeight: "calc(100vh - 56px)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", padding: "82px 24px 72px" }}>
         <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", zIndex: 0 }} />
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 50% 48%, rgba(201,168,76,0.12), transparent 34%), linear-gradient(180deg, rgba(0,0,0,0.25), #000 86%)", zIndex: 1 }} />
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent 0%, #7a6230 20%, #c9a84c 50%, #7a6230 80%, transparent 100%)", opacity: 0.48, zIndex: 1 }} />
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 120, background: "radial-gradient(ellipse 80% 100% at 50% 100%, rgba(201,168,76,0.12) 0%, transparent 70%)", zIndex: 1 }} />
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent 0%, #7a6230 20%, #c9a84c 50%, #7a6230 80%, transparent 100%)", opacity: 0.4, zIndex: 1 }} />
 
         <div style={{ position: "relative", zIndex: 10, width: "min(100%, 920px)", textAlign: "center" }}>
           <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.42em", color: "#7a6230", textTransform: "uppercase", marginBottom: 24, opacity: 0, animation: "fadeUp 0.8s ease forwards 0.2s" }}>XIAOBAI AGENT ONLINE</p>
