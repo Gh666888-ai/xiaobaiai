@@ -5,6 +5,7 @@ import { useRef, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { NavBar } from "@/components/NavBar"
+import { MissionContinuePanel } from "@/components/MissionContinuePanel"
 import { Flag, MessageCircle, Search, Route, Sparkles, Workflow } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext"
 import { DAILY_ONLINE_XP_CAP } from "@/data/growth"
@@ -114,6 +115,10 @@ export default function HomePage() {
             <Link href={user ? "/growth" : "/login?redirect=/growth"} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',minHeight:38,padding:'8px 14px',borderRadius:9,border:'1px solid #e8c96a',background:'#e8c96a',color:'#111',fontSize:12,fontWeight:950,textDecoration:'none',whiteSpace:'nowrap'}}>
               {user ? '去做任务' : '登录领 50XP'}
             </Link>
+          </div>
+
+          <div style={{maxWidth:760,margin:'18px auto 0',textAlign:'left',opacity:0,animation:'fadeUp 0.8s ease forwards 1.55s',position:'relative',zIndex:20}}>
+            <MissionContinuePanel compact title="小白继续提醒" />
           </div>
 
           {/* 计数条 */}

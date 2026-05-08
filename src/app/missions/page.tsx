@@ -3,7 +3,9 @@ import Link from "next/link"
 import { ArrowRight, CheckCircle2, Trophy } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
+import { MissionContinuePanel } from "@/components/MissionContinuePanel"
 import { missions } from "@/data/missions"
+import { posts } from "@/data/community"
 
 export const metadata: Metadata = {
   title: "AI实战任务 - 小白AI从0到1任务库",
@@ -28,6 +30,8 @@ export default function MissionsPage() {
           <Link href="/community/new" className="btn-outline" style={{ textDecoration: "none" }}>发任务复盘</Link>
           <Link href="/learn" className="btn-outline" style={{ textDecoration: "none" }}>学习主线</Link>
         </div>
+
+        <MissionContinuePanel title="回来先接着上次做" casePosts={posts} />
 
         <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,300px),1fr))", gap: 14 }}>
           {missions.map((mission) => (
