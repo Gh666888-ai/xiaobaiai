@@ -10,6 +10,7 @@ import {
   currentStepLabel,
   emptyMissionProgress,
   getStoredMission,
+  MISSION_PROGRESS_KEY,
   readMissionProgress,
   type MissionProgressState,
 } from "@/lib/mission-progress"
@@ -44,8 +45,10 @@ function pickNextMissions(active: Mission, state: MissionProgressState) {
 
 export function MissionContinuePanel({ compact = false, title = "小白记得你上次做到哪", casePosts = [] }: MissionContinuePanelProps) {
   const [progress, setProgress] = useState<MissionProgressState>(() => emptyMissionProgress())
+  const [hasSavedProgress, setHasSavedProgress] = useState(false)
 
   useEffect(() => {
+    setHasSavedProgress(Boolean(window.localStorage.getItem(MISSION_PROGRESS_KEY)))
     setProgress(readMissionProgress())
   }, [])
 
@@ -57,6 +60,9 @@ export function MissionContinuePanel({ compact = false, title = "小白记得你
   const currentStepIndex = Math.min(activeProgress.currentStep || 0, activeMission.steps.length - 1)
   const doneSteps = countDone(activeMission, progress)
   const percent = Math.round((doneSteps / activeMission.steps.length) * 100)
+  const panelTitle = hasSavedProgress ? title : "从第一个任务开始"
+  const leadText = hasSavedProgress ? "当前任务" : "推荐任务"
+  const primaryAction = hasSavedProgress ? "继续任务" : "开始任务"
   const nextStep = activeProgress.completed ? "任务已完成，建议发复盘沉淀经验" : currentStepLabel(activeMission.id, currentStepIndex)
   const relatedCases = casePosts.length > 0 ? getCasePostsForMission(activeMission.id, casePosts).slice(0, compact ? 1 : 2) : []
   const nextMissions = pickNextMissions(activeMission, progress)
@@ -67,10 +73,10 @@ export function MissionContinuePanel({ compact = false, title = "小白记得你
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
             <Sparkles size={17} style={{ color: "#e8c96a" }} />
-            <h2 style={{ color: "#fff", fontSize: compact ? 16 : 20, fontWeight: 950 }}>{title}</h2>
+            <h2 style={{ color: "#fff", fontSize: compact ? 16 : 20, fontWeight: 950 }}>{panelTitle}</h2>
           </div>
           <p style={{ color: "#d8d8d8", fontSize: 14, lineHeight: 1.8, marginBottom: 13 }}>
-            当前任务：<b>{activeMission.shortTitle}</b>。下一步：<b>{nextStep}</b>。
+            {leadText}：<b>{activeMission.shortTitle}</b>。下一步：<b>{nextStep}</b>。
           </p>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
             <div style={{ flex: 1, height: 8, background: "#151515", borderRadius: 999, overflow: "hidden" }}>
@@ -80,7 +86,7 @@ export function MissionContinuePanel({ compact = false, title = "小白记得你
           </div>
           <div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
             <Link href={`/missions/${activeMission.id}`} className="btn-primary" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
-              继续任务 <ArrowRight size={14} />
+              {primaryAction} <ArrowRight size={14} />
             </Link>
             <Link href="/start" className="btn-outline" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
               重新选目标 <Compass size={14} />

@@ -5,6 +5,7 @@ import { useRef, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ArrowRight, CheckCircle2, Flag, MessageCircle, Route, Search, Sparkles } from "lucide-react"
+import { MissionContinuePanel } from "@/components/MissionContinuePanel"
 import { NavBar } from "@/components/NavBar"
 import { useAuth } from "@/lib/AuthContext"
 import { DAILY_ONLINE_XP_CAP } from "@/data/growth"
@@ -170,6 +171,10 @@ export default function HomePage() {
       </section>
 
       <main style={{ position: "relative", zIndex: 5, background: "#000" }}>
+        <section style={{ maxWidth: 1120, margin: "0 auto", padding: "44px clamp(16px,5vw,60px) 10px" }}>
+          <MissionContinuePanel title="继续上次任务" />
+        </section>
+
         <section style={{ maxWidth: 1120, margin: "0 auto", padding: "76px clamp(16px,5vw,60px) 34px" }}>
           <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.3em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 950 }}>Closed Loop</p>
           <div style={{ display: "grid", gridTemplateColumns: "0.9fr 1.1fr", gap: 28, alignItems: "end", marginBottom: 22 }} className="home-two-col">
