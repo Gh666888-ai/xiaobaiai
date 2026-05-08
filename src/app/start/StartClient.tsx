@@ -41,6 +41,12 @@ const moreGoals = [
   { label: "行业配 Skill", desc: "给一个行业场景选 3 个能力。", goal: "行业技能" },
 ]
 
+const guideExamples = [
+  { industry: "电商/店铺", direction: "想用 AI 做客服、商品文案、短视频" },
+  { industry: "教育/培训", direction: "想用 AI 做课件、题目、课程资料整理" },
+  { industry: "自媒体/短视频", direction: "想用 AI 做选题、脚本、动漫视频" },
+]
+
 const goalMissionMap: { keywords: string[]; missionId: string }[] = [
   { keywords: ["动漫", "漫剧", "短剧", "短视频剧情", "分镜", "角色一致", "AI视频", "AI 视频"], missionId: "ai-comic-video-first-episode" },
   { keywords: ["网文", "小说", "故事", "剧本", "写作", "样章"], missionId: "ai-webnovel-first-chapter" },
@@ -77,6 +83,18 @@ function missionFromGoalParam(goal: string | null) {
   return goalMissionMap.find((item) => item.keywords.some((keyword) => decoded.includes(keyword)))?.missionId || null
 }
 
+function missionFromIndustryGuide(text: string) {
+  const value = text.toLowerCase()
+  if (["客服", "知识库", "售后", "咨询", "客户", "门店"].some((keyword) => value.includes(keyword))) return "dify-knowledge-base-bot"
+  if (["日报", "周报", "自动", "提醒", "表单", "同步", "重复"].some((keyword) => value.includes(keyword))) return "n8n-ai-news-automation"
+  if (["合同", "资料", "文档", "会议", "论文", "报告", "分析"].some((keyword) => value.includes(keyword))) return "kimi-k26-long-doc"
+  if (["课件", "培训", "讲课", "汇报", "路演", "方案"].some((keyword) => value.includes(keyword))) return "ai-ppt-first-deck"
+  if (["商品", "种草", "小红书", "公众号", "文案", "账号", "IP", "ip"].some((keyword) => value.includes(keyword))) return "xiaohongshu-ai-content-loop"
+  if (["编程", "代码", "网站", "小程序", "开发"].some((keyword) => value.includes(keyword))) return "codex-small-feature"
+  if (["skill", "Skill", "插件", "mcp", "MCP", "行业"].some((keyword) => value.includes(keyword))) return "industry-skill-stack-plan"
+  return null
+}
+
 function pickRandomMissionId(pool: typeof missions, fallbackId: string) {
   if (pool.length === 0) return fallbackId
   return pool[Math.floor(Math.random() * pool.length)].id
@@ -95,6 +113,9 @@ export function StartClient() {
   const [screenshotName, setScreenshotName] = useState("")
   const [screenshotDataUrl, setScreenshotDataUrl] = useState("")
   const [screenshotError, setScreenshotError] = useState("")
+  const [industryInput, setIndustryInput] = useState("")
+  const [directionInput, setDirectionInput] = useState("")
+  const [guideNote, setGuideNote] = useState("")
 
   useEffect(() => {
     const saved = readMissionProgress()
@@ -148,6 +169,25 @@ export function StartClient() {
     chooseMission(missionFromGoalParam(goal) || missions[0].id)
   }
 
+  function chooseGuideExample(industry: string, direction: string) {
+    setIndustryInput(industry)
+    setDirectionInput(direction)
+    const missionId = missionFromGoalParam(`${industry} ${direction}`) || missionFromIndustryGuide(`${industry} ${direction}`) || missions[0].id
+    chooseMission(missionId)
+    setGuideNote(`小白按“${industry}”和“${direction}”给你换好了，先做下面这一步。`)
+  }
+
+  function guideByXiaobai() {
+    const combined = `${industryInput} ${directionInput}`.trim()
+    if (!combined) {
+      setGuideNote("先随便写一句也行，比如：我是做电商的，想用 AI 做商品文案。")
+      return
+    }
+    const missionId = missionFromGoalParam(combined) || missionFromIndustryGuide(combined) || missions[0].id
+    chooseMission(missionId)
+    setGuideNote("小白已经按你的行业/方向换好了。先别想完整路线，照着下面第一步做。")
+  }
+
   function switchRandomMission() {
     const nextId = pickRandomMissionId(missions.filter((mission) => mission.id !== selected.id), missions[0].id)
     chooseMission(nextId)
@@ -199,8 +239,51 @@ export function StartClient() {
       <main style={mainStyle}>
         <section style={focusCardStyle}>
           <p style={eyebrowStyle}>小白入口</p>
-          <h1 style={heroTitleStyle}>{selectedProgress.completed ? "这条做完了，发个复盘" : "先做这一个小结果"}</h1>
-          <p style={heroCopyStyle}>不用先选工具，也不用先看一堆教程。现在只看下面这一句，照着做完再回来点确认。</p>
+          <h1 style={heroTitleStyle}>{selectedProgress.completed ? "这条做完了，发个复盘" : "你想用 AI 做哪件事？"}</h1>
+          <p style={heroCopyStyle}>小白先问两句：你是什么行业/岗位，想用 AI 做什么。填完后，我直接给你第一步。</p>
+
+          {!selectedProgress.completed && (
+            <section style={guideCardStyle}>
+              <div style={xiaobaiQuestionStyle}>
+                <MessageCircle size={15} />
+                <span>先告诉我你的行业和方向，我不让你自己翻任务库。</span>
+              </div>
+              <div className="start-guide-grid" style={guideInputGridStyle}>
+                <label style={guideLabelStyle}>
+                  <span>你现在做什么</span>
+                  <input
+                    value={industryInput}
+                    onChange={(event) => setIndustryInput(event.target.value)}
+                    placeholder="例如：电商、老师、设计、短视频、餐饮老板"
+                    style={guideInputStyle}
+                  />
+                </label>
+                <label style={guideLabelStyle}>
+                  <span>想用 AI 做什么</span>
+                  <input
+                    value={directionInput}
+                    onChange={(event) => setDirectionInput(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") guideByXiaobai()
+                    }}
+                    placeholder="例如：做客服、做课件、做动漫、整理资料"
+                    style={guideInputStyle}
+                  />
+                </label>
+              </div>
+              <button type="button" onClick={guideByXiaobai} className="btn-primary" style={guideButtonStyle}>
+                让小白给我第一步 <ArrowRight size={15} />
+              </button>
+              <div style={guideExampleRowStyle}>
+                {guideExamples.map((item) => (
+                  <button key={item.industry} type="button" onClick={() => chooseGuideExample(item.industry, item.direction)} style={guideExampleStyle}>
+                    {item.industry}
+                  </button>
+                ))}
+              </div>
+              {guideNote && <p style={guideNoteStyle}>{guideNote}</p>}
+            </section>
+          )}
 
           <div style={currentTaskStyle}>
             <p style={microLabelStyle}>推荐任务</p>
@@ -352,6 +435,9 @@ export function StartClient() {
 
         <style>{`
           @media (max-width: 720px) {
+            .start-guide-grid {
+              grid-template-columns: 1fr !important;
+            }
             .btn-primary,
             .btn-outline {
               width: 100%;
@@ -450,6 +536,85 @@ const currentTaskStyle: CSSProperties = {
   background: "rgba(201,168,76,0.055)",
   borderRadius: 10,
   padding: "17px 18px",
+}
+
+const guideCardStyle: CSSProperties = {
+  border: "1px solid #232323",
+  background: "rgba(255,255,255,0.028)",
+  borderRadius: 12,
+  padding: "15px",
+  marginBottom: 16,
+}
+
+const xiaobaiQuestionStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  color: "#e8c96a",
+  fontSize: 13,
+  fontWeight: 950,
+  lineHeight: 1.6,
+  marginBottom: 12,
+}
+
+const guideInputGridStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(2,minmax(0,1fr))",
+  gap: 10,
+  marginBottom: 10,
+}
+
+const guideLabelStyle: CSSProperties = {
+  display: "grid",
+  gap: 6,
+  color: "#aaa",
+  fontSize: 12,
+  fontWeight: 900,
+}
+
+const guideInputStyle: CSSProperties = {
+  width: "100%",
+  border: "1px solid #2a2a2a",
+  background: "rgba(0,0,0,0.34)",
+  color: "#fff",
+  borderRadius: 9,
+  padding: "11px 12px",
+  fontSize: 13,
+  lineHeight: 1.4,
+  outline: "none",
+}
+
+const guideButtonStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 8,
+  minHeight: 44,
+}
+
+const guideExampleRowStyle: CSSProperties = {
+  display: "flex",
+  gap: 7,
+  flexWrap: "wrap",
+  marginTop: 10,
+}
+
+const guideExampleStyle: CSSProperties = {
+  border: "1px solid #2a2a2a",
+  background: "rgba(0,0,0,0.26)",
+  color: "#cfcfcf",
+  borderRadius: 999,
+  padding: "7px 10px",
+  fontSize: 12,
+  fontWeight: 900,
+  cursor: "pointer",
+}
+
+const guideNoteStyle: CSSProperties = {
+  color: "#9fcfaf",
+  fontSize: 12,
+  lineHeight: 1.65,
+  marginTop: 9,
 }
 
 const microLabelStyle: CSSProperties = {
