@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm run build",
     "check:full": "npm run lint && npm run typecheck && npm run build",
+    "generate:mascot": "node scripts/generate-xiaobai-mascot-assets.js",
     "update:model-prices": "node scripts/update-model-prices.js",
     "daily:model-prices": "npm run update:model-prices && npm run build"
   },
