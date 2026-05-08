@@ -155,6 +155,51 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
           </div>
         </section>
 
+        {guide.ecosystemApps && guide.ecosystemApps.length > 0 && (
+          <section style={{ marginBottom: 42 }}>
+            <h2 style={{ color: "#fff", fontSize: 25, fontWeight: 950, marginBottom: 14 }}>生态桌面端</h2>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,270px),1fr))", gap: 12 }}>
+              {guide.ecosystemApps.map((app) => {
+                const inner = (
+                  <>
+                    <span className="tag" style={{ borderColor: "rgba(82,148,139,0.38)", color: "#9ee5d9", fontSize: 11, fontWeight: 950, marginBottom: 10 }}>{app.type}</span>
+                    <h3 style={{ color: "#fff", fontSize: 18, fontWeight: 950, lineHeight: 1.4, marginBottom: 8 }}>{app.name}</h3>
+                    <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.8 }}>{app.description}</p>
+                  </>
+                )
+                return app.href ? (
+                  <Link key={app.name} href={app.href} style={{ textDecoration: "none", border: "1px solid rgba(82,148,139,0.28)", background: "rgba(82,148,139,0.045)", borderRadius: 12, padding: "18px 20px", display: "block" }}>
+                    {inner}
+                  </Link>
+                ) : (
+                  <div key={app.name} style={{ border: "1px solid rgba(82,148,139,0.28)", background: "rgba(82,148,139,0.045)", borderRadius: 12, padding: "18px 20px" }}>
+                    {inner}
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        )}
+
+        {guide.skillPacks && guide.skillPacks.length > 0 && (
+          <section style={{ marginBottom: 42 }}>
+            <h2 style={{ color: "#fff", fontSize: 25, fontWeight: 950, marginBottom: 10 }}>必装 Skills</h2>
+            <p style={{ color: "#aaa", fontSize: 13, lineHeight: 1.85, marginBottom: 16 }}>
+              先把 Agent 本体跑通，再装 Skills。Skills 是能力插件，不是模型；涉及浏览器、文件、消息渠道的权限要一个一个打开。
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,270px),1fr))", gap: 12 }}>
+              {guide.skillPacks.map((skill) => (
+                <div key={skill.name} style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 12, padding: "18px 20px" }}>
+                  <h3 style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.4, marginBottom: 8 }}>{skill.name}</h3>
+                  <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.75, marginBottom: 9 }}>{skill.when}</p>
+                  <p style={{ color: "#d6c28a", fontSize: 12, lineHeight: 1.75, marginBottom: skill.command ? 12 : 0 }}>{skill.install}</p>
+                  {skill.command && <CodeBlock code={skill.command} />}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         <section id="api" style={{ marginBottom: 42 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
             <KeyRound size={18} style={{ color: "#e8c96a" }} />

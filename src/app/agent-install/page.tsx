@@ -5,9 +5,11 @@ import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { agentInstallGuides } from "@/data/agent-install-guides"
 
+const agentDesktopCategories = new Set(["Agent 桌面应用"])
 const desktopCategories = new Set(["桌面 AI 助理", "桌面知识库 Agent", "本地模型桌面应用"])
+const agentDesktopGuides = agentInstallGuides.filter((guide) => agentDesktopCategories.has(guide.category))
 const desktopGuides = agentInstallGuides.filter((guide) => desktopCategories.has(guide.category))
-const engineeringGuides = agentInstallGuides.filter((guide) => !desktopCategories.has(guide.category))
+const engineeringGuides = agentInstallGuides.filter((guide) => !desktopCategories.has(guide.category) && !agentDesktopCategories.has(guide.category))
 
 export const metadata: Metadata = {
   title: "主流Agent和桌面AI助理安装 - Claude Code、Codex、OpenClaw、ChatGPT Desktop、Cherry Studio教程",
@@ -81,8 +83,8 @@ export default function AgentInstallPage() {
         <section style={{ marginBottom: 42 }}>
           <div style={{ display: "flex", alignItems: "end", justifyContent: "space-between", gap: 16, flexWrap: "wrap", marginBottom: 16 }}>
             <div>
-              <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>选择你要安装的 Agent 或桌面助理</h2>
-              <p style={{ color: "#aaa", fontSize: 14, lineHeight: 1.8 }}>每个按钮点进去就是小白安装教程，能接 API 的教程下面会放接口配置；官方账号型桌面版会直接说明不能乱填第三方 Key。</p>
+              <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>工程 Agent 本体</h2>
+              <p style={{ color: "#aaa", fontSize: 14, lineHeight: 1.8 }}>先把 Agent 本体跑通。能接 API 的教程下面会放接口配置，Skills 和桌面壳会放在对应生态区域。</p>
             </div>
             <Link href="/tutorials" className="btn-outline" style={{ textDecoration: "none" }}>全部教程</Link>
           </div>
@@ -104,6 +106,37 @@ export default function AgentInstallPage() {
                   ))}
                 </div>
                 <span style={{ marginTop: "auto", color: "#e8c96a", fontSize: 13, fontWeight: 950, display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  查看安装教程 <ArrowRight size={14} />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section style={{ marginBottom: 42 }}>
+          <div style={{ marginBottom: 16 }}>
+            <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>Agent 桌面端应用</h2>
+            <p style={{ color: "#aaa", fontSize: 14, lineHeight: 1.8 }}>
+              这里放有官方版和第三方生态版的 Agent 桌面应用，例如 OpenClaw 的 Claw Desktop / ClawX，以及 Cursor、Windsurf、Kiro、TRAE、Qoder 这类桌面 Agent IDE。
+            </p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,300px),1fr))", gap: 14 }}>
+            {agentDesktopGuides.map((guide) => (
+              <Link key={guide.slug} href={`/agent-install/${guide.slug}`} style={{ textDecoration: "none", border: "1px solid rgba(82,148,139,0.28)", background: "rgba(82,148,139,0.055)", borderRadius: 10, padding: "20px 22px", minHeight: 244, display: "flex", flexDirection: "column" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 14 }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 7, color: "#8fd8cc", fontSize: 12, fontWeight: 950 }}>
+                    <Bot size={15} /> {guide.category}
+                  </span>
+                  <span style={{ color: "#999", fontSize: 11, fontWeight: 900 }}>{guide.minutes}</span>
+                </div>
+                <h3 style={{ color: "#fff", fontSize: 21, fontWeight: 950, lineHeight: 1.35, marginBottom: 9 }}>{guide.name}</h3>
+                <p style={{ color: "#cfcfcf", fontSize: 13, lineHeight: 1.8, marginBottom: 12 }}>{guide.tagline}</p>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+                  {guide.bestFor.slice(0, 3).map((item) => (
+                    <span key={item} className="tag" style={{ borderColor: "rgba(82,148,139,0.38)", color: "#9ee5d9", fontSize: 11, fontWeight: 900 }}>{item}</span>
+                  ))}
+                </div>
+                <span style={{ marginTop: "auto", color: "#8fd8cc", fontSize: 13, fontWeight: 950, display: "inline-flex", alignItems: "center", gap: 8 }}>
                   查看安装教程 <ArrowRight size={14} />
                 </span>
               </Link>

@@ -30,6 +30,8 @@ export type AgentInstallGuide = {
   firstPrompts: string[]
   commonIssues: Array<{ title: string; solution: string; command?: string }>
   apiConnections: AgentApiConnection[]
+  ecosystemApps?: Array<{ name: string; type: string; description: string; href?: string }>
+  skillPacks?: Array<{ name: string; when: string; install: string; command?: string }>
   officialUrl?: string
 }
 
@@ -392,6 +394,43 @@ codex`,
         solution: "确认 OpenClaw 还在终端运行，并使用终端里真实提示的端口。",
       },
     ],
+    ecosystemApps: [
+      {
+        name: "Claw Desktop",
+        type: "官方/生态桌面控制台",
+        description: "连接你的 OpenClaw gateway，用桌面端查看会话、审批高风险操作、看 diff、恢复运行。适合已经把 OpenClaw 跑在本机、服务器或 Mac mini 上的人。",
+        href: "/agent-install/claw-desktop",
+      },
+      {
+        name: "ClawX",
+        type: "第三方开源图形界面",
+        description: "给 OpenClaw 做图形化界面，把命令行里的 agent 编排、定时任务和渠道配置变成桌面操作。适合不想天天敲命令的小白。",
+        href: "/agent-install/clawx",
+      },
+    ],
+    skillPacks: [
+      {
+        name: "浏览器 / Web Research Skill",
+        when: "让 OpenClaw 查资料、盯网页、做竞品监控时必装。",
+        install: "在 OpenClaw 的 Skills / Marketplace 里搜索 browser、web research、monitoring 这类关键词，优先装官方或高下载量版本。",
+      },
+      {
+        name: "文件 / Git / Diff Skill",
+        when: "让 OpenClaw 改项目、看代码、生成交付物时必装。",
+        install: "确认它能读取项目、展示 diff、提交前让你审批。不要给它默认删除文件权限。",
+      },
+      {
+        name: "消息通知 Skill",
+        when: "要把任务结果推送到 Slack、Discord、Telegram、企业微信或飞书时再装。",
+        install: "先让 OpenClaw 本体跑通，再接消息渠道；不要一开始把网关、模型和消息平台三个问题混在一起排查。",
+      },
+      {
+        name: "ClawX Skill",
+        when: "如果你用 ClawX 做身份验证、状态检查或可信展示，可以加这个 skill。",
+        install: "通过 Playbooks 安装 ClawX skill。",
+        command: "npx playbooks add skill openclaw/skills --skill clawx",
+      },
+    ],
     apiConnections: [deepseekOpenAiConnection, kimiConnection, openAiConnection],
   },
   {
@@ -401,26 +440,44 @@ codex`,
     category: "自学习 Agent",
     minutes: "10-25 分钟",
     difficulty: "进阶一点",
-    tagline: "Hermes 更适合长期任务、技能系统和带记忆的 Agent。",
-    summary: "Hermes 的版本和安装渠道变化较快。小白先确认官网/官方文档来源，再按当前文档安装，不要运行陌生脚本。",
+    tagline: "Hermes 更适合长期任务、技能系统和带记忆的 Agent，Windows 用户走 WSL2。",
+    summary: "Hermes 的 Windows 安装方式不是原生 PowerShell 安装，而是在 Windows 系统里开启 WSL2，再在 Ubuntu 终端中运行官方安装命令。小白先确认官网/官方文档来源，再按当前文档安装，不要运行陌生脚本。",
     bestFor: ["长期任务", "Skills 技能", "自学习 Agent", "消息入口"],
-    requirements: ["Mac / Linux 或 Windows WSL2", "Python 3.10+ 和 Node.js 18+", "DeepSeek 或 OpenAI Compatible API Key", "能看懂终端基础报错"],
+    requirements: ["Windows 10/11 需要 WSL2 Ubuntu", "Mac / Linux 可直接终端安装", "准备 Git，安装器会处理 Python、Node.js 等依赖", "DeepSeek 或 OpenAI Compatible API Key"],
     officialUrl: "https://hermes-agent.app/en/docs",
     installSteps: [
       {
-        title: "Windows 先用 WSL2",
-        body: "Hermes 这类 Agent 在 Linux 环境更稳。Windows 小白先装 WSL2。",
+        title: "Windows 系统安装方式：先装 WSL2",
+        body: "Hermes 官方不支持原生 Windows 直接安装。Windows 用户的正确方式，是先在 Windows 里安装 WSL2 Ubuntu，然后在 Ubuntu 终端里安装 Hermes。",
         command: "wsl --install",
       },
       {
-        title: "Mac / Linux 一行安装",
-        body: "确认你打开的是官方 Hermes 文档后，再复制官方安装脚本。这个脚本会处理 Python、Node.js、依赖和 PATH。",
+        title: "重启后打开 Ubuntu",
+        body: "如果上一步提示重启电脑，就先重启。重启后从开始菜单打开 Ubuntu，第一次会让你设置用户名和密码。密码输入时屏幕不显示，这是正常的。",
+      },
+      {
+        title: "Ubuntu 里先确认 Git",
+        body: "Hermes 官方安装器唯一需要你提前准备的是 Git。打开 Ubuntu 后复制下面这行，能看到版本号就继续。",
+        command: "git --version",
+      },
+      {
+        title: "Windows WSL2 / Mac / Linux 一行安装",
+        body: "确认你打开的是官方 Hermes 文档后，再复制官方安装脚本。这个脚本会处理 Python、Node.js、依赖和 PATH。Windows 用户要在 Ubuntu 里复制，不是在 PowerShell 里复制。",
         command: "curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash",
+      },
+      {
+        title: "安装完刷新终端",
+        body: "安装结束后复制下面这行，让当前 Ubuntu 终端识别 hermes 命令。Mac 如果用 zsh，就把 .bashrc 改成 .zshrc。",
+        command: "source ~/.bashrc",
       },
       {
         title: "验证命令",
         body: "安装完成后关闭终端重开，再复制下面命令。",
         command: "hermes doctor",
+      },
+      {
+        title: "Windows 另一种方式：Docker Desktop",
+        body: "如果你熟悉 Docker，也可以用 Docker Desktop，并开启 WSL2 backend。小白优先走上面的 WSL2 Ubuntu 直装，少一个排错层。",
       },
     ],
     startCommands: [
@@ -448,7 +505,12 @@ codex`,
     commonIssues: [
       {
         title: "hermes command not found",
-        solution: "关闭终端重开。还不行就检查安装脚本是否把 hermes 加进 PATH。",
+        solution: "关闭 Ubuntu 终端重开。还不行就执行 source ~/.bashrc，再运行 hermes doctor。",
+        command: "source ~/.bashrc",
+      },
+      {
+        title: "在 Windows PowerShell 里复制 curl 命令失败",
+        solution: "这个命令要在 WSL2 Ubuntu 终端里执行，不是在原生 PowerShell 里执行。先从开始菜单打开 Ubuntu。",
       },
       {
         title: "脚本来源不确定",
@@ -465,7 +527,7 @@ codex`,
     slug: "cursor-agent",
     name: "Cursor Agent",
     title: "Cursor Agent 一分钟直接跑通能用",
-    category: "桌面编程 Agent",
+    category: "Agent 桌面应用",
     minutes: "5-10 分钟",
     difficulty: "最像普通软件",
     tagline: "不想先学终端的小白，可以先用 Cursor 打开项目，再用 Agent 改小功能。",
@@ -572,6 +634,231 @@ codex`,
       },
     ],
     apiConnections: [deepseekOpenAiConnection, kimiConnection, openAiConnection],
+  },
+]
+
+const agentDesktopAppGuides: AgentInstallGuide[] = [
+  {
+    slug: "claw-desktop",
+    name: "Claw Desktop",
+    title: "Claw Desktop 一分钟直接跑通能用",
+    category: "Agent 桌面应用",
+    minutes: "5-10 分钟",
+    difficulty: "OpenClaw 配套",
+    tagline: "OpenClaw 的桌面控制台，用来查看运行、审批操作、看 diff 和恢复会话。",
+    summary: "Claw Desktop 不是模型，也不是新的 Agent 本体。它是 OpenClaw 的桌面控制层：你的 Agent 仍然运行在本机、服务器或网关上，Claw Desktop 负责把会话、审批、产物和健康状态展示出来。",
+    bestFor: ["OpenClaw 控制台", "审批操作", "查看 diff", "恢复会话"],
+    requirements: ["macOS 12+ 或 Windows 10 64-bit+", "已经有 OpenClaw gateway / instance", "Host URL", "OpenClaw API Key"],
+    officialUrl: "https://claw.so/download/",
+    installSteps: [
+      { title: "先把 OpenClaw 跑起来", body: "Claw Desktop 是控制台，不是 Agent 本体。先确认 OpenClaw 已经能在本机、VPS 或 Mac mini 上运行。" },
+      { title: "下载桌面端", body: "访问 claw.so/download，Mac 选择 Apple Silicon 或 Intel；Windows 选择 Windows x64。Linux 页面如果显示 Coming Soon，就不要找非官方包。" },
+      { title: "安装并打开", body: "Windows 如果 SmartScreen 提示，先确认来源是 claw.so，再点 More info → Run anyway。Mac 直接拖到 Applications。" },
+      { title: "连接 OpenClaw", body: "打开 Claw Desktop，输入你的 OpenClaw Host URL，再粘贴 API Key，然后开始查看 runs、artifacts、diff 和审批队列。" },
+    ],
+    startCommands: [
+      { title: "连接信息怎么填", body: "Host URL 填你的 OpenClaw 运行地址；API Key 填 OpenClaw 给你的访问密钥。不要把模型 API Key 填到这里。" },
+      { title: "第一次检查", body: "打开后先看 sessions / approvals / artifacts 是否能同步，确认成功后再让 OpenClaw 跑长期任务。" },
+    ],
+    firstPrompts: [
+      "请只显示这次运行涉及的文件 diff 和验证结果。",
+      "高风险命令必须进入审批队列，不要自动执行。",
+      "请帮我恢复上一次 Slack 里开始的 run_id。",
+    ],
+    commonIssues: [
+      { title: "填了 DeepSeek Key 但连不上", solution: "这里不能填 DeepSeek Key。Claw Desktop 要的是 OpenClaw API Key；DeepSeek Key 应该填在 OpenClaw 模型 Provider 里。" },
+      { title: "看不到会话", solution: "确认 OpenClaw gateway 正在运行，并且 Host URL 是浏览器能访问的地址。" },
+      { title: "Windows 安装被拦截", solution: "先确认下载来源是 claw.so，再按系统提示继续。不要运行群文件里的安装包。" },
+    ],
+    apiConnections: [noCustomApiConnection("Claw Desktop"), deepseekOpenAiConnection],
+  },
+  {
+    slug: "clawx",
+    name: "ClawX",
+    title: "ClawX 一分钟直接跑通能用",
+    category: "Agent 桌面应用",
+    minutes: "8-15 分钟",
+    difficulty: "OpenClaw 图形界面",
+    tagline: "第三方开源 OpenClaw 图形界面，把命令行 Agent 编排变成桌面操作。",
+    summary: "ClawX 是 OpenClaw 生态里的第三方开源桌面界面。它适合不想一直敲命令的用户，用可视化方式管理 agent、定时任务、渠道和自动研究流程。安装前要看清项目来源和版本。",
+    bestFor: ["OpenClaw GUI", "定时任务", "研究助理", "少敲命令"],
+    requirements: ["Windows / macOS / Linux 视发布包而定", "已安装或准备安装 OpenClaw", "DeepSeek / Kimi / OpenAI Compatible API Key", "只从官方项目页或 GitHub release 下载"],
+    officialUrl: "https://github.com/ValueCell-ai/ClawX",
+    installSteps: [
+      { title: "确认项目来源", body: "打开 GitHub 的 ValueCell-ai/ClawX 或项目官方站。不要从来路不明的下载站拿安装包。" },
+      { title: "下载安装包", body: "进入 Releases，按你的系统选择 Windows、macOS 或 Linux 包。如果当前 release 没有你的系统版本，就不要硬找第三方包。" },
+      { title: "连接 OpenClaw", body: "打开 ClawX 后，按向导填写 OpenClaw 本体地址、模型 Provider 和 API Key。" },
+      { title: "先建一个测试任务", body: "不要一上来接所有渠道。先建一个只在本机运行的测试任务，确认能启动、能停止、能看到日志。" },
+    ],
+    startCommands: [
+      { title: "第一次测试", body: "新建一个简单研究任务，不要填隐私资料。", command: "每天早上 9 点检查我指定的 3 个公开网页，输出 5 条变化摘要。" },
+      { title: "再接消息渠道", body: "确认本地任务能跑以后，再接 Telegram、Slack、飞书或企业微信。" },
+    ],
+    firstPrompts: [
+      "请先创建一个只读网页监控任务，不要访问我的本地文件。",
+      "请把每次运行结果保存成摘要，并保留来源链接。",
+      "如果任务失败，请告诉我失败阶段：模型、网页、渠道还是定时器。",
+    ],
+    commonIssues: [
+      { title: "ClawX 和 OpenClaw 是不是一个东西", solution: "不是。OpenClaw 是 Agent 运行本体；ClawX 是第三方图形界面/桌面壳，用来管理和操作 OpenClaw。" },
+      { title: "启动后找不到 Agent", solution: "先确认 OpenClaw 本体已经运行，再在 ClawX 里填写正确的 Host URL、API Key 或本地地址。" },
+      { title: "消息渠道收不到结果", solution: "先确认本地任务能成功运行，再排查 Slack、Telegram、飞书等渠道配置。" },
+    ],
+    skillPacks: [
+      {
+        name: "ClawX Skill",
+        when: "需要做 ClawX 身份验证、状态展示、可信层级展示时安装。",
+        install: "通过 Playbooks 安装。",
+        command: "npx playbooks add skill openclaw/skills --skill clawx",
+      },
+      {
+        name: "Web Monitoring Skill",
+        when: "ClawX 用来盯网页、新闻、竞品、资料源时安装。",
+        install: "在 OpenClaw / ClawX 的 skills 市场里搜索 web monitoring 或 research。",
+      },
+      {
+        name: "Messaging Skill",
+        when: "需要把结果推送到 Slack、Telegram、飞书、企业微信时安装。",
+        install: "先完成本地测试，再接消息渠道，避免同时排查多个问题。",
+      },
+    ],
+    apiConnections: [deepseekOpenAiConnection, kimiConnection, openAiConnection],
+  },
+  {
+    slug: "windsurf",
+    name: "Windsurf",
+    title: "Windsurf 一分钟直接跑通能用",
+    category: "Agent 桌面应用",
+    minutes: "5-10 分钟",
+    difficulty: "新手可跟",
+    tagline: "Windsurf 是带 Cascade Agent 的 AI IDE，下载安装到电脑后直接打开项目使用。",
+    summary: "Windsurf 是桌面端 AI 编程 IDE。它的 Cascade 能理解代码库、编辑多文件、运行命令，还能通过 MCP 和浏览器上下文扩展能力。新手先让它读项目，再让它改一个小功能。",
+    bestFor: ["AI IDE", "Cascade Agent", "网页项目", "多文件修改"],
+    requirements: ["Windows / macOS / Linux", "Windsurf 账号", "一个项目文件夹", "建议先准备 Git"],
+    officialUrl: "https://windsurf.com/download",
+    installSteps: [
+      { title: "打开官方下载页", body: "访问 windsurf.com/download，选择 Windsurf Editor，不要先装插件版。新手直接用完整桌面 IDE。" },
+      { title: "选择系统版本", body: "Windows 下载安装包；Mac 下载对应芯片版本；Linux 按官方页面选择 AppImage、deb 或 rpm。" },
+      { title: "安装并登录", body: "像普通软件一样安装。第一次打开后登录账号，可以选择导入 VS Code / Cursor 配置。" },
+      { title: "打开项目", body: "点击 Open Folder，选择你的项目文件夹。先让 Cascade 读取项目，不要马上大改。" },
+    ],
+    startCommands: [
+      { title: "第一次测试", body: "把这句话复制到 Cascade。", command: "请先阅读这个项目，不要修改文件，告诉我项目结构、启动方式和你建议我先检查哪里。" },
+      { title: "开始小任务", body: "确认它能读项目后，再给一个很小的目标。", command: "请只修改首页一个文案，改之前先告诉我会改哪个文件。" },
+    ],
+    firstPrompts: [
+      "请先列计划，不要直接改文件。",
+      "只允许修改我指定的文件，其他文件不要碰。",
+      "如果要运行命令，请先解释命令作用，等我确认。",
+    ],
+    commonIssues: [
+      { title: "不知道下载 Editor 还是插件", solution: "新手选 Windsurf Editor。插件适合已经长期用 JetBrains 或 VS Code 的人。" },
+      { title: "Cascade 改动太多", solution: "提示词里明确只改一个文件或一个小功能，要求它先列计划。" },
+      { title: "账号或额度不够", solution: "先在官方账号里确认 plan 和 credits。不要把 API Key 发给不明中转站。" },
+    ],
+    apiConnections: [openAiConnection, deepseekOpenAiConnection, kimiConnection],
+  },
+  {
+    slug: "kiro",
+    name: "Kiro",
+    title: "Kiro 一分钟直接跑通能用",
+    category: "Agent 桌面应用",
+    minutes: "5-12 分钟",
+    difficulty: "适合做规范项目",
+    tagline: "Kiro 是 Agentic IDE，强调规格驱动开发、Agent Hooks 和从需求到代码的闭环。",
+    summary: "Kiro 是桌面 AI IDE，也提供 CLI。它适合把自然语言需求拆成 requirements、design、tasks，再让 Agent 按任务逐步实现。小白用它时不要跳过规格步骤。",
+    bestFor: ["规格驱动", "Agent Hooks", "大型需求", "VS Code 迁移"],
+    requirements: ["macOS / Windows 10/11 64-bit / Linux", "Kiro 登录账号", "一个项目文件夹", "Windows ARM 当前不支持"],
+    officialUrl: "https://kiro.dev/docs/getting-started/installation/",
+    installSteps: [
+      { title: "打开官方下载页", body: "访问 kiro.dev，进入 Downloads 或 Installation 页面，按系统下载安装包。" },
+      { title: "确认系统要求", body: "Windows 需要 10/11 64 位；macOS 支持 Intel 和 Apple silicon；Linux 需要 glibc 2.39 或更高。" },
+      { title: "安装并首次启动", body: "打开安装包，按提示安装。第一次启动会要求登录，并可导入 VS Code 设置和扩展。" },
+      { title: "允许 Shell 集成", body: "首次引导里如果提示 shell integration，可以按需允许，这样 Agent 才能代表你执行命令。" },
+    ],
+    startCommands: [
+      { title: "打开项目", body: "在 Kiro 里打开你的项目文件夹，先让它生成规格，不要直接写代码。", command: "请根据这个项目，先把我要做的功能拆成 requirements、design 和 tasks，不要修改文件。" },
+      { title: "执行一个任务", body: "等它拆好 tasks 后，只让它执行第一步。", command: "只执行第 1 个任务，改之前先告诉我会修改哪些文件。" },
+    ],
+    firstPrompts: [
+      "请先写需求和验收标准，不要直接改代码。",
+      "请把这个目标拆成最小可执行任务，每次只做一步。",
+      "改完请告诉我怎么验证，不要只说完成了。",
+    ],
+    commonIssues: [
+      { title: "Windows ARM 装不了", solution: "Kiro 官方 Windows 要求 10/11 64-bit，ARM 当前不支持。换 x64 电脑或用其他工具。" },
+      { title: "Linux 打不开", solution: "检查发行版 glibc 版本。官方要求 glibc 2.39+，老 Ubuntu 版本可能不行。" },
+      { title: "一上来想直接生成完整项目", solution: "Kiro 的强项是先规格后实现。先让它拆 requirements / design / tasks。" },
+    ],
+    apiConnections: [noCustomApiConnection("Kiro"), openAiConnection],
+  },
+  {
+    slug: "trae",
+    name: "TRAE IDE",
+    title: "TRAE IDE 一分钟直接跑通能用",
+    category: "Agent 桌面应用",
+    minutes: "5-10 分钟",
+    difficulty: "国内新手友好",
+    tagline: "TRAE 是桌面 AI IDE，适合想用中文界面和可视化 Agent 工作流的新手。",
+    summary: "TRAE IDE 是 AI 编程桌面应用，支持 Windows、macOS 和 Linux 包。它更像一个带 Agent 的编程工作台，不是单纯聊天工具。下载时一定用 TRAE 官方站。",
+    bestFor: ["中文界面", "AI IDE", "新手编程", "项目上下文"],
+    requirements: ["Windows 10/11 或 macOS 12.0+", "Linux 可选 deb / rpm", "TRAE 账号", "建议 8GB 内存以上"],
+    officialUrl: "https://www.trae.cn/ide/download",
+    installSteps: [
+      { title: "打开官方下载页", body: "访问 trae.cn/ide/download。不要使用陌生下载站或带币、投资字样的网站。" },
+      { title: "选择 TRAE IDE", body: "新手选 TRAE IDE。TRAE SOLO 是另一条产品线，Windows 版本如果显示即将推出，就先不要找非官方包。" },
+      { title: "按系统安装", body: "Windows 下载 x64；Mac 下载 Apple Silicon dmg；Linux 可选 deb 或 rpm。" },
+      { title: "首次启动", body: "打开 TRAE，选择语言、主题，按需导入已有编辑器设置，再登录账号。" },
+    ],
+    startCommands: [
+      { title: "打开项目", body: "在 TRAE 里打开项目文件夹，先让它理解项目。", command: "请先阅读当前项目，不要修改文件，用中文告诉我项目结构和启动方式。" },
+      { title: "开始小任务", body: "第一次只给一个小目标。", command: "请只改一个按钮文案，改之前先列出会修改的文件。" },
+    ],
+    firstPrompts: [
+      "请用中文一步一步带我做，不要一次给太多内容。",
+      "请先解释你准备怎么改，再等我确认。",
+      "请不要读取或上传我的隐私文件。",
+    ],
+    commonIssues: [
+      { title: "下载页面很多版本看不懂", solution: "新手选 TRAE IDE，不要选不确定的 SOLO 测试包。Windows 选 x64。" },
+      { title: "安全软件拦截", solution: "先确认下载地址是 trae.cn 官方，再按系统提示处理。不要运行来路不明安装包。" },
+      { title: "担心隐私", solution: "先用无隐私的小项目测试。公司代码、客户资料、API Key 不要随便交给任何新工具。" },
+    ],
+    apiConnections: [noCustomApiConnection("TRAE IDE"), openAiConnection],
+  },
+  {
+    slug: "qoder",
+    name: "Qoder",
+    title: "Qoder 一分钟直接跑通能用",
+    category: "Agent 桌面应用",
+    minutes: "5-12 分钟",
+    difficulty: "适合真实项目",
+    tagline: "Qoder 是 Agentic Coding Platform，有 AI-Native IDE、CLI 和 JetBrains 插件。",
+    summary: "Qoder 适合真实软件开发场景，强调代码库理解、Agentic Chat、Experts、Quest、Repo Wiki 和 MCP。新手先安装 IDE 桌面版，再打开项目测试 Ask / Agent 模式。",
+    bestFor: ["Agentic Chat", "Repo Wiki", "Quest", "JetBrains 插件"],
+    requirements: ["Windows / macOS / Linux", "Qoder 账号", "一个真实项目", "需要网络登录和模型服务"],
+    officialUrl: "https://docs.qoder.com/",
+    installSteps: [
+      { title: "打开官方入口", body: "访问 qoder.com 或 docs.qoder.com，从 Downloads 进入下载。不要优先用第三方下载页。" },
+      { title: "安装 Qoder IDE", body: "按你的系统下载安装包。Qoder 也有 CLI 和 JetBrains Plugin，新手先装 IDE 桌面版。" },
+      { title: "登录账号", body: "第一次启动后登录 Qoder 账号，再打开项目文件夹。" },
+      { title: "先生成 Repo Wiki", body: "如果项目较大，先让它分析项目并生成 Repo Wiki，帮助 Agent 理解代码结构。" },
+    ],
+    startCommands: [
+      { title: "第一次测试", body: "打开项目后先问结构，不要直接改。", command: "请先分析这个项目，不要改文件，告诉我主要目录、技术栈和启动方式。" },
+      { title: "让 Agent 做小任务", body: "确认理解项目后，再给它一个小任务。", command: "请只实现一个小功能，先列计划和涉及文件，等我确认后再改。" },
+    ],
+    firstPrompts: [
+      "请先建立项目理解，不要直接修改。",
+      "请用 Ask 模式解释问题，用 Agent 模式执行我确认过的小任务。",
+      "请把隐含的项目知识整理成 Repo Wiki。",
+    ],
+    commonIssues: [
+      { title: "不知道 IDE、CLI、插件选哪个", solution: "新手先选 Qoder IDE。会终端再用 CLI，长期用 JetBrains 再装插件。" },
+      { title: "项目太大分析慢", solution: "先让它只分析一个目录，或先生成 Repo Wiki，不要一次让它改全项目。" },
+      { title: "模型和套餐限制", solution: "先看账号当前 plan、credits、可用模型。别把它当成本地免费模型。" },
+    ],
+    apiConnections: [noCustomApiConnection("Qoder"), openAiConnection],
   },
 ]
 
@@ -776,6 +1063,6 @@ const desktopAssistantGuides: AgentInstallGuide[] = [
   },
 ]
 
-agentInstallGuides.push(...desktopAssistantGuides)
+agentInstallGuides.push(...agentDesktopAppGuides, ...desktopAssistantGuides)
 
 export const agentGuideBySlug = new Map(agentInstallGuides.map((guide) => [guide.slug, guide]))
