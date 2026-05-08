@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { tools, stageLabels, ToolCategory } from "@/data/tools"
-import { getToolMeta, toolPath } from "@/data/tool-meta"
+import { getToolMeta } from "@/data/tool-meta"
 import { hashRateLimitKey, hitPersistentRateLimit } from "@/lib/persistent-rate-limit"
 
 type ChatMessage = {
@@ -186,6 +186,10 @@ function pickRecommendedTools(rule: RecommendationRule, message: string) {
   return Array.from(new Map(merged.map((tool) => [tool.id, tool])).values()).slice(0, 6)
 }
 
+function readableToolEntry(tool: (typeof tools)[number]) {
+  return `小白AI > ${tool.category} > ${tool.name}`
+}
+
 function siteToolRecommendation(message: string) {
   const text = message.toLowerCase()
   const intent =
@@ -202,7 +206,7 @@ function siteToolRecommendation(message: string) {
   const picked = pickRecommendedTools(rule, message)
   const toolLines = picked.map((tool, index) => {
     const meta = getToolMeta(tool)
-    return `${index + 1}. ${tool.name}（${tool.category}，${tool.pricing}，${meta.difficulty}，中文支持${meta.chineseSupport}）\n   适合：${tool.description}\n   站内详情：${toolPath(tool)}`
+    return `${index + 1}. ${tool.name}（${tool.category}，${tool.pricing}，${meta.difficulty}，中文支持${meta.chineseSupport}）\n   适合：${tool.description}\n   站内入口：${readableToolEntry(tool)}`
   })
 
   return `收到，我先按「${rule.name}」这个方向给你配一套站内工具组合，小白雷达已经转起来了。\n\n建议组合：\n${toolLines.join("\n")}\n\n第一步：${rule.firstStep}\n\n学习路线：\n1. 先去 /choose-tool 做一次工具选择，确认用途、预算和网络偏好。\n2. 再去 /learn/${rule.learnStage} 看「${stageLabels[rule.learnStage] || "对应阶段"}」相关教程。\n3. 如果要做客服、知识库或自动化，再进入 /learn/5 学 Agent 入门。\n\n你可以继续补充：你的行业、主要客户、想节省哪部分时间、是否需要中文/免费/国内可用。我再帮你把范围收窄到 2-3 个最值得先试的工具。`

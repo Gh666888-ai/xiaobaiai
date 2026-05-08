@@ -12,7 +12,16 @@ export const metadata: Metadata = {
 }
 
 const quickQueries = ["AI教程", "免费AI工具", "DeepSeek API Key", "Dify知识库", "Gamma做PPT", "即梦提示词", "AI绘图工具", "AI办公"]
-const groupNames = ["工具", "模型", "技能", "教程", "资讯", "工作流"]
+const groupNames = ["工具", "模型", "教程", "任务", "资讯", "工作流", "技能"] as const
+const groupCopy: Record<(typeof groupNames)[number], { title: string; desc: string }> = {
+  工具: { title: "工具", desc: "可以直接打开使用的产品和网站。" },
+  模型: { title: "模型", desc: "API、本地模型和模型后端选择。" },
+  教程: { title: "教程", desc: "一步一步照着学的页面。" },
+  任务: { title: "任务", desc: "照着做、交付结果、领取 XP 的闯关任务。" },
+  资讯: { title: "资讯", desc: "新闻、发布、深度解读和教程资源。" },
+  工作流: { title: "工作流", desc: "可复用的自动化流程。" },
+  技能: { title: "技能", desc: "Agent、Dify、Coze、n8n 可安装或复用的能力。" },
+}
 
 const featuredLinks = [
   { href: "/tutorials", title: "AI教程大全", desc: "零基础学AI、AI工具教程、DeepSeek、Dify、Gamma和即梦教程集合。" },
@@ -41,11 +50,12 @@ const tutorialLinks = [
 
 export default function SearchPage({ searchParams }: { searchParams?: { q?: string } }) {
   const q = searchParams?.q?.trim() || ""
-  const results = searchSite(q, 80)
+  const results = searchSite(q, 160)
   const groups = groupNames.map((kind) => ({
     kind,
-    results: results.filter((item) => item.kind === kind),
+    results: results.filter((item) => item.kind === kind).slice(0, kind === "工具" || kind === "模型" || kind === "教程" ? 8 : 5),
   }))
+  const bestResults = groups.flatMap((group) => group.results.slice(0, 1)).slice(0, 6)
   const searchJsonLd = {
     "@context": "https://schema.org",
     "@type": "SearchResultsPage",
@@ -67,7 +77,7 @@ export default function SearchPage({ searchParams }: { searchParams?: { q?: stri
       <main style={{ maxWidth: 960, margin: "0 auto", padding: "60px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.86)" }} className="max-sm:px-4">
         <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.4em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 700 }}>Search</p>
         <h1 style={{ fontSize: 36, fontWeight: 950, color: "#fff", marginBottom: 10 }}>站内搜索</h1>
-        <p style={{ fontSize: 14, color: "#ccc", marginBottom: 28 }}>统一搜索工具、模型、技能、教程和资讯。也支持地址：/search?q=关键词。</p>
+        <p style={{ fontSize: 14, color: "#ccc", marginBottom: 28 }}>统一搜索工具、模型、教程、任务、资讯和工作流。也支持地址：/search?q=关键词。</p>
 
         <form action="/search" style={{ display: "flex", gap: 10, marginBottom: 18 }}>
           <input name="q" defaultValue={q} placeholder="搜工具、模型、技能、教程..." className="form-input" style={{ flex: 1, height: 46, fontSize: 15 }} autoFocus />
@@ -107,7 +117,25 @@ export default function SearchPage({ searchParams }: { searchParams?: { q?: stri
           </>
         )}
 
-        {q && <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: "#aaa", marginBottom: 24 }}>{results.length} results for &quot;{q}&quot;</p>}
+        {q && <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: "#aaa", marginBottom: 18 }}>{results.length} results for &quot;{q}&quot;</p>}
+
+        {q && bestResults.length > 0 && (
+          <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.045)", borderRadius: 12, padding: "18px 20px", marginBottom: 28 }}>
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 13, flexWrap: "wrap" }}>
+              <h2 style={{ fontSize: 18, color: "#fff", fontWeight: 950 }}>最佳入口</h2>
+              <p style={{ fontSize: 12, color: "#cdbb80" }}>先看分类，再决定点工具、模型还是教程</p>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(190px,1fr))", gap: 10 }}>
+              {bestResults.map((item) => (
+                <Link key={`best-${item.id}`} href={item.href} style={{ display: "block", textDecoration: "none", border: "1px solid #2f2a1b", background: "rgba(0,0,0,0.24)", borderRadius: 10, padding: "13px 14px", minHeight: 118 }}>
+                  <span className="tag tag-gold" style={{ fontSize: 10, marginBottom: 8 }}>{item.kind}</span>
+                  <h3 style={{ fontSize: 14, color: "#fff", fontWeight: 950, lineHeight: 1.45, marginTop: 8, marginBottom: 6 }}>{item.title}</h3>
+                  <p style={{ fontSize: 11, color: "#aaa", lineHeight: 1.55 }}>{item.meta}</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {q && results.length === 0 && (
           <div style={{ border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.02)", padding: 28, color: "#aaa", borderRadius: 10, marginBottom: 28 }}>
@@ -126,10 +154,16 @@ export default function SearchPage({ searchParams }: { searchParams?: { q?: stri
         <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
           {groups.map((group) => group.results.length > 0 && (
             <section key={group.kind}>
-              <h2 style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, color: "#e8c96a", marginBottom: 12, letterSpacing: "0.18em" }}>{group.kind}</h2>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
+                <div>
+                  <h2 style={{ fontSize: 20, color: "#fff", marginBottom: 4, fontWeight: 950 }}>{groupCopy[group.kind].title}</h2>
+                  <p style={{ fontSize: 12, color: "#888", lineHeight: 1.6 }}>{groupCopy[group.kind].desc}</p>
+                </div>
+                <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: "#e8c96a", fontWeight: 950 }}>{group.results.length} ITEMS</span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: group.kind === "工具" || group.kind === "模型" ? "repeat(auto-fit,minmax(260px,1fr))" : "1fr", gap: 8 }}>
                 {group.results.map((item) => (
-                  <Link key={item.id} href={item.href} style={{ display: "block", textDecoration: "none", border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: "18px 20px" }}>
+                  <Link key={item.id} href={item.href} style={{ display: "block", textDecoration: "none", border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: "18px 20px", minHeight: group.kind === "工具" || group.kind === "模型" ? 150 : undefined }}>
                     <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 6, flexWrap: "wrap" }}>
                       <span className="tag tag-gold" style={{ fontSize: 10 }}>{item.kind}</span>
                       <h3 style={{ fontSize: 16, color: "#fff", fontWeight: 800 }}>{item.title}</h3>

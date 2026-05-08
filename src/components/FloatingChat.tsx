@@ -24,12 +24,6 @@ type Message = {
 type LauncherMood = "welcome" | "thinking" | "recommend"
 type ChatMode = "ai" | "fallback" | "site" | ""
 
-const starters = [
-  "我完全不会 AI，今天应该从哪里开始？",
-  "帮我选一个适合我的 AI 工具",
-  "这个页面我应该先看哪里？",
-]
-
 function isSiteQuestion(message: string) {
   const text = message.toLowerCase()
   return [
@@ -254,14 +248,6 @@ export function FloatingChat() {
                 )}
                 <div ref={bottomRef} />
               </div>
-
-            <div className="xiaobai-starters">
-              {starters.map((starter) => (
-                <button type="button" key={starter} onClick={() => send(starter)} disabled={sending || (!user && !isSiteQuestion(starter))}>
-                  {starter}
-                </button>
-              ))}
-            </div>
 
             {remaining !== null && <p className="xiaobai-quota">智能探索模式：今日剩余 {remaining} 次</p>}
 
@@ -556,23 +542,6 @@ export function FloatingChat() {
         .xiaobai-loading svg {
           animation: xiaobaiSpin 1s linear infinite;
         }
-        .xiaobai-starters {
-          display: flex;
-          gap: 6px;
-          padding: 0 14px 10px;
-          overflow-x: auto;
-        }
-        .xiaobai-starters button {
-          flex: 0 0 auto;
-          border: 1px solid #242424;
-          border-radius: 999px;
-          background: rgba(255,255,255,0.035);
-          color: #cfcfcf;
-          font-size: 11px;
-          font-weight: 800;
-          padding: 7px 10px;
-          cursor: pointer;
-        }
         .xiaobai-quota {
           margin: 0 14px 9px;
           color: #d6c28a;
@@ -613,8 +582,7 @@ export function FloatingChat() {
           justify-content: center;
           cursor: pointer;
         }
-        .xiaobai-input-row button:disabled,
-        .xiaobai-starters button:disabled {
+        .xiaobai-input-row button:disabled {
           opacity: 0.45;
           cursor: default;
         }

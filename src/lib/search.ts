@@ -4,8 +4,9 @@ import { skills } from "@/data/skills"
 import { news } from "@/data/news"
 import { stages } from "@/data/learning-path"
 import { toolPath } from "@/data/tool-meta"
+import { missions } from "@/data/missions"
 
-export type SearchKind = "工具" | "模型" | "技能" | "教程" | "资讯" | "工作流"
+export type SearchKind = "工具" | "模型" | "教程" | "任务" | "资讯" | "工作流" | "技能"
 
 export type SearchResult = {
   id: string
@@ -92,6 +93,22 @@ const seoTutorialResultsSeed = [
     href: "/deepseek-api-key",
     meta: "API教程 · DeepSeek · 接入",
     keywords: "DeepSeek API Key DeepSeek API申请 DeepSeek API教程 DeepSeek V4 API Dify接入DeepSeek",
+  },
+  {
+    id: "deepseek",
+    title: "DeepSeek怎么用",
+    description: "DeepSeek聊天、联网搜索、推理、写作、代码和国产模型选择入门。",
+    href: "/deepseek",
+    meta: "模型教程 · DeepSeek · 新手",
+    keywords: "DeepSeek怎么用 DeepSeek教程 DeepSeek聊天 DeepSeek推理 DeepSeek写代码 DeepSeek联网搜索",
+  },
+  {
+    id: "claude-code-deepseek",
+    title: "Claude Code接入DeepSeek教程",
+    description: "用 DeepSeek V4 作为 Claude Code、Codex、OpenClaw 等 Agent 的模型后端。",
+    href: "/claude-code-deepseek",
+    meta: "编程教程 · DeepSeek · Agent",
+    keywords: "Claude Code DeepSeek DeepSeek V4 Claude Code接入 DeepSeek 编程 Agent 模型后端",
   },
   {
     id: "dify-knowledge-base",
@@ -215,6 +232,24 @@ export function searchSite(query: string, limit = 40): SearchResult[] {
     score: scoreText(q, [item.title, item.description, item.meta, item.keywords]) + 18,
   }))
 
+  const missionResults = missions.map((mission) => ({
+    id: `mission-${mission.id}`,
+    kind: "任务" as const,
+    title: mission.title,
+    description: mission.tagline,
+    href: `/missions/${mission.id}`,
+    meta: `${mission.stage} · ${mission.minutes} · +${mission.xp}XP`,
+    score: scoreText(q, [
+      mission.title,
+      mission.shortTitle,
+      mission.tagline,
+      mission.outcome,
+      mission.tags.join(" "),
+      mission.toolIds.join(" "),
+      mission.steps.map((step) => `${step.title} ${step.desc} ${step.prompt}`).join(" "),
+    ]) + 16,
+  }))
+
   const newsResults = news.map((item) => ({
     id: `news-${item.id}`,
     kind: "资讯" as const,
@@ -235,7 +270,7 @@ export function searchSite(query: string, limit = 40): SearchResult[] {
     score: scoreText(q, [workflow.title, workflow.description, workflow.meta, workflow.keywords]) + 12,
   }))
 
-  return [...toolResults, ...modelResults, ...skillResults, ...tutorialResults, ...seoTutorialResults, ...newsResults, ...workflowResults]
+  return [...toolResults, ...modelResults, ...seoTutorialResults, ...tutorialResults, ...missionResults, ...newsResults, ...workflowResults, ...skillResults]
     .filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
