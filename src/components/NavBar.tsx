@@ -15,15 +15,15 @@ const links = [
   { label: "工具", href: "/tools", icon: Compass },
   { label: "学习", href: "/learn", icon: GraduationCap },
   { label: "案例", href: "/cases", icon: BookOpen },
+  { label: "社区", href: "/community", icon: Users },
 ]
 
 const moreLinks = [
   { label: "选择器", href: "/choose-tool", icon: Search },
   { label: "工作流", href: "/workflows", icon: Workflow },
-  { label: "成长舱", href: "/growth", icon: Trophy },
   { label: "资讯", href: "/news", icon: Newspaper },
   { label: "模型", href: "/models", icon: Bot },
-  { label: "社区", href: "/community", icon: Users },
+  { label: "成长舱", href: "/growth", icon: Trophy },
   { label: "关于我们", href: "/about", icon: Building2 },
 ]
 
@@ -141,7 +141,7 @@ export function NavBar() {
 
       {menuOpen && (
         <div className="site-mobile-menu">
-          {[...moreLinks, ...links].map((item) => {
+          {links.map((item) => {
             const Icon = item.icon
             const active = pathname === item.href || pathname?.startsWith(`${item.href}/`)
             return (
@@ -155,6 +155,21 @@ export function NavBar() {
             <MessageCircle size={15} />
             <span>问小白</span>
           </button>
+          <div className="site-mobile-more">
+            <p>更多入口</p>
+            <div>
+              {moreLinks.map((item) => {
+                const Icon = item.icon
+                const active = pathname === item.href || pathname?.startsWith(`${item.href}/`)
+                return (
+                  <Link key={item.href} href={item.href} className={`site-mobile-link site-mobile-link-secondary ${active ? "is-active" : ""}`}>
+                    <Icon size={14} />
+                    <span>{item.label}</span>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
         </div>
       )}
 
@@ -431,6 +446,23 @@ export function NavBar() {
           border-top: 1px solid #141414;
           background: rgba(0,0,0,0.96);
         }
+        .site-mobile-more {
+          grid-column: 1 / -1;
+          border-top: 1px solid #151515;
+          margin-top: 4px;
+          padding-top: 10px;
+        }
+        .site-mobile-more p {
+          color: #777;
+          font-size: 11px;
+          font-weight: 900;
+          margin: 0 0 8px;
+        }
+        .site-mobile-more div {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
         .site-mobile-link {
           min-height: 40px;
           border: 1px solid #202020;
@@ -439,6 +471,13 @@ export function NavBar() {
           padding: 9px 11px;
           color: #ddd;
           justify-content: flex-start;
+        }
+        .site-mobile-link-secondary {
+          min-height: 34px;
+          border-radius: 999px;
+          padding: 7px 10px;
+          color: #aaa;
+          background: rgba(255,255,255,0.018);
         }
         .site-mobile-link.is-active {
           border-color: #7a6230;
