@@ -9,6 +9,15 @@ import { readAppAuth } from "@/lib/app-auth"
 
 type PostStatus = "pending" | "approved" | "rejected"
 type CommentStatus = "pending" | "hidden"
+type CoCreatorCandidate = {
+  id: string
+  name?: string
+  email?: string
+  xp?: number
+  created_at?: string
+  co_creator_track?: "personal" | "team"
+  co_creator_note?: string
+}
 
 function reviewAdvice(post: any) {
   const content = post.content || ""
@@ -27,10 +36,12 @@ export default function ModeratePage() {
   const [subs, setSubs] = useState<Submission[]>([])
   const [posts, setPosts] = useState<any[]>([])
   const [comments, setComments] = useState<any[]>([])
+  const [coCreatorCandidates, setCoCreatorCandidates] = useState<CoCreatorCandidate[]>([])
   const [postStatus, setPostStatus] = useState<PostStatus>("pending")
   const [commentStatus, setCommentStatus] = useState<CommentStatus>("pending")
   const [loadingPosts, setLoadingPosts] = useState(false)
   const [loadingComments, setLoadingComments] = useState(false)
+  const [loadingCoCreators, setLoadingCoCreators] = useState(false)
   const [filter, setFilter] = useState<"all" | "pending" | "auto_rejected" | "approved" | "rejected">("pending")
   const [preview, setPreview] = useState("")
 
@@ -51,12 +62,21 @@ export default function ModeratePage() {
       .then((data) => setComments(Array.isArray(data) ? data : []))
       .finally(() => setLoadingComments(false))
   }, [commentStatus])
+  const loadCoCreators = useCallback(() => {
+    const token = readAppAuth()?.session?.access_token
+    setLoadingCoCreators(true)
+    fetch("/api/co-creator/review", token ? { headers: { Authorization: `Bearer ${token}` } } : undefined)
+      .then((res) => res.json())
+      .then((data) => setCoCreatorCandidates(Array.isArray(data?.candidates) ? data.candidates : []))
+      .finally(() => setLoadingCoCreators(false))
+  }, [])
 
   useEffect(() => {
     refresh()
     loadPosts("pending")
     loadComments("pending")
-  }, [loadComments, loadPosts, refresh])
+    loadCoCreators()
+  }, [loadCoCreators, loadComments, loadPosts, refresh])
 
   const filtered = subs.filter((item) => filter === "all" || item.status === filter)
   const counts = useMemo(() => ({
@@ -100,6 +120,18 @@ export default function ModeratePage() {
     })
     loadComments()
   }
+  const patchCoCreator = async (body: Record<string, unknown>) => {
+    const token = readAppAuth()?.session?.access_token
+    await fetch("/api/co-creator/review", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(body),
+    })
+    loadCoCreators()
+  }
 
   return (
     <div style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", paddingBottom: 100 }}>
@@ -125,6 +157,34 @@ export default function ModeratePage() {
               <p style={{ fontSize: 9, color: "#555", marginTop: 4, fontFamily: "'JetBrains Mono',monospace", letterSpacing: "0.1em" }}>{item.label}</p>
             </div>
           ))}
+        </section>
+
+        <section style={{ marginBottom: 48 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 14, flexWrap: "wrap" }}>
+            <div>
+              <h2 style={{ fontSize: 19, fontWeight: 950, color: "#fff" }}>共创等级审核</h2>
+              <p style={{ color: "#777", fontSize: 12, marginTop: 5 }}>XP 达到门槛只进入候选，必须看真实案例、复盘质量和共建贡献后再通过。</p>
+            </div>
+            <button onClick={() => loadCoCreators()} className="btn-outline" style={{ fontSize: 11, padding: "6px 14px" }}>{loadingCoCreators ? "加载中..." : "刷新候选"}</button>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {coCreatorCandidates.length === 0 && <p style={{ color: "#555", border: "1px solid #1a1a1a", padding: 36, textAlign: "center" }}>暂无共创候选</p>}
+            {coCreatorCandidates.map((item) => (
+              <article key={item.id} style={{ background: "rgba(255,255,255,0.025)", border: "1px solid #1a1a1a", borderRadius: 12, padding: 18 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+                  <span className="tag tag-gold">共创待审核</span>
+                  <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 11, fontWeight: 900 }}>{Number(item.xp || 0)} XP</span>
+                  <span style={{ color: "#777", fontSize: 11 }}>{item.email || "no email"}</span>
+                </div>
+                <h3 style={{ color: "#fff", fontSize: 17, fontWeight: 900 }}>{item.name || "未命名用户"}</h3>
+                <p style={{ color: "#888", fontSize: 12, lineHeight: 1.7, marginTop: 6 }}>审核前建议先看：是否有高质量实战案例、是否发过复盘、是否能解释工具选择和落地过程。</p>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 13 }}>
+                  <button onClick={() => patchCoCreator({ id: item.id, track: "personal", approved: true, note: "approved as personal co-creator" })} className="btn-primary" style={{ fontSize: 11, padding: "6px 13px" }}><Check size={13} /> 通过个人共创</button>
+                  <button onClick={() => patchCoCreator({ id: item.id, track: "team", approved: true, note: "approved as team co-creator" })} className="btn-outline" style={{ fontSize: 11, padding: "6px 13px" }}><Star size={13} /> 通过团队共创</button>
+                </div>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section style={{ marginBottom: 48 }}>

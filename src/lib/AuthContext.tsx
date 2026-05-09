@@ -8,7 +8,11 @@ export interface AuthUser {
   email: string
   name: string
   xp: number
+  coCreatorApproved?: boolean
+  coCreatorTrack?: "personal" | "team"
 }
+
+type CoCreatorTrack = "personal" | "team"
 
 const AuthContext = createContext<{
   user: AuthUser|null
@@ -38,14 +42,17 @@ export function AuthProvider({children}:{children:ReactNode}){
         setUser(null)
         return
       }
-      const nextUser = {
+      const coCreatorTrack: CoCreatorTrack = data.user.coCreatorTrack === "team" || auth.user?.coCreatorTrack === "team" ? "team" : "personal"
+      const nextUser: AuthUser = {
         userId: data.user.id,
         email: data.user.email || auth.user?.email || "",
         name: data.user.name || auth.user?.name || "用户",
         xp: Number(data.user.xp || auth.user?.xp || 0),
+        coCreatorApproved: Boolean(data.user.coCreatorApproved || auth.user?.coCreatorApproved),
+        coCreatorTrack,
       }
       setUser(nextUser)
-      writeAppAuth({ ...auth, user: { id: nextUser.userId, email: nextUser.email, name: nextUser.name, xp: nextUser.xp } })
+      writeAppAuth({ ...auth, user: { id: nextUser.userId, email: nextUser.email, name: nextUser.name, xp: nextUser.xp, coCreatorApproved: nextUser.coCreatorApproved, coCreatorTrack: nextUser.coCreatorTrack } })
     }catch{
       setUser(null)
     }finally{
@@ -60,6 +67,8 @@ export function AuthProvider({children}:{children:ReactNode}){
       email: auth.user?.email || "",
       name: auth.user?.name || auth.user?.email?.split("@")[0] || "用户",
       xp: Number(auth.user?.xp || 0),
+      coCreatorApproved: Boolean(auth.user?.coCreatorApproved),
+      coCreatorTrack: auth.user?.coCreatorTrack === "team" ? "team" : "personal",
     })
     await refresh().catch(() => undefined)
   }

@@ -8,6 +8,8 @@ export interface User {
   xp: number
   joinedAt: string
   userId: string
+  coCreatorApproved?: boolean
+  coCreatorTrack?: LevelTrack
 }
 
 export type LevelReward = {
@@ -15,28 +17,60 @@ export type LevelReward = {
   vanity: string
 }
 
-const levelNames = [
-  "初入山门",
-  "点火小白",
-  "青铜开悟者",
-  "白银破局者",
-  "黄金提示师",
-  "铂金执行官",
-  "钻石任务家",
-  "星耀创作者",
-  "王者办公官",
-  "荣耀流程师",
-  "无双指挥官",
-  "传说共创者",
-  "星环领航员",
-  "曜石架构师",
-  "皇冠导师",
-  "小白AI共创伙伴",
-  "AI项目实践者",
-  "高级任务导师",
-  "Agent实践导师",
-  "小白AI共创导师",
-]
+export type LevelTrack = "personal" | "team"
+export type LevelAccess = {
+  coCreatorApproved?: boolean
+}
+
+const CO_CREATOR_START_LEVEL = 15
+const HIGHEST_AUTO_LEVEL = CO_CREATOR_START_LEVEL - 1
+
+const levelNameTracks: Record<LevelTrack, string[]> = {
+  personal: [
+    "AI起步者",
+    "见习创业者",
+    "提示词练习生",
+    "任务执行者",
+    "内容变现手",
+    "工具组合师",
+    "个人工作流玩家",
+    "副业项目主理人",
+    "AI接单能手",
+    "自动化操盘手",
+    "个人品牌经营者",
+    "独立项目负责人",
+    "Agent训练师",
+    "项目交付官",
+    "AI创业实战家",
+    "小白AI共创伙伴",
+    "小白AI共创顾问",
+    "小白AI共创导师",
+    "小白AI共创合伙人",
+    "小白AI共创神",
+  ],
+  team: [
+    "团队AI观察员",
+    "流程记录员",
+    "岗位提效手",
+    "团队协作员",
+    "资料整理官",
+    "流程优化师",
+    "部门效率官",
+    "团队之魂",
+    "跨部门连接者",
+    "业务自动化官",
+    "知识库负责人",
+    "团队Agent训练师",
+    "AI项目经理",
+    "公司流程架构师",
+    "企业AI推进官",
+    "小白AI共创团队",
+    "小白AI共创顾问团",
+    "小白AI共创导师团",
+    "小白AI共创合伙团队",
+    "小白AI共创神队",
+  ],
+}
 
 function minXPForLevel(level: number) {
   if (level <= 0) return 0
@@ -70,60 +104,81 @@ function colorForLevel(level: number) {
   return { color: "#8f8f8f", accent: "#cfcfcf" }
 }
 
-function descForLevel(level: number) {
-  if (level === 0) return "还在山门外，完成第一个小步骤就能点火。"
-  if (level <= 3) return "新手觉醒期，先拿到第一个真实成果和第一件装饰。"
-  if (level <= 7) return "开始连续通关，任务越多，名牌越亮。"
-  if (level <= 11) return "已经能把 AI 用进办公、内容和资料整理，开始有可见身份。"
-  if (level <= 14) return "复盘和流程开始沉淀，别人能看见你的方法。"
-  if (level <= 17) return "能搭建知识库、自动化和多步任务，进入高阶玩家区。"
-  if (level <= 18) return "能指挥 Agent 完成项目级交付，身份开始压场。"
-  return "小白AI核心共创身份，代表长期完成任务、复盘和共建内容的高阶用户。"
+function descForLevel(level: number, track: LevelTrack = "personal") {
+  const isTeam = track === "team"
+  if (level === 0) return isTeam ? "公司还没开始系统用 AI，先从一个岗位小流程跑通。" : "刚开始学 AI，先完成一个能看见结果的小任务。"
+  if (level <= 3) return isTeam ? "团队试用期，先把资料、话术、会议纪要这类高频工作交给 AI 辅助。" : "个人起步期，先学会提需求、拿结果、改出第一份可用成果。"
+  if (level <= 7) return isTeam ? "已经能把 AI 放进团队协作，开始沉淀可复用流程。" : "开始连续做任务，能用 AI 帮自己完成内容、办公和接单准备。"
+  if (level <= 11) return isTeam ? "团队开始有自己的知识库、流程模板和岗位助手。" : "已经能把 AI 用进个人副业、内容生产和客户交付。"
+  if (level <= 14) return isTeam ? "公司流程开始被 AI 改造，能管理多岗位、多工具协作。" : "能训练 Agent、搭工作流，把重复工作逐步交出去。"
+  if (level <= 18) return isTeam ? "团队进入共创预备区，能把 AI 项目落到业务结果里。" : "个人进入共创预备区，能交付真实项目并复盘方法。"
+  return isTeam ? "小白AI最高共创团队身份，代表长期完成项目、复盘和共建内容。" : "小白AI最高共创身份，代表长期完成任务、复盘和共建内容的高阶用户。"
 }
 
-function rewardForLevel(level: number): LevelReward {
+function rewardForLevel(level: number, track: LevelTrack = "personal"): LevelReward {
+  const isTeam = track === "team"
   if (level >= 19) return {
-    title: "小白AI共创导师身份",
-    vanity: "专属共创导师名牌、共创头像框、优先参与内测和内容共建；具体权益以后续正式公告为准",
+    title: isTeam ? "小白AI共创神队身份" : "小白AI共创神身份",
+    vanity: isTeam ? "最高共创团队名牌、团队案例优先展示、优先参与企业实战共建；具体权益以后续正式公告为准" : "最高共创名牌、共创头像框、优先参与内测和内容共建；具体权益以后续正式公告为准",
   }
-  if (level >= 18) return { title: "Agent实践导师身份", vanity: "高阶身份名牌、Agent 实战标识、评论区高亮边框" }
-  if (level >= 17) return { title: "高级任务导师边框", vanity: "高级头像框、任务导师称号、复盘卡片装饰" }
-  if (level >= 15) return { title: "皇冠导师身份", vanity: "皇冠名牌、导师标识、社区评论金色描边" }
-  if (level >= 12) return { title: "曜石个性装饰", vanity: "曜石头像框、主页身份条、任务复盘卡片装饰" }
-  if (level >= 8) return { title: "金色发光名牌", vanity: "金色等级名牌、评论区等级展示、个人主页进度条发光" }
-  if (level >= 7) return { title: "下一章：星耀名牌体验", vanity: "星耀名牌 7 天体验、评论区高亮试用、主页身份条预览" }
-  if (level >= 6) return { title: "钻石边框体验", vanity: "钻石头像框 5 天体验、任务完成动效增强、昵称旁等级闪光" }
-  if (level >= 5) return { title: "铂金执行官名牌", vanity: "铂金名牌 5 天体验、社区昵称旁身份牌、复盘卡片装饰试用" }
+  if (level >= 18) return { title: isTeam ? "共创合伙团队名牌" : "共创合伙人名牌", vanity: isTeam ? "团队高阶身份、团队案例高亮、成员协作标识" : "高阶身份名牌、Agent 实战标识、评论区高亮边框" }
+  if (level >= 17) return { title: isTeam ? "共创导师团边框" : "共创导师边框", vanity: isTeam ? "团队头像框、导师团称号、复盘卡片装饰" : "高级头像框、任务导师称号、复盘卡片装饰" }
+  if (level >= 15) return { title: isTeam ? "共创团队身份" : "共创伙伴身份", vanity: isTeam ? "团队共创名牌、企业案例标识、社区评论金色描边" : "共创名牌、导师标识、社区评论金色描边" }
+  if (level >= 12) return { title: isTeam ? "企业AI推进装饰" : "Agent训练装饰", vanity: isTeam ? "团队主页身份条、流程复盘卡片装饰" : "曜石头像框、主页身份条、任务复盘卡片装饰" }
+  if (level >= 8) return { title: isTeam ? "团队效率名牌" : "个人项目名牌", vanity: isTeam ? "团队等级名牌、评论区等级展示、团队进度条发光" : "金色等级名牌、评论区等级展示、个人主页进度条发光" }
+  if (level >= 7) return { title: isTeam ? "团队之魂体验" : "项目主理人体验", vanity: "高亮名牌 7 天体验、评论区高亮试用、主页身份条预览" }
+  if (level >= 6) return { title: isTeam ? "部门效率边框体验" : "工作流边框体验", vanity: "钻石头像框 5 天体验、任务完成动效增强、昵称旁等级闪光" }
+  if (level >= 5) return { title: isTeam ? "流程优化师名牌" : "工具组合师名牌", vanity: "进阶名牌 5 天体验、社区昵称旁身份牌、复盘卡片装饰试用" }
   if (level >= 4) return { title: "双体验加成", vanity: "钻石头像框体验延长 2 天，再加评论区高亮 2 天体验" }
-  if (level >= 3) return { title: "钻石头像框体验", vanity: "发放钻石头像框 2 天体验，先让你在社区里亮起来" }
-  if (level >= 2) return { title: "青铜开悟标识", vanity: "青铜身份牌 3 天体验，下一关解锁钻石头像框体验" }
-  if (level >= 1) return { title: "新手点火牌", vanity: "点火徽章、任务完成动效、成长页基础展示；再做一件事就能冲 LV3" }
-  return { title: "新手起步目标", vanity: "完成第一个任务后点亮成长记录，第一天目标是冲到 LV3 拿钻石头像框体验" }
+  if (level >= 3) return { title: isTeam ? "团队协作标识" : "任务执行标识", vanity: "发放钻石头像框 2 天体验，先让你在社区里亮起来" }
+  if (level >= 2) return { title: isTeam ? "岗位提效标识" : "提示词练习标识", vanity: "基础身份牌 3 天体验，下一关解锁钻石头像框体验" }
+  if (level >= 1) return { title: isTeam ? "流程记录牌" : "见习创业牌", vanity: "点火徽章、任务完成动效、成长页基础展示；再做一件事就能冲 LV3" }
+  return { title: isTeam ? "团队起步目标" : "个人起步目标", vanity: "完成第一个任务后点亮成长记录，第一天目标是冲到 LV3 拿钻石头像框体验" }
 }
 
-// 更密的等级梯子：前期每完成一个完整任务基本都能升级或接近升级。
-export const LEVELS = Array.from({ length: 20 }, (_, level) => {
-  const palette = colorForLevel(level)
-  const reward = rewardForLevel(level)
-  return {
-    level,
-    name: levelNames[level] || `成长等级 ${level}`,
-    minXP: minXPForLevel(level),
-    badge: badgeForLevel(level),
-    color: palette.color,
-    accent: palette.accent,
-    desc: descForLevel(level),
-    reward,
+function buildLevels(track: LevelTrack) {
+  return Array.from({ length: 20 }, (_, level) => {
+    const palette = colorForLevel(level)
+    const reward = rewardForLevel(level, track)
+    return {
+      level,
+      track,
+      name: levelNameTracks[track][level] || `成长等级 ${level}`,
+      minXP: minXPForLevel(level),
+      badge: badgeForLevel(level),
+      color: palette.color,
+      accent: palette.accent,
+      desc: descForLevel(level, track),
+      reward,
+    }
+  })
+}
+
+export const LEVEL_TRACKS = {
+  personal: buildLevels("personal"),
+  team: buildLevels("team"),
+}
+
+// 默认导出个人等级，兼容现有页面；企业/团队场景用 getUserLevel(xp, "team")。
+export const LEVELS = LEVEL_TRACKS.personal
+
+function visibleLevels(track: LevelTrack, access: LevelAccess = {}) {
+  const levels = LEVEL_TRACKS[track] || LEVEL_TRACKS.personal
+  return access.coCreatorApproved ? levels : levels.filter((level) => level.level <= HIGHEST_AUTO_LEVEL)
+}
+
+export function getUserLevel(xp: number, track: LevelTrack = "personal", access: LevelAccess = {}) {
+  const levels = visibleLevels(track, access)
+  for (let i = levels.length - 1; i >= 0; i--) if (xp >= levels[i].minXP) return levels[i]
+  return levels[0]
+}
+
+export function getNextLevel(xp: number, track: LevelTrack = "personal", access: LevelAccess = {}) {
+  if (!access.coCreatorApproved && xp >= minXPForLevel(CO_CREATOR_START_LEVEL)) {
+    return { level: LEVEL_TRACKS[track][CO_CREATOR_START_LEVEL], need: 0, requiresReview: true }
   }
-})
-
-export function getUserLevel(xp: number) {
-  for (let i = LEVELS.length - 1; i >= 0; i--) if (xp >= LEVELS[i].minXP) return LEVELS[i]
-  return LEVELS[0]
-}
-
-export function getNextLevel(xp: number) {
-  const next = LEVELS.find((level) => level.minXP > xp)
+  const levels = visibleLevels(track, access)
+  const next = levels.find((level) => level.minXP > xp)
   return next ? { level: next, need: next.minXP - xp } : null
 }
 

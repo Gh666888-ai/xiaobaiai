@@ -12,7 +12,7 @@ import { stages } from "@/data/learning-path"
 import { progressId, readLearningProgress } from "@/lib/learning-progress"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
-import { LEVELS } from "@/data/user"
+import { getNextLevel, getUserLevel, LEVELS } from "@/data/user"
 import { CHECK_IN_XP, GROWTH_MISSIONS } from "@/data/growth"
 
 type GrowthState = {
@@ -115,8 +115,15 @@ export default function GrowthClient() {
   const today = todayKey()
   const checkedToday = state.lastCheckIn === today
   const doneCount = missions.filter((mission) => state.doneMissions[missionDoneKey(mission, today)]).length
-  const currentLevel = LEVELS.slice().reverse().find((item) => state.xp >= item.minXP) || LEVELS[0]
-  const nextLevel = LEVELS.find((item) => item.minXP > state.xp)
+  const levelAccess = { coCreatorApproved: Boolean(user?.coCreatorApproved) }
+  const currentLevel = getUserLevel(state.xp, "personal", levelAccess)
+  const nextLevelInfo = getNextLevel(state.xp, "personal", levelAccess)
+  const nextLevel = nextLevelInfo?.level || null
+  const personalNeedsReview = Boolean(nextLevelInfo?.requiresReview)
+  const teamLevel = getUserLevel(state.xp, "team", levelAccess)
+  const teamNextLevelInfo = getNextLevel(state.xp, "team", levelAccess)
+  const teamNextLevel = teamNextLevelInfo?.level || null
+  const teamNeedsReview = Boolean(teamNextLevelInfo?.requiresReview)
   const displayXP = nextLevel ? state.xp : LEVELS[LEVELS.length - 1]?.minXP || state.xp
   const badge = levelBadge(state.xp)
   const levelBaseXP = currentLevel.minXP
@@ -465,26 +472,61 @@ export default function GrowthClient() {
         </div>
 
         <section style={{ marginTop: 18, border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 20 }}>
-          <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, marginBottom: 14 }}>当前档案</h2>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-end", flexWrap: "wrap", marginBottom: 14 }}>
+            <div>
+              <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, marginBottom: 6 }}>等级档案</h2>
+              <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7 }}>个人和公司团队用两套称号。共创是最高档，不会在普通等级里乱出现。</p>
+            </div>
+            <LevelBadge compact name={user?.name || "个人"} xp={state.xp} coCreatorApproved={user?.coCreatorApproved} />
+          </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }} className="max-sm:grid-cols-1">
             <div style={{ border: `1px solid ${currentLevel.color}`, borderRadius: 10, background: `${currentLevel.color}12`, padding: "14px 15px" }}>
-              <p style={{ color: currentLevel.accent, fontSize: 13, fontWeight: 950, marginBottom: 6 }}>当前等级 · LV.{currentLevel.level} {currentLevel.name}</p>
+              <p style={{ color: currentLevel.accent, fontSize: 13, fontWeight: 950, marginBottom: 6 }}>个人线 · LV.{currentLevel.level} {currentLevel.name}</p>
               <p style={{ color: currentLevel.accent, fontSize: 12, fontWeight: 950, lineHeight: 1.55, marginBottom: 5 }}>{currentLevel.reward.title}</p>
               <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginBottom: 8 }}>{currentLevel.reward.vanity}</p>
-              <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10 }}>{currentLevel.minXP} XP 起解锁</p>
+              <p style={{ color: "#8f8f8f", fontSize: 12, lineHeight: 1.7, marginBottom: 8 }}>{currentLevel.desc}</p>
+              <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10 }}>
+                {nextLevel ? personalNeedsReview ? `共创门槛已到：申请审核后解锁 LV.${nextLevel.level} ${nextLevel.name}` : `下一档：LV.${nextLevel.level} ${nextLevel.name}，还差 ${nextLevel.minXP - state.xp} XP` : "最高档：小白AI共创神"}
+              </p>
             </div>
+            <div style={{ border: `1px solid ${teamLevel.color}`, borderRadius: 10, background: `${teamLevel.color}12`, padding: "14px 15px" }}>
+              <p style={{ color: teamLevel.accent, fontSize: 13, fontWeight: 950, marginBottom: 6 }}>公司/团队线 · LV.{teamLevel.level} {teamLevel.name}</p>
+              <p style={{ color: teamLevel.accent, fontSize: 12, fontWeight: 950, lineHeight: 1.55, marginBottom: 5 }}>{teamLevel.reward.title}</p>
+              <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginBottom: 8 }}>{teamLevel.reward.vanity}</p>
+              <p style={{ color: "#8f8f8f", fontSize: 12, lineHeight: 1.7, marginBottom: 8 }}>{teamLevel.desc}</p>
+              <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10 }}>
+                {teamNextLevel ? teamNeedsReview ? `共创门槛已到：申请审核后解锁 LV.${teamNextLevel.level} ${teamNextLevel.name}` : `下一档：LV.${teamNextLevel.level} ${teamNextLevel.name}，还差 ${teamNextLevel.minXP - state.xp} XP` : "最高档：小白AI共创神队"}
+              </p>
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, marginTop: 10 }} className="max-sm:grid-cols-1">
             {nextLevel ? (
               <div style={{ border: "1px solid #242424", borderRadius: 10, background: "rgba(0,0,0,0.24)", padding: "14px 15px" }}>
-                <p style={{ color: "#aaa", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>下一级预览 · LV.{nextLevel.level} {nextLevel.name}</p>
+                <p style={{ color: "#aaa", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>个人下一级 · LV.{nextLevel.level} {nextLevel.name}</p>
                 <p style={{ color: "#bbb", fontSize: 12, fontWeight: 950, lineHeight: 1.55, marginBottom: 5 }}>{nextLevel.reward.title}</p>
                 <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginBottom: 8 }}>{nextLevel.reward.vanity}</p>
-                <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10 }}>还差 {nextLevel.minXP - state.xp} XP</p>
+                <p style={{ fontFamily: "'JetBrains Mono',monospace", color: personalNeedsReview ? "#e8c96a" : "#777", fontSize: 10 }}>{personalNeedsReview ? "已达到 XP 门槛，需要人工审核真实案例和复盘质量" : `还差 ${nextLevel.minXP - state.xp} XP`}</p>
               </div>
             ) : (
               <div style={{ border: "1px solid #2a1f10", borderRadius: 10, background: "rgba(201,168,76,0.045)", padding: "14px 15px" }}>
                 <p style={{ color: "#d6c28a", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>下一步</p>
                 <p style={{ color: "#fff", fontSize: 12, fontWeight: 950, lineHeight: 1.55, marginBottom: 5 }}>保持最高档</p>
                 <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginBottom: 8 }}>继续完成任务、发布复盘和参与共建，保留高阶身份展示。</p>
+                <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10 }}>已达最高档</p>
+              </div>
+            )}
+            {teamNextLevel ? (
+              <div style={{ border: "1px solid #242424", borderRadius: 10, background: "rgba(0,0,0,0.24)", padding: "14px 15px" }}>
+                <p style={{ color: "#aaa", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>团队下一级 · LV.{teamNextLevel.level} {teamNextLevel.name}</p>
+                <p style={{ color: "#bbb", fontSize: 12, fontWeight: 950, lineHeight: 1.55, marginBottom: 5 }}>{teamNextLevel.reward.title}</p>
+                <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginBottom: 8 }}>{teamNextLevel.reward.vanity}</p>
+                <p style={{ fontFamily: "'JetBrains Mono',monospace", color: teamNeedsReview ? "#e8c96a" : "#777", fontSize: 10 }}>{teamNeedsReview ? "已达到 XP 门槛，需要人工审核团队案例和流程沉淀" : `还差 ${teamNextLevel.minXP - state.xp} XP`}</p>
+              </div>
+            ) : (
+              <div style={{ border: "1px solid #2a1f10", borderRadius: 10, background: "rgba(201,168,76,0.045)", padding: "14px 15px" }}>
+                <p style={{ color: "#d6c28a", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>团队下一步</p>
+                <p style={{ color: "#fff", fontSize: 12, fontWeight: 950, lineHeight: 1.55, marginBottom: 5 }}>保持最高档</p>
+                <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginBottom: 8 }}>继续沉淀团队实战案例、流程模板和企业复盘。</p>
                 <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10 }}>已达最高档</p>
               </div>
             )}

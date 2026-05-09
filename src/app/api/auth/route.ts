@@ -116,15 +116,17 @@ export async function GET(req: NextRequest) {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("name,email,xp")
+      .select("*")
       .eq("id", data.user.id)
       .maybeSingle()
 
     const email = data.user.email || profile?.email || ""
     const isMaxLevelUser = MAX_LEVEL_EMAILS.has(email.toLowerCase())
+    const coCreatorApproved = Boolean(profile?.co_creator_approved) || isMaxLevelUser
+    const coCreatorTrack = profile?.co_creator_track === "team" ? "team" : "personal"
     const xp = Math.max(Number(profile?.xp || 0), isMaxLevelUser ? MAX_LEVEL_XP : 0)
 
-    if (!profile || (isMaxLevelUser && Number(profile?.xp || 0) < MAX_LEVEL_XP)) {
+    if (!profile || (isMaxLevelUser && (Number(profile?.xp || 0) < MAX_LEVEL_XP || !profile?.co_creator_approved))) {
       await supabase.from("profiles").upsert({
         id: data.user.id,
         name: profile?.name || data.user.user_metadata?.name || data.user.email?.split("@")[0] || "用户",
@@ -140,6 +142,8 @@ export async function GET(req: NextRequest) {
         email,
         name: profile?.name || data.user.user_metadata?.name || data.user.email?.split("@")[0] || "用户",
         xp,
+        coCreatorApproved,
+        coCreatorTrack,
       },
     })
   } catch (error: any) {

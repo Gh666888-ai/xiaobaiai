@@ -8,6 +8,10 @@ CREATE TABLE profiles (
   phone TEXT,
   name TEXT NOT NULL DEFAULT '',
   xp INTEGER NOT NULL DEFAULT 0,
+  co_creator_approved BOOLEAN NOT NULL DEFAULT FALSE,
+  co_creator_track TEXT NOT NULL DEFAULT 'personal',
+  co_creator_reviewed_at TIMESTAMPTZ,
+  co_creator_note TEXT,
   joined_at TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -77,9 +81,18 @@ DROP POLICY IF EXISTS "Users can insert own profile" ON profiles;
 CREATE POLICY "Users can insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
 CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
 
--- 共创者账号：执行后会立刻显示为“小白共创”等级
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS co_creator_approved BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS co_creator_track TEXT NOT NULL DEFAULT 'personal';
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS co_creator_reviewed_at TIMESTAMPTZ;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS co_creator_note TEXT;
+
+-- 共创者账号：必须审核通过后才显示共创最高等级，XP 只代表达到候选门槛。
 UPDATE profiles
-SET xp = GREATEST(COALESCE(xp, 0), 100000)
+SET xp = GREATEST(COALESCE(xp, 0), 100000),
+    co_creator_approved = TRUE,
+    co_creator_track = 'personal',
+    co_creator_reviewed_at = COALESCE(co_creator_reviewed_at, NOW()),
+    co_creator_note = COALESCE(co_creator_note, 'founder approved')
 WHERE lower(email) IN ('15171192200@163.com', '109020070@qq.com', '771239559@qq.com');
 
 -- 成长经验事件表：防止签到、任务、在线挂机经验被重复领取。

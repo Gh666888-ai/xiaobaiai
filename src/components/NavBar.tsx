@@ -15,11 +15,11 @@ const links = [
   { label: "任务", href: "/missions", icon: Flag },
   { label: "Agent安装", href: "/agent-install", icon: TerminalSquare },
   { label: "工具", href: "/tools", icon: Compass },
+  { label: "会员案例", href: "/member-cases", icon: Crown },
   { label: "社区", href: "/community", icon: Users },
 ]
 
 const moreLinks = [
-  { label: "会员案例", href: "/member-cases", icon: Crown },
   { label: "案例", href: "/cases", icon: BookOpen },
   { label: "选择器", href: "/choose-tool", icon: Search },
   { label: "工作流", href: "/workflows", icon: Workflow },
@@ -37,13 +37,15 @@ export function NavBar() {
   const [moreOpen, setMoreOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const userXP = user?.xp || 0
-  const level = useMemo(() => getUserLevel(userXP), [userXP])
-  const next = useMemo(() => getNextLevel(userXP), [userXP])
-  const progress = next ? Math.min(100, Math.round(((userXP - level.minXP) / (next.level.minXP - level.minXP)) * 100)) : 100
+  const levelTrack = user?.coCreatorTrack === "team" ? "team" : "personal"
+  const levelAccess = useMemo(() => ({ coCreatorApproved: Boolean(user?.coCreatorApproved) }), [user?.coCreatorApproved])
+  const level = useMemo(() => getUserLevel(userXP, levelTrack, levelAccess), [levelAccess, levelTrack, userXP])
+  const next = useMemo(() => getNextLevel(userXP, levelTrack, levelAccess), [levelAccess, levelTrack, userXP])
+  const progress = next?.requiresReview ? 100 : next ? Math.min(100, Math.round(((userXP - level.minXP) / (next.level.minXP - level.minXP)) * 100)) : 100
   const xpNeed = next?.need || 0
   const idleMinutesNeed = xpNeed ? Math.ceil((xpNeed / 2) * 5) : 0
   const missionDaysNeed = xpNeed ? Math.ceil(xpNeed / 110) : 0
-  const xpLabel = next ? `${userXP} XP` : "已达最高档"
+  const xpLabel = next?.requiresReview ? `${userXP} XP · 共创待审核` : next ? `${userXP} XP` : "已达最高档"
   const prefetchRoute = (href: string) => {
     router.prefetch(href)
   }
@@ -99,13 +101,13 @@ export function NavBar() {
           {user ? (
             <div className="site-profile-wrap">
               <button type="button" className="site-auth-link site-profile-button" aria-label={`${user.name} 的等级`} onClick={() => setProfileOpen((open) => !open)}>
-                <span className="desktop-level"><LevelBadge name={user.name} xp={userXP} /></span>
-                <span className="mobile-level"><LevelBadge compact name={user.name} xp={userXP} /></span>
+              <span className="desktop-level"><LevelBadge name={user.name} xp={userXP} track={levelTrack} coCreatorApproved={user.coCreatorApproved} /></span>
+              <span className="mobile-level"><LevelBadge compact name={user.name} xp={userXP} track={levelTrack} coCreatorApproved={user.coCreatorApproved} /></span>
               </button>
               {profileOpen && (
                 <div className="site-profile-popover">
                   <div className="profile-head">
-                    <LevelBadge compact name={user.name} xp={userXP} />
+                <LevelBadge compact name={user.name} xp={userXP} track={levelTrack} coCreatorApproved={user.coCreatorApproved} />
                     <div className="profile-title">
                       <p>{user.name}</p>
                       <span>{user.email}</span>
@@ -118,8 +120,8 @@ export function NavBar() {
                   <div className="profile-progress">
                     <span style={{ width: `${progress}%` }} />
                   </div>
-                  <p className="profile-next">{next ? `距离 LV.${next.level.level} ${next.level.name} 还差 ${next.need} XP` : "已达最高档，继续完成任务和复盘，保持共创身份。"}</p>
-                  {next && (
+                  <p className="profile-next">{next ? next.requiresReview ? `已达到共创门槛，提交真实案例和复盘后，由小白AI人工审核解锁 LV.${next.level.level} ${next.level.name}。` : `距离 LV.${next.level.level} ${next.level.name} 还差 ${next.need} XP` : "已达最高档，继续完成任务和复盘，保持共创身份。"}</p>
+                  {next && !next.requiresReview && (
                     <div className="profile-upgrade-hint">
                       <span>约挂机 {idleMinutesNeed} 分钟</span>
                       <span>或做 {missionDaysNeed} 天任务</span>
@@ -133,9 +135,9 @@ export function NavBar() {
                     </div>
                     {next ? (
                       <div className="profile-level-card">
-                        <span>下一级预览</span>
+                        <span>{next.requiresReview ? "共创审核" : "下一级预览"}</span>
                         <strong>LV.{next.level.level} {next.level.name}</strong>
-                        <p>{next.level.reward.title}</p>
+                        <p>{next.requiresReview ? "需要人工审核真实案例、复盘质量和共建贡献" : next.level.reward.title}</p>
                       </div>
                     ) : (
                       <div className="profile-level-card">
