@@ -15,7 +15,7 @@ const links = [
   { label: "任务", href: "/missions", icon: Flag },
   { label: "Agent安装", href: "/agent-install", icon: TerminalSquare },
   { label: "工具", href: "/tools", icon: Compass },
-  { label: "实战任务", href: "/member-cases", icon: Crown },
+  { label: "实战展示", href: "/member-cases", icon: Crown },
   { label: "社区", href: "/community", icon: Users },
 ]
 
@@ -110,7 +110,7 @@ export function NavBar() {
           {user ? (
             <div className="site-profile-wrap">
               <button type="button" className="site-auth-link site-profile-button" aria-label={`${user.name} 的等级`} onClick={() => setProfileOpen((open) => !open)}>
-              <span className="desktop-level"><LevelBadge name={user.name} xp={userXP} track={levelTrack} contributionPoints={contributionPoints} coCreatorApproved={user.coCreatorApproved} /></span>
+              <span className="desktop-level"><LevelBadge compact name={user.name} xp={userXP} track={levelTrack} contributionPoints={contributionPoints} coCreatorApproved={user.coCreatorApproved} /></span>
               <span className="mobile-level"><LevelBadge compact name={user.name} xp={userXP} track={levelTrack} contributionPoints={contributionPoints} coCreatorApproved={user.coCreatorApproved} /></span>
               </button>
               {profileOpen && (
