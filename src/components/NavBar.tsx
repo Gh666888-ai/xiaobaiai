@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/AuthContext"
 import { LevelBadge } from "@/components/LevelBadge"
 import { XiaobaiLogo } from "@/components/XiaobaiLogo"
-import { getNextLevel, getUserLevel } from "@/data/user"
+import { LEVEL_TRACKS, getNextLevel, getUserLevel } from "@/data/user"
 
 const links = [
   { label: "开始", href: "/start", icon: Compass },
@@ -15,7 +15,7 @@ const links = [
   { label: "任务", href: "/missions", icon: Flag },
   { label: "Agent安装", href: "/agent-install", icon: TerminalSquare },
   { label: "工具", href: "/tools", icon: Compass },
-  { label: "实战案例", href: "/member-cases", icon: Crown },
+  { label: "实战任务", href: "/member-cases", icon: Crown },
   { label: "社区", href: "/community", icon: Users },
 ]
 
@@ -53,6 +53,8 @@ export function NavBar() {
   const idleMinutesNeed = xpNeed ? Math.ceil((xpNeed / 2) * 5) : 0
   const missionDaysNeed = xpNeed ? Math.ceil(xpNeed / 110) : 0
   const xpLabel = next?.requiresContribution ? `${contributionPoints} 贡献值` : next?.requiresReview ? `${userXP} XP · 共创待审核` : next ? `${userXP} XP` : "已达最高档"
+  const levelCatalog = LEVEL_TRACKS[levelTrack] || LEVEL_TRACKS.personal
+  const isCoCreatorGod = Boolean(user?.coCreatorApproved) && level.level >= 19
   const prefetchRoute = (href: string) => {
     router.prefetch(href)
   }
@@ -134,26 +136,42 @@ export function NavBar() {
                       <span>或做 {missionDaysNeed} 天任务</span>
                     </div>
                   )}
-                  <div className="profile-level-snapshot" aria-label="当前等级和下一级">
-                    <div className="profile-level-card is-current">
-                      <span>当前等级</span>
-                      <strong>LV.{level.level} {level.name}</strong>
-                      <p>{level.reward.title}</p>
+                  {isCoCreatorGod ? (
+                    <>
+                      <p className="profile-god-note">共创神已解锁完整等级图鉴，可查看全部等级图标。</p>
+                      <div className="profile-levels is-god-view" aria-label="共创神完整等级图鉴">
+                        {levelCatalog.map((item) => (
+                          <div key={item.level} className="profile-level-item is-unlocked" title={`${item.name} · ${item.minXP} XP`}>
+                            <span className={`profile-level-token badge-${item.badge}`} aria-hidden="true">
+                              <span>{item.level}</span>
+                            </span>
+                            <span>{item.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="profile-level-snapshot" aria-label="当前等级和下一级">
+                      <div className="profile-level-card is-current">
+                        <span>当前等级</span>
+                        <strong>LV.{level.level} {level.name}</strong>
+                        <p>{level.reward.title}</p>
+                      </div>
+                      {next ? (
+                        <div className="profile-level-card">
+                          <span>{next.requiresReview ? "共创审核" : "下一级预览"}</span>
+                          <strong>LV.{next.level.level} {next.level.name}</strong>
+                          <p>{next.requiresReview ? "需要人工审核真实案例、复盘质量和共建贡献" : next.level.reward.title}</p>
+                        </div>
+                      ) : (
+                        <div className="profile-level-card">
+                          <span>下一步</span>
+                          <strong>保持最高档</strong>
+                          <p>继续完成任务、发布复盘和参与共建。</p>
+                        </div>
+                      )}
                     </div>
-                    {next ? (
-                      <div className="profile-level-card">
-                        <span>{next.requiresReview ? "共创审核" : "下一级预览"}</span>
-                        <strong>LV.{next.level.level} {next.level.name}</strong>
-                        <p>{next.requiresReview ? "需要人工审核真实案例、复盘质量和共建贡献" : next.level.reward.title}</p>
-                      </div>
-                    ) : (
-                      <div className="profile-level-card">
-                        <span>下一步</span>
-                        <strong>保持最高档</strong>
-                        <p>继续完成任务、发布复盘和参与共建。</p>
-                      </div>
-                    )}
-                  </div>
+                  )}
                   <p className="profile-benefit">当前权益：{level.reward.vanity}</p>
                   <div className="profile-actions">
                     <Link href="/growth" className="profile-action-primary">做任务升级</Link>
@@ -323,6 +341,17 @@ export function NavBar() {
           color: #e8c96a;
           margin-top: 6px;
         }
+        .profile-god-note {
+          border: 1px solid rgba(126,231,255,0.42);
+          border-radius: 10px;
+          background: linear-gradient(135deg, rgba(126,231,255,0.1), rgba(182,146,255,0.06));
+          color: #dffbff;
+          font-size: 12px;
+          font-weight: 900;
+          line-height: 1.6;
+          margin: 10px 0 0;
+          padding: 8px 10px;
+        }
         .profile-upgrade-hint {
           display: flex;
           flex-wrap: wrap;
@@ -377,6 +406,113 @@ export function NavBar() {
           font-size: 11px;
           line-height: 1.55;
           margin: 6px 0 0;
+        }
+        .profile-levels.is-god-view {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0,1fr));
+          gap: 7px;
+          margin: 14px 0;
+        }
+        .profile-level-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          min-width: 0;
+          border: 1px solid #1f1f1f;
+          border-radius: 10px;
+          background: rgba(255,255,255,0.025);
+          padding: 10px;
+          opacity: 0.48;
+        }
+        .profile-levels.is-god-view .profile-level-item {
+          flex-direction: column;
+          justify-content: center;
+          gap: 6px;
+          min-height: 82px;
+          text-align: center;
+          padding: 8px 6px;
+        }
+        .profile-level-item.is-unlocked {
+          opacity: 1;
+          border-color: rgba(122,98,48,0.72);
+          background: rgba(201,168,76,0.045);
+        }
+        .profile-levels.is-god-view .profile-level-item.is-unlocked {
+          border-color: rgba(126,231,255,0.34);
+          background: rgba(126,231,255,0.045);
+        }
+        .profile-level-token {
+          width: 34px;
+          height: 34px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 12px;
+          border: 1px solid rgba(255,255,255,0.58);
+          box-shadow: 0 0 16px rgba(255,255,255,0.08), inset 0 1px 7px rgba(255,255,255,0.5), inset 0 -8px 12px rgba(0,0,0,0.22);
+        }
+        .profile-level-token span {
+          color: #071416;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11px;
+          font-weight: 950;
+          line-height: 1;
+        }
+        .profile-level-token.badge-seed {
+          border-radius: 22% 78% 78% 22% / 50% 50% 50% 50%;
+          background: linear-gradient(145deg,#f5f5f5,#8f8f8f);
+        }
+        .profile-level-token.badge-spark {
+          border-radius: 50%;
+          background: radial-gradient(circle at 35% 20%,#fff3c4,#d08a42 62%,#6d3d16);
+        }
+        .profile-level-token.badge-wing {
+          border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+          background: linear-gradient(145deg,#ffffff,#9fb2c8 58%,#43556a);
+        }
+        .profile-level-token.badge-core {
+          border-radius: 12px;
+          background: radial-gradient(circle at 32% 24%,#fff6bd,#c9a84c 58%,#6d541d);
+        }
+        .profile-level-token.badge-gem {
+          border-radius: 18% 82% 50% 50% / 24% 24% 76% 76%;
+          background: linear-gradient(145deg,#dffff9,#26d7c6 52%,#11756d);
+          transform: rotate(45deg);
+        }
+        .profile-level-token.badge-gem span,
+        .profile-level-token.badge-diamond span,
+        .profile-level-token.badge-xiaobai-diamond span {
+          transform: rotate(-45deg);
+        }
+        .profile-level-token.badge-diamond {
+          border-radius: 26% 74% 50% 50% / 28% 28% 72% 72%;
+          background: linear-gradient(145deg,#ffffff,#b692ff 52%,#5932a6);
+          transform: rotate(45deg);
+        }
+        .profile-level-token.badge-crown {
+          border-radius: 14px;
+          background: linear-gradient(145deg,#fff8c8 0%,#ffd86b 38%,#ffad2f 72%,#714205 100%);
+        }
+        .profile-level-token.badge-xiaobai-diamond {
+          border-radius: 22% 78% 50% 50% / 26% 26% 74% 74%;
+          background: linear-gradient(145deg,#ffffff 0%,#bff8ff 28%,#47d9ff 58%,#7f66ff 100%);
+          box-shadow: 0 0 18px rgba(126,231,255,0.72), inset 0 1px 8px rgba(255,255,255,0.72), inset 0 -8px 12px rgba(0,0,0,0.22);
+          transform: rotate(45deg);
+        }
+        .profile-level-item span {
+          color: #ddd;
+          font-size: 11px;
+          font-weight: 850;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .profile-levels.is-god-view .profile-level-item > span:last-child {
+          width: 100%;
+          white-space: normal;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
         }
         .profile-actions {
           display: flex;

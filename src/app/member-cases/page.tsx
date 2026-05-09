@@ -8,14 +8,14 @@ export const dynamic = "force-dynamic"
 export const revalidate = 0
 
 export const metadata: Metadata = {
-  title: "实战案例 - 小白AI从下载安装到项目交付的可照做案例",
+  title: "实战任务 - 小白AI从下载安装到项目交付的开做入口",
   description:
-    "小白AI实战案例页，把教程资讯整理成能照着做的项目路线，覆盖Agent安装、模型API接入、小程序上线、知识库客服、自动化、AI漫剧、办公接单和在家创业。",
-  keywords: ["小白AI实战案例", "AI实战教程", "Agent实战", "小程序上线教程", "AI副业案例", "AI教程实操", "AI在家创业"],
+    "小白AI实战任务页，把教程资讯整理成能立刻开做的项目路线，覆盖Agent安装、模型API接入、小程序上线、知识库客服、自动化、AI漫剧、办公接单和在家创业。真正的成功案例来自用户跑通后的复盘投稿。",
+  keywords: ["小白AI实战任务", "AI实战教程", "Agent实战", "小程序上线教程", "AI副业任务", "AI教程实操", "AI在家创业"],
   alternates: { canonical: "/member-cases" },
   openGraph: {
-    title: "实战案例 | 小白AI",
-    description: "不是看资讯，而是照着做出一个能交付的 AI 项目结果。",
+    title: "实战任务 | 小白AI",
+    description: "不是看资讯，而是选一个任务，照着做出一个能交付的 AI 项目结果。",
     url: "/member-cases",
     images: [{ url: "/xiaobai-mascot-cutout.png", alt: "小白AI 实战案例" }],
   },
@@ -94,8 +94,8 @@ function pickGroupItems(match: RegExp) {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  name: "小白AI实战案例",
-  description: "把教程资讯整理成能照着做的 AI 实战案例。",
+  name: "小白AI实战任务",
+  description: "把教程资讯整理成能照着做的 AI 实战任务。",
   url: "https://www.xiaobaiai.cn/member-cases",
   inLanguage: "zh-CN",
   mainEntity: {
@@ -117,8 +117,8 @@ export default function MemberCasesPage() {
       <main className="caseMain">
         <section className="caseHero" id="featured">
           <div className="sectionHead">
-            <p>实战案例</p>
-            <h1>选一个，直接开做</h1>
+            <p>实战任务</p>
+            <h1>选一个任务，直接开做</h1>
           </div>
           <div className="featuredGrid">
             {featuredCases.map((item) => {
@@ -134,7 +134,7 @@ export default function MemberCasesPage() {
                   <ol>
                     {item.steps.map((step) => <li key={step}>{step}</li>)}
                   </ol>
-                  <span className="caseLink">进入实战 <ArrowRight size={14} /></span>
+                  <span className="caseLink">进入任务 <ArrowRight size={14} /></span>
                 </Link>
               )
             })}
@@ -144,7 +144,7 @@ export default function MemberCasesPage() {
         <section className="sectionBlock">
           <div className="sectionHead">
             <p>更多入口</p>
-            <h2>按方向找实战</h2>
+            <h2>按方向找任务</h2>
           </div>
           <div className="tutorialGroupList">
             {tutorialGroups.map((group) => {
@@ -165,7 +165,7 @@ export default function MemberCasesPage() {
                       ))}
                     </div>
                   ) : (
-                    <p className="emptyGroup">这组还在整理，后面会补成可照做的案例。</p>
+                    <p className="emptyGroup">这组还在整理，后面会补成可照做的任务。</p>
                   )}
                 </section>
               )
@@ -176,8 +176,8 @@ export default function MemberCasesPage() {
         <section className="caseBottom">
           <div>
             <p className="caseEyebrow">投稿</p>
-            <h2>提交你跑通的实战</h2>
-            <p>发结果、工具、步骤、踩坑和截图。验证可行后进入实战库。</p>
+            <h2>提交你跑通的成功案例</h2>
+            <p>案例是别人已经做成功的结果和复盘。发结果、工具、步骤、踩坑和截图，验证可行后进入案例库。</p>
           </div>
           <Link href="/community/new" className="bottomButton">提交你的实战案例 <Sparkles size={16} /></Link>
         </section>

@@ -172,16 +172,29 @@ function CoCreatorBadge({
         }
         .coCreatorBadge-legend {
           --stage-main: #ffe58a;
-          --stage-soft: rgba(255,229,138,0.3);
-          --stage-deep: #08061f;
-          --stage-glow: rgba(255,229,138,0.66);
-          border-color: rgba(255,246,199,0.9);
+          --stage-soft: rgba(255,189,59,0.34);
+          --stage-deep: #110801;
+          --stage-glow: rgba(255,204,76,0.82);
+          width: 318px;
+          min-height: 74px;
+          grid-template-columns: 54px minmax(0, 1fr);
+          gap: 12px;
+          padding: 8px 24px 8px 13px;
+          border: 1px solid rgba(255,236,160,0.96);
+          border-radius: 18px;
           background:
-            radial-gradient(circle at 22% 38%, rgba(255,255,255,0.25), transparent 18%),
-            radial-gradient(circle at 78% 24%, rgba(255,216,107,0.32), transparent 21%),
-            radial-gradient(circle at 64% 78%, rgba(86,228,255,0.18), transparent 26%),
-            linear-gradient(135deg, rgba(126,231,255,0.17), rgba(255,216,107,0.18) 28%, rgba(182,146,255,0.22) 58%, #08061f);
-          box-shadow: 0 0 24px rgba(255,229,138,0.62), 0 0 44px rgba(86,228,255,0.28), inset 0 0 0 1px rgba(255,255,255,0.18);
+            radial-gradient(circle at 19% 44%, rgba(255,252,214,0.32), transparent 16%),
+            radial-gradient(circle at 52% -20%, rgba(255,222,104,0.54), transparent 34%),
+            radial-gradient(circle at 86% 30%, rgba(255,83,23,0.34), transparent 27%),
+            radial-gradient(circle at 65% 105%, rgba(255,179,42,0.36), transparent 30%),
+            linear-gradient(180deg, #3b2105 0%, #130903 43%, #070403 100%);
+          box-shadow:
+            0 0 28px rgba(255,207,76,0.78),
+            0 0 72px rgba(255,106,0,0.32),
+            inset 0 0 0 1px rgba(255,255,255,0.2),
+            inset 0 10px 20px rgba(255,232,142,0.16),
+            inset 0 -18px 24px rgba(0,0,0,0.64);
+          clip-path: polygon(0 50%, 7% 0, 93% 0, 100% 50%, 93% 100%, 7% 100%);
         }
         .coCreatorPlate {
           position: absolute;
@@ -312,8 +325,115 @@ function CoCreatorBadge({
         }
         .coCreatorBadge-legend .coCreatorDragon,
         .coCreatorBadge-legend .coCreatorPhoenix {
-          font-size: 54px;
-          opacity: 0.24;
+          top: 50%;
+          z-index: -1;
+          font-size: 70px;
+          opacity: 0.34;
+          color: #ffe9a6;
+          text-shadow: 0 0 10px #ffefb0, 0 0 28px rgba(255,139,31,0.92);
+        }
+        .coCreatorBadge-legend .coCreatorDragon {
+          left: 62px;
+          transform: translateY(-58%) skewX(-18deg) rotate(-13deg) scaleX(1.14);
+        }
+        .coCreatorBadge-legend .coCreatorPhoenix {
+          right: 26px;
+          transform: translateY(-43%) skewX(16deg) rotate(12deg) scaleX(1.08);
+        }
+        .coCreatorBadge-legend .coCreatorPlate {
+          inset: 5px 9px;
+          opacity: 1;
+          border: 1px solid rgba(255,231,142,0.36);
+          border-radius: 12px;
+          background:
+            linear-gradient(90deg, transparent 0%, rgba(255,232,139,0.22) 12%, transparent 23%, transparent 77%, rgba(255,232,139,0.18) 88%, transparent 100%),
+            radial-gradient(ellipse at 50% 50%, rgba(255,203,68,0.2), transparent 60%),
+            repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 12px);
+          clip-path: polygon(0 50%, 6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%);
+        }
+        .coCreatorBadge-legend .coCreatorAura {
+          right: -28px;
+          top: -38px;
+          width: 142px;
+          height: 142px;
+          background:
+            radial-gradient(circle, rgba(255,226,128,0.58) 0%, rgba(255,128,22,0.2) 42%, transparent 68%);
+        }
+        .coCreatorBadge-legend .coCreatorColumnCap {
+          top: 10px;
+          bottom: 10px;
+          width: 42px;
+          opacity: 0.9;
+          background: linear-gradient(90deg, rgba(255,246,190,0.32), rgba(255,190,50,0.22), transparent);
+        }
+        .coCreatorBadge-legend .coCreatorColumnCap.isLeft {
+          left: 12px;
+        }
+        .coCreatorBadge-legend .coCreatorColumnCap.isRight {
+          right: 12px;
+        }
+        .coCreatorBadge-legend .coCreatorWrapRibbon {
+          left: 55px;
+          right: 22px;
+          height: 20px;
+          border-top-color: rgba(255,232,142,0.64);
+          border-bottom-color: rgba(255,125,25,0.22);
+          background: linear-gradient(90deg, transparent, rgba(255,203,67,0.3), rgba(255,84,24,0.16), transparent);
+          filter: drop-shadow(0 0 11px rgba(255,191,54,0.72));
+        }
+        .coCreatorBadge-legend .coCreatorWrapRibbon.ribbonOne {
+          top: 16px;
+          transform: skewX(-21deg) rotate(-5deg);
+        }
+        .coCreatorBadge-legend .coCreatorWrapRibbon.ribbonTwo {
+          bottom: 16px;
+          transform: skewX(21deg) rotate(5deg);
+        }
+        .coCreatorBadge-legend .coCreatorBeastWrap {
+          z-index: 1;
+          font-size: 29px;
+          opacity: 0.92;
+          color: #fff0a8;
+          text-shadow: 0 0 8px #fff6c7, 0 0 22px rgba(255,124,24,0.82);
+        }
+        .coCreatorBadge-legend .coCreatorBeastWrap::before {
+          content: "";
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 92px;
+          height: 34px;
+          border: 3px solid rgba(255,226,134,0.72);
+          border-left-color: transparent;
+          border-bottom-color: transparent;
+          border-radius: 50%;
+          filter: drop-shadow(0 0 9px rgba(255,177,46,0.86));
+          transform: translate(-50%, -50%) rotate(-18deg);
+        }
+        .coCreatorBadge-legend .coCreatorBeastWrap::after {
+          width: 122px;
+          height: 42px;
+          border-width: 3px;
+          border-color: rgba(255,126,24,0.54);
+          border-left-color: transparent;
+          border-bottom-color: transparent;
+          filter: drop-shadow(0 0 12px rgba(255,100,20,0.82));
+        }
+        .coCreatorBadge-legend .coCreatorBeastWrap.beastDragon {
+          left: 68px;
+          top: 10px;
+          transform: rotate(-13deg);
+        }
+        .coCreatorBadge-legend .coCreatorBeastWrap.beastPhoenix {
+          right: 29px;
+          bottom: 10px;
+          transform: rotate(12deg);
+        }
+        .coCreatorBadge-legend .coCreatorBeastWrap.beastPhoenix::before {
+          transform: translate(-50%, -50%) rotate(160deg);
+        }
+        .coCreatorBadge-legend .coCreatorBeastWrap.beastPhoenix::after {
+          transform: translate(-50%, -50%) rotate(184deg);
         }
         .coCreatorBeastLine {
           position: absolute;
@@ -363,8 +483,23 @@ function CoCreatorBadge({
           transform: none;
         }
         .coCreatorBadge-legend .coCreatorMascotFrame {
-          border-radius: 50%;
-          transform: none;
+          width: 46px;
+          height: 46px;
+          border-radius: 14px;
+          background:
+            radial-gradient(circle at 36% 20%, #fff7d6 0%, #ffd56a 33%, #9f5609 72%, #261004 100%);
+          border-color: rgba(255,248,200,0.94);
+          box-shadow:
+            0 0 22px rgba(255,212,91,0.8),
+            0 0 34px rgba(255,106,0,0.28),
+            inset 0 2px 9px rgba(255,255,255,0.78),
+            inset 0 -12px 18px rgba(0,0,0,0.34);
+          transform: rotate(45deg);
+        }
+        .coCreatorBadge-legend .coCreatorMascot {
+          width: 48px;
+          height: 48px;
+          transform: translateY(2px) rotate(-45deg);
         }
         .isCompact .coCreatorMascotFrame {
           width: 34px;
@@ -466,6 +601,44 @@ function CoCreatorBadge({
           white-space: nowrap;
           text-shadow: 0 0 14px var(--stage-glow);
         }
+        .coCreatorBadge-legend .coCreatorTopline {
+          justify-content: center;
+        }
+        .coCreatorBadge-legend .coCreatorName {
+          max-width: 82px;
+          color: #fff6d0;
+          font-size: 11px;
+          text-shadow: 0 0 10px rgba(255,214,94,0.6);
+        }
+        .coCreatorBadge-legend .coCreatorTitle {
+          align-self: center;
+          margin-top: 2px;
+          color: #120802;
+          border: 1px solid rgba(255,248,205,0.9);
+          border-radius: 9px;
+          background:
+            linear-gradient(180deg, #fff8cf 0%, #ffde74 36%, #d88b20 72%, #6e3508 100%);
+          box-shadow:
+            0 0 18px rgba(255,214,87,0.86),
+            0 4px 16px rgba(0,0,0,0.46),
+            inset 0 1px 0 rgba(255,255,255,0.72),
+            inset 0 -7px 12px rgba(91,38,5,0.38);
+          padding: 5px 20px 6px;
+          font-family: 'Noto Serif SC', 'Noto Sans SC', serif;
+          font-size: 22px;
+          font-weight: 950;
+          line-height: 1;
+          text-shadow: 0 1px 0 rgba(255,250,210,0.62);
+        }
+        .coCreatorBadge-legend .coCreatorMeta {
+          justify-content: center;
+          color: #ffe9a6;
+          text-shadow: 0 0 10px rgba(255,184,49,0.66);
+        }
+        .coCreatorBadge-legend .coCreatorContribution {
+          background: rgba(24,9,0,0.58);
+          border-color: rgba(255,225,132,0.54);
+        }
         .isCompact .coCreatorTitle {
           font-size: 14px;
           margin-top: 4px;
@@ -506,13 +679,38 @@ function CoCreatorBadge({
         }
         .coCreatorBadge-legend::after {
           animation-duration: 2.15s;
-          background: linear-gradient(110deg, transparent 0%, transparent 34%, rgba(255,246,199,0.42) 48%, transparent 62%, transparent 100%);
+          background: linear-gradient(110deg, transparent 0%, transparent 30%, rgba(255,246,199,0.62) 44%, rgba(255,151,34,0.3) 52%, transparent 66%, transparent 100%);
         }
         @keyframes coCreatorBadgeShine {
           0% { transform: translateX(-82%); }
           68%, 100% { transform: translateX(82%); }
         }
         @media (max-width: 860px) {
+          .coCreatorBadge-legend {
+            width: 246px;
+            min-height: 64px;
+            grid-template-columns: 44px minmax(0, 1fr);
+            gap: 8px;
+            padding: 7px 17px 7px 9px;
+            border-radius: 15px;
+          }
+          .coCreatorBadge-legend .coCreatorTitle {
+            font-size: 17px;
+            padding: 4px 14px 5px;
+          }
+          .coCreatorBadge-legend .coCreatorMascotFrame {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+          }
+          .coCreatorBadge-legend .coCreatorMascot {
+            width: 42px;
+            height: 42px;
+          }
+          .coCreatorBadge-legend .coCreatorDragon,
+          .coCreatorBadge-legend .coCreatorPhoenix {
+            font-size: 50px;
+          }
           .coCreatorBadge.isCompact {
             width: 178px;
             min-height: 50px;
@@ -565,6 +763,25 @@ function CoCreatorBadge({
           .coCreatorBadge.isCompact .coCreatorBeastWrap {
             display: none;
           }
+          .coCreatorBadge-legend.isCompact .coCreatorBeastWrap {
+            display: block;
+            font-size: 20px;
+            opacity: 0.78;
+          }
+          .coCreatorBadge-legend.isCompact .coCreatorBeastWrap::before,
+          .coCreatorBadge-legend.isCompact .coCreatorBeastWrap::after {
+            width: 64px;
+            height: 24px;
+            border-width: 2px;
+          }
+          .coCreatorBadge-legend.isCompact .coCreatorBeastWrap.beastDragon {
+            left: 50px;
+            top: 8px;
+          }
+          .coCreatorBadge-legend.isCompact .coCreatorBeastWrap.beastPhoenix {
+            right: 18px;
+            bottom: 8px;
+          }
           .coCreatorBadge.isCompact .coCreatorMeta {
             display: none;
           }
@@ -579,6 +796,15 @@ function CoCreatorBadge({
           }
         }
         @media (max-width: 420px) {
+          .coCreatorBadge-legend.isCompact {
+            width: 188px;
+            min-height: 58px;
+            padding-right: 14px;
+          }
+          .coCreatorBadge-legend.isCompact .coCreatorTitle {
+            font-size: 15px;
+            padding-inline: 10px;
+          }
           .coCreatorBadge.isCompact {
             width: 148px;
           }
