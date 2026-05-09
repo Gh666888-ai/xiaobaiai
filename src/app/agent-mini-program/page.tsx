@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowRight, CheckCircle2, ExternalLink } from "lucide-react"
+import { ExternalLink } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 
@@ -17,14 +17,6 @@ export const metadata: Metadata = {
     images: [{ url: "/xiaobai-mascot-cutout.png", alt: "小白AI Agent做小程序教程" }],
   },
 }
-
-const prepItems = [
-  "一个微信小程序账号和 AppID。",
-  "微信开发者工具，下载安装到电脑上。",
-  "一个已经能用的 Agent：Claude Code、Codex、Cursor、Cline、OpenClaw 都可以。",
-  "一个已经接好的模型大脑：MiniMax、DeepSeek、Kimi、OpenAI 或本地模型。",
-  "最好有 Git。每完成一个小功能就提交一次，出问题能退回。",
-]
 
 const workflowSteps = [
   {
@@ -135,7 +127,6 @@ const launchSteps = [
 
 const commonPitfalls = [
   { title: "一上来就让 Agent 做完整小程序", desc: "会导致功能堆太多、页面跑不通。要拆成页面、表单、接口、验收四类小任务。" },
-  { title: "没有先配置模型", desc: "Agent 是手脚，模型是大脑。模型没接好，Agent 装上也没法稳定干活。" },
   { title: "没有真机测试", desc: "模拟器能打开，不代表手机权限、网络请求、登录态都正常。" },
   { title: "域名没配置", desc: "手机预览请求接口失败，常见原因是没有在微信公众平台配置合法域名。" },
   { title: "隐私和类目不一致", desc: "收集手机号、位置、照片、家庭信息时，要提前处理隐私说明和使用场景。" },
@@ -171,49 +162,18 @@ export default function AgentMiniProgramPage() {
       <MathRain />
       <NavBar />
       <main className="xb-workbench-main" style={{ maxWidth: 1080, margin: "0 auto", padding: "58px clamp(16px,5vw,56px) 104px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.92)" }}>
-        <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.32em", color: "#7a6230", textTransform: "uppercase", fontWeight: 950, marginBottom: 12 }}>Agent Mini Program</p>
-        <h1 style={{ color: "#fff", fontSize: 42, fontWeight: 950, lineHeight: 1.18, marginBottom: 14 }}>用 Agent 做微信小程序：从需求、写代码到上线</h1>
-        <p style={{ color: "#ccc", fontSize: 16, lineHeight: 1.9, maxWidth: 860, marginBottom: 22 }}>
-          这篇不是讲“AI 一句话生成小程序”。真正可控的做法是：人负责目标、边界和验收，Agent 负责读项目、写代码、修报错、整理上线清单。
-        </p>
+        <h1 style={{ color: "#fff", fontSize: 42, fontWeight: 950, lineHeight: 1.18, marginBottom: 14 }}>实战：指挥 Agent 做微信小程序并上线</h1>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 34 }}>
-          <a href="#workflow" className="btn-primary" style={{ textDecoration: "none" }}>看指挥流程</a>
-          <a href="#launch" className="btn-outline" style={{ textDecoration: "none" }}>看上线流程</a>
+          <a href="#workflow" className="btn-primary" style={{ textDecoration: "none" }}>开始第一步</a>
+          <a href="#launch" className="btn-outline" style={{ textDecoration: "none" }}>直接看上线</a>
           <Link href="/agent-install" className="btn-outline" style={{ textDecoration: "none" }}>先装 Agent</Link>
-          <Link href="/models" className="btn-outline" style={{ textDecoration: "none" }}>先选模型</Link>
         </div>
 
-        <section style={{ border: "1px solid rgba(82,148,139,0.28)", background: "rgba(82,148,139,0.05)", borderRadius: 12, padding: "22px 24px", marginBottom: 32 }}>
-          <h2 style={{ color: "#fff", fontSize: 23, fontWeight: 950, marginBottom: 12 }}>先记住一句话</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 10 }} className="mini-program-grid">
-            <div style={{ border: "1px solid rgba(232,201,106,0.24)", background: "rgba(201,168,76,0.06)", borderRadius: 10, padding: "16px 18px" }}>
-              <p style={{ color: "#e8c96a", fontSize: 15, fontWeight: 950, marginBottom: 7 }}>模型是大脑</p>
-              <p style={{ color: "#ccc", fontSize: 13, lineHeight: 1.75 }}>负责理解需求、推理、写代码、解释报错。</p>
-            </div>
-            <div style={{ border: "1px solid rgba(82,148,139,0.28)", background: "rgba(82,148,139,0.06)", borderRadius: 10, padding: "16px 18px" }}>
-              <p style={{ color: "#9ee5d9", fontSize: 15, fontWeight: 950, marginBottom: 7 }}>Agent 是手脚</p>
-              <p style={{ color: "#ccc", fontSize: 13, lineHeight: 1.75 }}>负责读文件、改代码、跑命令、把任务一步一步做出来。</p>
-            </div>
-          </div>
-        </section>
-
-        <section style={{ marginBottom: 38 }}>
-          <h2 style={{ color: "#fff", fontSize: 25, fontWeight: 950, marginBottom: 14 }}>开始前准备</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,260px),1fr))", gap: 10 }}>
-            {prepItems.map((item) => (
-              <p key={item} style={{ color: "#d8d8d8", fontSize: 13, lineHeight: 1.75, border: "1px solid #1e1e1e", background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: "14px 15px", display: "grid", gridTemplateColumns: "20px 1fr", gap: 8 }}>
-                <CheckCircle2 size={15} style={{ color: "#3DA563", marginTop: 4 }} />
-                <span>{item}</span>
-              </p>
-            ))}
-          </div>
-        </section>
-
         <section id="workflow" style={{ marginBottom: 42 }}>
-          <h2 style={{ color: "#fff", fontSize: 25, fontWeight: 950, marginBottom: 14 }}>怎么指挥 Agent 写代码</h2>
+          <h2 style={{ color: "#fff", fontSize: 25, fontWeight: 950, marginBottom: 14 }}>照做流程</h2>
           <div style={{ display: "grid", gap: 14 }}>
-            {workflowSteps.map((step) => (
-              <details key={step.title} open style={{ border: "1px solid #1f1f1f", background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: "0 20px" }}>
+            {workflowSteps.map((step, index) => (
+              <details key={step.title} open={index === 0} style={{ border: "1px solid #1f1f1f", background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: "0 20px" }}>
                 <summary style={{ cursor: "pointer", listStyle: "none", padding: "18px 0", color: "#fff", fontSize: 18, fontWeight: 950 }}>{step.title}</summary>
                 <div style={{ borderTop: "1px solid #202020", padding: "16px 0 20px" }}>
                   <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.8, marginBottom: 12 }}>{step.desc}</p>
@@ -227,9 +187,6 @@ export default function AgentMiniProgramPage() {
 
         <section id="launch" style={{ marginBottom: 42 }}>
           <h2 style={{ color: "#fff", fontSize: 25, fontWeight: 950, marginBottom: 14 }}>最后怎么上线</h2>
-          <p style={{ color: "#aaa", fontSize: 14, lineHeight: 1.85, marginBottom: 16 }}>
-            上线不是 Agent 自己点发布。Agent 可以帮你列清单、改报错、写版本说明，但提交审核和发布必须由人确认。
-          </p>
           <div style={{ display: "grid", gap: 10 }}>
             {launchSteps.map((step, index) => (
               <div key={step.title} style={{ display: "grid", gridTemplateColumns: "34px 1fr", gap: 12, border: "1px solid #2a1f10", background: "rgba(201,168,76,0.045)", borderRadius: 12, padding: "17px 18px" }}>

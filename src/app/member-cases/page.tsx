@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowRight, Bot, BriefcaseBusiness, CheckCircle2, Code2, FileText, Home, Palette, Rocket, Sparkles } from "lucide-react"
+import { ArrowRight, Bot, BriefcaseBusiness, Code2, FileText, Palette, Sparkles } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
 import { news } from "@/data/news"
 
@@ -60,13 +60,6 @@ const featuredCases = [
   },
 ]
 
-const quickPaths = [
-  { icon: Home, label: "个人在家创业", desc: "先做样稿、样片、作品集，不一上来谈赚钱。", href: "/start" },
-  { icon: BriefcaseBusiness, label: "企业流程提效", desc: "先做知识库、日报、SOP、客服和资料整理。", href: "/missions/dify-knowledge-base-bot" },
-  { icon: Bot, label: "训练自己的 Agent", desc: "安装 Agent、配模型、设人设、设记忆和验收标准。", href: "/agent-install" },
-  { icon: Rocket, label: "做真实项目交付", desc: "让 Agent 写代码、跑检查、上线，再沉淀复盘。", href: "/agent-mini-program" },
-]
-
 const tutorialGroups = [
   {
     title: "Agent 安装和模型接入",
@@ -122,39 +115,10 @@ export default function MemberCasesPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <NavBar />
       <main className="caseMain">
-        <section className="caseHero">
-          <div className="caseHeroText">
-            <p className="caseEyebrow">实战案例</p>
-            <h1>看完不是收藏，是照着做出一个结果</h1>
-            <p>
-              这里放的不是普通新闻，也不是工具目录。每个案例都按“小白能不能跟着完成”来整理：先明确目标，再选工具，再一步一步做出能验收的东西。
-            </p>
-          </div>
-          <div className="caseHeroPanel">
-            <span><CheckCircle2 size={16} /> 有明确产出</span>
-            <span><CheckCircle2 size={16} /> 有工具入口</span>
-            <span><CheckCircle2 size={16} /> 有踩坑处理</span>
-            <span><CheckCircle2 size={16} /> 后续会沉淀成会员定制路线</span>
-          </div>
-        </section>
-
-        <section className="quickPathGrid" aria-label="实战方向">
-          {quickPaths.map((item) => {
-            const Icon = item.icon
-            return (
-              <Link key={item.label} href={item.href} className="quickPathCard">
-                <Icon size={20} />
-                <strong>{item.label}</strong>
-                <span>{item.desc}</span>
-              </Link>
-            )
-          })}
-        </section>
-
-        <section className="sectionBlock" id="featured">
+        <section className="caseHero" id="featured">
           <div className="sectionHead">
-            <p>先看这四个</p>
-            <h2>能代表小白AI价值的实战路线</h2>
+            <p>实战案例</p>
+            <h1>选一个，直接开做</h1>
           </div>
           <div className="featuredGrid">
             {featuredCases.map((item) => {
@@ -170,7 +134,7 @@ export default function MemberCasesPage() {
                   <ol>
                     {item.steps.map((step) => <li key={step}>{step}</li>)}
                   </ol>
-                  <span className="caseLink">打开案例 <ArrowRight size={14} /></span>
+                  <span className="caseLink">进入实战 <ArrowRight size={14} /></span>
                 </Link>
               )
             })}
@@ -179,8 +143,8 @@ export default function MemberCasesPage() {
 
         <section className="sectionBlock">
           <div className="sectionHead">
-            <p>教程沉淀区</p>
-            <h2>把资讯里的教程搬成可落地案例</h2>
+            <p>更多入口</p>
+            <h2>按方向找实战</h2>
           </div>
           <div className="tutorialGroupList">
             {tutorialGroups.map((group) => {
@@ -189,7 +153,6 @@ export default function MemberCasesPage() {
                 <section key={group.title} className="tutorialGroup">
                   <div className="tutorialGroupHead">
                     <h3>{group.title}</h3>
-                    <p>{group.desc}</p>
                   </div>
                   {items.length ? (
                     <div className="tutorialLinks">
@@ -212,9 +175,9 @@ export default function MemberCasesPage() {
 
         <section className="caseBottom">
           <div>
-            <p className="caseEyebrow">下一步</p>
-            <h2>现在先不收会员费，先把案例做厚</h2>
-            <p>后面收费的不是“看几篇文章”，而是按职业和目标给用户定制工具、Agent、Skill、任务路线和验收标准。现在先把这些能力在页面上铺出来。</p>
+            <p className="caseEyebrow">投稿</p>
+            <h2>提交你跑通的实战</h2>
+            <p>发结果、工具、步骤、踩坑和截图。验证可行后进入实战库。</p>
           </div>
           <Link href="/community/new" className="bottomButton">提交你的实战案例 <Sparkles size={16} /></Link>
         </section>
@@ -232,16 +195,11 @@ export default function MemberCasesPage() {
           padding: 40px 0 90px;
         }
         .caseHero {
-          min-height: 360px;
-          display: grid;
-          grid-template-columns: minmax(0, 1fr) 330px;
-          gap: 24px;
+          min-height: 0;
+          display: block;
           align-items: center;
-          border: 1px solid rgba(233,215,165,0.13);
-          background: rgba(244,240,226,0.04);
-          border-radius: 18px;
-          padding: clamp(24px,4vw,42px);
-          box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+          padding: 0;
+          margin-bottom: 22px;
         }
         .caseEyebrow {
           color: #d8bf76;
@@ -249,80 +207,19 @@ export default function MemberCasesPage() {
           font-weight: 950;
           margin: 0 0 10px;
         }
-        .caseHero h1 {
+        .caseHero h1,
+        .sectionHead h1 {
           color: #f8f3e6;
-          font-size: clamp(34px,6vw,58px);
+          font-size: clamp(32px,5vw,50px);
           font-weight: 950;
           line-height: 1.12;
           margin: 0;
           letter-spacing: 0;
         }
-        .caseHeroText > p:last-child {
-          color: #c8c8bd;
-          font-size: 17px;
-          font-weight: 850;
-          line-height: 1.8;
-          margin: 16px 0 0;
-          max-width: 720px;
-        }
-        .caseHeroPanel {
-          display: grid;
-          gap: 10px;
-        }
-        .caseHeroPanel span {
-          min-height: 48px;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          border: 1px solid rgba(216,191,118,0.18);
-          background: rgba(0,0,0,0.22);
-          border-radius: 13px;
-          padding: 12px 14px;
-          color: #fff4c9;
-          font-size: 15px;
-          font-weight: 900;
-        }
-        .caseHeroPanel svg {
-          color: #d8bf76;
-          flex-shrink: 0;
-        }
-        .quickPathGrid {
-          display: grid;
-          grid-template-columns: repeat(4,minmax(0,1fr));
-          gap: 10px;
-          margin: 18px 0 34px;
-        }
-        .quickPathCard {
-          min-height: 132px;
-          border: 1px solid rgba(216,191,118,0.16);
-          background: rgba(0,0,0,0.2);
-          border-radius: 14px;
-          padding: 18px;
-          color: #aaa59a;
-          text-decoration: none;
-          display: flex;
-          flex-direction: column;
-          gap: 9px;
-        }
-        .quickPathCard svg {
-          color: #d8bf76;
-        }
-        .quickPathCard strong {
-          color: #fff4c9;
-          font-size: 19px;
-          font-weight: 950;
-          line-height: 1.35;
-        }
-        .quickPathCard span {
-          color: #aaa59a;
-          font-size: 14px;
-          font-weight: 850;
-          line-height: 1.65;
-        }
         .sectionBlock {
           border-top: 1px solid rgba(255,255,255,0.08);
-          padding-top: 26px;
-          margin-top: 26px;
+          padding-top: 20px;
+          margin-top: 20px;
         }
         .sectionHead {
           margin-bottom: 16px;
@@ -348,11 +245,11 @@ export default function MemberCasesPage() {
         }
         .featuredCase {
           --tone: #d8bf76;
-          min-height: 315px;
+          min-height: 278px;
           border: 1px solid color-mix(in srgb, var(--tone) 32%, transparent);
           background: linear-gradient(135deg, color-mix(in srgb, var(--tone) 10%, transparent), rgba(0,0,0,0.28));
           border-radius: 16px;
-          padding: 22px;
+          padding: 20px;
           color: #c8c8bd;
           text-decoration: none;
           display: flex;
@@ -390,7 +287,7 @@ export default function MemberCasesPage() {
         }
         .featuredCase h3 {
           color: #fff;
-          font-size: 24px;
+          font-size: 22px;
           font-weight: 950;
           line-height: 1.32;
           margin: 0 0 9px;
@@ -524,7 +421,6 @@ export default function MemberCasesPage() {
           .caseBottom {
             grid-template-columns: 1fr;
           }
-          .quickPathGrid,
           .featuredGrid {
             grid-template-columns: repeat(2,minmax(0,1fr));
           }
@@ -538,7 +434,6 @@ export default function MemberCasesPage() {
             padding: 22px 18px;
             min-height: 0;
           }
-          .quickPathGrid,
           .featuredGrid {
             grid-template-columns: 1fr;
           }

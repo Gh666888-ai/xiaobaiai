@@ -82,6 +82,12 @@ function CoCreatorBadge({
     >
       <span className="coCreatorAura" aria-hidden="true" />
       <span className="coCreatorPlate" aria-hidden="true" />
+      <span className="coCreatorColumnCap isLeft" aria-hidden="true" />
+      <span className="coCreatorColumnCap isRight" aria-hidden="true" />
+      <span className="coCreatorWrapRibbon ribbonOne" aria-hidden="true" />
+      <span className="coCreatorWrapRibbon ribbonTwo" aria-hidden="true" />
+      <span className="coCreatorBeastWrap beastDragon" aria-hidden="true">龍</span>
+      <span className="coCreatorBeastWrap beastPhoenix" aria-hidden="true">鳳</span>
       <span className="coCreatorDragon" aria-hidden="true">龍</span>
       <span className="coCreatorPhoenix" aria-hidden="true">鳳</span>
       <span className="coCreatorBeastLine" aria-hidden="true">{stage.beast} · {stage.beastLine}</span>
@@ -114,31 +120,31 @@ function CoCreatorBadge({
           display: inline-grid;
           grid-template-columns: auto minmax(0, 1fr);
           align-items: center;
-          gap: 8px;
-          width: 226px;
-          min-height: 56px;
-          padding: 6px 10px 6px 7px;
+          gap: 9px;
+          width: 246px;
+          min-height: 58px;
+          padding: 6px 13px 6px 8px;
           color: #fff;
           position: relative;
           isolation: isolate;
           overflow: hidden;
           border: 1px solid color-mix(in srgb, var(--stage-main) 76%, #fff 8%);
-          border-radius: 9px;
+          border-radius: 999px 18px 18px 999px;
           background:
             radial-gradient(circle at 18% 38%, rgba(255,255,255,0.18), transparent 17%),
             radial-gradient(circle at 82% 20%, var(--stage-soft), transparent 24%),
             linear-gradient(135deg, color-mix(in srgb, var(--stage-main) 20%, transparent), rgba(255,255,255,0.045) 36%, var(--stage-deep));
-          box-shadow: 0 0 18px var(--stage-glow), inset 0 0 0 1px rgba(255,255,255,0.1);
-          clip-path: polygon(10px 0, calc(100% - 24px) 0, 100% 50%, calc(100% - 24px) 100%, 10px 100%, 0 50%);
+          box-shadow: 0 0 18px var(--stage-glow), inset 12px 0 20px rgba(255,255,255,0.12), inset -18px 0 22px rgba(0,0,0,0.24), inset 0 0 0 1px rgba(255,255,255,0.1);
+          clip-path: none;
           text-decoration: none;
           vertical-align: middle;
         }
         .coCreatorBadge.isCompact {
-          width: 212px;
-          min-height: 54px;
+          width: 226px;
+          min-height: 56px;
           gap: 8px;
-          padding: 6px 10px 6px 7px;
-          border-radius: 10px;
+          padding: 6px 12px 6px 8px;
+          border-radius: 999px 16px 16px 999px;
         }
         .coCreatorBadge-partner {
           --stage-main: #73d6c7;
@@ -151,21 +157,18 @@ function CoCreatorBadge({
           --stage-soft: rgba(255,122,69,0.26);
           --stage-deep: #260904;
           --stage-glow: rgba(255,122,69,0.46);
-          clip-path: polygon(14px 0, calc(100% - 20px) 0, 100% 40%, calc(100% - 12px) 100%, 0 100%, 8px 52%);
         }
         .coCreatorBadge-mentor {
           --stage-main: #f3e9d0;
           --stage-soft: rgba(243,233,208,0.22);
           --stage-deep: #10141b;
           --stage-glow: rgba(243,233,208,0.42);
-          clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%, 12px 50%);
         }
         .coCreatorBadge-partnerPlus {
           --stage-main: #56e4ff;
           --stage-soft: rgba(86,228,255,0.26);
           --stage-deep: #05142d;
           --stage-glow: rgba(86,228,255,0.52);
-          clip-path: polygon(0 50%, 18px 0, calc(100% - 26px) 0, 100% 50%, calc(100% - 26px) 100%, 18px 100%);
         }
         .coCreatorBadge-legend {
           --stage-main: #ffe58a;
@@ -179,7 +182,6 @@ function CoCreatorBadge({
             radial-gradient(circle at 64% 78%, rgba(86,228,255,0.18), transparent 26%),
             linear-gradient(135deg, rgba(126,231,255,0.17), rgba(255,216,107,0.18) 28%, rgba(182,146,255,0.22) 58%, #08061f);
           box-shadow: 0 0 24px rgba(255,229,138,0.62), 0 0 44px rgba(86,228,255,0.28), inset 0 0 0 1px rgba(255,255,255,0.18);
-          clip-path: polygon(0 50%, 20px 0, calc(100% - 30px) 0, 100% 50%, calc(100% - 30px) 100%, 20px 100%);
         }
         .coCreatorPlate {
           position: absolute;
@@ -187,11 +189,11 @@ function CoCreatorBadge({
           z-index: -2;
           opacity: 0.76;
           background:
-            repeating-linear-gradient(132deg, transparent 0 10px, var(--stage-soft) 10px 11px, transparent 11px 20px),
+            linear-gradient(90deg, rgba(255,255,255,0.16), transparent 18%, transparent 72%, rgba(255,255,255,0.08)),
             radial-gradient(ellipse at 84% 48%, var(--stage-soft), transparent 35%),
-            radial-gradient(ellipse at 8% 46%, rgba(255,255,255,0.10), transparent 28%),
-            linear-gradient(90deg, rgba(255,255,255,0.08), transparent 62%);
-          border-radius: 9px;
+            radial-gradient(ellipse at 9% 46%, rgba(255,255,255,0.16), transparent 30%),
+            repeating-linear-gradient(155deg, transparent 0 12px, var(--stage-soft) 12px 13px, transparent 13px 24px);
+          border-radius: inherit;
           pointer-events: none;
         }
         .coCreatorAura {
@@ -205,6 +207,86 @@ function CoCreatorBadge({
           z-index: -1;
           pointer-events: none;
         }
+        .coCreatorColumnCap {
+          position: absolute;
+          top: 5px;
+          bottom: 5px;
+          z-index: -1;
+          width: 34px;
+          border-radius: 999px;
+          background: linear-gradient(90deg, rgba(255,255,255,0.18), var(--stage-soft), transparent);
+          box-shadow: inset 0 0 14px rgba(255,255,255,0.12);
+          pointer-events: none;
+        }
+        .coCreatorColumnCap.isLeft {
+          left: 5px;
+        }
+        .coCreatorColumnCap.isRight {
+          right: 6px;
+          transform: scaleX(-1);
+          opacity: 0.72;
+        }
+        .coCreatorWrapRibbon {
+          position: absolute;
+          left: 46px;
+          right: 12px;
+          height: 16px;
+          z-index: -1;
+          border-radius: 999px;
+          border-top: 1px solid color-mix(in srgb, var(--stage-main) 66%, transparent);
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+          background: linear-gradient(90deg, transparent, var(--stage-soft), transparent);
+          filter: drop-shadow(0 0 8px var(--stage-glow));
+          pointer-events: none;
+        }
+        .coCreatorWrapRibbon.ribbonOne {
+          top: 13px;
+          transform: skewX(-18deg) rotate(-4deg);
+        }
+        .coCreatorWrapRibbon.ribbonTwo {
+          bottom: 12px;
+          transform: skewX(18deg) rotate(4deg);
+          opacity: 0.78;
+        }
+        .coCreatorBeastWrap {
+          position: absolute;
+          z-index: 0;
+          color: var(--stage-main);
+          font-family: 'Noto Serif SC', 'Noto Sans SC', serif;
+          font-size: 22px;
+          font-weight: 950;
+          line-height: 1;
+          opacity: 0.8;
+          text-shadow: 0 0 12px var(--stage-glow);
+          pointer-events: none;
+        }
+        .coCreatorBeastWrap::after {
+          content: "";
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 58px;
+          height: 20px;
+          border: 2px solid color-mix(in srgb, var(--stage-main) 58%, transparent);
+          border-left-color: transparent;
+          border-bottom-color: transparent;
+          border-radius: 50%;
+          filter: drop-shadow(0 0 7px var(--stage-glow));
+          transform: translate(-50%, -50%) rotate(-18deg);
+        }
+        .coCreatorBeastWrap.beastDragon {
+          left: 56px;
+          top: 7px;
+          transform: rotate(-14deg);
+        }
+        .coCreatorBeastWrap.beastPhoenix {
+          right: 20px;
+          bottom: 8px;
+          transform: rotate(12deg);
+        }
+        .coCreatorBeastWrap.beastPhoenix::after {
+          transform: translate(-50%, -50%) rotate(164deg);
+        }
         .coCreatorDragon,
         .coCreatorPhoenix {
           position: absolute;
@@ -212,21 +294,21 @@ function CoCreatorBadge({
           z-index: -1;
           color: var(--stage-main);
           font-family: 'Noto Serif SC', 'Noto Sans SC', serif;
-          font-size: 50px;
+          font-size: 48px;
           font-weight: 950;
           letter-spacing: 0;
           line-height: 1;
-          opacity: 0.18;
+          opacity: 0.16;
           text-shadow: 0 0 18px var(--stage-glow);
           white-space: nowrap;
         }
         .coCreatorDragon {
-          left: 72px;
-          transform: translateY(-52%) skewX(-12deg) rotate(-6deg);
+          left: 66px;
+          transform: translateY(-52%) skewX(-14deg) rotate(-8deg);
         }
         .coCreatorPhoenix {
-          right: 16px;
-          transform: translateY(-48%) skewX(10deg) rotate(8deg);
+          right: 18px;
+          transform: translateY(-48%) skewX(12deg) rotate(8deg);
         }
         .coCreatorBadge-legend .coCreatorDragon,
         .coCreatorBadge-legend .coCreatorPhoenix {
@@ -235,7 +317,7 @@ function CoCreatorBadge({
         }
         .coCreatorBeastLine {
           position: absolute;
-          right: 19px;
+          right: 18px;
           bottom: 5px;
           z-index: 1;
           color: color-mix(in srgb, var(--stage-main) 78%, #fff 22%);
@@ -268,21 +350,21 @@ function CoCreatorBadge({
           overflow: hidden;
           background: linear-gradient(145deg, #fff, var(--stage-main) 42%, var(--stage-deep));
           border: 1px solid rgba(255,255,255,0.76);
-          border-radius: 16px 8px 16px 8px;
+          border-radius: 50%;
           box-shadow: 0 0 20px var(--stage-glow), inset 0 2px 9px rgba(255,255,255,0.78), inset 0 -10px 16px rgba(0,0,0,0.24);
-          transform: rotate(45deg);
+          transform: none;
         }
         .coCreatorBadge-mentor .coCreatorMascotFrame {
-          border-radius: 10px 20px 10px 20px;
-          transform: skewX(-8deg);
+          border-radius: 50%;
+          transform: none;
         }
         .coCreatorBadge-partnerPlus .coCreatorMascotFrame {
           border-radius: 50%;
           transform: none;
         }
         .coCreatorBadge-legend .coCreatorMascotFrame {
-          border-radius: 30% 70% 50% 50% / 28% 28% 72% 72%;
-          transform: rotate(45deg);
+          border-radius: 50%;
+          transform: none;
         }
         .isCompact .coCreatorMascotFrame {
           width: 34px;
@@ -292,11 +374,11 @@ function CoCreatorBadge({
           width: 45px;
           height: 45px;
           object-fit: contain;
-          transform: rotate(-45deg) translateY(2px);
+          transform: translateY(2px);
           filter: drop-shadow(0 2px 3px rgba(0,0,0,0.34));
         }
         .coCreatorBadge-mentor .coCreatorMascot {
-          transform: skewX(8deg) translateY(2px);
+          transform: translateY(2px);
         }
         .coCreatorBadge-partnerPlus .coCreatorMascot {
           transform: translateY(2px);
@@ -432,10 +514,11 @@ function CoCreatorBadge({
         }
         @media (max-width: 860px) {
           .coCreatorBadge.isCompact {
-            width: 172px;
+            width: 178px;
             min-height: 50px;
             gap: 7px;
             padding: 6px 9px 6px 6px;
+            border-radius: 999px 14px 14px 999px;
           }
           .coCreatorBadge.isCompact .coCreatorIconWrap {
             width: 36px;
@@ -462,7 +545,7 @@ function CoCreatorBadge({
             font-size: 13px;
           }
           .coCreatorBadge.isCompact .coCreatorDragon {
-            left: 58px;
+            left: 54px;
             font-size: 34px;
             opacity: 0.18;
           }
@@ -472,6 +555,14 @@ function CoCreatorBadge({
             opacity: 0.18;
           }
           .coCreatorBadge.isCompact .coCreatorBeastLine {
+            display: none;
+          }
+          .coCreatorBadge.isCompact .coCreatorWrapRibbon {
+            left: 40px;
+            right: 8px;
+            height: 12px;
+          }
+          .coCreatorBadge.isCompact .coCreatorBeastWrap {
             display: none;
           }
           .coCreatorBadge.isCompact .coCreatorMeta {
