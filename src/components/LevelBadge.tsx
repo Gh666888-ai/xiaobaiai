@@ -63,14 +63,12 @@ function CoCreatorBadge({
   level,
   next,
   contributionPoints,
-  progress,
   compact,
 }: {
   name: string
   level: ReturnType<typeof getUserLevel>
   next: ReturnType<typeof getNextLevel>
   contributionPoints: number
-  progress: number
   compact: boolean
 }) {
   const stage = getCoCreatorStage(level.level)
@@ -84,8 +82,9 @@ function CoCreatorBadge({
     >
       <span className="coCreatorAura" aria-hidden="true" />
       <span className="coCreatorPlate" aria-hidden="true" />
-      <span className="coCreatorBeastMark" aria-hidden="true">{stage.beast}</span>
-      <span className="coCreatorBeastLine" aria-hidden="true">{stage.beastLine}</span>
+      <span className="coCreatorDragon" aria-hidden="true">龍</span>
+      <span className="coCreatorPhoenix" aria-hidden="true">鳳</span>
+      <span className="coCreatorBeastLine" aria-hidden="true">{stage.beast} · {stage.beastLine}</span>
       <span className="coCreatorIconWrap" aria-hidden="true">
         <span className="coCreatorSeal">{stage.seal}</span>
         <span className="coCreatorMascotFrame">
@@ -98,15 +97,12 @@ function CoCreatorBadge({
       <span className="coCreatorContent">
         <span className="coCreatorTopline">
           <span className="coCreatorName">{name}</span>
-          <span className="coCreatorLevel">LV.{level.level}</span>
+          {level.level < 19 && <span className="coCreatorLevel">LV.{level.level}</span>}
         </span>
         <span className="coCreatorTitle">{stage.shortName}</span>
         <span className="coCreatorMeta">
           <span>{stage.motif}</span>
-          <span>{targetText} 贡献</span>
-        </span>
-        <span className="coCreatorProgress" aria-hidden="true">
-          <span style={{ width: `${progress}%` }} />
+          <span className="coCreatorContribution">{targetText} 贡献</span>
         </span>
       </span>
       <style>{`
@@ -118,30 +114,30 @@ function CoCreatorBadge({
           display: inline-grid;
           grid-template-columns: auto minmax(0, 1fr);
           align-items: center;
-          gap: 9px;
-          width: 258px;
-          min-height: 58px;
-          padding: 7px 11px 7px 7px;
+          gap: 8px;
+          width: 226px;
+          min-height: 56px;
+          padding: 6px 10px 6px 7px;
           color: #fff;
           position: relative;
           isolation: isolate;
           overflow: hidden;
           border: 1px solid color-mix(in srgb, var(--stage-main) 76%, #fff 8%);
-          border-radius: 10px;
+          border-radius: 9px;
           background:
             radial-gradient(circle at 18% 38%, rgba(255,255,255,0.18), transparent 17%),
             radial-gradient(circle at 82% 20%, var(--stage-soft), transparent 24%),
             linear-gradient(135deg, color-mix(in srgb, var(--stage-main) 20%, transparent), rgba(255,255,255,0.045) 36%, var(--stage-deep));
           box-shadow: 0 0 18px var(--stage-glow), inset 0 0 0 1px rgba(255,255,255,0.1);
-          clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+          clip-path: polygon(10px 0, calc(100% - 24px) 0, 100% 50%, calc(100% - 24px) 100%, 10px 100%, 0 50%);
           text-decoration: none;
           vertical-align: middle;
         }
         .coCreatorBadge.isCompact {
-          width: 226px;
-          min-height: 56px;
+          width: 212px;
+          min-height: 54px;
           gap: 8px;
-          padding: 6px 10px 6px 6px;
+          padding: 6px 10px 6px 7px;
           border-radius: 10px;
         }
         .coCreatorBadge-partner {
@@ -155,21 +151,21 @@ function CoCreatorBadge({
           --stage-soft: rgba(255,122,69,0.26);
           --stage-deep: #260904;
           --stage-glow: rgba(255,122,69,0.46);
-          clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 12px);
+          clip-path: polygon(14px 0, calc(100% - 20px) 0, 100% 40%, calc(100% - 12px) 100%, 0 100%, 8px 52%);
         }
         .coCreatorBadge-mentor {
           --stage-main: #f3e9d0;
           --stage-soft: rgba(243,233,208,0.22);
           --stage-deep: #10141b;
           --stage-glow: rgba(243,233,208,0.42);
-          clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+          clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%, 12px 50%);
         }
         .coCreatorBadge-partnerPlus {
           --stage-main: #56e4ff;
           --stage-soft: rgba(86,228,255,0.26);
           --stage-deep: #05142d;
           --stage-glow: rgba(86,228,255,0.52);
-          clip-path: polygon(0 16px, 16px 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+          clip-path: polygon(0 50%, 18px 0, calc(100% - 26px) 0, 100% 50%, calc(100% - 26px) 100%, 18px 100%);
         }
         .coCreatorBadge-legend {
           --stage-main: #ffe58a;
@@ -183,7 +179,7 @@ function CoCreatorBadge({
             radial-gradient(circle at 64% 78%, rgba(86,228,255,0.18), transparent 26%),
             linear-gradient(135deg, rgba(126,231,255,0.17), rgba(255,216,107,0.18) 28%, rgba(182,146,255,0.22) 58%, #08061f);
           box-shadow: 0 0 24px rgba(255,229,138,0.62), 0 0 44px rgba(86,228,255,0.28), inset 0 0 0 1px rgba(255,255,255,0.18);
-          clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 0 100%, 12px 50%);
+          clip-path: polygon(0 50%, 20px 0, calc(100% - 30px) 0, 100% 50%, calc(100% - 30px) 100%, 20px 100%);
         }
         .coCreatorPlate {
           position: absolute;
@@ -191,8 +187,9 @@ function CoCreatorBadge({
           z-index: -2;
           opacity: 0.76;
           background:
-            repeating-linear-gradient(130deg, transparent 0 11px, var(--stage-soft) 11px 12px, transparent 12px 22px),
-            repeating-radial-gradient(circle at 82% 42%, transparent 0 15px, var(--stage-soft) 15px 16px, transparent 16px 30px),
+            repeating-linear-gradient(132deg, transparent 0 10px, var(--stage-soft) 10px 11px, transparent 11px 20px),
+            radial-gradient(ellipse at 84% 48%, var(--stage-soft), transparent 35%),
+            radial-gradient(ellipse at 8% 46%, rgba(255,255,255,0.10), transparent 28%),
             linear-gradient(90deg, rgba(255,255,255,0.08), transparent 62%);
           border-radius: 9px;
           pointer-events: none;
@@ -208,30 +205,38 @@ function CoCreatorBadge({
           z-index: -1;
           pointer-events: none;
         }
-        .coCreatorBeastMark {
+        .coCreatorDragon,
+        .coCreatorPhoenix {
           position: absolute;
-          right: 18px;
           top: 50%;
           z-index: -1;
-          transform: translateY(-52%) skewX(-10deg);
           color: var(--stage-main);
           font-family: 'Noto Serif SC', 'Noto Sans SC', serif;
-          font-size: 42px;
+          font-size: 50px;
           font-weight: 950;
           letter-spacing: 0;
           line-height: 1;
-          opacity: 0.22;
+          opacity: 0.18;
           text-shadow: 0 0 18px var(--stage-glow);
           white-space: nowrap;
         }
-        .coCreatorBadge-legend .coCreatorBeastMark {
-          font-size: 46px;
-          opacity: 0.28;
+        .coCreatorDragon {
+          left: 72px;
+          transform: translateY(-52%) skewX(-12deg) rotate(-6deg);
+        }
+        .coCreatorPhoenix {
+          right: 16px;
+          transform: translateY(-48%) skewX(10deg) rotate(8deg);
+        }
+        .coCreatorBadge-legend .coCreatorDragon,
+        .coCreatorBadge-legend .coCreatorPhoenix {
+          font-size: 54px;
+          opacity: 0.24;
         }
         .coCreatorBeastLine {
           position: absolute;
-          right: 11px;
-          bottom: 7px;
+          right: 19px;
+          bottom: 5px;
           z-index: 1;
           color: color-mix(in srgb, var(--stage-main) 78%, #fff 22%);
           font-size: 9px;
@@ -242,8 +247,8 @@ function CoCreatorBadge({
           white-space: nowrap;
         }
         .coCreatorIconWrap {
-          width: 44px;
-          height: 44px;
+          width: 42px;
+          height: 42px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -251,12 +256,12 @@ function CoCreatorBadge({
           flex-shrink: 0;
         }
         .isCompact .coCreatorIconWrap {
-          width: 40px;
-          height: 40px;
-        }
-        .coCreatorMascotFrame {
           width: 39px;
           height: 39px;
+        }
+        .coCreatorMascotFrame {
+          width: 37px;
+          height: 37px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -280,12 +285,12 @@ function CoCreatorBadge({
           transform: rotate(45deg);
         }
         .isCompact .coCreatorMascotFrame {
-          width: 36px;
-          height: 36px;
+          width: 34px;
+          height: 34px;
         }
         .coCreatorMascot {
-          width: 47px;
-          height: 47px;
+          width: 45px;
+          height: 45px;
           object-fit: contain;
           transform: rotate(-45deg) translateY(2px);
           filter: drop-shadow(0 2px 3px rgba(0,0,0,0.34));
@@ -297,8 +302,8 @@ function CoCreatorBadge({
           transform: translateY(2px);
         }
         .isCompact .coCreatorMascot {
-          width: 43px;
-          height: 43px;
+          width: 41px;
+          height: 41px;
         }
         .coCreatorSeal {
           position: absolute;
@@ -359,7 +364,7 @@ function CoCreatorBadge({
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
-          max-width: 74px;
+          max-width: 66px;
         }
         .coCreatorLevel {
           color: #090909;
@@ -373,23 +378,23 @@ function CoCreatorBadge({
         }
         .coCreatorTitle {
           color: #fff;
-          font-size: 17px;
+          font-size: 16px;
           font-weight: 950;
           margin-top: 5px;
           white-space: nowrap;
           text-shadow: 0 0 14px var(--stage-glow);
         }
         .isCompact .coCreatorTitle {
-          font-size: 15px;
+          font-size: 14px;
           margin-top: 4px;
         }
         .coCreatorMeta {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
           margin-top: 4px;
           color: color-mix(in srgb, var(--stage-main) 82%, #fff 18%);
-          font-size: 11px;
+          font-size: 10px;
           font-weight: 900;
           white-space: nowrap;
         }
@@ -398,19 +403,14 @@ function CoCreatorBadge({
           font-size: 10px;
           gap: 6px;
         }
-        .coCreatorProgress {
-          height: 3px;
-          margin-top: 5px;
+        .coCreatorContribution {
+          display: inline-flex;
+          align-items: center;
+          border: 1px solid color-mix(in srgb, var(--stage-main) 44%, transparent);
           border-radius: 999px;
-          background: rgba(255,255,255,0.14);
-          overflow: hidden;
-        }
-        .coCreatorProgress span {
-          display: block;
-          height: 100%;
-          border-radius: inherit;
-          background: linear-gradient(90deg, var(--stage-main), #fff);
-          box-shadow: 0 0 12px var(--stage-glow);
+          background: rgba(0,0,0,0.22);
+          padding: 1px 5px;
+          color: #fff4c9;
         }
         .coCreatorBadge::after {
           content: "";
@@ -432,7 +432,7 @@ function CoCreatorBadge({
         }
         @media (max-width: 860px) {
           .coCreatorBadge.isCompact {
-            width: 178px;
+            width: 172px;
             min-height: 50px;
             gap: 7px;
             padding: 6px 9px 6px 6px;
@@ -461,9 +461,14 @@ function CoCreatorBadge({
           .coCreatorBadge.isCompact .coCreatorTitle {
             font-size: 13px;
           }
-          .coCreatorBadge.isCompact .coCreatorBeastMark {
-            right: 10px;
-            font-size: 32px;
+          .coCreatorBadge.isCompact .coCreatorDragon {
+            left: 58px;
+            font-size: 34px;
+            opacity: 0.18;
+          }
+          .coCreatorBadge.isCompact .coCreatorPhoenix {
+            right: 8px;
+            font-size: 34px;
             opacity: 0.18;
           }
           .coCreatorBadge.isCompact .coCreatorBeastLine {
@@ -484,7 +489,7 @@ function CoCreatorBadge({
         }
         @media (max-width: 420px) {
           .coCreatorBadge.isCompact {
-            width: 152px;
+            width: 148px;
           }
           .coCreatorBadge.isCompact .coCreatorName {
             max-width: 42px;
@@ -518,7 +523,6 @@ export function LevelBadge({ name, xp, contributionPoints = 0, compact = false, 
         level={level}
         next={next}
         contributionPoints={contributionPoints}
-        progress={progress}
         compact={compact}
       />
     )
