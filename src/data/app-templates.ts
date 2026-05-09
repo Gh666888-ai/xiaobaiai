@@ -43,7 +43,6 @@ type Palette = {
   bg: string
   text: string
   sub: string
-  soft: string
   panel: string
   border: string
   accent: string
@@ -52,55 +51,113 @@ type Palette = {
   glow: string
 }
 
+type AppMode = {
+  id: AppTemplateId
+  name: string
+  activePage: string
+  heroTitle: string
+  heroDesc: string
+  systemName: string
+  visual: "radar" | "pipeline" | "calculator" | "commerce" | "arcade"
+}
+
 export const APP_FACTORY_STORAGE_KEY = "xiaobaiai:generated-apps:v1"
 
 export const appTemplates: AppTemplate[] = [
   {
     id: "site-hero",
-    title: "做一个网站首屏",
-    shortTitle: "网站首屏",
-    description: "适合先把业务讲清楚：你做什么、适合谁、为什么可信、下一步怎么联系。",
-    bestFor: "官网、门店页、个人主页、课程页",
-    defaultGoal: "让用户看懂我是谁、提供什么、怎么联系我",
+    title: "获客成交应用",
+    shortTitle: "获客应用",
+    description: "跨行业都能用：先把业务讲清楚，再承接咨询、预约、报价和成交。",
+    bestFor: "门店、服务、课程、个人业务、公司官网",
+    defaultGoal: "让用户看懂我能解决什么问题，并愿意留下线索",
     accent: "#76b39d",
   },
   {
     id: "lead-form",
-    title: "做一个报名/预约表",
-    shortTitle: "报名表",
-    description: "不是普通表单，而是按行业收集关键需求，方便后续报价、跟进和转化。",
-    bestFor: "获客、预约、咨询、活动报名",
-    defaultGoal: "让用户留下姓名、联系方式和需求",
+    title: "预约报名应用",
+    shortTitle: "预约应用",
+    description: "跨行业收集关键需求：预约、报名、测评、咨询、到店都能走这个应用。",
+    bestFor: "培训、门店、医疗美容、本地服务、活动报名",
+    defaultGoal: "让用户完成预约或报名，并自动进入后续跟进",
     accent: "#d8bf76",
   },
   {
     id: "quote-calculator",
-    title: "做一个报价计算器",
-    shortTitle: "报价器",
-    description: "用套餐、数量、服务深度生成初步价格，让客户先有预算感。",
-    bestFor: "报价、预算、套餐选择",
-    defaultGoal: "让客户快速估算大概费用并愿意咨询",
+    title: "智能报价应用",
+    shortTitle: "报价应用",
+    description: "跨行业给预算感：把套餐、数量、服务深度拆开，先让客户知道大概多少钱。",
+    bestFor: "装修、摄影、家政、企业服务、定制项目",
+    defaultGoal: "让客户先算出预算范围，再愿意咨询确认",
     accent: "#86a8e7",
   },
   {
     id: "product-page",
-    title: "做一个商品介绍页",
-    shortTitle: "商品页",
-    description: "把卖点、适合人群、购买理由、信任证明和行动按钮放到一个页面。",
-    bestFor: "商品、服务、套餐、课程",
-    defaultGoal: "让用户快速理解卖点并点击咨询",
+    title: "产品成交应用",
+    shortTitle: "成交应用",
+    description: "跨行业卖产品或服务：卖点、套餐、购买理由、信任证明和行动按钮一套闭环。",
+    bestFor: "商品、课程、服务套餐、会员、数字产品",
+    defaultGoal: "让用户看懂卖点、选择套餐并点击咨询或下单",
     accent: "#e89f71",
   },
   {
     id: "click-game",
-    title: "做一个点击得分小游戏",
-    shortTitle: "小游戏",
-    description: "把活动目标放进游戏里：得分、倒计时、奖励和引导动作都能跑。",
-    bestFor: "互动、活动、引流、小游戏",
-    defaultGoal: "让用户点击按钮得分并愿意分享结果",
+    title: "活动裂变应用",
+    shortTitle: "裂变应用",
+    description: "跨行业做活动：小游戏、福利、抽奖、打卡、分享和私域引流都能承接。",
+    bestFor: "门店活动、社群裂变、直播预热、节日福利",
+    defaultGoal: "让用户参与活动、领取福利，并愿意分享或加微信",
     accent: "#c7a8ff",
   },
 ]
+
+const appModes: Record<AppTemplateId, AppMode> = {
+  "site-hero": {
+    id: "site-hero",
+    name: "获客成交应用",
+    activePage: "home",
+    heroTitle: "把陌生访客变成可跟进线索",
+    heroDesc: "这不是单页官网，而是一套从看懂业务、建立信任、提交需求到后续跟进的获客应用。",
+    systemName: "增长雷达",
+    visual: "radar",
+  },
+  "lead-form": {
+    id: "lead-form",
+    name: "预约报名应用",
+    activePage: "lead",
+    heroTitle: "让用户按步骤完成预约或报名",
+    heroDesc: "核心不是表单，而是用最少字段问出关键需求，让后续人工或 AI 能继续跟进。",
+    systemName: "预约漏斗",
+    visual: "pipeline",
+  },
+  "quote-calculator": {
+    id: "quote-calculator",
+    name: "智能报价应用",
+    activePage: "quote",
+    heroTitle: "先给客户一个可信的预算范围",
+    heroDesc: "把价格从一句“私聊报价”变成可交互的预算器，用户更容易继续咨询。",
+    systemName: "报价引擎",
+    visual: "calculator",
+  },
+  "product-page": {
+    id: "product-page",
+    name: "产品成交应用",
+    activePage: "deal",
+    heroTitle: "让用户知道该买什么、为什么买",
+    heroDesc: "用套餐、信任证明和购买理由承接成交，而不是把商品资料堆在页面上。",
+    systemName: "成交货架",
+    visual: "commerce",
+  },
+  "click-game": {
+    id: "click-game",
+    name: "活动裂变应用",
+    activePage: "event",
+    heroTitle: "先让用户参与，再把热度变成线索",
+    heroDesc: "用小游戏、倒计时和福利门槛把用户拉进来，结束后引导领券、预约或分享。",
+    systemName: "活动引擎",
+    visual: "arcade",
+  },
+}
 
 function escapeHtml(value: string) {
   return String(value || "")
@@ -228,66 +285,80 @@ export function buildBusinessBlueprint(input: GeneratedAppInput): BusinessBluepr
   }
 }
 
-function baseStyle(accent: string, styleName: string): Palette {
+function baseStyle(accent: string, styleName: string, appId: AppTemplateId): Palette {
+  const appSecond: Record<AppTemplateId, string> = {
+    "site-hero": "#d8bf76",
+    "lead-form": "#5ee0c2",
+    "quote-calculator": "#f2c66d",
+    "product-page": "#ff8d6b",
+    "click-game": "#78f0ff",
+  }
+  const accent2 = appSecond[appId]
   if (/温暖|亲切|自然/.test(styleName)) {
     return {
-      bg: "linear-gradient(135deg,#fff7ea 0%,#f5ead8 46%,#e9f4eb 100%)",
+      bg: `radial-gradient(circle at 18% 12%,${accent}30,transparent 32%),linear-gradient(135deg,#fff7ea 0%,#f5ead8 48%,#e9f4eb 100%)`,
       text: "#24180d",
       sub: "#695844",
-      soft: "#fffaf2",
-      panel: "rgba(255,255,255,.74)",
+      panel: "rgba(255,255,255,.76)",
       border: "rgba(86,63,32,.16)",
       accent,
-      accent2: "#e8995f",
+      accent2,
       ink: "#17110b",
-      glow: "rgba(216,191,118,.26)",
+      glow: `${accent}30`,
     }
   }
   if (/商务|高端|正式/.test(styleName)) {
     return {
-      bg: "radial-gradient(circle at 18% 8%,rgba(107,139,255,.25),transparent 34%),linear-gradient(135deg,#070b13 0%,#111827 52%,#182033 100%)",
+      bg: `radial-gradient(circle at 18% 8%,${accent}30,transparent 34%),linear-gradient(135deg,#070b13 0%,#111827 52%,#182033 100%)`,
       text: "#f8f3e6",
       sub: "#bfc6d4",
-      soft: "#121a2a",
       panel: "rgba(255,255,255,.08)",
       border: "rgba(255,255,255,.16)",
       accent,
-      accent2: "#d8bf76",
+      accent2,
       ink: "#070b13",
-      glow: "rgba(134,168,231,.24)",
+      glow: `${accent}28`,
     }
   }
   if (/活泼|活动/.test(styleName)) {
     return {
-      bg: "radial-gradient(circle at 80% 12%,rgba(199,168,255,.28),transparent 30%),linear-gradient(135deg,#130f20 0%,#211936 58%,#102c33 100%)",
+      bg: `radial-gradient(circle at 80% 12%,${accent}38,transparent 30%),linear-gradient(135deg,#130f20 0%,#211936 58%,#102c33 100%)`,
       text: "#fff7f0",
       sub: "#d6cfe4",
-      soft: "#1f1730",
       panel: "rgba(255,255,255,.09)",
       border: "rgba(255,255,255,.16)",
       accent,
-      accent2: "#76d3c5",
+      accent2,
       ink: "#100d18",
-      glow: "rgba(199,168,255,.24)",
+      glow: `${accent}30`,
     }
   }
   return {
-    bg: "radial-gradient(circle at 82% 12%,rgba(118,179,157,.25),transparent 32%),linear-gradient(135deg,#061211 0%,#101716 54%,#15211e 100%)",
+    bg: `radial-gradient(circle at 82% 12%,${accent}30,transparent 32%),linear-gradient(135deg,#061211 0%,#101716 54%,#15211e 100%)`,
     text: "#f8f3e6",
     sub: "#c8c8bd",
-    soft: "#101b18",
     panel: "rgba(255,255,255,.08)",
     border: "rgba(255,255,255,.15)",
     accent,
-    accent2: "#d8bf76",
+    accent2,
     ink: "#07100f",
-    glow: "rgba(118,179,157,.26)",
+    glow: `${accent}28`,
   }
 }
 
-function css(colors: Palette) {
+function css(colors: Palette, mode: AppMode) {
+  const pageBg =
+    mode.visual === "pipeline"
+      ? `linear-gradient(135deg,${colors.accent}22,transparent),repeating-linear-gradient(90deg,rgba(255,255,255,.055) 0 1px,transparent 1px 72px)`
+      : mode.visual === "calculator"
+        ? `radial-gradient(circle at 20% 18%,${colors.accent}28,transparent 26%),linear-gradient(145deg,rgba(255,255,255,.08),transparent)`
+        : mode.visual === "commerce"
+          ? `linear-gradient(135deg,rgba(255,255,255,.12),transparent 36%),radial-gradient(circle at 80% 16%,${colors.accent}24,transparent 28%)`
+          : mode.visual === "arcade"
+            ? `radial-gradient(circle at 50% 0,${colors.accent}30,transparent 30%),repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,.045) 0 2px,transparent 2px 18px)`
+            : `radial-gradient(circle at 30% 20%,${colors.accent}24,transparent 30%),linear-gradient(115deg,rgba(255,255,255,.06),transparent 42%)`
   return `
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;background:${colors.bg};color:${colors.text}}button,input,select,textarea{font-family:inherit}.page{min-height:100vh;position:relative;overflow:hidden}.page:before{content:"";position:fixed;inset:-20%;background:linear-gradient(115deg,transparent 0 38%,rgba(255,255,255,.06) 39%,transparent 40% 100%);pointer-events:none;animation:sheen 8s linear infinite}@keyframes sheen{from{transform:translateX(-18%)}to{transform:translateX(18%)}}.orb{position:absolute;border-radius:999px;filter:blur(18px);opacity:.45;pointer-events:none}.orb.a{width:260px;height:260px;background:${colors.glow};right:8%;top:8%}.orb.b{width:220px;height:220px;background:rgba(216,191,118,.18);left:-60px;bottom:12%}.shell{width:min(100%,1120px);margin:0 auto;padding:26px 22px 58px}.nav{height:58px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid ${colors.border};position:relative;z-index:2}.brand{display:flex;align-items:center;gap:10px;font-weight:950}.logo{width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,${colors.accent},${colors.accent2});box-shadow:0 14px 36px ${colors.glow}}.nav a{color:${colors.sub};text-decoration:none;font-size:14px;font-weight:850}.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:26px;align-items:center;min-height:calc(100vh - 112px);position:relative;z-index:1}@media(max-width:820px){.hero{grid-template-columns:1fr;min-height:auto;padding-top:34px}.shell{padding:18px 16px 48px}}.eyebrow{display:inline-flex;align-items:center;gap:8px;color:${colors.accent2};font-weight:950;font-size:13px;letter-spacing:.04em;border:1px solid ${colors.border};background:${colors.panel};border-radius:999px;padding:8px 11px}.title{font-size:clamp(38px,7.4vw,76px);line-height:1.02;font-weight:950;margin:16px 0 14px;letter-spacing:0}.desc{font-size:18px;line-height:1.85;color:${colors.sub};max-width:720px}.panel{background:${colors.panel};border:1px solid ${colors.border};border-radius:26px;padding:24px;box-shadow:0 24px 80px rgba(0,0,0,.25);backdrop-filter:blur(18px)}.showcase{position:relative;min-height:420px;overflow:hidden}.showcase:before{content:"";position:absolute;inset:-1px;background:radial-gradient(circle at 30% 18%,${colors.glow},transparent 30%);pointer-events:none}.phone{position:relative;margin:0 auto;width:min(100%,370px);min-height:520px;border-radius:34px;background:linear-gradient(145deg,rgba(255,255,255,.18),rgba(255,255,255,.045));border:1px solid ${colors.border};padding:16px;box-shadow:0 34px 90px rgba(0,0,0,.34)}.screen{height:100%;border-radius:25px;background:rgba(0,0,0,.18);border:1px solid ${colors.border};padding:18px;display:grid;gap:13px}.metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:22px 0}.metric{border:1px solid ${colors.border};background:${colors.panel};border-radius:18px;padding:14px}.metric b{display:block;font-size:22px;color:${colors.text};margin-bottom:2px}.metric span,.muted{color:${colors.sub};line-height:1.7}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px;margin-top:24px}@media(max-width:680px){.grid{grid-template-columns:1fr}.metric-row{grid-template-columns:1fr}}.card{border:1px solid ${colors.border};background:${colors.panel};border-radius:20px;padding:17px;position:relative;overflow:hidden}.card:after{content:"";position:absolute;inset:auto 0 0;height:2px;background:linear-gradient(90deg,${colors.accent},transparent);opacity:.78}.card b{display:block;margin-bottom:7px;color:${colors.text}}.btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:16px;padding:14px 18px;background:linear-gradient(135deg,${colors.accent},${colors.accent2});color:${colors.ink};font-weight:950;text-decoration:none;cursor:pointer;box-shadow:0 18px 40px ${colors.glow}}.ghost{background:${colors.panel};color:${colors.text};border:1px solid ${colors.border};box-shadow:none}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.steps{counter-reset:step;display:grid;gap:11px}.step{display:grid;grid-template-columns:34px 1fr;gap:11px;align-items:start}.step:before{counter-increment:step;content:counter(step);display:grid;place-items:center;width:32px;height:32px;border-radius:12px;background:linear-gradient(135deg,${colors.accent},${colors.accent2});color:${colors.ink};font-weight:950}.step b{display:block;margin-bottom:4px}.section{padding:54px 0;position:relative;z-index:1}.section-title{font-size:clamp(26px,4vw,42px);line-height:1.16;margin:0 0 12px;font-weight:950}.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:820px){.two{grid-template-columns:1fr}}label{display:block;font-weight:900;margin:13px 0 7px}.hint{display:block;margin-top:5px;font-size:13px;color:${colors.sub};line-height:1.55}input,select,textarea{width:100%;border:1px solid rgba(128,128,128,.24);border-radius:14px;padding:13px 14px;background:rgba(255,255,255,.88);font-size:15px;color:#111}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:560px){.row{grid-template-columns:1fr}}.price{font-size:50px;font-weight:950;color:${colors.accent2};margin:6px 0}.score{font-size:84px;font-weight:950;color:${colors.accent2};line-height:1;margin:20px 0}.floating{animation:floaty 4.6s ease-in-out infinite}@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}`
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;background:${colors.bg};color:${colors.text}}button,input,select,textarea{font-family:inherit}.page{min-height:100vh;position:relative;overflow:hidden}.page:before{content:"";position:fixed;inset:0;background:${pageBg};pointer-events:none;opacity:.86}.orb{position:absolute;border-radius:999px;filter:blur(18px);opacity:.45;pointer-events:none}.orb.a{width:270px;height:270px;background:${colors.glow};right:7%;top:8%}.orb.b{width:230px;height:230px;background:rgba(216,191,118,.16);left:-70px;bottom:12%}.shell{width:min(100%,1120px);margin:0 auto;padding:26px 22px 58px;position:relative;z-index:1}.nav{height:58px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid ${colors.border}}.brand{display:flex;align-items:center;gap:10px;font-weight:950}.logo{width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,${colors.accent},${colors.accent2});box-shadow:0 14px 36px ${colors.glow}}.nav a{color:${colors.sub};text-decoration:none;font-size:14px;font-weight:850}.hero{display:grid;grid-template-columns:1.02fr .98fr;gap:26px;align-items:center;min-height:calc(100vh - 112px)}@media(max-width:820px){.hero{grid-template-columns:1fr;min-height:auto;padding-top:34px}.shell{padding:18px 16px 48px}}.eyebrow{display:inline-flex;align-items:center;gap:8px;color:${colors.accent2};font-weight:950;font-size:13px;letter-spacing:.04em;border:1px solid ${colors.border};background:${colors.panel};border-radius:999px;padding:8px 11px}.title{font-size:clamp(38px,7.4vw,76px);line-height:1.02;font-weight:950;margin:16px 0 14px;letter-spacing:0}.desc{font-size:18px;line-height:1.85;color:${colors.sub};max-width:720px}.panel{background:${colors.panel};border:1px solid ${colors.border};border-radius:26px;padding:24px;box-shadow:0 24px 80px rgba(0,0,0,.25);backdrop-filter:blur(18px)}.visual{min-height:465px;display:grid;align-content:center;gap:16px;position:relative;overflow:hidden}.visual:before{content:"";position:absolute;inset:-1px;background:radial-gradient(circle at 34% 18%,${colors.glow},transparent 32%);pointer-events:none}.device{position:relative;border-radius:30px;background:linear-gradient(145deg,rgba(255,255,255,.17),rgba(255,255,255,.04));border:1px solid ${colors.border};padding:18px;box-shadow:0 34px 90px rgba(0,0,0,.34)}.meter{height:12px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden}.meter span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,${colors.accent},${colors.accent2})}.metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:22px 0}.metric{border:1px solid ${colors.border};background:${colors.panel};border-radius:18px;padding:14px}.metric b{display:block;font-size:22px;color:${colors.text};margin-bottom:2px}.metric span,.muted{color:${colors.sub};line-height:1.7}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:28px 0 18px}.tab{border:1px solid ${colors.border};background:${colors.panel};color:${colors.sub};border-radius:999px;padding:10px 12px;font-weight:950;cursor:pointer}.tab.active{background:linear-gradient(135deg,${colors.accent},${colors.accent2});color:${colors.ink};box-shadow:0 16px 36px ${colors.glow}}.view{display:none}.view.active{display:block}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px;margin-top:18px}@media(max-width:680px){.grid{grid-template-columns:1fr}.metric-row{grid-template-columns:1fr}}.card{border:1px solid ${colors.border};background:${colors.panel};border-radius:20px;padding:17px;position:relative;overflow:hidden}.card:after{content:"";position:absolute;inset:auto 0 0;height:2px;background:linear-gradient(90deg,${colors.accent},transparent);opacity:.78}.card b{display:block;margin-bottom:7px;color:${colors.text}}.btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:16px;padding:14px 18px;background:linear-gradient(135deg,${colors.accent},${colors.accent2});color:${colors.ink};font-weight:950;text-decoration:none;cursor:pointer;box-shadow:0 18px 40px ${colors.glow}}.ghost{background:${colors.panel};color:${colors.text};border:1px solid ${colors.border};box-shadow:none}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.steps{counter-reset:step;display:grid;gap:11px}.step{display:grid;grid-template-columns:34px 1fr;gap:11px;align-items:start}.step:before{counter-increment:step;content:counter(step);display:grid;place-items:center;width:32px;height:32px;border-radius:12px;background:linear-gradient(135deg,${colors.accent},${colors.accent2});color:${colors.ink};font-weight:950}.step b{display:block;margin-bottom:4px}.section{padding:46px 0}.section-title{font-size:clamp(26px,4vw,42px);line-height:1.16;margin:0 0 12px;font-weight:950}.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:820px){.two{grid-template-columns:1fr}}label{display:block;font-weight:900;margin:13px 0 7px}.hint{display:block;margin-top:5px;font-size:13px;color:${colors.sub};line-height:1.55}input,select,textarea{width:100%;border:1px solid rgba(128,128,128,.24);border-radius:14px;padding:13px 14px;background:rgba(255,255,255,.88);font-size:15px;color:#111}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:560px){.row{grid-template-columns:1fr}}.price{font-size:50px;font-weight:950;color:${colors.accent2};margin:6px 0}.score{font-size:84px;font-weight:950;color:${colors.accent2};line-height:1;margin:20px 0}.float{animation:floaty 4.6s ease-in-out infinite}@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}`
 }
 
 function explainTrust(item: string, blueprint: BusinessBlueprint) {
@@ -364,11 +435,7 @@ function fieldControl(field: string, blueprint: BusinessBlueprint) {
 }
 
 function nav(industry: string, contact: string) {
-  return `<header class="nav"><div class="brand"><span class="logo"></span><span>${industry}</span></div><nav><a href="#proof">信任证明</a> · <a href="#action">${contact}</a></nav></header>`
-}
-
-function floatingPreview(blueprint: BusinessBlueprint, industry: string, contact: string) {
-  return `<aside class="panel showcase floating"><div class="phone"><div class="screen"><p class="eyebrow">${safe(blueprint.sector)}</p><h2 style="font-size:32px;line-height:1.08;margin:0">${safe(industry)}增长中控</h2><p class="muted">${safe(blueprint.coreOffer)} · ${safe(blueprint.appGoal)}</p>${metricCards(blueprint)}<div class="card"><b>下一步自动化</b><span class="muted">${safe(blueprint.nextWorkflow)}</span></div><a class="btn" href="#action">${safe(contact)}</a></div></div></aside>`
+  return `<header class="nav"><div class="brand"><span class="logo"></span><span>${industry}</span></div><nav><a href="#pages">应用页</a> · <a href="#action">${contact}</a></nav></header>`
 }
 
 function packageCards(blueprint: BusinessBlueprint) {
@@ -377,32 +444,64 @@ function packageCards(blueprint: BusinessBlueprint) {
     .join("")
 }
 
+function visualPanel(mode: AppMode, blueprint: BusinessBlueprint, industry: string, contact: string) {
+  if (mode.visual === "pipeline") {
+    return `<aside class="panel visual float"><div class="device"><p class="eyebrow">${safe(mode.systemName)}</p><h2 style="font-size:32px;line-height:1.08;margin:0">预约进度</h2>${["浏览", "填写", "确认", "跟进"].map((item, index) => `<div class="card"><b>${index + 1}. ${item}</b><div class="meter"><span style="width:${35 + index * 18}%"></span></div></div>`).join("")}<a class="btn" href="#action">${contact}</a></div></aside>`
+  }
+  if (mode.visual === "calculator") {
+    return `<aside class="panel visual float"><div class="device"><p class="eyebrow">${safe(mode.systemName)}</p><h2 style="font-size:32px;line-height:1.08;margin:0">¥${blueprint.packages[1]?.price || 499} 起</h2><p class="muted">套餐 + 数量 + 服务深度自动估算</p><div class="row"><div class="card"><b>套餐</b><span class="muted">${safe(blueprint.packages[1]?.name || "标准版")}</span></div><div class="card"><b>深度</b><span class="muted">标准执行</span></div></div><a class="btn" href="#action">打开报价器</a></div></aside>`
+  }
+  if (mode.visual === "commerce") {
+    return `<aside class="panel visual float"><div class="device"><p class="eyebrow">${safe(mode.systemName)}</p><h2 style="font-size:32px;line-height:1.08;margin:0">推荐套餐</h2>${packageCards(blueprint)}<a class="btn" href="#action">${contact}</a></div></aside>`
+  }
+  if (mode.visual === "arcade") {
+    return `<aside class="panel visual float" style="text-align:center"><div class="device"><p class="eyebrow">${safe(mode.systemName)}</p><div class="score">20</div><p class="muted">30 秒挑战 · 达标领取福利</p><button class="btn" type="button">点击得分</button><div class="card" style="margin-top:16px;text-align:left"><b>结束后动作</b><span class="muted">${contact}，并引导分享或预约。</span></div></div></aside>`
+  }
+  return `<aside class="panel visual float"><div class="device"><p class="eyebrow">${safe(mode.systemName)}</p><h2 style="font-size:32px;line-height:1.08;margin:0">${industry}增长中控</h2><p class="muted">${safe(blueprint.coreOffer)} · ${safe(blueprint.appGoal)}</p>${metricCards(blueprint)}<div class="card"><b>下一步自动化</b><span class="muted">${safe(blueprint.nextWorkflow)}</span></div><a class="btn" href="#action">${contact}</a></div></aside>`
+}
+
+function appPages(blueprint: BusinessBlueprint, mode: AppMode, industry: string, audience: string, contact: string, styleName: string) {
+  const pages = [
+    {
+      id: "home",
+      tab: "首页",
+      html: `<section class="view" data-view="home"><div class="two"><div><h2 class="section-title">${safe(blueprint.hook)}</h2><p class="desc">${safe(blueprint.userPain)} 当前目标：${safe(blueprint.appGoal)}。</p>${metricCards(blueprint)}<div class="actions" id="action"><button class="btn" type="button" data-open="lead">${contact}</button><button class="btn ghost" type="button" data-open="lead">去预约页</button></div></div>${visualPanel({ ...mode, visual: "radar" }, blueprint, industry, contact)}</div></section>`,
+    },
+    {
+      id: "lead",
+      tab: "预约",
+      html: `<section class="view" data-view="lead"><div class="two"><div><h2 class="section-title">把普通表单升级成客户筛选器</h2><p class="desc">${safe(blueprint.userPain)} 这页只问影响成交的信息，提交后进入跟进。</p>${proofCards(blueprint.trustProof, blueprint)}</div><form class="panel" id="action"><p class="eyebrow">小白设计的字段</p>${blueprint.captureFields.map((field) => fieldControl(field, blueprint)).join("")}<label>补充说明<span class="hint">写用户没法用选项表达的特殊情况，方便后面人工确认。</span></label><textarea rows="4" placeholder="还有什么需要我们提前知道？"></textarea><button class="btn" type="button">${contact}</button><p class="muted">提交后：${safe(blueprint.nextWorkflow)}</p></form></div></section>`,
+    },
+    {
+      id: "quote",
+      tab: "报价",
+      html: `<section class="view" data-view="quote"><div class="two"><div><h2 class="section-title">先给${audience}一个预算感</h2><p class="desc">报价器把套餐、数量和服务深度拆开，让用户先知道大概范围。</p>${stepList(blueprint.serviceSteps, blueprint)}</div><section class="panel"><p class="eyebrow">智能估算</p><label>选择套餐<span class="hint">套餐不是摆价格，是让用户先选一个心理预算档位。</span></label><select id="pkg">${blueprint.packages.map((pkg) => `<option value="${pkg.price}" data-desc="${safe(pkg.desc)}">${safe(pkg.name)} · ¥${pkg.price}</option>`).join("")}</select><div class="row"><div><label>数量/周期<span class="hint">数量越大，报价越接近真实执行成本。</span></label><input id="count" type="number" min="1" value="1"/></div><div><label>服务深度<span class="hint">基础、标准、深度代表不同交付复杂度。</span></label><select id="level"><option value="1">基础</option><option value="1.4">标准</option><option value="1.9">深度</option></select></div></div><button class="btn" onclick="calc()" type="button">重新估算</button><div class="card" style="margin-top:16px"><p class="muted">预估价格</p><div class="price" id="price">¥0</div><p class="muted" id="desc"></p><a class="btn" href="#">${contact}</a></div></section></div></section>`,
+    },
+    {
+      id: "deal",
+      tab: "成交",
+      html: `<section class="view" data-view="deal"><div class="two"><div><h2 class="section-title">用户下单前必须看懂的 4 件事</h2><p class="desc">${safe(blueprint.userPain)} 所以成交页先回答“适合谁、解决什么、为什么可信、下一步怎么做”。</p>${proofCards(blueprint.trustProof, blueprint)}</div><aside class="panel"><p class="eyebrow">推荐套餐 · ${styleName}</p>${packageCards(blueprint)}<p class="muted">下一步：${safe(blueprint.nextWorkflow)}</p></aside></div></section>`,
+    },
+    {
+      id: "event",
+      tab: "活动",
+      html: `<section class="view" data-view="event"><div class="two"><div><h2 class="section-title">先让用户参与，再把热度变成线索</h2><p class="desc">${safe(blueprint.appGoal)}。用户玩完后给一个明确动作：领福利、预约、咨询或分享。</p>${proofCards(["30 秒倒计时", "点击得分", "结束后引导咨询"], blueprint)}</div><section class="panel" style="text-align:center"><p class="eyebrow">${industry}挑战</p><div class="score" id="score">0</div><p class="muted">剩余 <b id="time">30</b> 秒 · 达到 20 分可领取福利</p><button class="btn" onclick="hit()" type="button">点击得分</button><button class="btn ghost" onclick="restart()" type="button">重新开始</button></section></div></section>`,
+    },
+  ]
+  return `<div id="pages" class="tabs">${pages.map((page) => `<button class="tab${page.id === mode.activePage ? " active" : ""}" type="button" data-open="${page.id}">${page.tab}</button>`).join("")}</div>${pages.map((page) => page.html.replace('class="view"', `class="view${page.id === mode.activePage ? " active" : ""}"`)).join("")}`
+}
+
 export function generateAppHtml(input: GeneratedAppInput) {
   const template = appTemplates.find((item) => item.id === input.templateId) || appTemplates[0]
+  const mode = appModes[template.id]
   const blueprint = buildBusinessBlueprint(input)
   const rawIndustry = clean(input.industry, "你的行业")
   const industry = safe(rawIndustry)
   const audience = safe(clean(input.audience, "目标用户"))
   const contact = safe(clean(input.contact, "立即咨询"))
   const styleName = safe(clean(input.style, "简洁科技"))
-  const colors = baseStyle(template.accent, input.style)
-  const sheet = css(colors)
+  const colors = baseStyle(template.accent, input.style, template.id)
+  const sheet = css(colors, mode)
 
-  if (template.id === "lead-form") {
-    return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${industry}需求收集表</title><style>${sheet}</style></head><body><main class="page"><span class="orb a"></span><span class="orb b"></span><div class="shell">${nav(industry, contact)}<section class="hero"><div><p class="eyebrow">${safe(blueprint.sector)} · ${styleName}</p><h1 class="title">把普通表单升级成客户筛选器</h1><p class="desc">${safe(blueprint.userPain)} 这版会先问影响成交的问题，再把线索交给后续跟进。</p>${metricCards(blueprint)}<div class="actions"><a class="btn" href="#action">${contact}</a><a class="btn ghost" href="#proof">看为什么这样问</a></div></div><form class="panel" id="action"><p class="eyebrow">小白设计的字段</p>${blueprint.captureFields.map((field) => fieldControl(field, blueprint)).join("")}<label>补充说明<span class="hint">写用户没法用选项表达的特殊情况，方便后面人工确认。</span></label><textarea rows="4" placeholder="还有什么需要我们提前知道？"></textarea><button class="btn" type="button">${contact}</button><p class="muted">提交后：${safe(blueprint.nextWorkflow)}</p></form></section><section class="section" id="proof"><h2 class="section-title">这不是收集信息，是为了后面能成交</h2>${proofCards(blueprint.trustProof, blueprint)}</section></div></main></body></html>`
-  }
-
-  if (template.id === "quote-calculator") {
-    return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${industry}报价计算器</title><style>${sheet}</style></head><body><main class="page"><span class="orb a"></span><span class="orb b"></span><div class="shell">${nav(industry, contact)}<section class="hero"><div><p class="eyebrow">${safe(blueprint.sector)} · 报价器</p><h1 class="title">先给${audience}一个预算感</h1><p class="desc">${safe(blueprint.userPain)} 所以报价器要把套餐、数量和服务深度拆开，让用户先知道大概范围。</p>${stepList(blueprint.serviceSteps, blueprint)}</div><section class="panel" id="action"><p class="eyebrow">智能估算</p><label>选择套餐<span class="hint">套餐不是摆价格，是让用户先选一个心理预算档位。</span></label><select id="pkg">${blueprint.packages.map((pkg) => `<option value="${pkg.price}" data-desc="${safe(pkg.desc)}">${safe(pkg.name)} · ¥${pkg.price}</option>`).join("")}</select><div class="row"><div><label>数量/周期<span class="hint">数量越大，报价越接近真实执行成本。</span></label><input id="count" type="number" min="1" value="1"/></div><div><label>服务深度<span class="hint">基础、标准、深度代表不同交付复杂度。</span></label><select id="level"><option value="1">基础</option><option value="1.4">标准</option><option value="1.9">深度</option></select></div></div><button class="btn" onclick="calc()" type="button">重新估算</button><div class="card" style="margin-top:16px"><p class="muted">预估价格</p><div class="price" id="price">¥0</div><p class="muted" id="desc"></p><a class="btn" href="#">${contact}</a></div></section></section><section class="section" id="proof"><h2 class="section-title">报价背后的信任点</h2>${proofCards(blueprint.trustProof, blueprint)}</section></div></main><script>function calc(){var p=document.getElementById('pkg');var base=Number(p.value);var count=Math.max(1,Number(document.getElementById('count').value)||1);var level=Number(document.getElementById('level').value);document.getElementById('price').textContent='¥'+Math.round(base*count*level).toLocaleString('zh-CN');document.getElementById('desc').textContent=p.options[p.selectedIndex].dataset.desc}calc()</script></body></html>`
-  }
-
-  if (template.id === "click-game") {
-    return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${industry}互动小游戏</title><style>${sheet}</style></head><body><main class="page"><span class="orb a"></span><span class="orb b"></span><div class="shell">${nav(industry, contact)}<section class="hero"><div><p class="eyebrow">${safe(blueprint.sector)} · 活动互动</p><h1 class="title">${safe(blueprint.hook)}</h1><p class="desc">${safe(blueprint.appGoal)}。用户玩完后给一个明确动作：领福利、预约、咨询或分享。</p>${proofCards(["30 秒倒计时", "点击得分", "结束后引导咨询"], blueprint)}</div><section class="panel" id="action" style="text-align:center"><p class="eyebrow">${industry}挑战</p><div class="score" id="score">0</div><p class="muted">剩余 <b id="time">30</b> 秒 · 达到 20 分可领取福利</p><button class="btn" onclick="hit()" type="button">点击得分</button><button class="btn ghost" onclick="restart()" type="button">重新开始</button><div class="card" style="margin-top:16px;text-align:left"><b>结束后动作</b><span class="muted">${contact}，并把结果同步给后续跟进。</span></div></section></section></div></main><script>let score=0,time=30,timer=null;function start(){clearInterval(timer);timer=setInterval(()=>{time--;document.getElementById('time').textContent=time;if(time<=0){clearInterval(timer);if(score>=20){alert('恭喜，达到福利门槛！')}}},1000)}function hit(){if(time<=0)return;score++;document.getElementById('score').textContent=score}function restart(){score=0;time=30;document.getElementById('score').textContent=score;document.getElementById('time').textContent=time;start()}start()</script></body></html>`
-  }
-
-  if (template.id === "product-page") {
-    return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${industry}商品页</title><style>${sheet}</style></head><body><main class="page"><span class="orb a"></span><span class="orb b"></span><div class="shell">${nav(industry, contact)}<section class="hero"><div><p class="eyebrow">${safe(blueprint.sector)} · ${styleName}</p><h1 class="title">${safe(blueprint.hook)}</h1><p class="desc">${safe(blueprint.userPain)} 所以这个页面先回答“适合谁、解决什么、为什么可信、下一步怎么做”。</p>${metricCards(blueprint)}<div class="actions"><a class="btn" href="#action">${contact}</a><a class="btn ghost" href="#proof">查看购买理由</a></div></div><aside class="panel" id="action"><p class="eyebrow">推荐套餐</p>${packageCards(blueprint)}<p class="muted">下一步：${safe(blueprint.nextWorkflow)}</p></aside></section><section class="section" id="proof"><h2 class="section-title">用户下单前必须看懂的 4 件事</h2>${proofCards(blueprint.trustProof, blueprint)}</section></div></main></body></html>`
-  }
-
-  return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${industry}网站首屏</title><style>${sheet}</style></head><body><main class="page"><span class="orb a"></span><span class="orb b"></span><div class="shell">${nav(industry, contact)}<section class="hero"><div><p class="eyebrow">${safe(blueprint.sector)} · ${styleName}</p><h1 class="title">${safe(blueprint.hook)}</h1><p class="desc">${safe(blueprint.userPain)} 当前目标：${safe(blueprint.appGoal)}。</p>${metricCards(blueprint)}<div class="actions"><a class="btn" href="#action">${contact}</a><a class="btn ghost" href="#proof">先看流程</a></div></div>${floatingPreview(blueprint, industry, contact)}</section><section class="section two" id="proof"><div><h2 class="section-title">小白拆出的转化路径</h2>${stepList(blueprint.serviceSteps, blueprint)}</div><div>${proofCards(blueprint.trustProof, blueprint)}<div class="card" id="action" style="margin-top:16px"><b>上线后下一步</b><span class="muted">${safe(blueprint.nextWorkflow)}</span></div></div></section></div></main></body></html>`
+  return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${industry}${safe(template.shortTitle)}</title><style>${sheet}</style></head><body><main class="page"><span class="orb a"></span><span class="orb b"></span><div class="shell">${nav(industry, contact)}<section class="hero"><div><p class="eyebrow">${safe(mode.name)} · ${safe(blueprint.sector)} · ${styleName}</p><h1 class="title">${safe(mode.heroTitle)}</h1><p class="desc">${safe(mode.heroDesc)} ${safe(blueprint.userPain)}</p>${metricCards(blueprint)}<div class="actions"><a class="btn" href="#pages">进入应用页</a><a class="btn ghost" href="#action">${contact}</a></div></div>${visualPanel(mode, blueprint, industry, contact)}</section><section class="section"><h2 class="section-title">这个应用里面包含 5 个页面</h2><p class="desc">左边选的是跨行业应用类型；这里的首页、预约、报价、成交、活动，才是实时预览里可以翻的页面。</p>${appPages(blueprint, mode, industry, audience, contact, styleName)}</section></div></main><script>function openPage(id){document.querySelectorAll('.tab').forEach(function(tab){tab.classList.toggle('active',tab.dataset.open===id)});document.querySelectorAll('.view').forEach(function(view){view.classList.toggle('active',view.dataset.view===id)})}document.querySelectorAll('[data-open]').forEach(function(btn){btn.addEventListener('click',function(){openPage(btn.dataset.open)})});function calc(){var p=document.getElementById('pkg');if(!p)return;var base=Number(p.value);var count=Math.max(1,Number(document.getElementById('count').value)||1);var level=Number(document.getElementById('level').value);document.getElementById('price').textContent='¥'+Math.round(base*count*level).toLocaleString('zh-CN');document.getElementById('desc').textContent=p.options[p.selectedIndex].dataset.desc}let score=0,time=30,timer=null;function start(){clearInterval(timer);timer=setInterval(function(){var el=document.getElementById('time');if(!el)return;time--;el.textContent=time;if(time<=0){clearInterval(timer);if(score>=20){alert('恭喜，达到福利门槛！')}}},1000)}function hit(){if(time<=0)return;score++;var el=document.getElementById('score');if(el)el.textContent=score}function restart(){score=0;time=30;var scoreEl=document.getElementById('score');var timeEl=document.getElementById('time');if(scoreEl)scoreEl.textContent=score;if(timeEl)timeEl.textContent=time;start()}calc();start()</script></body></html>`
 }

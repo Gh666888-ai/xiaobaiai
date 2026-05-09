@@ -30,58 +30,94 @@ const templatePlaybooks: Record<
 > = {
   "site-hero": {
     icon: "01",
-    mode: "官网首屏",
-    output: "生成一页能讲清业务的门面：主张、指标、信任证明、下一步动作。",
-    when: "客户还不知道你是谁，先让他 10 秒内判断值不值得继续看。",
-    preview: "会看到大标题、业务指标、转化路径和一个像增长中控的展示区。",
-    userFeels: "像一个正式官网的第一屏，不是普通介绍卡片。",
+    mode: "获客成交应用",
+    output: "适合任何行业先获客：自动生成首页、预约、报价、成交、活动 5 个页面。",
+    when: "用户只说“我想让客户了解我并留下线索”，就先用这个。",
+    preview: "预览里默认打开首页，也能翻到预约、报价、成交和活动页。",
+    userFeels: "像一个完整获客系统，不是官网首屏。",
     accent: "#76b39d",
-    chips: ["品牌门面", "信任证明", "转化路径"],
+    chips: ["首页", "线索", "跟进"],
   },
   "lead-form": {
     icon: "02",
-    mode: "预约漏斗",
-    output: "生成一个会筛选客户的表单：字段、填写原因、提交后的跟进动作。",
-    when: "你需要收集报名、预约、咨询线索，不能只让用户填姓名电话。",
-    preview: "会看到完整表单，每个字段都解释为什么要问，提交后进入跟进。",
-    userFeels: "像一个小型获客系统，不是问卷。",
+    mode: "预约报名应用",
+    output: "适合培训、门店、服务业：重点生成预约漏斗、关键字段和跟进说明。",
+    when: "用户想让别人报名、预约、测评、到店、留电话，就选这个。",
+    preview: "预览里默认打开预约页，但仍然带首页、报价、成交、活动页。",
+    userFeels: "像一个预约报名系统，不是普通表单。",
     accent: "#d8bf76",
-    chips: ["关键字段", "线索筛选", "跟进提醒"],
+    chips: ["预约", "报名", "测评"],
   },
   "quote-calculator": {
     icon: "03",
-    mode: "报价系统",
-    output: "生成能互动估价的报价器：套餐、数量、服务深度、自动计算价格。",
-    when: "客户总问多少钱，你要先给预算范围，再引导咨询确认。",
-    preview: "会看到可选择套餐、输入数量、点击重新估算的交互面板。",
-    userFeels: "像一个可用的报价工具，不是价格表。",
+    mode: "智能报价应用",
+    output: "适合定制服务：重点生成预算器、套餐分层、数量和服务深度计算。",
+    when: "用户总被问多少钱，需要先给大概预算再人工确认。",
+    preview: "预览里默认打开报价页，价格能随套餐、数量和深度变化。",
+    userFeels: "像一个报价引擎，不是价格表。",
     accent: "#86a8e7",
     chips: ["自动估价", "套餐分层", "预算感"],
   },
   "product-page": {
     icon: "04",
-    mode: "成交页",
-    output: "生成一个产品/服务成交页：卖点、套餐、购买理由、信任解释。",
-    when: "你要卖一个商品、课程、服务套餐，让用户看完就知道买哪档。",
-    preview: "会看到推荐套餐、购买理由、适合人群和行动按钮。",
-    userFeels: "像一张能卖货的详情页，不是产品简介。",
+    mode: "产品成交应用",
+    output: "适合卖商品、课程、服务套餐：重点生成购买理由、套餐和成交按钮。",
+    when: "用户想让客户看完就知道买哪档、为什么买。",
+    preview: "预览里默认打开成交页，并带购买理由和推荐套餐。",
+    userFeels: "像一个成交货架，不是产品介绍。",
     accent: "#e89f71",
     chips: ["套餐推荐", "购买理由", "行动按钮"],
   },
   "click-game": {
     icon: "05",
-    mode: "活动游戏",
-    output: "生成一个能玩的互动活动：倒计时、点击得分、奖励门槛、结束引导。",
-    when: "你要做门店福利、引流活动、社群小游戏，让用户先参与。",
-    preview: "会看到分数、倒计时、点击按钮和结束后的领取动作。",
-    userFeels: "像一个轻量活动页，不是静态宣传页。",
+    mode: "活动裂变应用",
+    output: "适合做活动和引流：重点生成小游戏、倒计时、福利门槛和分享动作。",
+    when: "用户想做节日活动、门店福利、社群裂变、直播预热。",
+    preview: "预览里默认打开活动页，能看到倒计时、得分和福利引导。",
+    userFeels: "像一个活动引擎，不是静态宣传页。",
     accent: "#c7a8ff",
     chips: ["能点击", "有倒计时", "领福利"],
   },
 }
 
+const demandExamples = [
+  "我开了一家火锅店，想让附近的人看到套餐后加微信预约。",
+  "我做少儿英语培训，想让家长先测评再报名试听。",
+  "我做装修设计，客户老问多少钱，我想先让他自己估预算。",
+  "我卖小红书课程，想让用户看懂适合谁并咨询购买。",
+]
+
+function guessTemplateFromDemand(text: string): AppTemplateId {
+  const raw = text.toLowerCase()
+  if (/报价|预算|估价|多少钱|价格|费用|装修|设计|摄影|家政|维修/.test(raw)) return "quote-calculator"
+  if (/活动|抽奖|小游戏|裂变|分享|福利|打卡|直播预热|领券/.test(raw)) return "click-game"
+  if (/卖|商品|课程|套餐|下单|购买|成交|会员|带货|小红书/.test(raw)) return "product-page"
+  if (/报名|预约|试听|测评|留电话|咨询|到店|排队/.test(raw)) return "lead-form"
+  return "site-hero"
+}
+
+function guessIndustryFromDemand(text: string) {
+  const raw = text.trim()
+  if (!raw) return "餐饮门店"
+  if (/火锅|餐饮|饭店|烧烤|咖啡|奶茶|门店/.test(raw)) return "餐饮门店"
+  if (/英语|培训|课程|老师|家长|学生|考研|教育/.test(raw)) return "教育培训"
+  if (/装修|设计|摄影|婚礼|家政|维修|美容|美甲|健身/.test(raw)) return "本地服务"
+  if (/电商|商品|淘宝|抖店|小红书|带货|直播|私域|卖/.test(raw)) return "电商/私域销售"
+  const match = raw.match(/(?:我做|我开了?一家|我是做|做)([^，。,.]{2,12})/)
+  return match?.[1]?.trim() || "通用业务"
+}
+
+function guessAudienceFromDemand(text: string) {
+  if (/附近|周边|到店|门店/.test(text)) return "附近 3 公里内可能到店的用户"
+  if (/家长|孩子|学生/.test(text)) return "正在帮孩子选择课程的家长"
+  if (/老板|企业|公司|客户/.test(text)) return "正在比较方案和预算的客户"
+  if (/粉丝|私域|社群|直播/.test(text)) return "社群和私域里的潜在用户"
+  return "第一次了解你的潜在客户"
+}
+
 export function AppsClient() {
   const [templateId, setTemplateId] = useState<AppTemplateId>("site-hero")
+  const [demand, setDemand] = useState("我开了一家火锅店，想让附近的人看到套餐后加微信预约")
   const [industry, setIndustry] = useState("餐饮门店")
   const [goal, setGoal] = useState("让附近用户看懂特色菜品并愿意加微信预约")
   const [audience, setAudience] = useState("附近 3 公里内想找聚餐位置的用户")
@@ -127,7 +163,7 @@ export function AppsClient() {
   function saveApp() {
     const nextApp: SavedGeneratedApp = {
       id: `${Date.now()}`,
-      title: `${industry || "我的"}${currentTemplate.shortTitle}`,
+      title: `${industry || "我的"} · ${currentTemplate.title}`,
       templateId,
       industry,
       goal,
@@ -159,6 +195,7 @@ export function AppsClient() {
     setAudience(app.audience)
     setStyle(app.style)
     setContact(app.contact)
+    setDemand(`${app.industry}：${app.goal}`)
   }
 
   function selectTemplate(nextTemplateId: AppTemplateId) {
@@ -171,6 +208,21 @@ export function AppsClient() {
     }
   }
 
+  function generateFromDemand(nextDemand = demand) {
+    const text = nextDemand.trim()
+    if (!text) return
+    const nextTemplateId = guessTemplateFromDemand(text)
+    setTemplateId(nextTemplateId)
+    setIndustry(guessIndustryFromDemand(text))
+    setAudience(guessAudienceFromDemand(text))
+    setGoal(text)
+    if (/微信/.test(text)) setContact("加微信咨询")
+    else if (/报名|试听|测评/.test(text)) setContact("立即预约")
+    else if (/下单|购买|套餐/.test(text)) setContact("咨询套餐")
+    else if (/报价|预算|多少钱/.test(text)) setContact("获取正式报价")
+    else setContact("立即咨询")
+  }
+
   return (
     <div className="xb-workbench" style={{ minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
       <MathRain />
@@ -181,21 +233,50 @@ export function AppsClient() {
             <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.26em", color: "#7a6230", textTransform: "uppercase", fontWeight: 950, marginBottom: 10 }}>XIAOBAI APP FACTORY</p>
             <h1 style={{ color: "#f8f3e6", fontSize: "clamp(34px,5vw,58px)", lineHeight: 1.08, fontWeight: 950, marginBottom: 12 }}>小白应用工坊</h1>
             <p style={{ color: "#c8c8bd", fontSize: 16, lineHeight: 1.9, maxWidth: 820 }}>
-              这里不是讲教程。你说行业和目标，小白先在站内做出一个能打开的小应用：网站首屏、报名表、报价器、商品页或小游戏。
+              你输入一句真实需求，小白先判断要做哪种跨行业应用，再生成一个能翻页、能交互、看起来像产品的 H5 应用。
             </p>
           </div>
           <div style={{ border: "1px solid rgba(216,191,118,0.24)", background: "rgba(216,191,118,0.08)", borderRadius: 14, padding: "14px 16px", minWidth: 176 }}>
             <p style={{ color: "#d8bf76", fontSize: 14, fontWeight: 950, marginBottom: 5 }}>当前阶段</p>
-            <p style={{ color: "#f8f3e6", fontSize: 18, fontWeight: 950 }}>H5 小应用</p>
-            <p style={{ color: "#c8c8bd", fontSize: 13, lineHeight: 1.65, marginTop: 5 }}>先跑通预览和保存，再升级完整 App。</p>
+            <p style={{ color: "#f8f3e6", fontSize: 18, fontWeight: 950 }}>需求生成应用</p>
+            <p style={{ color: "#c8c8bd", fontSize: 13, lineHeight: 1.65, marginTop: 5 }}>不是选页面，是生成一套应用。</p>
           </div>
         </section>
 
         <section style={{ display: "grid", gridTemplateColumns: "390px 1fr", gap: 16, alignItems: "start" }} className="apps-shell">
           <aside style={{ display: "grid", gap: 14 }}>
             <section style={panelStyle}>
+              <p style={labelStyle}>先输入客户真实需求</p>
+              <textarea
+                value={demand}
+                onChange={(event) => setDemand(event.target.value)}
+                placeholder="例如：我做装修设计，客户老问多少钱，我想先让他自己估预算再预约顾问。"
+                rows={5}
+                style={{ ...inputStyle, minHeight: 118 }}
+              />
+              <button type="button" onClick={() => generateFromDemand()} style={{ ...primaryButtonStyle, width: "100%", justifyContent: "center", marginTop: 12 }}>
+                <Sparkles size={16} /> 生成一个完整应用
+              </button>
+              <div style={{ display: "grid", gap: 7, marginTop: 12 }}>
+                {demandExamples.map((example) => (
+                  <button
+                    key={example}
+                    type="button"
+                    onClick={() => {
+                      setDemand(example)
+                      generateFromDemand(example)
+                    }}
+                    style={exampleButtonStyle}
+                  >
+                    {example}
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            <section style={panelStyle}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
-                <p style={{ ...labelStyle, marginBottom: 0 }}>选择小应用类型</p>
+                <p style={{ ...labelStyle, marginBottom: 0 }}>小白判断的应用类型</p>
                 <span style={{ color: "#a99a70", fontSize: 12, fontWeight: 950, display: "inline-flex", alignItems: "center", gap: 5 }}>
                   <RefreshCcw size={13} /> 切换即重生成
                 </span>
@@ -225,8 +306,8 @@ export function AppsClient() {
                             {playbook.icon}
                           </span>
                           <span>
-                            <span style={{ color: active ? "#fff4c9" : "#f8f3e6", fontSize: 16, fontWeight: 950, display: "block", marginBottom: 2 }}>{playbook.mode}</span>
-                            <span style={{ color: "#9f9785", fontSize: 12, fontWeight: 900 }}>{template.shortTitle} · {template.bestFor}</span>
+                            <span style={{ color: active ? "#fff4c9" : "#f8f3e6", fontSize: 16, fontWeight: 950, display: "block", marginBottom: 2 }}>{template.title}</span>
+                            <span style={{ color: "#9f9785", fontSize: 12, fontWeight: 900 }}>{template.bestFor}</span>
                           </span>
                         </span>
                         <ArrowRight size={15} color={active ? playbook.accent : "#6d6a61"} />
@@ -247,7 +328,7 @@ export function AppsClient() {
             </section>
 
             <section style={panelStyle}>
-              <p style={labelStyle}>先把真实业务说清楚</p>
+              <p style={labelStyle}>小白拆出的关键信息</p>
               <Field label="行业/业务" value={industry} onChange={setIndustry} placeholder="例如：餐饮门店、教育培训、电商、装修" />
               <Field label="目标用户" value={audience} onChange={setAudience} placeholder="例如：附近客户、家长、企业老板" />
               <Field label="想达成什么" value={goal} onChange={setGoal} placeholder={currentTemplate.defaultGoal} textarea />
@@ -483,5 +564,18 @@ const savedButtonStyle = {
   display: "grid",
   gap: 3,
   textAlign: "left",
+  cursor: "pointer",
+} as const
+
+const exampleButtonStyle = {
+  border: "1px solid rgba(255,255,255,0.1)",
+  background: "rgba(255,255,255,0.035)",
+  color: "#cfc8b7",
+  borderRadius: 12,
+  padding: "10px 11px",
+  textAlign: "left",
+  fontSize: 13,
+  lineHeight: 1.55,
+  fontWeight: 850,
   cursor: "pointer",
 } as const
