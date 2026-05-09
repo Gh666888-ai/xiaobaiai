@@ -71,9 +71,12 @@ export default function AgentInstallPage() {
       <NavBar />
       <main className="xb-workbench-main" style={{ maxWidth: 1120, margin: "0 auto", padding: "64px clamp(16px,5vw,60px) 104px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.91)" }}>
         <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.34em", color: "#7a6230", textTransform: "uppercase", marginBottom: 12, fontWeight: 950 }}>Agent Install</p>
-        <h1 style={{ color: "#fff", fontSize: 42, fontWeight: 950, lineHeight: 1.2, marginBottom: 14 }}>主流Agent和桌面AI助理安装：先跑通，再接模型 API</h1>
+        <h1 style={{ color: "#fff", fontSize: 42, fontWeight: 950, lineHeight: 1.2, marginBottom: 14 }}>主流Agent和桌面AI助理安装：先选模型，再启动 Agent</h1>
         <p style={{ color: "#ccc", fontSize: 16, lineHeight: 1.9, maxWidth: 880, marginBottom: 22 }}>
-          这里不把模型当 Agent。Claude Code、Codex、OpenClaw、Hermes、Cursor、Cline 是能执行任务的 Agent；ChatGPT Desktop、Claude Desktop、Cherry Studio、Chatbox、AnythingLLM、LM Studio 是桌面 AI 助理或模型客户端；DeepSeek V4、Kimi、OpenAI 是它们下面要接的模型 API。
+          这里不把模型当 Agent。Claude Code、Codex、OpenClaw、Hermes、Cursor、Cline 是能执行任务的 Agent；DeepSeek V4、Kimi、OpenAI 是它们下面要接的模型 API。日常对话可以先选 MiniMax 会员，便宜省事；真正让 Agent 干活时，再按任务换 API 或本地模型。
+        </p>
+        <p style={{ color: "#9ee5d9", fontSize: 14, lineHeight: 1.8, maxWidth: 880, marginBottom: 22, fontWeight: 850 }}>
+          小白AI会持续评测主流模型 API 的能力、价格、上下文、Agent 适配和新手上手成本，价格快照会定时更新。接入前先看 <Link href="/models" style={{ color: "#e8c96a", fontWeight: 950 }}>模型排行和价格快照</Link>。
         </p>
 
         <form action="/search" style={{ display: "flex", alignItems: "center", maxWidth: 720, minHeight: 46, border: "1px solid rgba(201,168,76,0.28)", background: "rgba(8,8,8,0.92)", borderRadius: 10, marginBottom: 28 }}>
@@ -131,7 +134,7 @@ export default function AgentInstallPage() {
         <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 12, padding: "24px 26px" }}>
           <h2 style={{ color: "#fff", fontSize: 21, fontWeight: 950, marginBottom: 10 }}>小白怎么选第一款？</h2>
           <p style={{ color: "#ccc", fontSize: 14, lineHeight: 1.9, marginBottom: 16 }}>
-            完全不会终端，先选 ChatGPT Desktop、Claude Desktop、Cherry Studio 或 Chatbox；想接 DeepSeek V4 做代码任务，先选 OpenClaw 或 Cline；已经能用终端和 Git，再选 Claude Code 或 Codex。
+            只是日常对话和写东西，可以先用 MiniMax 会员；完全不会终端，先选 ChatGPT Desktop、Claude Desktop、Cherry Studio 或 Chatbox；想接 DeepSeek V4 做代码任务，先选 OpenClaw 或 Cline；已经能用终端和 Git，再选 Claude Code 或 Codex。
           </p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link href="/agent-install/openclaw" className="btn-primary" style={{ textDecoration: "none" }}>国内新手先跑 OpenClaw</Link>

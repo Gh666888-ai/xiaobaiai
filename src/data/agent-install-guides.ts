@@ -243,6 +243,26 @@ const openAiFields = [
   { label: "模型", value: "按工具模型列表选择当前可用模型" },
 ]
 
+const minimaxOpenAiFields = [
+  { label: "Provider", value: "OpenAI Compatible / Custom" },
+  { label: "Base URL", value: "https://api.minimax.io/v1" },
+  { label: "API Key", value: "你的 MiniMax API Key" },
+  { label: "日常对话先选", value: "MiniMax-M2.7" },
+  { label: "更快版本", value: "MiniMax-M2.7-highspeed" },
+]
+
+const minimaxOpenAiConnection: AgentApiConnection = {
+  name: "接入 MiniMax",
+  badge: "日常对话低成本",
+  description: "如果用户只是聊天、写文案、问问题，可以先用 MiniMax 会员或 MiniMax API。支持 OpenAI Compatible 的工具，按下面这组填写。",
+  fields: minimaxOpenAiFields,
+  notes: [
+    "MiniMax 更适合作为新手日常对话和轻量工作入口；复杂 Agent、长代码任务、企业资料任务后期再按需求换模型。",
+    "MiniMax 官方兼容 OpenAI API，Base URL 使用 https://api.minimax.io/v1。",
+    "价格和套餐变化很快，正式开会员或接 API 前先看本站模型排行和价格快照，再复核官方价格页。",
+  ],
+}
+
 const deepseekOpenAiConnection: AgentApiConnection = {
   name: "接入 DeepSeek V4",
   badge: "国内优先",
@@ -445,7 +465,7 @@ claude`,
         solution: "软件启动成功了，但默认服务连不上。国内用户先按下面 DeepSeek Anthropic Compatible 配置。",
       },
     ],
-    apiConnections: [anthropicDeepseekConnection, openAiConnection],
+    apiConnections: [minimaxOpenAiConnection, anthropicDeepseekConnection, openAiConnection],
   },
   {
     slug: "codex",
@@ -511,7 +531,7 @@ codex`,
         solution: "新手选择需要确认的模式。看懂命令是做什么的，再允许执行。",
       },
     ],
-    apiConnections: [codexOpenAiConnection, codexCompatibleConnection],
+    apiConnections: [codexOpenAiConnection, codexCompatibleConnection, minimaxOpenAiConnection],
   },
   {
     slug: "openclaw",
@@ -617,7 +637,7 @@ codex`,
         command: "npx playbooks add skill openclaw/skills --skill clawx",
       },
     ],
-    apiConnections: [deepseekOpenAiConnection, kimiConnection, openAiConnection],
+    apiConnections: [minimaxOpenAiConnection, deepseekOpenAiConnection, kimiConnection, openAiConnection],
   },
   {
     slug: "hermes",
@@ -707,7 +727,7 @@ codex`,
         solution: "先确认 Hermes 本体能在终端回答，再排查飞书/企业微信网关。",
       },
     ],
-    apiConnections: [deepseekOpenAiConnection, kimiConnection, openAiConnection],
+    apiConnections: [minimaxOpenAiConnection, deepseekOpenAiConnection, kimiConnection, openAiConnection],
   },
   {
     slug: "cursor-agent",
@@ -761,7 +781,7 @@ codex`,
         solution: "Cursor 官方设置主要支持 OpenAI、Anthropic、Google、Azure、Bedrock 等。DeepSeek 这类自定义 base_url 要看当前版本是否开放对应入口。",
       },
     ],
-    apiConnections: [openAiConnection, kimiConnection, deepseekOpenAiConnection],
+    apiConnections: [minimaxOpenAiConnection, openAiConnection, kimiConnection, deepseekOpenAiConnection],
   },
   {
     slug: "cline",
@@ -819,7 +839,7 @@ codex`,
         solution: "拒绝执行，并让它解释命令作用。新手不要允许删除、部署、支付相关命令。",
       },
     ],
-    apiConnections: [deepseekOpenAiConnection, kimiConnection, openAiConnection],
+    apiConnections: [minimaxOpenAiConnection, deepseekOpenAiConnection, kimiConnection, openAiConnection],
   },
 ]
 
@@ -856,7 +876,7 @@ const agentDesktopAppGuides: AgentInstallGuide[] = [
       { title: "看不到会话", solution: "确认 OpenClaw gateway 正在运行，并且 Host URL 是浏览器能访问的地址。" },
       { title: "Windows 安装被拦截", solution: "先确认下载来源是 claw.so，再按系统提示继续。不要运行群文件里的安装包。" },
     ],
-    apiConnections: [noCustomApiConnection("Claw Desktop"), deepseekOpenAiConnection],
+    apiConnections: [noCustomApiConnection("Claw Desktop"), minimaxOpenAiConnection, deepseekOpenAiConnection],
   },
   {
     slug: "clawx",
@@ -908,7 +928,7 @@ const agentDesktopAppGuides: AgentInstallGuide[] = [
         install: "先完成本地测试，再接消息渠道，避免同时排查多个问题。",
       },
     ],
-    apiConnections: [deepseekOpenAiConnection, kimiConnection, openAiConnection],
+    apiConnections: [minimaxOpenAiConnection, deepseekOpenAiConnection, kimiConnection, openAiConnection],
   },
   {
     slug: "windsurf",
@@ -942,7 +962,7 @@ const agentDesktopAppGuides: AgentInstallGuide[] = [
       { title: "Cascade 改动太多", solution: "提示词里明确只改一个文件或一个小功能，要求它先列计划。" },
       { title: "账号或额度不够", solution: "先在官方账号里确认 plan 和 credits。不要把 API Key 发给不明中转站。" },
     ],
-    apiConnections: [openAiConnection, deepseekOpenAiConnection, kimiConnection],
+    apiConnections: [minimaxOpenAiConnection, openAiConnection, deepseekOpenAiConnection, kimiConnection],
   },
   {
     slug: "kiro",
@@ -976,7 +996,7 @@ const agentDesktopAppGuides: AgentInstallGuide[] = [
       { title: "Linux 打不开", solution: "检查发行版 glibc 版本。官方要求 glibc 2.39+，老 Ubuntu 版本可能不行。" },
       { title: "一上来想直接生成完整项目", solution: "Kiro 的强项是先规格后实现。先让它拆 requirements / design / tasks。" },
     ],
-    apiConnections: [noCustomApiConnection("Kiro"), openAiConnection],
+    apiConnections: [noCustomApiConnection("Kiro"), minimaxOpenAiConnection, openAiConnection],
   },
   {
     slug: "trae",
@@ -1010,7 +1030,7 @@ const agentDesktopAppGuides: AgentInstallGuide[] = [
       { title: "安全软件拦截", solution: "先确认下载地址是 trae.cn 官方，再按系统提示处理。不要运行来路不明安装包。" },
       { title: "担心隐私", solution: "先用无隐私的小项目测试。公司代码、客户资料、API Key 不要随便交给任何新工具。" },
     ],
-    apiConnections: [noCustomApiConnection("TRAE IDE"), openAiConnection],
+    apiConnections: [noCustomApiConnection("TRAE IDE"), minimaxOpenAiConnection, openAiConnection],
   },
   {
     slug: "qoder",
@@ -1044,7 +1064,7 @@ const agentDesktopAppGuides: AgentInstallGuide[] = [
       { title: "项目太大分析慢", solution: "先让它只分析一个目录，或先生成 Repo Wiki，不要一次让它改全项目。" },
       { title: "模型和套餐限制", solution: "先看账号当前 plan、credits、可用模型。别把它当成本地免费模型。" },
     ],
-    apiConnections: [noCustomApiConnection("Qoder"), openAiConnection],
+    apiConnections: [noCustomApiConnection("Qoder"), minimaxOpenAiConnection, openAiConnection],
   },
 ]
 
@@ -1146,7 +1166,7 @@ const desktopAssistantGuides: AgentInstallGuide[] = [
       { title: "Windows 安装被拦截", solution: "确认安装包来自官方或 GitHub release，再按系统提示允许。" },
       { title: "模型太多不知道选哪个", solution: "日常任务用 DeepSeek V4 Flash；复杂任务再换 Pro；长文档用 Kimi。" },
     ],
-    apiConnections: [deepseekOpenAiConnection, kimiConnection, openAiConnection],
+    apiConnections: [minimaxOpenAiConnection, deepseekOpenAiConnection, kimiConnection, openAiConnection],
   },
   {
     slug: "chatbox",
@@ -1179,7 +1199,7 @@ const desktopAssistantGuides: AgentInstallGuide[] = [
       { title: "OpenAI Compatible 报错", solution: "DeepSeek Base URL 先试 https://api.deepseek.com；如果工具要求 /v1，再改成 https://api.deepseek.com/v1。" },
       { title: "Ollama 连接不上", solution: "先确认 Ollama 已经运行，并且模型能在本地命令行回答。" },
     ],
-    apiConnections: [deepseekOpenAiConnection, kimiConnection, openAiConnection, localOpenAiServerConnection],
+    apiConnections: [minimaxOpenAiConnection, deepseekOpenAiConnection, kimiConnection, openAiConnection, localOpenAiServerConnection],
   },
   {
     slug: "anythingllm",
@@ -1212,7 +1232,7 @@ const desktopAssistantGuides: AgentInstallGuide[] = [
       { title: "本地模型太慢", solution: "电脑配置不高就先用 DeepSeek API 或 Kimi API，不要硬跑大模型。" },
       { title: "Agent 权限太大", solution: "只给它必要技能，涉及文件写入、浏览器、邮箱前先确认。" },
     ],
-    apiConnections: [deepseekOpenAiConnection, kimiConnection, openAiConnection, localOpenAiServerConnection],
+    apiConnections: [minimaxOpenAiConnection, deepseekOpenAiConnection, kimiConnection, openAiConnection, localOpenAiServerConnection],
   },
   {
     slug: "lm-studio",

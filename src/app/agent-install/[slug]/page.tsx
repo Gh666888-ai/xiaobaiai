@@ -44,6 +44,76 @@ function CodeBlock({ code }: { code: string }) {
   )
 }
 
+function ApiConnectionsSection({ guide }: { guide: NonNullable<ReturnType<typeof agentGuideBySlug.get>> }) {
+  return (
+    <section id="api" style={{ marginBottom: 42 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+        <KeyRound size={18} style={{ color: "#e8c96a" }} />
+        <h2 style={{ color: "#fff", fontSize: 25, fontWeight: 950 }}>先选模型 API 或本地模型</h2>
+      </div>
+      <p style={{ color: "#aaa", fontSize: 14, lineHeight: 1.85, marginBottom: 16 }}>
+        Agent 本体只是执行工具，模型才是“大脑”。日常对话可以先用 MiniMax 会员，便宜省事；真正让 Agent 执行代码、资料、自动化任务时，再按需求换 DeepSeek/Kimi/OpenAI 这类云端 API，或者用 LM Studio / Ollama 部署本地模型。
+      </p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 10, marginBottom: 16 }} className="agent-run-grid">
+        <div style={{ border: "1px solid rgba(232,201,106,0.22)", background: "rgba(201,168,76,0.055)", borderRadius: 10, padding: "14px 16px" }}>
+          <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>模型 = Agent 的大脑</p>
+          <p style={{ color: "#cfcfcf", fontSize: 12, lineHeight: 1.7 }}>负责理解、推理、写内容、决定下一步怎么做。</p>
+        </div>
+        <div style={{ border: "1px solid rgba(82,148,139,0.28)", background: "rgba(82,148,139,0.055)", borderRadius: 10, padding: "14px 16px" }}>
+          <p style={{ color: "#9ee5d9", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>Agent = 模型的手脚</p>
+          <p style={{ color: "#cfcfcf", fontSize: 12, lineHeight: 1.7 }}>负责打开工具、读文件、改代码、跑命令、执行任务。</p>
+        </div>
+      </div>
+      <p style={{ color: "#b9d8d2", fontSize: 13, lineHeight: 1.75, marginBottom: 16 }}>
+        小白AI会持续记录各个模型 API 的能力评分和价格变化。正式接入前，先看 <Link href="/models" style={{ color: "#e8c96a", fontWeight: 950 }}>模型排行和价格快照</Link>，不要只凭一篇旧教程决定。
+      </p>
+      <div style={{ display: "grid", gap: 14 }}>
+        {guide.apiConnections.map((api) => (
+          <div key={api.name} style={{ border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: "22px 24px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
+              <h3 style={{ color: "#fff", fontSize: 20, fontWeight: 950 }}>{api.name}</h3>
+              <span className="tag tag-gold" style={{ color: "#e8c96a", fontSize: 11, fontWeight: 950 }}>{api.badge}</span>
+            </div>
+            <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.8, marginBottom: 14 }}>{api.description}</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,220px),1fr))", gap: 8, marginBottom: api.windowsCommand || api.macCommand ? 14 : 12 }}>
+              {api.fields.map((field) => (
+                <div key={`${api.name}-${field.label}`} style={{ border: "1px solid #222", background: "rgba(0,0,0,0.24)", borderRadius: 9, padding: "11px 12px" }}>
+                  <p style={{ color: "#888", fontSize: 11, fontWeight: 900, marginBottom: 5 }}>{field.label}</p>
+                  <p style={{ color: "#f0d77a", fontSize: 13, fontWeight: 950, lineHeight: 1.45, wordBreak: "break-word" }}>{field.value}</p>
+                </div>
+              ))}
+            </div>
+            {(api.windowsCommand || api.macCommand) && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,300px),1fr))", gap: 12, marginBottom: 12 }}>
+                {api.windowsCommand && (
+                  <div>
+                    <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 8 }}>Windows PowerShell 复制</p>
+                    <CodeBlock code={api.windowsCommand} />
+                  </div>
+                )}
+                {api.macCommand && (
+                  <div>
+                    <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 8 }}>Mac / Linux / WSL 复制</p>
+                    <CodeBlock code={api.macCommand} />
+                  </div>
+                )}
+              </div>
+            )}
+            <div style={{ display: "grid", gap: 7 }}>
+              {api.notes.map((note) => (
+                <p key={note} style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7, display: "grid", gridTemplateColumns: "16px 1fr", gap: 7 }}>
+                  <CheckCircle2 size={13} style={{ color: "#3DA563", marginTop: 4 }} />
+                  <span>{note}</span>
+                </p>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 export default function AgentInstallDetailPage({ params }: PageProps) {
   const guide = agentGuideBySlug.get(params.slug)
   if (!guide) notFound()
@@ -87,8 +157,8 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
               ))}
             </div>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <a href="#install" className="btn-primary" style={{ textDecoration: "none" }}>开始安装</a>
-              <a href="#api" className="btn-outline" style={{ textDecoration: "none" }}>看 API 接口</a>
+              <a href="#model-choice" className="btn-primary" style={{ textDecoration: "none" }}>先选模型</a>
+              <a href="#install" className="btn-outline" style={{ textDecoration: "none" }}>再安装启动</a>
               {guide.officialUrl && (
                 <a href={guide.officialUrl} target="_blank" rel="noreferrer" className="btn-outline" style={{ textDecoration: "none" }}>
                   官方文档 <ExternalLink size={13} />
@@ -115,9 +185,9 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
           <h2 style={{ color: "#fff", fontSize: 23, fontWeight: 950, lineHeight: 1.35, marginBottom: 14 }}>别一次看完整页，先按这 3 步跑通</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 10 }} className="agent-run-grid">
             {[
-              { title: "1. 先安装", desc: "只复制安装区里的命令。看到版本号或应用能打开，就算过。" },
-              { title: "2. 再启动", desc: "到“安装好以后怎么启动”复制启动命令，看到输入框或对话界面。" },
-              { title: "3. 最后接模型", desc: "需要 DeepSeek/Kimi/OpenAI 时，再去 API 区填写，不要一开始混在一起。" },
+              { title: "1. 先选模型", desc: "云端 API 就准备 Key；本地模型就先启动 LM Studio / Ollama 服务。" },
+              { title: "2. 再安装", desc: "复制安装区命令。看到版本号或应用能打开，说明本体装好了。" },
+              { title: "3. 启动验证", desc: "带着模型配置启动，能问一句并正常回复，才算真的跑通。" },
             ].map((item) => (
               <div key={item.title} style={{ border: "1px solid rgba(255,255,255,0.09)", background: "rgba(0,0,0,0.22)", borderRadius: 10, padding: "15px 16px", minHeight: 118 }}>
                 <h3 style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>{item.title}</h3>
@@ -126,6 +196,31 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
             ))}
           </div>
         </section>
+
+        <section id="model-choice" style={{ border: "1px solid rgba(82,148,139,0.28)", background: "rgba(82,148,139,0.052)", borderRadius: 12, padding: "22px 24px", marginBottom: 30 }}>
+          <div style={{ display: "flex", alignItems: "start", justifyContent: "space-between", gap: 14, flexWrap: "wrap", marginBottom: 12 }}>
+            <h2 style={{ color: "#fff", fontSize: 23, fontWeight: 950, lineHeight: 1.35, margin: 0 }}>安装前先决定：用哪一个模型大脑</h2>
+            <span style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, border: "1px solid rgba(232,201,106,0.24)", borderRadius: 999, padding: "7px 10px", background: "rgba(201,168,76,0.06)" }}>模型是大脑，Agent 是手脚</span>
+          </div>
+          <p style={{ color: "#b9d8d2", fontSize: 14, lineHeight: 1.8, marginBottom: 14 }}>
+            刚开始别追最贵模型。先用便宜、稳定、能跑通的方案，等你真的开始做项目、跑 Agent、处理长文档，再换更强模型。
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 10 }} className="agent-run-grid">
+            {[
+              { title: "日常对话", desc: "可以先选 MiniMax，开会员成本低。先聊天、写文案、问问题，后期再按任务换模型。" },
+              { title: "Agent 干活", desc: "需要工具执行、写代码、跑流程时，再去 DeepSeek、Kimi 或 OpenAI 拿 API Key。" },
+              { title: "本地模型", desc: "适合隐私资料或想离线用。先用 LM Studio / Ollama 下载模型并开启本地服务。" },
+              { title: "官方账号", desc: "ChatGPT Desktop、Claude Desktop 这类应用用官方账号登录，不能直接填 DeepSeek Key。" },
+            ].map((item) => (
+              <div key={item.title} style={{ border: "1px solid rgba(255,255,255,0.09)", background: "rgba(0,0,0,0.24)", borderRadius: 10, padding: "16px 17px", minHeight: 132 }}>
+                <h3 style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>{item.title}</h3>
+                <p style={{ color: "#b9d8d2", fontSize: 13, lineHeight: 1.75 }}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <ApiConnectionsSection guide={guide} />
 
         <section id="install" style={{ marginBottom: 42 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
@@ -273,59 +368,6 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
             </div>
           </section>
         )}
-
-        <section id="api" style={{ marginBottom: 42 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-            <KeyRound size={18} style={{ color: "#e8c96a" }} />
-            <h2 style={{ color: "#fff", fontSize: 25, fontWeight: 950 }}>模型 API 接口配置</h2>
-          </div>
-          <p style={{ color: "#aaa", fontSize: 13, lineHeight: 1.85, marginBottom: 16 }}>
-            先把 Agent 安装跑通，再接模型。DeepSeek V4、Kimi、OpenAI 是模型 API，不是 Agent；它们负责给 Agent 提供大脑。
-          </p>
-          <div style={{ display: "grid", gap: 14 }}>
-            {guide.apiConnections.map((api) => (
-              <div key={api.name} style={{ border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: "22px 24px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
-                  <h3 style={{ color: "#fff", fontSize: 20, fontWeight: 950 }}>{api.name}</h3>
-                  <span className="tag tag-gold" style={{ color: "#e8c96a", fontSize: 11, fontWeight: 950 }}>{api.badge}</span>
-                </div>
-                <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.8, marginBottom: 14 }}>{api.description}</p>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,220px),1fr))", gap: 8, marginBottom: api.windowsCommand || api.macCommand ? 14 : 12 }}>
-                  {api.fields.map((field) => (
-                    <div key={`${api.name}-${field.label}`} style={{ border: "1px solid #222", background: "rgba(0,0,0,0.24)", borderRadius: 9, padding: "11px 12px" }}>
-                      <p style={{ color: "#888", fontSize: 11, fontWeight: 900, marginBottom: 5 }}>{field.label}</p>
-                      <p style={{ color: "#f0d77a", fontSize: 13, fontWeight: 950, lineHeight: 1.45, wordBreak: "break-word" }}>{field.value}</p>
-                    </div>
-                  ))}
-                </div>
-                {(api.windowsCommand || api.macCommand) && (
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,300px),1fr))", gap: 12, marginBottom: 12 }}>
-                    {api.windowsCommand && (
-                      <div>
-                        <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 8 }}>Windows PowerShell 复制</p>
-                        <CodeBlock code={api.windowsCommand} />
-                      </div>
-                    )}
-                    {api.macCommand && (
-                      <div>
-                        <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 8 }}>Mac / Linux / WSL 复制</p>
-                        <CodeBlock code={api.macCommand} />
-                      </div>
-                    )}
-                  </div>
-                )}
-                <div style={{ display: "grid", gap: 7 }}>
-                  {api.notes.map((note) => (
-                    <p key={note} style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7, display: "grid", gridTemplateColumns: "16px 1fr", gap: 7 }}>
-                      <CheckCircle2 size={13} style={{ color: "#3DA563", marginTop: 4 }} />
-                      <span>{note}</span>
-                    </p>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
 
         <section style={{ marginBottom: 42 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
