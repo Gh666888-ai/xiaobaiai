@@ -209,10 +209,14 @@ function LevelTitlePlate({
             drop-shadow(0 7px 16px rgba(0,0,0,0.34));
         }
         .levelTitlePlate.isCompact {
-          min-width: 198px;
-          min-height: 58px;
+          min-width: 154px;
+          width: 154px;
+          min-height: 36px;
+          max-height: 38px;
           gap: 7px;
-          padding: 8px 26px 8px 18px;
+          padding: 4px 12px 4px 8px;
+          overflow: hidden;
+          border-radius: 999px;
         }
         .autoPlateImage {
           position: absolute;
@@ -249,8 +253,21 @@ function LevelTitlePlate({
             contrast(1.03);
         }
         .levelTitlePlate.isCompact .autoPlateImage {
-          width: 120%;
-          max-height: 190%;
+          left: 49%;
+          width: 200px;
+          max-height: none;
+        }
+        .levelTitlePlate.isCompact.levelBeast-lushu .autoPlateImage {
+          width: 186px;
+          filter: saturate(0.78) brightness(0.82) contrast(1.02);
+        }
+        .levelTitlePlate.isCompact.levelBeast-bifang .autoPlateImage {
+          width: 194px;
+          filter: saturate(0.84) brightness(0.76) contrast(1.04);
+        }
+        .levelTitlePlate.isCompact.levelBeast-yingzhao .autoPlateImage {
+          width: 202px;
+          filter: saturate(0.78) brightness(0.74) contrast(1.03);
         }
         .levelBackPlate {
           position: absolute;
@@ -586,15 +603,15 @@ function LevelTitlePlate({
           clip-path: polygon(0 50%, 20% 16%, 44% 30%, 62% 6%, 100% 50%, 62% 94%, 44% 70%, 20% 84%);
         }
         .levelTitlePlate.isCompact.levelTier-starter {
-          min-width: 158px;
+          min-width: 154px;
         }
         .levelTitlePlate.isCompact.levelTier-adept {
-          min-width: 178px;
+          min-width: 154px;
         }
         .levelTitlePlate.isCompact.levelTier-master {
-          min-width: 188px;
-          min-height: 48px;
-          padding: 6px 14px 6px 8px;
+          min-width: 154px;
+          min-height: 36px;
+          padding: 4px 12px 4px 8px;
         }
         .levelTitlePlate.isCompact.levelTier-master .levelPlateCore {
           inset: 4px 8px;
@@ -611,8 +628,8 @@ function LevelTitlePlate({
           margin-left: 0;
         }
         .isCompact .levelGemWrap {
-          width: 30px;
-          height: 30px;
+          width: 27px;
+          height: 27px;
         }
         .levelGem {
           width: 32px;
@@ -627,8 +644,8 @@ function LevelTitlePlate({
           box-shadow: 0 0 18px var(--plate-glow), inset 0 2px 7px rgba(255,255,255,0.82), inset 0 -9px 13px rgba(0,0,0,0.26);
         }
         .isCompact .levelGem {
-          width: 25px;
-          height: 25px;
+          width: 22px;
+          height: 22px;
         }
         .levelGemMark {
           position: absolute;
@@ -650,9 +667,9 @@ function LevelTitlePlate({
           line-height: 1;
         }
         .isCompact .levelGemMark {
-          min-width: 14px;
-          height: 14px;
-          font-size: 8px;
+          min-width: 12px;
+          height: 12px;
+          font-size: 7px;
         }
         .levelFrame-purpleBlade .levelGem,
         .levelFrame-crystal .levelGem,
@@ -689,6 +706,10 @@ function LevelTitlePlate({
           padding-right: 16px;
           padding-left: 4px;
         }
+        .isCompact .levelPlateText {
+          padding-right: 0;
+          padding-left: 0;
+        }
         .levelTopline {
           display: flex;
           align-items: center;
@@ -704,6 +725,11 @@ function LevelTitlePlate({
           font-size: 14px;
           font-weight: 950;
           text-shadow: 0 1px 0 rgba(0,0,0,0.78), 0 0 10px rgba(0,0,0,0.82), 0 0 12px var(--plate-glow);
+        }
+        .isCompact .levelUserName {
+          max-width: 58px;
+          font-size: 12px;
+          text-shadow: 0 1px 0 rgba(0,0,0,0.95), 0 0 7px rgba(0,0,0,0.88);
         }
         .levelNumber {
           color: #120b00;
@@ -772,9 +798,10 @@ function LevelTitlePlate({
         }
         @media (max-width: 860px) {
           .levelTitlePlate.isCompact {
-            min-width: 170px;
-            min-height: 50px;
-            padding: 7px 18px 7px 14px;
+            min-width: 142px;
+            width: 142px;
+            min-height: 34px;
+            padding: 4px 10px 4px 7px;
           }
           .levelTitlePlate.isCompact .levelWing {
             width: 28px;
@@ -784,8 +811,8 @@ function LevelTitlePlate({
           .levelTitlePlate.isCompact .levelWing.left { left: -15px; }
           .levelTitlePlate.isCompact .levelWing.right { right: -15px; }
           .levelTitlePlate.isCompact .levelUserName {
-            max-width: 74px;
-            font-size: 11px;
+            max-width: 50px;
+            font-size: 10px;
           }
           .levelTitlePlate.isCompact .levelNumber {
             font-size: 8px;
@@ -835,8 +862,8 @@ function CoCreatorBadge({
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 236px;
-            height: 58px;
+            width: 178px;
+            height: 42px;
             position: relative;
             overflow: visible;
             vertical-align: middle;
@@ -848,8 +875,8 @@ function CoCreatorBadge({
           .coCreatorImageBadge-partnerPlus { --stage-glow: rgba(55,219,199,0.54); }
           .coCreatorImageBadge-legend {
             --stage-glow: rgba(235,248,255,0.9);
-            width: 292px;
-            height: 64px;
+            width: 204px;
+            height: 48px;
             filter:
               drop-shadow(0 0 10px rgba(245,252,255,0.72))
               drop-shadow(0 0 22px rgba(126,215,255,0.62));
@@ -868,22 +895,22 @@ function CoCreatorBadge({
           }
           @media (max-width: 860px) {
             .coCreatorImageBadge {
-              width: 176px;
-              height: 43px;
-            }
-            .coCreatorImageBadge-legend {
-              width: 214px;
-              height: 48px;
-            }
-          }
-          @media (max-width: 420px) {
-            .coCreatorImageBadge {
               width: 148px;
               height: 36px;
             }
             .coCreatorImageBadge-legend {
-              width: 176px;
+              width: 170px;
               height: 40px;
+            }
+          }
+          @media (max-width: 420px) {
+            .coCreatorImageBadge {
+              width: 132px;
+              height: 32px;
+            }
+            .coCreatorImageBadge-legend {
+              width: 150px;
+              height: 36px;
             }
           }
         `}</style>
