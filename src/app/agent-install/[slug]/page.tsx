@@ -109,6 +109,23 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
           </aside>
         </section>
 
+        <section style={{ border: "1px solid rgba(201,168,76,0.24)", background: "linear-gradient(135deg,rgba(201,168,76,0.075),rgba(255,255,255,0.026))", borderRadius: 12, padding: "20px 22px", marginBottom: 30 }}>
+          <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.2em", color: "#7a6230", textTransform: "uppercase", fontWeight: 950, marginBottom: 8 }}>Xiaobai Quick Run</p>
+          <h2 style={{ color: "#fff", fontSize: 23, fontWeight: 950, lineHeight: 1.35, marginBottom: 14 }}>别一次看完整页，先按这 3 步跑通</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 10 }} className="agent-run-grid">
+            {[
+              { title: "1. 先安装", desc: "只复制安装区里的命令。看到版本号或应用能打开，就算过。" },
+              { title: "2. 再启动", desc: "到“安装好以后怎么启动”复制启动命令，看到输入框或对话界面。" },
+              { title: "3. 最后接模型", desc: "需要 DeepSeek/Kimi/OpenAI 时，再去 API 区填写，不要一开始混在一起。" },
+            ].map((item) => (
+              <div key={item.title} style={{ border: "1px solid rgba(255,255,255,0.09)", background: "rgba(0,0,0,0.22)", borderRadius: 10, padding: "15px 16px", minHeight: 118 }}>
+                <h3 style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>{item.title}</h3>
+                <p style={{ color: "#aaa", fontSize: 13, lineHeight: 1.75 }}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <section id="install" style={{ marginBottom: 42 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
             <TerminalSquare size={18} style={{ color: "#e8c96a" }} />
@@ -142,6 +159,22 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
                 <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.8, marginBottom: 12 }}>{step.body}</p>
                 {step.command && <CodeBlock code={step.command} />}
               </div>
+            ))}
+          </div>
+        </section>
+
+        <section style={{ border: "1px solid rgba(61,165,99,0.28)", background: "rgba(61,165,99,0.06)", borderRadius: 12, padding: "20px 22px", marginBottom: 42 }}>
+          <h2 style={{ color: "#fff", fontSize: 22, fontWeight: 950, marginBottom: 12 }}>跑通验收标准</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 10 }} className="agent-run-grid">
+            {[
+              "你能打开这个工具，或者在终端看到版本号。",
+              "你能输入一句测试问题，并得到一次正常回复。",
+              "你知道这个工具是 Agent / 桌面助理 / 模型客户端里的哪一种。",
+            ].map((item) => (
+              <p key={item} style={{ color: "#d7f0df", fontSize: 14, lineHeight: 1.75, display: "grid", gridTemplateColumns: "20px 1fr", gap: 8 }}>
+                <CheckCircle2 size={15} style={{ color: "#3DA563", marginTop: 4 }} />
+                <span>{item}</span>
+              </p>
             ))}
           </div>
         </section>
@@ -281,6 +314,9 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
       <style>{`
         @media (max-width: 820px) {
           .agent-hero-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .agent-run-grid {
             grid-template-columns: 1fr !important;
           }
         }

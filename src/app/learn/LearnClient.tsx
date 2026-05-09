@@ -13,7 +13,7 @@ const beginnerChoices = [
   {
     label: "我完全不知道从哪开始",
     title: "先做一份 6 页 PPT 初稿",
-    desc: "不用先选工具，跟着复制一句提示词，先做出一个能看的文件。",
+    desc: "先做出能看的初稿，再按标准判断哪里能用、哪里要改。",
     href: "/start?goal=做PPT",
     cta: "从这里开始",
     highlight: true,
@@ -42,10 +42,10 @@ const beginnerChoices = [
 ]
 
 const firstRunSteps = [
-  { title: "不用选课", desc: "默认从第一个可交付任务开始。" },
-  { title: "只做一步", desc: "复制提示词，打开工具，留下一个结果。" },
-  { title: "能判断完成", desc: "页面会要求你勾选或粘贴证明，不是自己猜。" },
-  { title: "再给下一步", desc: "做完以后才出现更深的任务路线。" },
+  { title: "先跑通", desc: "打开工具，做出第一个看得见的结果。" },
+  { title: "再验收", desc: "按页面标准判断它能不能真的用。" },
+  { title: "会修改", desc: "结果差时，用补救提示词让 AI 改第二版。" },
+  { title: "留复盘", desc: "记住工具、提示词、失败点和下次改法。" },
 ]
 
 const nextAfterFirstTask = [
@@ -68,11 +68,11 @@ const curriculumFlow = [
   },
   {
     level: "新手村 2",
-    title: "复制提示词，得到第一个小结果",
+    title: "得到第一个小结果，并知道好坏",
     difficulty: "简单",
-    desc: "照着模板复制，不要求会写提示词，只要求知道资料要放在哪里。",
-    output: "得到一段可复制的文案、摘要或需求单。",
-    proof: "粘贴 10 字以上结果。",
+    desc: "照着模板生成第一版，再用验收标准看哪里能用、哪里要改。",
+    output: "一段可修改、可复用的文案、摘要或需求单。",
+    proof: "引导任务点确认；高阶交付再截图或粘贴成果。",
     href: "/learn/1",
   },
   {
@@ -162,7 +162,7 @@ const deepTrack = [
   {
     phase: "第一天",
     title: "只跑通一个最小交付",
-    goal: "打开工具，完成一个步骤，留下证明。",
+    goal: "打开工具，完成一个步骤，知道成功长什么样。",
     unlock: "完成任意任务第 1 步",
     href: "/start",
   },
@@ -177,7 +177,7 @@ const deepTrack = [
     phase: "第 1 周",
     title: "做三个不同类型产物",
     goal: "办公产物、内容产物、知识库或自动化产物至少各碰一次。",
-    unlock: "任务证明里出现 3 个可检查成果",
+    unlock: "任务记录里出现 3 个可检查成果",
     href: "/missions",
   },
   {
@@ -202,6 +202,13 @@ const masteryChecks = [
   { name: "会交付", desc: "能导出文件、表格、脚本、流程图或可发布草稿。" },
   { name: "会复用", desc: "能保存提示词、模板和失败修复方法。" },
   { name: "会升级", desc: "能把一次任务迁移到另一个场景或更长流程。" },
+]
+
+const depthRules = [
+  { title: "不是看完教程", desc: "必须做出一个结果，哪怕很小。" },
+  { title: "不是只会复制", desc: "要知道提示词为什么这样写。" },
+  { title: "不是生成就完", desc: "要按标准验收，差的地方再改一版。" },
+  { title: "不是做完就忘", desc: "要留下复盘，下一次能少踩坑。" },
 ]
 const todayActions = [
   { title: "选一个目标", desc: "不是选工具，而是说清楚你想做成什么事。", href: "/start" },
@@ -237,7 +244,7 @@ export default function LearnPage() {
             <div style={{maxWidth:680}}>
               <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.22em',color:'#7a6230',textTransform:'uppercase',fontWeight:950,marginBottom:10}}>XIAOBAI LEARNING</p>
               <h1 style={{fontSize:'clamp(30px,5vw,52px)',fontWeight:950,color:'#fff',letterSpacing:0,lineHeight:1.12,marginBottom:12}}>先做一件事，再学需要的 AI 工具</h1>
-              <p style={{fontSize:15,color:'#b8b8b8',lineHeight:1.9,maxWidth:640}}>学习页不应该像课程超市。你只要告诉小白你的行业和想做成什么事，小白会给你对应的任务入口；你自己点进去以后，它再一步一步带你做完。真正跨工具、跨系统、自动运行的公司流程，才放进工作流。</p>
+              <p style={{fontSize:16,color:'#d0d0d0',lineHeight:1.9,maxWidth:660,fontWeight:850}}>学习页不应该像课程超市。你只要告诉小白你的行业和想做成什么事，小白会给你对应的任务入口；你自己点进去以后，它会按“跑通、验收、迭代、复盘”带你做完。</p>
             </div>
             <div style={{minWidth:150,border:'1px solid #242424',background:'rgba(255,255,255,0.025)',borderRadius:10,padding:'14px 15px'}}>
               <p style={{fontSize:12,fontWeight:950,color:'#fff',marginBottom:8}}>我的进度</p>
@@ -253,6 +260,20 @@ export default function LearnPage() {
             <Link href={nextMainAction} className="btn-primary" style={{textDecoration:'none'}}>{nextMainText}</Link>
             <Link href="/agent-install" className="btn-outline" style={{textDecoration:'none'}}>先装 Agent 工具</Link>
             <Link href="/missions" className="btn-outline" style={{textDecoration:'none'}}>查看任务库</Link>
+          </div>
+        </section>
+
+        <section style={{border:'1px solid rgba(201,168,76,0.22)',background:'linear-gradient(135deg,rgba(201,168,76,0.07),rgba(255,255,255,0.024))',borderRadius:12,padding:'18px 20px',marginBottom:14}}>
+          <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950,color:'#7a6230',letterSpacing:'0.16em',marginBottom:8}}>DEEP LEARNING LOOP</p>
+          <h2 style={{fontSize:22,fontWeight:950,color:'#fff',lineHeight:1.35,marginBottom:12}}>小白AI的深度学习，不是把教程写长</h2>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,minmax(0,1fr))',gap:10}} className="learn-choice-grid">
+            {depthRules.map((item,index)=>(
+              <div key={item.title} style={{border:'1px solid rgba(255,255,255,0.08)',background:'rgba(0,0,0,0.22)',borderRadius:10,padding:'14px 14px',minHeight:112}}>
+                <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:950,color:'#e8c96a',marginBottom:8}}>0{index+1}</p>
+                <h3 style={{fontSize:16,fontWeight:950,color:'#fff',lineHeight:1.35,marginBottom:6}}>{item.title}</h3>
+                <p style={{fontSize:13,color:'#aaa',lineHeight:1.7}}>{item.desc}</p>
+              </div>
+            ))}
           </div>
         </section>
 

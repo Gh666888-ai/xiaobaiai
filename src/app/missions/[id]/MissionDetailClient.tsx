@@ -603,9 +603,12 @@ function CompleteCard({
       </div>
       {nextMission && (
         <section style={{ border: "1px solid rgba(201,168,76,0.34)", background: "rgba(201,168,76,0.07)", borderRadius: 12, padding: "16px 18px", marginBottom: 16 }}>
-          <p style={{ color: "#cdbb80", fontSize: 13, fontWeight: 950, marginBottom: 7 }}>下一段建议</p>
+          <p style={{ color: "#cdbb80", fontSize: 13, fontWeight: 950, marginBottom: 7 }}>下一关钩子</p>
           <h3 style={{ color: "#fff", fontSize: 20, fontWeight: 950, lineHeight: 1.35, marginBottom: 7 }}>{nextMission.shortTitle}</h3>
           <p style={{ color: "#cfcfcf", fontSize: 14, lineHeight: 1.75, marginBottom: 12 }}>{nextMission.tagline}</p>
+          <p style={{ color: "#e8c96a", fontSize: 14, lineHeight: 1.75, fontWeight: 900, marginBottom: 12 }}>
+            小白不是让你再看一篇教程，而是换一个场景再交付一次：跑通、验收、迭代、复盘继续走。
+          </p>
           <Link href={`/missions/${nextMission.id}`} style={{ ...missionSecondaryButtonStyle, textDecoration: "none" }}>
             进入下一段任务 <ArrowRight size={14} />
           </Link>
