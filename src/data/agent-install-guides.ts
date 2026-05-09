@@ -365,6 +365,7 @@ claude`,
     "Windows 不要复制 export；Mac、Linux、WSL 不要复制 $env:。",
     "如果模型名不支持 deepseek-v4-pro[1m]，先改成 deepseek-v4-pro；还不行就用 deepseek-v4-flash。",
     "如果提示 Unable to connect to Anthropic services，说明软件启动了，但默认服务连不上，先检查这组变量。",
+    "Claude Desktop 的开发者模式是给 MCP 工具和桌面扩展用的，不是把 DeepSeek Key 填进官方 Claude 聊天。",
   ],
 }
 
@@ -404,12 +405,12 @@ export const agentInstallGuides: AgentInstallGuide[] = [
   {
     slug: "claude-code",
     name: "Claude Code",
-    title: "Claude Code 一分钟直接跑通能用",
+    title: "Claude Code 终端环境变量接 API 一分钟跑通",
     category: "工程 Agent",
     minutes: "8-15 分钟",
     difficulty: "新手可跟",
-    tagline: "先装 Node.js，再装 Claude Code，最后接 DeepSeek V4 或官方 Claude。",
-    summary: "适合让 AI 读项目、改代码、跑命令、解释报错。小白第一次使用时，不要让它直接改文件，先让它读项目并给计划。",
+    tagline: "先装 Node.js，再装 Claude Code，最后用环境变量接 DeepSeek V4、MiniMax 或官方 Claude。",
+    summary: "这是终端工程 Agent 教程，重点是用环境变量给 Claude Code 配模型大脑，让它能读项目、改代码、跑命令、解释报错。官网桌面端开发者模式放在 Claude Desktop 教程里，不混在这里讲。",
     bestFor: ["真实代码项目", "修复报错", "改网页功能", "理解陌生项目"],
     requirements: ["Node.js 18+", "Windows 建议 PowerShell 或 WSL", "一个可用模型账号或 API Key", "最好在 Git 项目里使用"],
     officialUrl: "https://docs.anthropic.com/en/docs/claude-code/getting-started",
@@ -445,6 +446,14 @@ claude --version`,
         command: "claude",
       },
       {
+        title: "接好 DeepSeek 后再启动",
+        body: "Windows 用户在同一个 PowerShell 窗口里先复制下面几行，最后一行 claude 会直接启动。不要在命令前面加空格。",
+        command: `$env:ANTHROPIC_BASE_URL="https://api.deepseek.com/anthropic"
+$env:ANTHROPIC_AUTH_TOKEN="sk-你的DeepSeek_API_Key"
+$env:ANTHROPIC_MODEL="deepseek-v4-pro[1m]"
+claude`,
+      },
+      {
         title: "在项目里使用",
         body: "先进入你的项目文件夹，再启动 Claude Code。",
         command: `cd 你的项目文件夹路径
@@ -470,6 +479,10 @@ claude`,
       {
         title: "Unable to connect to Anthropic services",
         solution: "软件启动成功了，但默认服务连不上。国内用户先按下面 DeepSeek Anthropic Compatible 配置。",
+      },
+      {
+        title: "打开 Claude Desktop 开发者模式后还是不能填 DeepSeek Key",
+        solution: "这是正常情况。Claude Desktop 和 Claude Code 是两个教程。桌面端开发者模式主要配置 MCP 工具和扩展；要让工程 Agent 接 DeepSeek，就用本页的 Anthropic Compatible 环境变量命令。",
       },
     ],
     apiConnections: [minimaxOpenAiConnection, anthropicDeepseekConnection, openAiConnection],
@@ -1112,12 +1125,12 @@ const desktopAssistantGuides: AgentInstallGuide[] = [
   {
     slug: "claude-desktop",
     name: "Claude Desktop",
-    title: "Claude Desktop 一分钟直接跑通能用",
+    title: "Claude Desktop 官方桌面端开发者模式和扩展 API 教程",
     category: "桌面 AI 助理",
     minutes: "3-8 分钟",
     difficulty: "新手可跟",
-    tagline: "Claude 官方桌面版，适合写作、长文档、截图和桌面扩展。",
-    summary: "Claude Desktop 是 Anthropic 官方桌面应用，适合日常助理和文档处理。它和 Claude Code 不一样：Claude Code 是终端工程 Agent，Claude Desktop 是桌面聊天助理。",
+    tagline: "Claude 官方桌面版，适合写作、长文档、截图、MCP 工具和桌面扩展。",
+    summary: "这是官网桌面端教程，重点讲 Settings 里的 Extensions / Developer、MCP 工具和扩展 API 配置。它和 Claude Code 不一样：Claude Code 是终端工程 Agent，模型 API 接入走另一个终端环境变量教程。",
     bestFor: ["长文档", "写作", "截图", "桌面扩展"],
     requirements: ["Windows 10+ 或 macOS 11+", "Claude 账号", "从 Claude 官方下载"],
     officialUrl: "https://www.claude.com/download",
@@ -1125,9 +1138,11 @@ const desktopAssistantGuides: AgentInstallGuide[] = [
       { title: "打开官方下载页", body: "浏览器访问 claude.com/download，选择 Windows 或 macOS。" },
       { title: "安装", body: "下载完成后双击安装包。Windows 从开始菜单打开，Mac 从 Applications 打开。" },
       { title: "登录账号", body: "打开 Claude Desktop，登录你的 Claude 账号。第一次先试普通问答。" },
+      { title: "打开开发者模式", body: "点击左上角或头像旁边的 Settings，找到 Developer 或 Extensions，打开开发者相关入口。这个入口用来接 MCP 工具和桌面扩展，不是更换聊天模型的大脑。" },
     ],
     startCommands: [
       { title: "打开方式", body: "从开始菜单或应用程序里打开 Claude，不需要终端命令。" },
+      { title: "配置 MCP 或扩展 API", body: "开发者模式打开后，按页面提示进入 MCP / Extensions 配置。这里可以让 Claude Desktop 调用本地工具、文件工具或你信任的扩展服务。新手先只装官方或可信工具，不要把 API Key 发给陌生配置包。" },
       { title: "第一次测试", body: "先上传一小段文字测试，不要直接上传合同、客户资料、API Key。", command: "请把这段资料整理成清晰的会议纪要。" },
     ],
     firstPrompts: [
@@ -1138,7 +1153,7 @@ const desktopAssistantGuides: AgentInstallGuide[] = [
     commonIssues: [
       { title: "和 Claude Code 搞混", solution: "Claude Desktop 是桌面助理；Claude Code 是终端编程 Agent。要改项目代码，看 Claude Code 教程。" },
       { title: "登录或访问失败", solution: "先确认账号、地区、网络和公司设备策略。" },
-      { title: "想接 DeepSeek API", solution: "Claude Desktop 官方版不直接填 DeepSeek Key。要接 DeepSeek 看 Claude Code 的 Anthropic Compatible，或用 Cherry Studio / Cline。" },
+      { title: "想把 DeepSeek 当聊天模型接进去", solution: "Claude Desktop 官方版不直接填 DeepSeek Key。开发者模式也不是模型 Provider 设置。桌面端这一页只讲 MCP 和扩展 API；要接模型大脑，看 Claude Code 终端环境变量教程，或用 Cherry Studio / Chatbox / Cline。" },
     ],
     apiConnections: [noCustomApiConnection("Claude Desktop")],
   },

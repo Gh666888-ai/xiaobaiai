@@ -130,7 +130,7 @@ function LevelTitlePlate({
       <span className="levelPlateText">
         <span className="levelTopline">
           <span className="levelUserName">{name}</span>
-          <span className="levelNumber">LV.{level.level}</span>
+          {level.level < 19 && <span className="levelNumber">LV.{level.level}</span>}
         </span>
         {!compact && (
           <span className="levelRankLine">
@@ -397,13 +397,14 @@ function CoCreatorBadge({
   return (
     <span
       className={`coCreatorBadge coCreatorBadge-${stage.className} ${compact ? "isCompact" : ""}`}
-      title={`LV.${level.level} ${stage.fullName} · ${contributionPoints} 贡献值 · ${level.desc}`}
+      title={`${level.level < 19 ? `LV.${level.level} ` : ""}${stage.fullName}${level.level < 19 ? ` · ${contributionPoints} 贡献值` : ""} · ${level.desc}`}
     >
       <span className="coCreatorAura" aria-hidden="true" />
       <span className="coCreatorPlate" aria-hidden="true" />
       <span className="coCreatorColumnCap isLeft" aria-hidden="true" />
       <span className="coCreatorColumnCap isRight" aria-hidden="true" />
-      <svg className="coCreatorDragonArt" viewBox="0 0 250 62" aria-hidden="true" focusable="false">
+      <span className="coCreatorBeastMark" aria-hidden="true">{stage.beast}</span>
+      {level.level >= 19 && <svg className="coCreatorDragonArt" viewBox="0 0 250 62" aria-hidden="true" focusable="false">
         <path className="dragonShadow" d="M48 38 C76 8, 121 8, 151 30 S205 49, 231 24" />
         <path className="dragonBody back" d="M44 41 C76 11, 118 11, 151 31 S201 47, 231 23" />
         <path className="dragonBody front" d="M54 43 C83 58, 123 53, 153 33 S202 16, 224 28" />
@@ -426,7 +427,7 @@ function CoCreatorBadge({
           <path className="fireOuter" d="M0 4 C15 -8, 24 -5, 34 3 C22 4, 22 14, 8 15 C14 9, 8 5, 0 4Z" />
           <path className="fireInner" d="M8 5 C18 -1, 24 2, 29 6 C20 7, 19 12, 11 12 C15 9, 13 6, 8 5Z" />
         </g>
-      </svg>
+      </svg>}
       <span className="coCreatorBeastLine" aria-hidden="true">{stage.beast} · {stage.beastLine}</span>
       <span className="coCreatorIconWrap" aria-hidden="true">
         <span className="coCreatorSeal">{stage.seal}</span>
@@ -445,7 +446,7 @@ function CoCreatorBadge({
         <span className="coCreatorTitle">{stage.shortName}</span>
         <span className="coCreatorMeta">
           <span>{stage.motif}</span>
-          <span className="coCreatorContribution">{targetText} 贡献</span>
+          {level.level < 19 && <span className="coCreatorContribution">{targetText} 贡献</span>}
         </span>
       </span>
       <style>{`
@@ -577,6 +578,22 @@ function CoCreatorBadge({
           transform: scaleX(-1);
           opacity: 0.72;
         }
+        .coCreatorBeastMark {
+          position: absolute;
+          left: 9px;
+          top: 50%;
+          z-index: 1;
+          transform: translateY(-50%);
+          color: var(--stage-main);
+          font-family: 'Noto Serif SC', 'Noto Sans SC', serif;
+          font-size: 28px;
+          font-weight: 950;
+          line-height: 1;
+          opacity: 0.2;
+          text-shadow: 0 0 16px var(--stage-glow);
+          pointer-events: none;
+          white-space: nowrap;
+        }
         .coCreatorDragonArt {
           position: absolute;
           inset: -3px -5px -2px 30px;
@@ -681,6 +698,13 @@ function CoCreatorBadge({
         }
         .coCreatorBadge-legend .coCreatorDragonArt {
           filter: drop-shadow(0 0 9px rgba(255,236,156,0.75)) drop-shadow(0 0 11px rgba(255,102,32,0.32));
+        }
+        .coCreatorBadge-legend .coCreatorBeastMark {
+          left: 14px;
+          color: #dff7ff;
+          font-size: 33px;
+          opacity: 0.32;
+          text-shadow: 0 0 18px rgba(126,231,255,0.72);
         }
         .coCreatorBeastLine {
           position: absolute;
@@ -954,10 +978,6 @@ function CoCreatorBadge({
             width: 42px;
             height: 42px;
           }
-          .coCreatorBadge-legend .coCreatorDragon,
-          .coCreatorBadge-legend .coCreatorPhoenix {
-            font-size: 50px;
-          }
           .coCreatorBadge.isCompact {
             width: 178px;
             min-height: 50px;
@@ -989,15 +1009,9 @@ function CoCreatorBadge({
           .coCreatorBadge.isCompact .coCreatorTitle {
             font-size: 13px;
           }
-          .coCreatorBadge.isCompact .coCreatorDragon {
-            left: 54px;
-            font-size: 34px;
-            opacity: 0.18;
-          }
-          .coCreatorBadge.isCompact .coCreatorPhoenix {
-            right: 8px;
-            font-size: 34px;
-            opacity: 0.18;
+          .coCreatorBadge.isCompact .coCreatorBeastMark {
+            font-size: 22px;
+            left: 8px;
           }
           .coCreatorBadge.isCompact .coCreatorBeastLine {
             display: none;
@@ -1006,28 +1020,6 @@ function CoCreatorBadge({
             left: 40px;
             right: 8px;
             height: 12px;
-          }
-          .coCreatorBadge.isCompact .coCreatorBeastWrap {
-            display: none;
-          }
-          .coCreatorBadge-legend.isCompact .coCreatorBeastWrap {
-            display: block;
-            font-size: 20px;
-            opacity: 0.78;
-          }
-          .coCreatorBadge-legend.isCompact .coCreatorBeastWrap::before,
-          .coCreatorBadge-legend.isCompact .coCreatorBeastWrap::after {
-            width: 64px;
-            height: 24px;
-            border-width: 2px;
-          }
-          .coCreatorBadge-legend.isCompact .coCreatorBeastWrap.beastDragon {
-            left: 50px;
-            top: 8px;
-          }
-          .coCreatorBadge-legend.isCompact .coCreatorBeastWrap.beastPhoenix {
-            right: 18px;
-            bottom: 8px;
           }
           .coCreatorBadge.isCompact .coCreatorMeta {
             display: none;

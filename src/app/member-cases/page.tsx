@@ -8,53 +8,65 @@ export const dynamic = "force-dynamic"
 export const revalidate = 0
 
 export const metadata: Metadata = {
-  title: "实战任务 - 小白AI从下载安装到项目交付的开做入口",
+  title: "会员实战案例 - 小白AI用户项目落地复盘和上线战报",
   description:
-    "小白AI实战任务页，把教程资讯整理成能立刻开做的项目路线，覆盖Agent安装、模型API接入、小程序上线、知识库客服、自动化、AI漫剧、办公接单和在家创业。真正的成功案例来自用户跑通后的复盘投稿。",
-  keywords: ["小白AI实战任务", "AI实战教程", "Agent实战", "小程序上线教程", "AI副业任务", "AI教程实操", "AI在家创业"],
+    "小白AI会员实战案例页，展示用户如何用 AI 工具、Agent、模型 API 和工作流把真实项目做出来、跑通、上线，并沉淀过程、截图、踩坑和复盘。",
+  keywords: ["小白AI实战案例", "AI项目复盘", "Agent项目上线", "小程序上线案例", "AI副业案例", "AI工具落地", "AI在家创业案例"],
   alternates: { canonical: "/member-cases" },
   openGraph: {
-    title: "实战任务 | 小白AI",
-    description: "不是看资讯，而是选一个任务，照着做出一个能交付的 AI 项目结果。",
+    title: "会员实战案例 | 小白AI",
+    description: "看别人怎样把 AI 项目从想法、工具、过程、踩坑一路做到上线结果。",
     url: "/member-cases",
     images: [{ url: "/xiaobai-mascot-cutout.png", alt: "小白AI 实战案例" }],
   },
 }
 
-const featuredCases = [
+const caseReports = [
   {
     icon: Code2,
-    title: "指挥 Agent 做一个微信小程序并上线",
-    audience: "适合想做应用、工具、客户项目的人",
-    outcome: "一个能提交审核的小程序版本",
-    steps: ["写清楚小程序要解决什么问题", "让 Agent 拆页面、写代码、修报错", "真机预览、提交审核、发布"],
+    title: "家庭提醒小程序从 0 做到体验版",
+    maker: "个人开发者 / 在家做项目",
+    outcome: "做出 3 个页面、登录、提醒列表，并上传微信体验版",
+    tools: "Codex、微信开发者工具、Supabase",
+    shipped: "体验版已上传，完成真机预览",
+    steps: ["先写一页需求，让 Agent 拆页面和数据表", "每次只让 Agent 改一个小功能，跑通再继续", "上传体验版后把域名、登录、空状态逐项检查"],
+    lesson: "不要一开始做支付和会员，先让一个真实流程能在手机上跑起来。",
     href: "/agent-mini-program",
     tone: "cyan",
   },
   {
     icon: Bot,
-    title: "安装 Claude Code 并接入国内模型 API",
-    audience: "适合想让 Agent 改项目、写代码的人",
-    outcome: "一个能启动、能读项目、能改小功能的工程 Agent",
-    steps: ["先选模型大脑，比如 Minimax 或 DeepSeek", "安装 Node.js 和 Claude Code", "配置 API、启动、跑一次真实任务"],
+    title: "用 Claude Code 接国内模型修好站内页面",
+    maker: "网站站长 / 小团队",
+    outcome: "Agent 能读项目、改组件、跑构建，并修复一个真实页面问题",
+    tools: "Claude Code、MiniMax/DeepSeek API、Node.js",
+    shipped: "代码合并后构建通过，服务器完成重启",
+    steps: ["先把模型 API 配好，确认 Agent 能启动", "让 Agent 先读文件和报计划，不直接大改", "改完跑 typecheck、lint、build，再上线验证"],
+    lesson: "Agent 不是一句话许愿机，要让它先读项目、拆任务、跑检查。",
     href: "/agent-install/claude-code",
     tone: "gold",
   },
   {
     icon: BriefcaseBusiness,
-    title: "搭一个企业知识库客服",
-    audience: "适合企业、门店、团队做资料问答",
-    outcome: "一个能按资料回答问题的客服 Bot",
-    steps: ["整理 FAQ 和产品资料", "上传到 Dify 或同类平台", "设置边界、测试问题、接人工"],
+    title: "门店 FAQ 做成可用的知识库客服",
+    maker: "实体门店 / 客服负责人",
+    outcome: "把价格、服务范围、售后规则做成可问答 Bot",
+    tools: "Dify、飞书文档、企业微信",
+    shipped: "内部试用，客服可复制答案给客户",
+    steps: ["先整理 50 条真实高频问题", "上传资料后设置不能乱承诺的回答边界", "用客户原话测试，答不准的补资料再训练"],
+    lesson: "知识库不是上传越多越好，先覆盖每天真的会被问到的问题。",
     href: "/dify-knowledge-base",
     tone: "green",
   },
   {
     icon: Palette,
-    title: "做一集 AI 漫剧样片方案",
-    audience: "适合在家做内容、账号、短剧方向的人",
-    outcome: "角色、分镜、画面提示词和配音清单",
-    steps: ["先确定题材和主角", "用模板生成分镜和画面提示词", "检查风格统一，再进入制作工具"],
+    title: "AI 漫剧账号做出第一集样片包",
+    maker: "内容副业 / 短剧方向",
+    outcome: "完成角色设定、12 个分镜、画面提示词和配音脚本",
+    tools: "即梦、剪映、通用提示词模板",
+    shipped: "样片包已整理，可进入正式制作",
+    steps: ["先固定主角外观和世界观", "每个镜头单独写画面，不用一句话生成全片", "统一风格后再配音和剪辑"],
+    lesson: "AI 漫剧的关键不是炫技，是角色一致、镜头可控、能持续更新。",
     href: "/missions/ai-comic-video-first-episode",
     tone: "purple",
   },
@@ -94,13 +106,13 @@ function pickGroupItems(match: RegExp) {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  name: "小白AI实战任务",
-  description: "把教程资讯整理成能照着做的 AI 实战任务。",
+  name: "小白AI会员实战案例",
+  description: "展示用户把 AI 项目从想法做到上线结果的实战复盘。",
   url: "https://www.xiaobaiai.cn/member-cases",
   inLanguage: "zh-CN",
   mainEntity: {
     "@type": "ItemList",
-    itemListElement: [...featuredCases, ...tutorialItems.slice(0, 12)].map((item: any, index) => ({
+    itemListElement: [...caseReports, ...tutorialItems.slice(0, 12)].map((item: any, index) => ({
       "@type": "ListItem",
       position: index + 1,
       name: item.title,
@@ -117,24 +129,33 @@ export default function MemberCasesPage() {
       <main className="caseMain">
         <section className="caseHero" id="featured">
           <div className="sectionHead">
-            <p>实战任务</p>
-            <h1>选一个任务，直接开做</h1>
+            <p>会员实战案例</p>
+            <h1>看别人怎么把项目做完、跑通、上线</h1>
           </div>
           <div className="featuredGrid">
-            {featuredCases.map((item) => {
+            {caseReports.map((item) => {
               const Icon = item.icon
               return (
                 <Link key={item.href} href={item.href} className={`featuredCase tone-${item.tone}`}>
                   <div className="featuredTop">
                     <span className="caseIcon"><Icon size={22} /></span>
-                    <span className="caseOutcome">{item.outcome}</span>
+                    <span className="caseOutcome">{item.shipped}</span>
                   </div>
                   <h3>{item.title}</h3>
-                  <p>{item.audience}</p>
+                  <p>{item.maker}</p>
+                  <div className="caseResult">
+                    <strong>结果</strong>
+                    <span>{item.outcome}</span>
+                  </div>
+                  <div className="caseResult">
+                    <strong>工具</strong>
+                    <span>{item.tools}</span>
+                  </div>
                   <ol>
                     {item.steps.map((step) => <li key={step}>{step}</li>)}
                   </ol>
-                  <span className="caseLink">进入任务 <ArrowRight size={14} /></span>
+                  <span className="caseLesson">{item.lesson}</span>
+                  <span className="caseLink">查看完整复盘 <ArrowRight size={14} /></span>
                 </Link>
               )
             })}
@@ -143,8 +164,9 @@ export default function MemberCasesPage() {
 
         <section className="sectionBlock">
           <div className="sectionHead">
-            <p>更多入口</p>
-            <h2>按方向找任务</h2>
+            <p>补充资料</p>
+            <h2>案例里提到的工具和教程</h2>
+            <span>这里不是让用户重新接任务，而是把案例中用过的安装、配置、上线资料放在一起，方便照着复盘。</span>
           </div>
           <div className="tutorialGroupList">
             {tutorialGroups.map((group) => {
@@ -165,7 +187,7 @@ export default function MemberCasesPage() {
                       ))}
                     </div>
                   ) : (
-                    <p className="emptyGroup">这组还在整理，后面会补成可照做的任务。</p>
+                    <p className="emptyGroup">这组还在整理，后面会补充到案例资料里。</p>
                   )}
                 </section>
               )
@@ -177,7 +199,7 @@ export default function MemberCasesPage() {
           <div>
             <p className="caseEyebrow">投稿</p>
             <h2>提交你跑通的成功案例</h2>
-            <p>案例是别人已经做成功的结果和复盘。发结果、工具、步骤、踩坑和截图，验证可行后进入案例库。</p>
+            <p>这里收的是已经做完的项目复盘，不是接任务。发上线地址、截图、工具、过程、踩坑和结果，验证可行后进入案例库。</p>
           </div>
           <Link href="/community/new" className="bottomButton">提交你的实战案例 <Sparkles size={16} /></Link>
         </section>
@@ -229,6 +251,15 @@ export default function MemberCasesPage() {
           font-size: 14px;
           font-weight: 950;
           margin: 0 0 7px;
+        }
+        .sectionHead span {
+          display: block;
+          color: #aaa59a;
+          font-size: 16px;
+          font-weight: 850;
+          line-height: 1.7;
+          margin-top: 9px;
+          max-width: 720px;
         }
         .sectionHead h2 {
           color: #f8f3e6;
@@ -300,13 +331,48 @@ export default function MemberCasesPage() {
           line-height: 1.7;
           margin: 0 0 14px;
         }
+        .caseResult {
+          display: grid;
+          grid-template-columns: 44px minmax(0,1fr);
+          gap: 10px;
+          align-items: start;
+          border: 1px solid color-mix(in srgb, var(--tone) 18%, transparent);
+          background: rgba(255,255,255,0.035);
+          border-radius: 12px;
+          padding: 10px 12px;
+          margin-bottom: 9px;
+        }
+        .caseResult strong {
+          color: var(--tone);
+          font-size: 15px;
+          font-weight: 950;
+          white-space: nowrap;
+        }
+        .caseResult span {
+          color: #efe7d0;
+          font-size: 15px;
+          font-weight: 850;
+          line-height: 1.55;
+        }
         .featuredCase ol {
-          margin: 0 0 18px;
+          margin: 6px 0 14px;
           padding-left: 20px;
           color: #d8d2bf;
           font-size: 15px;
           font-weight: 850;
           line-height: 1.8;
+        }
+        .caseLesson {
+          display: block;
+          border-left: 3px solid var(--tone);
+          color: #fff4c9;
+          background: rgba(0,0,0,0.18);
+          border-radius: 10px;
+          padding: 10px 12px;
+          margin: 0 0 15px;
+          font-size: 15px;
+          font-weight: 900;
+          line-height: 1.6;
         }
         .caseLink {
           margin-top: auto;
