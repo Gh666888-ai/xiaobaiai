@@ -192,6 +192,14 @@ curl -I https://www.xiaobaiai.cn/sitemap.xml
 0 8,14,20 * * * cd /var/www/xiaobaiai && /usr/bin/git pull --ff-only && /usr/bin/node scripts/fetch-news.js && /usr/bin/git add public/fetched-news.json && (/usr/bin/git diff --cached --quiet || /usr/bin/git commit -m 'auto: fetch news') && /usr/bin/git push >> /var/www/xiaobaiai/logs/fetch-news.log 2>&1
 ```
 
+推荐 Skill 自动发现 cron：
+
+```bash
+15 9 * * * cd /var/www/xiaobaiai && /usr/bin/git pull --ff-only && /usr/bin/node scripts/fetch-skills.js && /usr/bin/git add public/fetched-skills.json && (/usr/bin/git diff --cached --quiet || /usr/bin/git commit -m 'auto: fetch skills') && /usr/bin/git push >> /var/www/xiaobaiai/logs/fetch-skills.log 2>&1
+```
+
+这个任务只提交 `public/fetched-skills.json`。不要用 `git add -A`，避免把日志、价格文件、临时文件混进自动提交。
+
 查看 cron：
 
 ```bash

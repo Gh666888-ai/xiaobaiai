@@ -18,6 +18,7 @@ import {
   writeMissionProgress,
 } from "@/lib/mission-progress"
 import { recommendMissionFromGoal } from "@/lib/mission-recommender"
+import { recommendSkillsForGoal } from "@/data/skill-recommendations"
 
 type Message = {
   role: "user" | "assistant"
@@ -137,6 +138,18 @@ function looksLikeIndustryGoal(message: string) {
 function missionKindLabel(missionId: string) {
   if (missionId === "n8n-ai-news-automation" || missionId === "dify-knowledge-base-bot") return "公司工作流"
   return "任务模板"
+}
+
+function buildSkillPlanReply(goal: string) {
+  const plan = recommendSkillsForGoal(goal, 4)
+  const mission = missions.find((item) => item.id === plan.nextMissionId) || recommendMissionFromGoal(goal)
+  const topSkills = plan.recommendations.slice(0, 3)
+  const skillLines = topSkills.map((item, index) => `${index + 1}. ${item.skill.name} ${item.score}分：${item.reason}`)
+
+  return {
+    mission,
+    content: `我按「${plan.track.shortTitle}」给你排了一条路线。\n\n先做的工作：${plan.workflow.slice(0, 4).join(" → ")}\n\n先装 Skill：\n${skillLines.join("\n")}\n\n第一步先点下面入口：${mission.shortTitle}`,
+  }
 }
 
 export function FloatingChat() {
@@ -410,7 +423,7 @@ export function FloatingChat() {
   }
 
   async function assignMissionFromGoal(goal: string) {
-    const mission = recommendMissionFromGoal(goal)
+    const { mission } = buildSkillPlanReply(goal)
     const nextProgress = selectMission(readMissionProgress(), mission.id)
     writeMissionProgress(nextProgress)
     setMissionProgress(nextProgress)
@@ -455,14 +468,15 @@ export function FloatingChat() {
     setSending(true)
     setSpeaking(false)
     if (user && (looksLikeIndustryGoal(value) || looksLikeGoalShortcut(value))) {
-      const mission = await assignMissionFromGoal(value)
+      await assignMissionFromGoal(value)
+      const { mission, content } = buildSkillPlanReply(value)
       const kindLabel = missionKindLabel(mission.id)
       setMode("site")
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: `收到，我给你匹配到「${mission.shortTitle}」${kindLabel}。\n\n第一步只做这个：${mission.steps[0]?.action || "先打开任务页开始。"}\n\n我已经记住这个进度。任务地址：/missions/${mission.id}\n\n你想开始时，点下面入口进入任务页。`,
+          content: `${content}\n\n我已经记住进度。你想开始时，自己点入口进入${kindLabel}。`,
           actionHref: `/missions/${mission.id}`,
           actionLabel: `打开「${mission.shortTitle}」`,
         },
