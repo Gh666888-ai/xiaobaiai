@@ -7,6 +7,7 @@ import { NavBar } from "@/components/NavBar"
 import {
   APP_FACTORY_STORAGE_KEY,
   appTemplates,
+  buildBusinessBlueprint,
   generateAppHtml,
   type AppTemplateId,
   type SavedGeneratedApp,
@@ -27,6 +28,10 @@ export function AppsClient() {
   const [previewUrl, setPreviewUrl] = useState("")
 
   const currentTemplate = appTemplates.find((item) => item.id === templateId) || appTemplates[0]
+  const blueprint = useMemo(
+    () => buildBusinessBlueprint({ templateId, industry, goal, audience, style, contact }),
+    [audience, contact, goal, industry, style, templateId],
+  )
   const generatedHtml = useMemo(
     () => generateAppHtml({ templateId, industry, goal, audience, style, contact }),
     [audience, contact, goal, industry, style, templateId],
@@ -140,7 +145,7 @@ export function AppsClient() {
             </section>
 
             <section style={panelStyle}>
-              <p style={labelStyle}>让小白按你的行业生成</p>
+              <p style={labelStyle}>先把真实业务说清楚</p>
               <Field label="行业/业务" value={industry} onChange={setIndustry} placeholder="例如：餐饮门店、教育培训、电商、装修" />
               <Field label="目标用户" value={audience} onChange={setAudience} placeholder="例如：附近客户、家长、企业老板" />
               <Field label="想达成什么" value={goal} onChange={setGoal} placeholder={currentTemplate.defaultGoal} textarea />
@@ -176,6 +181,30 @@ export function AppsClient() {
                 <button type="button" onClick={copyHtml} style={secondaryButtonStyle}>
                   {copied ? <Check size={15} /> : <Clipboard size={15} />} {copied ? "已复制" : "复制代码"}
                 </button>
+              </div>
+            </section>
+
+            <section style={panelStyle}>
+              <p style={labelStyle}>小白拆出的业务方案</p>
+              <div style={{ display: "grid", gap: 10 }}>
+                <BlueprintRow title="行业判断" value={blueprint.sector} />
+                <BlueprintRow title="核心钩子" value={blueprint.hook} />
+                <BlueprintRow title="用户顾虑" value={blueprint.userPain} />
+                <BlueprintRow title="应用目标" value={blueprint.appGoal} />
+              </div>
+              <div style={{ marginTop: 13 }}>
+                <p style={{ color: "#f8f3e6", fontSize: 14, fontWeight: 950, marginBottom: 8 }}>这版会放进去的内容</p>
+                <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+                  {[...blueprint.trustProof, ...blueprint.captureFields.slice(0, 3)].map((item) => (
+                    <span key={item} style={{ border: "1px solid rgba(216,191,118,0.22)", background: "rgba(216,191,118,0.07)", color: "#e6d59d", borderRadius: 999, padding: "7px 10px", fontSize: 13, fontWeight: 900 }}>
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div style={{ border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.035)", borderRadius: 12, padding: "12px 13px", marginTop: 13 }}>
+                <p style={{ color: "#d8bf76", fontSize: 13, fontWeight: 950, marginBottom: 5 }}>上线后下一步</p>
+                <p style={{ color: "#c8c8bd", fontSize: 14, lineHeight: 1.7 }}>{blueprint.nextWorkflow}</p>
               </div>
             </section>
 
@@ -261,6 +290,15 @@ function Field({
         <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} style={inputStyle} />
       )}
     </label>
+  )
+}
+
+function BlueprintRow({ title, value }: { title: string; value: string }) {
+  return (
+    <div style={{ border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.035)", borderRadius: 12, padding: "11px 12px" }}>
+      <p style={{ color: "#d8bf76", fontSize: 13, fontWeight: 950, marginBottom: 4 }}>{title}</p>
+      <p style={{ color: "#f8f3e6", fontSize: 14, fontWeight: 850, lineHeight: 1.65 }}>{value}</p>
+    </div>
   )
 }
 
