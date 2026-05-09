@@ -13,6 +13,8 @@ export const skillCategories:{key:SkillCategory;label:string;icon:string}[]=[
   {key:"通讯社交",label:"通讯社交",icon:"📱"},{key:"办公效率",label:"办公效率",icon:"📋"},
   {key:"学习教育",label:"学习教育",icon:"📚"},{key:"生活娱乐",label:"生活娱乐",icon:"🎮"},
   {key:"企业应用",label:"企业应用",icon:"🏢"},{key:"安全隐私",label:"安全隐私",icon:"🔒"},
+  {key:"AI音频",label:"AI音频",icon:"🎧"},{key:"AI视频",label:"AI视频",icon:"🎬"},
+  {key:"AI设计",label:"AI设计",icon:"🧩"},
 ]
 
 export const skills:Skill[]=[
@@ -35,6 +37,11 @@ export const skills:Skill[]=[
   {id:"claw-16",name:"felo-search",description:"AI整合搜索引擎，结构化答案+来源标注，原生支持中文搜索。",category:"自动化",platform:"OpenClaw",difficulty:"简单",downloads:"12K",url:"https://clawhub.ai/skills",tags:["搜索","中文","结构化"]},
   {id:"claw-17",name:"desearch-web-search",description:"实时SERP结果抓取，多源AI聚合搜索。适合需要深度搜索的场景。",category:"自动化",platform:"OpenClaw",difficulty:"中等",downloads:"8K",url:"https://clawhub.ai/skills",tags:["搜索","SERP","聚合"]},
   {id:"claw-18",name:"security-audit-master",description:"全面代码和配置安全扫描，检测漏洞和恶意代码。企业级安全审计。",category:"安全隐私",platform:"OpenClaw",difficulty:"进阶",downloads:"4.2K",url:"https://clawhub.ai/skills",tags:["安全","审计","企业"]},
+  // ===== GitHub 已核验候选（2026-05-10） =====
+  {id:"gh-skill-cloudflare",name:"Cloudflare Skills",description:"Cloudflare 官方技能集，教 Codex、Claude Code、Cursor 等 Agent 正确构建 Workers、Pages、D1、R2 和边缘应用。",category:"开发工具",platform:"通用",difficulty:"中等",downloads:"1.5K",url:"https://github.com/cloudflare/skills",tags:["Cloudflare","Workers","部署","官方","已验证"]},
+  {id:"gh-skill-superpowers-chrome",name:"Superpowers Chrome",description:"Claude Code 浏览器控制插件，通过 Chrome DevTools Protocol 让 Agent 打开页面、调试前端和检查真实 UI。",category:"开发工具",platform:"通用",difficulty:"中等",downloads:"277",url:"https://github.com/obra/superpowers-chrome",tags:["Chrome","浏览器","前端调试","Claude Code","已验证"]},
+  {id:"gh-skill-agenticflow",name:"AgenticFlow Skill",description:"Claude Skill，用来搭建 AgenticFlow 自动化工作流，可连接大量 SaaS 服务，适合把业务流程拆成可执行节点。",category:"自动化",platform:"通用",difficulty:"中等",downloads:"10",url:"https://github.com/PixelML/agenticflow-skill",tags:["AgenticFlow","工作流","自动化","Claude","已验证"]},
+  {id:"gh-skill-superpowers-mcp",name:"Superpowers MCP",description:"把 superpowers 能力通过 MCP 暴露给 Agent 使用，适合研究跨工具 Skill 调用和本地能力注册。",category:"开发工具",platform:"通用",difficulty:"进阶",downloads:"7",url:"https://github.com/erophames/superpowers-mcp",tags:["MCP","Superpowers","Agent","本地能力","已验证"]},
   // ===== 原有技能 =====
   // 自动化
   {id:"s1",name:"日报生成器",description:"自动汇总今日工作输出生成日报，支持飞书/微信推送。设定触发时间，每天自动运行。",category:"自动化",platform:"QClaw",difficulty:"简单",downloads:"12.3K",url:"https://clawhub.ai/skills",tags:["日报","自动","推送"]},

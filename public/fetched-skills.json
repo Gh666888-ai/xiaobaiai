@@ -1,8 +1,33 @@
 {
-  "lastRunAt": "2026-05-09T07:56:18.731Z",
+  "lastRunAt": "2026-05-09T19:20:07.893Z",
   "sourcesChecked": 7,
-  "candidates": 61,
+  "candidates": 62,
   "items": [
+    {
+      "id": "ed4690ca26aa",
+      "name": "lapidakis/Deckard",
+      "source": "GitHub MCP Server",
+      "url": "https://github.com/lapidakis/Deckard",
+      "platform": "通用",
+      "category": "安全隐私",
+      "description": "Mac-resident MCP server: securely proxies Mail / Calendar / Drive / iMessage to AI agents over stdio or Tailnet HTTP, with ACLs, secret redaction, prompt-injection tagging, and an audit log.",
+      "score": 88,
+      "scoreBreakdown": {
+        "safety": 18,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 24,
+        "sourceFit": 8
+      },
+      "recommendedFor": [
+        "自媒体短视频",
+        "企业办公",
+        "开发产品"
+      ],
+      "reason": "和 自媒体短视频、企业办公 匹配度高，适合进入小白推荐池前列。",
+      "safetyNote": "偏安全检查能力，可以优先作为安装前置步骤。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z"
+    },
     {
       "id": "5420aceafd83",
       "name": "IsmaelMartinez/delegate-to-ollama",
@@ -27,6 +52,54 @@
       "reason": "和 电商店铺、自媒体短视频 匹配度高，适合进入小白推荐池前列。",
       "safetyNote": "偏安全检查能力，可以优先作为安装前置步骤。",
       "discoveredAt": "2026-05-09T07:56:18.730Z"
+    },
+    {
+      "id": "979ade6dd5b3",
+      "name": "rrsaldanha/burp-mcp-agents",
+      "source": "GitHub MCP Server",
+      "url": "https://github.com/rrsaldanha/burp-mcp-agents",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "🚀 Connect Burp Suite MCP Server to multiple AI backends with practical guides and templates for safe, real traffic analysis.",
+      "score": 84,
+      "scoreBreakdown": {
+        "safety": 18,
+        "agentFit": 28,
+        "beginnerFit": 16,
+        "workflowFit": 14,
+        "sourceFit": 8
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "和 开发产品 匹配度高，适合进入小白推荐池前列。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z"
+    },
+    {
+      "id": "178a250d28b7",
+      "name": "sipyourdrink-ltd/bernstein",
+      "source": "GitHub MCP Server",
+      "url": "https://github.com/sipyourdrink-ltd/bernstein",
+      "platform": "通用",
+      "category": "安全隐私",
+      "description": "Deterministic orchestrator for 40+ CLI AI agents. Git worktree isolation, HMAC audit trail, MCP server mode. https://bernstein.run",
+      "score": 83,
+      "scoreBreakdown": {
+        "safety": 18,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 13
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "和 开发产品 匹配度高，适合进入小白推荐池前列。",
+      "safetyNote": "偏安全检查能力，可以优先作为安装前置步骤。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 301,
+      "updatedAt": "2026-05-09T19:17:07Z"
     },
     {
       "id": "013353de8225",
@@ -54,6 +127,83 @@
       "discoveredAt": "2026-05-09T07:56:18.730Z"
     },
     {
+      "id": "13602cd6a2a8",
+      "name": "Wh0FF24/whoff-agents",
+      "source": "GitHub Claude Code Skill",
+      "url": "https://github.com/Wh0FF24/whoff-agents",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "Production-tested Claude Code skills for multi-agent workflows. Free context-anchor skill + Atlas Starter Kit.",
+      "score": 79,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 16,
+        "workflowFit": 20,
+        "sourceFit": 7
+      },
+      "recommendedFor": [
+        "电商店铺",
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 0,
+      "updatedAt": "2026-05-09T19:15:56Z"
+    },
+    {
+      "id": "9b86b89e0f54",
+      "name": "yash194/recall",
+      "source": "GitHub MCP Server",
+      "url": "https://github.com/yash194/recall",
+      "platform": "通用",
+      "category": "安全隐私",
+      "description": "Memory layer for AI agents — typed-edge graph, bounded hallucination, audit-grade, surgically forgettable. Local SQLite + MCP server.",
+      "score": 78,
+      "scoreBreakdown": {
+        "safety": 18,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 8
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "偏安全检查能力，可以优先作为安装前置步骤。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 0,
+      "updatedAt": "2026-05-09T19:17:13Z"
+    },
+    {
+      "id": "d136c9c36067",
+      "name": "KevinKE93/Dev_Agent_OPC",
+      "source": "GitHub OpenClaw Skill",
+      "url": "https://github.com/KevinKE93/Dev_Agent_OPC",
+      "platform": "OpenClaw",
+      "category": "开发工具",
+      "description": "A automatic dev agent from dea → spec → design → plan → build → test → review → ship and included many roly and responsibility. Add many feature and modified for OPC or some business based on @addyosmani agent-skills ",
+      "score": 76,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 20,
+        "sourceFit": 10
+      },
+      "recommendedFor": [
+        "电商店铺",
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 1,
+      "updatedAt": "2026-05-09T19:08:44Z"
+    },
+    {
       "id": "d31f4759dca4",
       "name": "kelaswfa-hub/ugc-affiliate-video-producer",
       "source": "GitHub OpenClaw Skill",
@@ -78,20 +228,46 @@
       "discoveredAt": "2026-05-09T07:56:18.730Z"
     },
     {
-      "id": "3cfa09ba9645",
-      "name": "lyc-aon/codex-session-manager",
-      "source": "GitHub MCP Server",
-      "url": "https://github.com/lyc-aon/codex-session-manager",
-      "platform": "通用",
+      "id": "17696086ceb4",
+      "name": "pleme-io/cartorio",
+      "source": "GitHub OpenClaw Skill",
+      "url": "https://github.com/pleme-io/cartorio",
+      "platform": "OpenClaw",
       "category": "开发工具",
-      "description": "Linux-native Rust Codex session manager and terminal agent workstation with native sessions, model/tool/MCP parity harnesses, approvals/sandboxing, compaction/resume/fork controls, app-server proxy/native thread/config/a",
-      "score": 74,
+      "description": "Generic merkle-ledger registry for attested artifacts (OCI images, helm charts, skills) — used by openclaw and any other consumer that needs tamper-evident admission",
+      "score": 75,
       "scoreBreakdown": {
         "safety": 8,
         "agentFit": 28,
         "beginnerFit": 10,
         "workflowFit": 20,
-        "sourceFit": 8
+        "sourceFit": 9
+      },
+      "recommendedFor": [
+        "自媒体短视频",
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 0,
+      "updatedAt": "2026-05-09T19:00:24Z"
+    },
+    {
+      "id": "3cfa09ba9645",
+      "name": "lyc-aon/codex-session-manager",
+      "source": "GitHub Agent Skill",
+      "url": "https://github.com/lyc-aon/codex-session-manager",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "Linux-native Rust Codex session manager and terminal agent workstation with native sessions, model/tool/MCP parity harnesses, approvals/sandboxing, compaction/resume/fork controls, app-server proxy/native thread/config/a",
+      "score": 75,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 20,
+        "sourceFit": 9
       },
       "recommendedFor": [
         "教育培训",
@@ -99,7 +275,35 @@
       ],
       "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.730Z"
+      "discoveredAt": "2026-05-09T07:56:18.730Z",
+      "stars": 1,
+      "updatedAt": "2026-05-09T19:10:59Z"
+    },
+    {
+      "id": "da5e6f07a41b",
+      "name": "Makiya1202/ai-agents-skills",
+      "source": "GitHub Agent Skill",
+      "url": "https://github.com/Makiya1202/ai-agents-skills",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "🧠 Enhance AI agents with a collection of skills for improved coding assistance, enabling efficient and production-ready solutions.",
+      "score": 75,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 20,
+        "sourceFit": 9
+      },
+      "recommendedFor": [
+        "电商店铺",
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 2,
+      "updatedAt": "2026-05-09T19:12:55Z"
     },
     {
       "id": "42e8b39bdc33",
@@ -174,6 +378,108 @@
       "discoveredAt": "2026-05-09T07:56:18.730Z"
     },
     {
+      "id": "8c20d1467503",
+      "name": "Emasoft/emasoft-plugins",
+      "source": "GitHub Claude Code Skill",
+      "url": "https://github.com/Emasoft/emasoft-plugins",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "Emasoft Claude Code Plugins - High-quality productivity tools including Perfect Skill Suggester",
+      "score": 74,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 20,
+        "sourceFit": 8
+      },
+      "recommendedFor": [
+        "电商店铺",
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 1,
+      "updatedAt": "2026-05-09T19:16:50Z"
+    },
+    {
+      "id": "a4fe62fc5f21",
+      "name": "teng-lin/notebooklm-py",
+      "source": "GitHub OpenClaw Skill",
+      "url": "https://github.com/teng-lin/notebooklm-py",
+      "platform": "OpenClaw",
+      "category": "开发工具",
+      "description": "Unofficial Python API and agentic skill for Google NotebookLM. Full programmatic access to NotebookLM's features—including capabilities the web UI doesn't expose—via Python, CLI, and AI agents like Claude Code, Codex, an",
+      "score": 74,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 14
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 12918,
+      "updatedAt": "2026-05-09T19:09:08Z"
+    },
+    {
+      "id": "d2f1ebf649ca",
+      "name": "ai-manifests/adp-agent-ts",
+      "source": "GitHub MCP Server",
+      "url": "https://github.com/ai-manifests/adp-agent-ts",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "TypeScript / Node.js reference runtime for ADP-compliant agents — deliberation state machine, journal, signing, signed calibration snapshots, ACB pricing, and MCP tool server.",
+      "score": 74,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 20,
+        "sourceFit": 8
+      },
+      "recommendedFor": [
+        "自媒体短视频",
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "stars": 0,
+      "updatedAt": "2026-05-09T19:18:34Z",
+      "discoveredAt": "2026-05-09T19:19:38.203Z"
+    },
+    {
+      "id": "b2f6e18a8392",
+      "name": "stevesolun/ctx",
+      "source": "GitHub Agent Skill",
+      "url": "https://github.com/stevesolun/ctx",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "Skill, agent, MCP, and harness recommendations for Claude Code/custom LLMs: 102,696-node LLM-wiki graph, 91,432 skills, 10,787 MCPs, 13 harnesses, and capped execution recommendations.",
+      "score": 73,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 13
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 308,
+      "updatedAt": "2026-05-09T19:11:21Z"
+    },
+    {
       "id": "a197b9963f57",
       "name": "OpenAI GPT-3: Company Enrichment from website content",
       "source": "n8n Blog",
@@ -195,7 +501,184 @@
       ],
       "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.731Z"
+      "discoveredAt": "2026-05-09T07:56:18.731Z",
+      "stars": 0,
+      "updatedAt": ""
+    },
+    {
+      "id": "7b5a8f7b5782",
+      "name": "zzet/gortex",
+      "source": "GitHub MCP Server",
+      "url": "https://github.com/zzet/gortex",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "High-performance code intelligence engine that indexes repositories into an in-memory knowledge graph and exposes it via CLI, MCP Server, and web UI.  Built for AI coding agents - expose only needed information - one get",
+      "score": 71,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 11
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 34,
+      "updatedAt": "2026-05-09T19:17:40Z"
+    },
+    {
+      "id": "5ab0ecd3cfae",
+      "name": "tiger3927/skill-tiger-comfyui-media-creator",
+      "source": "GitHub OpenClaw Skill",
+      "url": "https://github.com/tiger3927/skill-tiger-comfyui-media-creator",
+      "platform": "OpenClaw",
+      "category": "开发工具",
+      "description": "for openclaw, use comfyui to work，need special web gateway for comfyui！！！",
+      "score": 70,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 10
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 1,
+      "updatedAt": "2026-05-09T19:16:55Z"
+    },
+    {
+      "id": "e9b020721e56",
+      "name": "Cluka-399/openclaw-skills-explorer",
+      "source": "GitHub OpenClaw Skill",
+      "url": "https://github.com/Cluka-399/openclaw-skills-explorer",
+      "platform": "OpenClaw",
+      "category": "开发工具",
+      "description": "OpenClaw Skills Explorer - discover and browse skills for your OpenClaw agent",
+      "score": 70,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 10
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 3,
+      "updatedAt": "2026-05-09T19:12:05Z"
+    },
+    {
+      "id": "fb2c93ea808c",
+      "name": "JohanYP/Opencode-Assistant",
+      "source": "GitHub OpenClaw Skill",
+      "url": "https://github.com/JohanYP/Opencode-Assistant",
+      "platform": "OpenClaw",
+      "category": "开发工具",
+      "description": "Self-hosted personal AI assistant on Telegram. Powered by OpenCode + Claude Sonnet (free big-pickle). OpenClaw skills compatible. SQLite + MCP live memory with optional Ollama vector search.",
+      "score": 70,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 10
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 2,
+      "updatedAt": "2026-05-09T19:05:57Z"
+    },
+    {
+      "id": "07f4629331b7",
+      "name": "Kevin-Liu-01/Agent-Machines",
+      "source": "GitHub OpenClaw Skill",
+      "url": "https://github.com/Kevin-Liu-01/Agent-Machines",
+      "platform": "OpenClaw",
+      "category": "开发工具",
+      "description": "A persistent machine for your agent. One stateful microVM per Clerk account; chat history, files, learned skills, and cron all live on /home/machine. Hermes or OpenClaw, any provider key (Dedalus / Vercel Sandbox / Fly),",
+      "score": 70,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 10
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 1,
+      "updatedAt": "2026-05-09T19:01:33Z"
+    },
+    {
+      "id": "a5ece0dae86b",
+      "name": "stbarbe/agent-skills-cli",
+      "source": "GitHub Agent Skill",
+      "url": "https://github.com/stbarbe/agent-skills-cli",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "🚀 Access and install over 50,000 skills for AI agents with one command using the versatile agent-skills-cli tool.",
+      "score": 70,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 10
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 8,
+      "updatedAt": "2026-05-09T19:10:45Z"
+    },
+    {
+      "id": "4eb0a3502887",
+      "name": "cleodin/antigravity-awesome-skills",
+      "source": "GitHub Claude Code Skill",
+      "url": "https://github.com/cleodin/antigravity-awesome-skills",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "🌌 Explore 255+ essential skills for AI coding assistants like Claude Code and GitHub Copilot to enhance your development workflow.",
+      "score": 70,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 10
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 34,
+      "updatedAt": "2026-05-09T19:17:13Z"
     },
     {
       "id": "918a84ea38fb",
@@ -334,6 +817,81 @@
       "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
       "discoveredAt": "2026-05-09T07:56:18.730Z"
+    },
+    {
+      "id": "a94232ea227b",
+      "name": "jscraik/Agent-Skills",
+      "source": "GitHub Agent Skill",
+      "url": "https://github.com/jscraik/Agent-Skills",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "Governed Agent Skills Kit repo for Codex: author once, validate quality, expose command handles, and sync routed skills/plugins.",
+      "score": 69,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 9
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "stars": 4,
+      "updatedAt": "2026-05-09T19:18:33Z",
+      "discoveredAt": "2026-05-09T19:19:38.202Z"
+    },
+    {
+      "id": "cfeec018897b",
+      "name": "kyle122497/llamator-mcp-server",
+      "source": "GitHub MCP Server",
+      "url": "https://github.com/kyle122497/llamator-mcp-server",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "🚀 Automate LLM red teaming workflows with the MCP server for LLAMATOR, featuring asynchronous job handling and seamless integration.",
+      "score": 69,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 9
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "stars": 1,
+      "updatedAt": "2026-05-09T19:19:03Z",
+      "discoveredAt": "2026-05-09T19:19:38.203Z"
+    },
+    {
+      "id": "20c2354a4a66",
+      "name": "GitHub",
+      "source": "ClawHub Skills",
+      "url": "https://github.com/openclaw/clawhub",
+      "platform": "OpenClaw",
+      "category": "开发工具",
+      "description": "ClawHub Skills 页面发现的 Skill/Agent 能力候选。",
+      "score": 69,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 9
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "stars": 0,
+      "updatedAt": "",
+      "discoveredAt": "2026-05-09T19:19:38.204Z"
     },
     {
       "id": "9b12b752c033",
@@ -497,6 +1055,225 @@
       "discoveredAt": "2026-05-09T07:56:18.730Z"
     },
     {
+      "id": "af0e32c5ea57",
+      "name": "NimbleBrainInc/mcp-workspace-tools",
+      "source": "GitHub Agent Skill",
+      "url": "https://github.com/NimbleBrainInc/mcp-workspace-tools",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "Git-backed workspace tools for AI agents: file ops, commits, search, and skill validation",
+      "score": 68,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 8
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.339Z",
+      "stars": 0,
+      "updatedAt": "2026-05-09T19:17:32Z"
+    },
+    {
+      "id": "7b2478c8b915",
+      "name": "jrmapa/awesome-agent-skills",
+      "source": "GitHub Agent Skill",
+      "url": "https://github.com/jrmapa/awesome-agent-skills",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "🚀 Explore modular agent skills for dynamic AI development, enabling on-demand knowledge injection through standardized `SKILL.md` packages.",
+      "score": 68,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 8
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z"
+    },
+    {
+      "id": "278e0da56b41",
+      "name": "mikesmullin/mcp-bun-debug",
+      "source": "GitHub MCP Server",
+      "url": "https://github.com/mikesmullin/mcp-bun-debug",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "MCP stdio server for debugging Bun processes — set breakpoints, step, inspect variables from AI agents",
+      "score": 68,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 8
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 0,
+      "updatedAt": "2026-05-09T19:17:11Z"
+    },
+    {
+      "id": "f2a1da668185",
+      "name": "awizemann/scarf",
+      "source": "GitHub MCP Server",
+      "url": "https://github.com/awizemann/scarf",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "Native macOS and iOS App for the Hermes AI agent — multi-window, multi-server (local + remote over SSH). Chat, dashboard, sessions, memory, cron, MCP, and more.",
+      "score": 68,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 8
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z"
+    },
+    {
+      "id": "f1275544eba0",
+      "name": "Lingtai-AI/lingtai-node",
+      "source": "GitHub MCP Server",
+      "url": "https://github.com/Lingtai-AI/lingtai-node",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "LingTai Node MCP server — enables non-LingTai runtimes to participate in the LingTai agent network",
+      "score": 68,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 8
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z"
+    },
+    {
+      "id": "704bb8c35466",
+      "name": "naimkatiman/continuous-improvement",
+      "source": "GitHub Claude Code Skill",
+      "url": "https://github.com/naimkatiman/continuous-improvement",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "The 7 Laws of AI Agent Discipline for Claude Code. Stops your agent from skipping research, claiming 'done' without verifying, and repeating yesterday's mistakes. 14 enforcement skills, gating hooks, the Mulahazah instin",
+      "score": 68,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 8
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 3,
+      "updatedAt": "2026-05-09T19:17:07Z"
+    },
+    {
+      "id": "de7520f34bf8",
+      "name": "roblandry/mcp-agent-bridge",
+      "source": "GitHub MCP Server",
+      "url": "https://github.com/roblandry/mcp-agent-bridge",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "mcp server to allow openclaw, codex. and claude code to work together",
+      "score": 68,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 8
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "stars": 0,
+      "updatedAt": "2026-05-09T19:18:31Z",
+      "discoveredAt": "2026-05-09T19:19:38.203Z"
+    },
+    {
+      "id": "5b5016b972e4",
+      "name": "mehdiskouri/world_forge",
+      "source": "GitHub MCP Server",
+      "url": "https://github.com/mehdiskouri/world_forge",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "Agent-native worldbuilding MCP server (Forge v1)",
+      "score": 68,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 8
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "stars": 0,
+      "updatedAt": "2026-05-09T19:18:27Z",
+      "discoveredAt": "2026-05-09T19:19:38.203Z"
+    },
+    {
+      "id": "c77b8958f51d",
+      "name": "DanTo228/Claudeception",
+      "source": "GitHub Claude Code Skill",
+      "url": "https://github.com/DanTo228/Claudeception",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "🧠 Enhance your AI coding agent with Claudeception to save and reuse valuable debugging skills for quicker problem-solving.",
+      "score": 68,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 8
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "stars": 1,
+      "updatedAt": "2026-05-09T19:19:08Z",
+      "discoveredAt": "2026-05-09T19:19:38.203Z"
+    },
+    {
       "id": "3e491222f745",
       "name": "ddruids/mobbin-skill",
       "source": "GitHub Claude Code Skill",
@@ -550,29 +1327,6 @@
       "platform": "通用",
       "category": "开发工具",
       "description": "Your coding agent is editing blind. agent-lsp gives it type-aware navigation, blast-radius analysis, and pre-verified edits. 50 tools, 21 skills, 30 languages.",
-      "score": 67,
-      "scoreBreakdown": {
-        "safety": 8,
-        "agentFit": 28,
-        "beginnerFit": 10,
-        "workflowFit": 14,
-        "sourceFit": 7
-      },
-      "recommendedFor": [
-        "开发产品"
-      ],
-      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
-      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.730Z"
-    },
-    {
-      "id": "1df1a706285d",
-      "name": "tzengyuxio/skills",
-      "source": "GitHub Claude Code Skill",
-      "url": "https://github.com/tzengyuxio/skills",
-      "platform": "通用",
-      "category": "开发工具",
-      "description": "A collection of custom skills for Claude Code and compatible AI coding agents",
       "score": 67,
       "scoreBreakdown": {
         "safety": 8,
@@ -658,6 +1412,104 @@
       "discoveredAt": "2026-05-09T07:56:18.730Z"
     },
     {
+      "id": "f24f9958581b",
+      "name": "lexijamesesq/dotty",
+      "source": "GitHub Claude Code Skill",
+      "url": "https://github.com/lexijamesesq/dotty",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "Claude Code infrastructure, skills, and Mac setup",
+      "score": 67,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 7
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 0,
+      "updatedAt": "2026-05-09T19:17:52Z"
+    },
+    {
+      "id": "76119c2b86c1",
+      "name": "darco81/skills-radar",
+      "source": "GitHub Claude Code Skill",
+      "url": "https://github.com/darco81/skills-radar",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "Lazy-loading skill discovery for Claude Code via MCP — mirrors Anthropic's Tool Search Tool pattern for Skills. 100% local Apple Silicon stack (MLX) or cross-platform Docker.",
+      "score": 67,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 7
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 0,
+      "updatedAt": "2026-05-09T19:17:15Z"
+    },
+    {
+      "id": "7a9dba45505c",
+      "name": "karlorz/llm-wiki",
+      "source": "GitHub Claude Code Skill",
+      "url": "https://github.com/karlorz/llm-wiki",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "Multi-skill Claude Code plugin for Karpathy-style interlinked markdown knowledge bases. Hermes Agent llm-wiki wire-compatible.",
+      "score": 67,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 7
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z",
+      "stars": 0,
+      "updatedAt": "2026-05-09T19:16:53Z"
+    },
+    {
+      "id": "cbcb5c80cc7e",
+      "name": "chrismdp/airskills",
+      "source": "GitHub Claude Code Skill",
+      "url": "https://github.com/chrismdp/airskills",
+      "platform": "通用",
+      "category": "开发工具",
+      "description": "Manage AI coding skills across Claude Code, Cursor, Copilot, and 15 more agents",
+      "score": 67,
+      "scoreBreakdown": {
+        "safety": 8,
+        "agentFit": 28,
+        "beginnerFit": 10,
+        "workflowFit": 14,
+        "sourceFit": 7
+      },
+      "recommendedFor": [
+        "开发产品"
+      ],
+      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
+      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+      "discoveredAt": "2026-05-09T19:18:27.340Z"
+    },
+    {
       "id": "86f26a41b336",
       "name": "AI Agent Architecture Patterns: From Prototype To Production",
       "source": "n8n Blog",
@@ -678,7 +1530,9 @@
       ],
       "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.730Z"
+      "discoveredAt": "2026-05-09T07:56:18.730Z",
+      "stars": 0,
+      "updatedAt": ""
     },
     {
       "id": "3ef178de2ee4",
@@ -701,7 +1555,9 @@
       ],
       "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.730Z"
+      "discoveredAt": "2026-05-09T07:56:18.730Z",
+      "stars": 0,
+      "updatedAt": ""
     },
     {
       "id": "c92cad8225fb",
@@ -724,7 +1580,9 @@
       ],
       "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.730Z"
+      "discoveredAt": "2026-05-09T07:56:18.730Z",
+      "stars": 0,
+      "updatedAt": ""
     },
     {
       "id": "c91e26d01588",
@@ -747,38 +1605,42 @@
       ],
       "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.731Z"
+      "discoveredAt": "2026-05-09T07:56:18.731Z",
+      "stars": 0,
+      "updatedAt": ""
     },
     {
-      "id": "ffcc527de8ec",
-      "name": "Explore 800+ workflow templates >",
-      "source": "n8n Blog",
-      "url": "https://n8n.io/workflows/",
-      "platform": "n8n",
-      "category": "自动化",
-      "description": "n8n Blog 页面发现的 Skill/Agent 能力候选。",
+      "id": "8edf37d17a88",
+      "name": "GitHub",
+      "source": "Dify Blog",
+      "url": "https://github.com/langgenius/dify/",
+      "platform": "Dify",
+      "category": "开发工具",
+      "description": "Dify Blog 页面发现的 Skill/Agent 能力候选。",
       "score": 66,
       "scoreBreakdown": {
         "safety": 8,
         "agentFit": 28,
-        "beginnerFit": 16,
-        "workflowFit": 8,
+        "beginnerFit": 10,
+        "workflowFit": 14,
         "sourceFit": 6
       },
       "recommendedFor": [
-        "企业办公"
+        "开发产品"
       ],
       "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.731Z"
+      "stars": 0,
+      "updatedAt": "",
+      "discoveredAt": "2026-05-09T19:19:38.204Z"
     },
     {
-      "id": "acb14380e18d",
-      "name": "Google Sheets + Slack",
+      "id": "503a33653276",
+      "name": "Github ★ 162k",
       "source": "n8n Blog",
-      "url": "https://n8n.io/workflows",
+      "url": "https://github.com/n8n-io/n8n",
       "platform": "n8n",
-      "category": "自动化",
+      "category": "开发工具",
       "description": "n8n Blog 页面发现的 Skill/Agent 能力候选。",
       "score": 66,
       "scoreBreakdown": {
@@ -789,80 +1651,63 @@
         "sourceFit": 6
       },
       "recommendedFor": [
-        "企业办公"
+        "开发产品"
       ],
       "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.731Z"
+      "stars": 0,
+      "updatedAt": "",
+      "discoveredAt": "2026-05-09T19:19:38.204Z"
     },
     {
-      "id": "49fa3bc30214",
-      "name": "Customer Support",
-      "source": "n8n Blog",
-      "url": "https://n8n.io/workflows",
-      "platform": "n8n",
+      "id": "73cb936f1fa1",
+      "name": "Docs",
+      "source": "ClawHub Skills",
+      "url": "https://documentation.openclaw.ai/clawhub/",
+      "platform": "OpenClaw",
       "category": "自动化",
-      "description": "n8n Blog 页面发现的 Skill/Agent 能力候选。",
-      "score": 66,
+      "description": "ClawHub Skills 页面发现的 Skill/Agent 能力候选。",
+      "score": 61,
       "scoreBreakdown": {
         "safety": 8,
         "agentFit": 28,
         "beginnerFit": 10,
-        "workflowFit": 14,
-        "sourceFit": 6
-      },
-      "recommendedFor": [
-        "电商店铺"
-      ],
-      "reason": "有明确 Agent/Skill 价值，适合加入候选池等待人工复核。",
-      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.731Z"
-    },
-    {
-      "id": "eb1268c7a52c",
-      "name": "${texts.workflowButtonLabel}",
-      "source": "n8n Blog",
-      "url": "https://blog.n8n.io/$%7Burl%7D",
-      "platform": "n8n",
-      "category": "自动化",
-      "description": "n8n Blog 页面发现的 Skill/Agent 能力候选。",
-      "score": 60,
-      "scoreBreakdown": {
-        "safety": 8,
-        "agentFit": 28,
-        "beginnerFit": 10,
-        "workflowFit": 8,
-        "sourceFit": 6
+        "workflowFit": 6,
+        "sourceFit": 9
       },
       "recommendedFor": [
         "企业办公"
       ],
       "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.730Z"
+      "stars": 0,
+      "updatedAt": "",
+      "discoveredAt": "2026-05-09T19:19:38.204Z"
     },
     {
-      "id": "75698df36926",
-      "name": "${texts.workflowsButtonLabel}",
-      "source": "n8n Blog",
-      "url": "https://blog.n8n.io/$%7Btexts.workflowsButtonUrl%7D",
-      "platform": "n8n",
-      "category": "自动化",
-      "description": "n8n Blog 页面发现的 Skill/Agent 能力候选。",
-      "score": 60,
+      "id": "2aa7e2ead876",
+      "name": "Deployed on Vercel",
+      "source": "ClawHub Skills",
+      "url": "https://vercel.com/",
+      "platform": "OpenClaw",
+      "category": "开发工具",
+      "description": "ClawHub Skills 页面发现的 Skill/Agent 能力候选。",
+      "score": 61,
       "scoreBreakdown": {
         "safety": 8,
         "agentFit": 28,
         "beginnerFit": 10,
-        "workflowFit": 8,
-        "sourceFit": 6
+        "workflowFit": 6,
+        "sourceFit": 9
       },
       "recommendedFor": [
-        "企业办公"
+        "开发产品"
       ],
       "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.730Z"
+      "stars": 0,
+      "updatedAt": "",
+      "discoveredAt": "2026-05-09T19:19:38.204Z"
     },
     {
       "id": "2882dec0bd27",
@@ -885,7 +1730,9 @@
       ],
       "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.730Z"
+      "discoveredAt": "2026-05-09T07:56:18.730Z",
+      "stars": 0,
+      "updatedAt": ""
     },
     {
       "id": "39e85342344d",
@@ -908,7 +1755,9 @@
       ],
       "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.730Z"
+      "discoveredAt": "2026-05-09T07:56:18.730Z",
+      "stars": 0,
+      "updatedAt": ""
     },
     {
       "id": "7ccdcda28ce8",
@@ -931,7 +1780,9 @@
       ],
       "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.730Z"
+      "discoveredAt": "2026-05-09T07:56:18.730Z",
+      "stars": 0,
+      "updatedAt": ""
     },
     {
       "id": "21a9c125ae91",
@@ -954,7 +1805,9 @@
       ],
       "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.730Z"
+      "discoveredAt": "2026-05-09T07:56:18.730Z",
+      "stars": 0,
+      "updatedAt": ""
     },
     {
       "id": "33a5010c5d29",
@@ -977,7 +1830,9 @@
       ],
       "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.730Z"
+      "stars": 0,
+      "updatedAt": "",
+      "discoveredAt": "2026-05-09T19:20:07.892Z"
     },
     {
       "id": "bdf37d68b3c6",
@@ -1000,7 +1855,9 @@
       ],
       "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.731Z"
+      "stars": 0,
+      "updatedAt": "",
+      "discoveredAt": "2026-05-09T19:20:07.892Z"
     },
     {
       "id": "4efc5c7b23a8",
@@ -1023,7 +1880,9 @@
       ],
       "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.731Z"
+      "stars": 0,
+      "updatedAt": "",
+      "discoveredAt": "2026-05-09T19:20:07.892Z"
     },
     {
       "id": "d8205f6d73e4",
@@ -1046,7 +1905,9 @@
       ],
       "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.731Z"
+      "stars": 0,
+      "updatedAt": "",
+      "discoveredAt": "2026-05-09T19:20:07.892Z"
     },
     {
       "id": "b0b9a1594f16",
@@ -1069,7 +1930,9 @@
       ],
       "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.731Z"
+      "stars": 0,
+      "updatedAt": "",
+      "discoveredAt": "2026-05-09T19:20:07.892Z"
     },
     {
       "id": "b587e060bb34",
@@ -1092,214 +1955,9 @@
       ],
       "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
       "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.731Z"
-    },
-    {
-      "id": "76cdf44fa299",
-      "name": "AI agents",
-      "source": "n8n Blog",
-      "url": "https://blog.n8n.io/ai-agents/",
-      "platform": "n8n",
-      "category": "自动化",
-      "description": "n8n Blog 页面发现的 Skill/Agent 能力候选。",
-      "score": 60,
-      "scoreBreakdown": {
-        "safety": 8,
-        "agentFit": 28,
-        "beginnerFit": 10,
-        "workflowFit": 8,
-        "sourceFit": 6
-      },
-      "recommendedFor": [
-        "企业办公"
-      ],
-      "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
-      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.731Z"
-    },
-    {
-      "id": "fc8fe286cfca",
-      "name": "XML to JSON converter",
-      "source": "n8n Blog",
-      "url": "https://n8n.io/workflows/160-convert-xml-to-json/",
-      "platform": "n8n",
-      "category": "自动化",
-      "description": "n8n Blog 页面发现的 Skill/Agent 能力候选。",
-      "score": 60,
-      "scoreBreakdown": {
-        "safety": 8,
-        "agentFit": 28,
-        "beginnerFit": 10,
-        "workflowFit": 8,
-        "sourceFit": 6
-      },
-      "recommendedFor": [
-        "企业办公"
-      ],
-      "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
-      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.731Z"
-    },
-    {
-      "id": "cae25a8d9160",
-      "name": "Discord + MySQL",
-      "source": "n8n Blog",
-      "url": "https://n8n.io/workflows",
-      "platform": "n8n",
-      "category": "自动化",
-      "description": "n8n Blog 页面发现的 Skill/Agent 能力候选。",
-      "score": 60,
-      "scoreBreakdown": {
-        "safety": 8,
-        "agentFit": 28,
-        "beginnerFit": 10,
-        "workflowFit": 8,
-        "sourceFit": 6
-      },
-      "recommendedFor": [
-        "企业办公"
-      ],
-      "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
-      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.731Z"
-    },
-    {
-      "id": "a879cb00b6e4",
-      "name": "Telegram + PostgreSQL",
-      "source": "n8n Blog",
-      "url": "https://n8n.io/workflows",
-      "platform": "n8n",
-      "category": "自动化",
-      "description": "n8n Blog 页面发现的 Skill/Agent 能力候选。",
-      "score": 60,
-      "scoreBreakdown": {
-        "safety": 8,
-        "agentFit": 28,
-        "beginnerFit": 10,
-        "workflowFit": 8,
-        "sourceFit": 6
-      },
-      "recommendedFor": [
-        "企业办公"
-      ],
-      "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
-      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.731Z"
-    },
-    {
-      "id": "be338a4e9c82",
-      "name": "Show more",
-      "source": "n8n Blog",
-      "url": "https://n8n.io/workflows",
-      "platform": "n8n",
-      "category": "自动化",
-      "description": "n8n Blog 页面发现的 Skill/Agent 能力候选。",
-      "score": 60,
-      "scoreBreakdown": {
-        "safety": 8,
-        "agentFit": 28,
-        "beginnerFit": 10,
-        "workflowFit": 8,
-        "sourceFit": 6
-      },
-      "recommendedFor": [
-        "企业办公"
-      ],
-      "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
-      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.731Z"
-    },
-    {
-      "id": "7f5a3c0ddaad",
-      "name": "Automated Data Sync",
-      "source": "n8n Blog",
-      "url": "https://n8n.io/workflows",
-      "platform": "n8n",
-      "category": "自动化",
-      "description": "n8n Blog 页面发现的 Skill/Agent 能力候选。",
-      "score": 60,
-      "scoreBreakdown": {
-        "safety": 8,
-        "agentFit": 28,
-        "beginnerFit": 10,
-        "workflowFit": 8,
-        "sourceFit": 6
-      },
-      "recommendedFor": [
-        "企业办公"
-      ],
-      "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
-      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.731Z"
-    },
-    {
-      "id": "498c0629c4cf",
-      "name": "Lead Generation",
-      "source": "n8n Blog",
-      "url": "https://n8n.io/workflows",
-      "platform": "n8n",
-      "category": "自动化",
-      "description": "n8n Blog 页面发现的 Skill/Agent 能力候选。",
-      "score": 60,
-      "scoreBreakdown": {
-        "safety": 8,
-        "agentFit": 28,
-        "beginnerFit": 10,
-        "workflowFit": 8,
-        "sourceFit": 6
-      },
-      "recommendedFor": [
-        "企业办公"
-      ],
-      "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
-      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.731Z"
-    },
-    {
-      "id": "ecfda57e9542",
-      "name": "Skills",
-      "source": "ClawHub Skills",
-      "url": "https://clawhub.ai/skills",
-      "platform": "OpenClaw",
-      "category": "自动化",
-      "description": "ClawHub Skills 页面发现的 Skill/Agent 能力候选。",
-      "score": 55,
-      "scoreBreakdown": {
-        "safety": 8,
-        "agentFit": 28,
-        "beginnerFit": 10,
-        "workflowFit": 0,
-        "sourceFit": 9
-      },
-      "recommendedFor": [
-        "企业办公"
-      ],
-      "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
-      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.730Z"
-    },
-    {
-      "id": "019e2e253656",
-      "name": "Publish Skill",
-      "source": "ClawHub Skills",
-      "url": "https://clawhub.ai/skills/publish",
-      "platform": "OpenClaw",
-      "category": "自动化",
-      "description": "ClawHub Skills 页面发现的 Skill/Agent 能力候选。",
-      "score": 55,
-      "scoreBreakdown": {
-        "safety": 8,
-        "agentFit": 28,
-        "beginnerFit": 10,
-        "workflowFit": 0,
-        "sourceFit": 9
-      },
-      "recommendedFor": [
-        "企业办公"
-      ],
-      "reason": "信息还不够完整，先低分收录，避免直接推荐给新手。",
-      "safetyNote": "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
-      "discoveredAt": "2026-05-09T07:56:18.730Z"
+      "stars": 0,
+      "updatedAt": "",
+      "discoveredAt": "2026-05-09T19:20:07.892Z"
     }
   ],
   "note": "自动发现结果已写入。高分项仍建议人工复核后再做站内强推荐。"

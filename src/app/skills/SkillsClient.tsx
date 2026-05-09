@@ -21,6 +21,8 @@ type FetchedSkillItem = {
   recommendedFor: string[]
   reason: string
   safetyNote: string
+  stars?: number
+  updatedAt?: string
 }
 
 export default function SkillsPage() {
@@ -109,7 +111,7 @@ export default function SkillsPage() {
           </div>
           {discoveredSkills.length > 0 && (
             <div style={{marginTop:18,paddingTop:16,borderTop:'1px solid rgba(255,255,255,0.1)'}}>
-              <p style={{fontSize:15,fontWeight:900,color:'#fff',marginBottom:10}}>今天新发现的候选 Skill</p>
+              <p style={{fontSize:15,fontWeight:900,color:'#fff',marginBottom:10}}>GitHub / 社区新发现的候选 Skill</p>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))',gap:10}}>
                 {discoveredSkills.map(item=>(
                   <a key={item.id} href={item.url} target="_blank" style={{textDecoration:'none'}}>
@@ -120,6 +122,7 @@ export default function SkillsPage() {
                       </div>
                       <p style={{fontSize:13,fontWeight:700,color:'#cfcfcf',lineHeight:1.6,marginBottom:8}}>{item.reason}</p>
                       <p style={{fontSize:12,fontWeight:800,color:'#999',lineHeight:1.6,margin:0}}>{item.safetyNote}</p>
+                      <p style={{fontSize:11,fontWeight:800,color:'#777',lineHeight:1.5,margin:'8px 0 0'}}>{item.source}{typeof item.stars === "number" && item.stars > 0 ? ` · ${item.stars} stars` : ""}</p>
                     </div>
                   </a>
                 ))}
@@ -182,7 +185,7 @@ export default function SkillsPage() {
                     </div>
                   </div>
                   <div style={{display:'flex',alignItems:'center',gap:8,fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#aaa',marginTop:8,paddingTop:8,borderTop:'1px solid #1a1a1a'}}>
-                    <Download size={12} /> {s.downloads} 安装
+                    <Download size={12} /> {s.downloads} 热度
                     <span style={{marginLeft:'auto',fontSize:10,color:'#888'}}>{s.platform==="QClaw"?"技能市场搜•一键安装":s.platform==="OpenClaw"?"openclaw skill install":"自带/Dify工作流添加"}</span>
                   </div>
                 </div>

@@ -157,6 +157,36 @@ function includesAny(text, keywords) {
   return keywords.some((keyword) => lowered.includes(keyword.toLowerCase()))
 }
 
+function hasTemplateNoise(text = "") {
+  return /\$\{|%7B|%7D|{{|}}|undefined|null/i.test(String(text))
+}
+
+function isGenericLinkTitle(title = "") {
+  const text = String(title).trim().replace(/\s+/g, " ").replace(/[>›»]+$/g, "").trim().toLowerCase()
+  if (!text || text.length < 4) return true
+  return [
+    "skills",
+    "publish skill",
+    "show more",
+    "learn more",
+    "read more",
+    "explore workflows",
+    "explore 800+ workflow templates",
+    "customer support",
+    "lead generation",
+    "automated data sync",
+  ].includes(text)
+}
+
+function isLikelySkillOrWorkflow({ title = "", href = "", sourceName = "" }) {
+  const text = `${title} ${href} ${sourceName}`
+  if (hasTemplateNoise(text) || isGenericLinkTitle(title)) return false
+  if (/\/workflows\/?$/.test(href) || /\/skills\/?$/.test(href)) return false
+  if (/github\.com\/[^/]+\/[^/#?]+/.test(href)) return true
+  if (/\/workflows\/\d+[-/]/.test(href)) return /agent|mcp|ai|openai|workflow|automation|scrape|summarize|bot|chat/i.test(text)
+  return /skill|agent|mcp|workflow|automation|plugin|插件|技能|智能体|工作流/i.test(text)
+}
+
 function inferCategory(text) {
   if (/security|audit|permission|安全|审计|权限|隐私/i.test(text)) return "安全隐私"
   if (/github|code|deploy|api|database|test|开发|代码|部署/i.test(text)) return "开发工具"
@@ -179,7 +209,8 @@ function scoreCandidate(item) {
   const agentFit = /agent|skill|mcp|tool|workflow|browser|search|openclaw|claude|codex|智能体|技能|工作流/i.test(text) ? 28 : 8
   const beginnerFit = /template|example|starter|no-code|one-click|guide|教程|模板|零代码|一键/i.test(text) ? 16 : 10
   const workflowFit = Math.min(24, recommendedFor(text).length * 6 + (/browser|search|github|notion|feishu|slack|dify|n8n/i.test(text) ? 8 : 0))
-  const sourceFit = item.sourceWeight || 6
+  const stars = Number(item.stars || 0)
+  const sourceFit = Math.min(14, (item.sourceWeight || 6) + Math.round(Math.log10(stars + 1) * 2))
   const total = Math.max(0, Math.min(100, safety + agentFit + beginnerFit + workflowFit + sourceFit))
 
   return {
@@ -213,6 +244,8 @@ function normalizeItem(raw) {
     safetyNote: /vetter|security|audit|安全|审计/i.test(text)
       ? "偏安全检查能力，可以优先作为安装前置步骤。"
       : "未人工复核前，只进入候选池；推荐安装前先用 skill-vetter 或人工看源码。",
+    stars: Number(raw.stars || 0),
+    updatedAt: raw.updatedAt || raw.pushedAt || "",
     discoveredAt: new Date().toISOString(),
   }
 }
@@ -240,6 +273,9 @@ async function fetchGithubCandidates() {
           description: repo.description || "",
           platform: source.platform,
           sourceWeight: source.sourceWeight,
+          stars: repo.stargazers_count || 0,
+          updatedAt: repo.updated_at,
+          pushedAt: repo.pushed_at,
         })
       }
     } catch {
@@ -261,8 +297,7 @@ async function fetchPageCandidates() {
       const href = absoluteUrl(source.url, match[1])
       const title = stripHTML(match[2]).replace(/Learn more|Read more|查看|更多|详情/gi, "").trim()
       if (!href || !title || title.length < 4 || title.length > 90) continue
-      const text = `${title} ${href}`
-      if (!/skill|agent|mcp|workflow|插件|技能|智能体|工作流/i.test(text)) continue
+      if (!isLikelySkillOrWorkflow({ title, href, sourceName: source.name })) continue
       const key = `${source.name}-${title.toLowerCase()}`
       if (seen.has(key)) continue
       seen.add(key)
@@ -283,7 +318,9 @@ function mergeWithPrevious(items) {
   if (!fs.existsSync(outputPath)) return items
   try {
     const previous = JSON.parse(fs.readFileSync(outputPath, "utf8"))
-    const oldItems = Array.isArray(previous.items) ? previous.items : []
+    const oldItems = Array.isArray(previous.items)
+      ? previous.items.filter((item) => isLikelySkillOrWorkflow({ title: item.name, href: item.url, sourceName: item.source }))
+      : []
     const map = new Map()
     for (const item of oldItems) map.set(item.id || hash(`${item.name}-${item.url}`), item)
     for (const item of items) map.set(item.id, { ...map.get(item.id), ...item, discoveredAt: map.get(item.id)?.discoveredAt || item.discoveredAt })
