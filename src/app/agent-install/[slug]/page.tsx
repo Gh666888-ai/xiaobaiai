@@ -1,10 +1,10 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { AlertTriangle, ArrowLeft, CheckCircle2, ExternalLink, KeyRound, Play, TerminalSquare } from "lucide-react"
+import { AlertTriangle, ArrowLeft, BrainCircuit, CheckCircle2, ExternalLink, KeyRound, Play, TerminalSquare } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
-import { agentGuideBySlug, agentInstallGuides } from "@/data/agent-install-guides"
+import { agentGuideBySlug, agentInstallGuides, defaultAgentPostInstallSetup } from "@/data/agent-install-guides"
 
 type PageProps = {
   params: { slug: string }
@@ -47,6 +47,7 @@ function CodeBlock({ code }: { code: string }) {
 export default function AgentInstallDetailPage({ params }: PageProps) {
   const guide = agentGuideBySlug.get(params.slug)
   if (!guide) notFound()
+  const postInstallSetup = guide.postInstallSetup || defaultAgentPostInstallSetup
 
   const otherGuides = agentInstallGuides.filter((item) => item.slug !== guide.slug).slice(0, 4)
   const jsonLd = {
@@ -184,6 +185,46 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
           <div style={{ display: "grid", gap: 10 }}>
             {guide.firstPrompts.map((prompt) => (
               <CodeBlock key={prompt} code={prompt} />
+            ))}
+          </div>
+        </section>
+
+        <section style={{ marginBottom: 42 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+            <BrainCircuit size={18} style={{ color: "#e8c96a" }} />
+            <h2 style={{ color: "#fff", fontSize: 25, fontWeight: 950 }}>装好和接好模型后，怎么把它训练成你的 Agent</h2>
+          </div>
+          <p style={{ color: "#aaa", fontSize: 14, lineHeight: 1.85, marginBottom: 16 }}>
+            这一步很重要。模型接好只是“有大脑”，还要给它人设、记忆结构、权限边界、验收标准和复盘方式。下面每一段都可以直接复制给 Agent。
+          </p>
+          <div style={{ display: "grid", gap: 14 }}>
+            {postInstallSetup.map((section) => (
+              <div key={section.title} style={{ border: "1px solid #1f1f1f", background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: "22px 24px" }}>
+                <h3 style={{ color: "#fff", fontSize: 20, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>{section.title}</h3>
+                <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.8, marginBottom: 14 }}>{section.why}</p>
+                <div style={{ display: "grid", gap: 7, marginBottom: section.template ? 14 : 0 }}>
+                  {section.steps.map((step) => (
+                    <p key={step} style={{ color: "#d8d8d8", fontSize: 13, lineHeight: 1.75, display: "grid", gridTemplateColumns: "18px 1fr", gap: 8 }}>
+                      <CheckCircle2 size={14} style={{ color: "#3DA563", marginTop: 4 }} />
+                      <span>{step}</span>
+                    </p>
+                  ))}
+                </div>
+                {section.template && (
+                  <div style={{ marginBottom: section.checks?.length ? 14 : 0 }}>
+                    <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 8 }}>复制给 Agent</p>
+                    <CodeBlock code={section.template} />
+                  </div>
+                )}
+                {section.checks && section.checks.length > 0 && (
+                  <div style={{ borderTop: "1px solid #202020", paddingTop: 12, display: "grid", gap: 6 }}>
+                    <p style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950 }}>这一步是否完成，看这几条</p>
+                    {section.checks.map((check) => (
+                      <p key={check} style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7 }}>- {check}</p>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </section>
