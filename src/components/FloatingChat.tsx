@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import type { PointerEvent as ReactPointerEvent } from "react"
 import { usePathname, useRouter } from "next/navigation"
-import { ArrowUp, Loader2, Minus, UserRound, X } from "lucide-react"
+import { ArrowUp, ExternalLink, Loader2, Minus, UserRound, X } from "lucide-react"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
 import { XiaobaiMascot } from "@/components/XiaobaiMascot"
@@ -22,6 +22,8 @@ import { recommendMissionFromGoal } from "@/lib/mission-recommender"
 type Message = {
   role: "user" | "assistant"
   content: string
+  actionHref?: string
+  actionLabel?: string
 }
 
 type LauncherMood = "welcome" | "thinking" | "recommend" | "sleeping" | "peeking"
@@ -35,7 +37,7 @@ const START_INDUSTRY_PROMPT_KEY = "xiaobaiai:start-industry-prompt:v1"
 const START_INDUSTRY_PROMPT =
   "你已经登录了。先告诉我两件事：你做什么行业或岗位？最想用 AI 做成什么？我会给你排学习计划，从第 1 步带你做。"
 const GOAL_ROUTER_PROMPT =
-  "直接说一句：你做什么行业 + 想用 AI 做成什么。\n\n比如：我做电商，想用 AI 做客服和短视频。\n\n我收到后会直接打开对应任务模板，不再给你讲一堆建议。"
+  "直接说一句：你做什么行业 + 想用 AI 做成什么。\n\n比如：我做电商，想用 AI 做客服和短视频。\n\n我收到后会给你一个任务入口，你点一下再进入，不会突然跳走。"
 const HOME_AGENT_PROMPT_KEY = "xiaobaiai:home-agent-prompt:v1"
 const HOME_GUEST_PROMPT =
   "先登录，然后我来制定接下来的一切。登录后我会先问你的行业和目标。"
@@ -460,12 +462,13 @@ export function FloatingChat() {
         ...prev,
         {
           role: "assistant",
-          content: `收到，直接带你进「${mission.shortTitle}」${kindLabel}。\n\n第一步只做这个：${mission.steps[0]?.action || "先打开任务页开始。"}\n\n我会记住进度，下次继续从这里走。`,
+          content: `收到，我给你匹配到「${mission.shortTitle}」${kindLabel}。\n\n第一步只做这个：${mission.steps[0]?.action || "先打开任务页开始。"}\n\n我已经记住这个进度。任务地址：/missions/${mission.id}\n\n你想开始时，点下面入口进入任务页。`,
+          actionHref: `/missions/${mission.id}`,
+          actionLabel: `打开「${mission.shortTitle}」`,
         },
       ])
       setSpeaking(true)
       window.setTimeout(() => setSpeaking(false), 1800)
-      window.setTimeout(() => router.push(`/missions/${mission.id}`), 650)
       setSending(false)
       return
     }
@@ -542,7 +545,15 @@ export function FloatingChat() {
                       ) : (
                         <XiaobaiMascot size={30} mood={isLastAssistant && speaking ? "talking" : "idle"} />
                       )}
-                      <div className="xiaobai-bubble">{message.content}</div>
+                      <div className="xiaobai-bubble">
+                        <span>{message.content}</span>
+                        {message.actionHref && (
+                          <button type="button" className="xiaobai-action-link" onClick={() => router.push(message.actionHref || "/missions")}>
+                            {message.actionLabel || "打开任务"}
+                            <ExternalLink size={13} />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   )
                 })}
@@ -747,6 +758,23 @@ export function FloatingChat() {
           padding: 10px 12px;
           white-space: pre-line;
           word-break: break-word;
+        }
+        .xiaobai-action-link {
+          width: 100%;
+          margin-top: 9px;
+          border: 1px solid rgba(232,201,106,0.36);
+          border-radius: 10px;
+          background: rgba(232,201,106,0.12);
+          color: #f3d978;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          padding: 8px 10px;
+          font-family: inherit;
+          font-size: 12px;
+          font-weight: 950;
+          cursor: pointer;
         }
         .xiaobai-message.is-user .xiaobai-bubble {
           border-color: rgba(201,168,76,0.25);
