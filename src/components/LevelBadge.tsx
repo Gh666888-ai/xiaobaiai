@@ -47,6 +47,7 @@ type PlateBeastStyle = {
   name: string
   shortName: string
   sigil: string
+  plateImage: string
 }
 
 const badgeStyles: Record<number, BadgeStyle> = {
@@ -102,12 +103,12 @@ function getPlateTier(level: number) {
 
 function getPlateBeast(level: number): PlateBeastStyle {
   if (level >= 10) {
-    return { className: "yingzhao", name: "英招镇山纹", shortName: "英招纹", sigil: "招" }
+    return { className: "yingzhao", name: "英招镇山纹", shortName: "英招纹", sigil: "招", plateImage: "/level-plates/auto-yingzhao.png" }
   }
   if (level >= 5) {
-    return { className: "bifang", name: "毕方炎羽纹", shortName: "毕方纹", sigil: "方" }
+    return { className: "bifang", name: "毕方炎羽纹", shortName: "毕方纹", sigil: "方", plateImage: "/level-plates/auto-bifang.png" }
   }
-  return { className: "lushu", name: "鹿蜀启灵纹", shortName: "鹿蜀纹", sigil: "鹿" }
+  return { className: "lushu", name: "鹿蜀启灵纹", shortName: "鹿蜀纹", sigil: "鹿", plateImage: "/level-plates/auto-lushu.png" }
 }
 
 function LevelTitlePlate({
@@ -151,6 +152,7 @@ function LevelTitlePlate({
       <span className="levelFlame right" aria-hidden="true" />
       <span className="levelBackPlate" aria-hidden="true" />
       <span className="levelPlateCore" aria-hidden="true" />
+      <img className="autoPlateImage" src={plateBeast.plateImage} alt="" aria-hidden="true" />
       <span className="levelBeastSigil" aria-hidden="true">
         <span>{plateBeast.sigil}</span>
       </span>
@@ -180,43 +182,75 @@ function LevelTitlePlate({
           grid-template-columns: auto minmax(0, 1fr);
           align-items: center;
           gap: 10px;
-          min-width: 218px;
-          min-height: 56px;
-          padding: 8px 20px 8px 10px;
+          min-width: 248px;
+          min-height: 72px;
+          padding: 12px 38px 12px 26px;
           position: relative;
           isolation: isolate;
           overflow: visible;
           color: #fff;
           text-decoration: none;
           vertical-align: middle;
-          filter: drop-shadow(0 0 16px var(--plate-glow));
+          filter: drop-shadow(0 0 12px var(--plate-glow));
         }
         .levelTier-starter {
-          min-width: 206px;
-          padding-right: 17px;
-          filter: drop-shadow(0 0 11px var(--plate-glow));
+          filter:
+            drop-shadow(0 0 6px rgba(180,214,184,0.18))
+            drop-shadow(0 5px 12px rgba(0,0,0,0.22));
         }
         .levelTier-adept {
-          min-width: 224px;
-          gap: 12px;
           filter:
-            drop-shadow(0 0 13px var(--plate-glow))
-            drop-shadow(0 5px 12px rgba(0,0,0,0.26));
+            drop-shadow(0 0 10px rgba(255,124,54,0.32))
+            drop-shadow(0 5px 14px rgba(0,0,0,0.28));
         }
         .levelTier-master {
-          min-width: 238px;
-          min-height: 60px;
-          gap: 13px;
-          padding: 9px 22px 9px 11px;
           filter:
-            drop-shadow(0 0 16px var(--plate-glow))
-            drop-shadow(0 7px 14px rgba(0,0,0,0.34));
+            drop-shadow(0 0 13px rgba(114,230,205,0.38))
+            drop-shadow(0 7px 16px rgba(0,0,0,0.34));
         }
         .levelTitlePlate.isCompact {
-          min-width: 176px;
-          min-height: 46px;
+          min-width: 198px;
+          min-height: 58px;
           gap: 7px;
-          padding: 6px 13px 6px 8px;
+          padding: 8px 26px 8px 18px;
+        }
+        .autoPlateImage {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          z-index: -2;
+          width: 118%;
+          height: auto;
+          max-height: 184%;
+          transform: translate(-50%, -50%);
+          object-fit: contain;
+          pointer-events: none;
+          user-select: none;
+        }
+        .levelBeast-lushu .autoPlateImage {
+          width: 116%;
+          filter:
+            saturate(0.88)
+            brightness(0.9)
+            contrast(1.02);
+        }
+        .levelBeast-bifang .autoPlateImage {
+          width: 120%;
+          filter:
+            saturate(0.96)
+            brightness(0.92)
+            contrast(1.04);
+        }
+        .levelBeast-yingzhao .autoPlateImage {
+          width: 124%;
+          filter:
+            saturate(0.92)
+            brightness(0.88)
+            contrast(1.03);
+        }
+        .levelTitlePlate.isCompact .autoPlateImage {
+          width: 120%;
+          max-height: 190%;
         }
         .levelBackPlate {
           position: absolute;
@@ -228,6 +262,12 @@ function LevelTitlePlate({
             linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--plate-main) 26%, transparent) 18%, rgba(255,255,255,0.08) 50%, color-mix(in srgb, var(--plate-main) 22%, transparent) 82%, transparent 100%);
           opacity: 0.88;
           filter: blur(0.2px);
+        }
+        .levelBackPlate,
+        .levelPlateCore,
+        .levelWing,
+        .levelFlame {
+          display: none;
         }
         .levelTier-starter .levelBackPlate {
           inset: 2px 8px;
@@ -404,6 +444,12 @@ function LevelTitlePlate({
           border-radius: 44% 56% 48% 52% / 58% 44% 56% 42%;
           opacity: 0.16;
         }
+        .levelBeast-lushu .levelBeastSigil,
+        .levelBeast-bifang .levelBeastSigil,
+        .levelBeast-yingzhao .levelBeastSigil {
+          left: 63%;
+          opacity: 0.1;
+        }
         .levelBeast-bifang .levelBeastSigil {
           left: 54%;
           width: 46px;
@@ -554,22 +600,23 @@ function LevelTitlePlate({
           inset: 4px 8px;
         }
         .levelGemWrap {
-          width: 40px;
-          height: 40px;
+          width: 38px;
+          height: 38px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           position: relative;
           z-index: 2;
           flex-shrink: 0;
+          margin-left: 0;
         }
         .isCompact .levelGemWrap {
-          width: 32px;
-          height: 32px;
+          width: 30px;
+          height: 30px;
         }
         .levelGem {
-          width: 35px;
-          height: 35px;
+          width: 32px;
+          height: 32px;
           border-radius: 50%;
           display: inline-flex;
           align-items: center;
@@ -580,8 +627,8 @@ function LevelTitlePlate({
           box-shadow: 0 0 18px var(--plate-glow), inset 0 2px 7px rgba(255,255,255,0.82), inset 0 -9px 13px rgba(0,0,0,0.26);
         }
         .isCompact .levelGem {
-          width: 28px;
-          height: 28px;
+          width: 25px;
+          height: 25px;
         }
         .levelGemMark {
           position: absolute;
@@ -639,7 +686,8 @@ function LevelTitlePlate({
           line-height: 1.08;
           position: relative;
           z-index: 2;
-          padding-right: 4px;
+          padding-right: 16px;
+          padding-left: 4px;
         }
         .levelTopline {
           display: flex;
@@ -648,7 +696,7 @@ function LevelTitlePlate({
           min-width: 0;
         }
         .levelUserName {
-          max-width: 92px;
+          max-width: 112px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
@@ -676,6 +724,7 @@ function LevelTitlePlate({
           align-items: center;
           gap: 7px;
           margin-top: 5px;
+          max-width: 164px;
         }
         .levelRankName {
           color: var(--plate-accent);
@@ -723,7 +772,9 @@ function LevelTitlePlate({
         }
         @media (max-width: 860px) {
           .levelTitlePlate.isCompact {
-            min-width: 148px;
+            min-width: 170px;
+            min-height: 50px;
+            padding: 7px 18px 7px 14px;
           }
           .levelTitlePlate.isCompact .levelWing {
             width: 28px;
@@ -733,7 +784,7 @@ function LevelTitlePlate({
           .levelTitlePlate.isCompact .levelWing.left { left: -15px; }
           .levelTitlePlate.isCompact .levelWing.right { right: -15px; }
           .levelTitlePlate.isCompact .levelUserName {
-            max-width: 60px;
+            max-width: 74px;
             font-size: 11px;
           }
           .levelTitlePlate.isCompact .levelNumber {
