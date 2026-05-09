@@ -225,6 +225,7 @@ const deepseekOpenAiFields = [
   { label: "Provider", value: "OpenAI Compatible / Custom" },
   { label: "Base URL", value: "https://api.deepseek.com" },
   { label: "API Key", value: "sk-你的DeepSeek_API_Key" },
+  { label: "保存后怎么测", value: "新建对话，发送：你好，用一句话介绍你自己" },
   { label: "先跑通模型", value: "deepseek-v4-flash" },
   { label: "更强模型", value: "deepseek-v4-pro" },
   { label: "长上下文", value: "deepseek-v4-pro[1m]" },
@@ -235,12 +236,14 @@ const kimiOpenAiFields = [
   { label: "Base URL", value: "https://api.moonshot.cn/v1" },
   { label: "API Key", value: "你的 Kimi / Moonshot API Key" },
   { label: "模型", value: "kimi-k2.6" },
+  { label: "保存后怎么测", value: "新建对话，发送：请总结一句今天要做什么" },
 ]
 
 const openAiFields = [
   { label: "Provider", value: "OpenAI" },
   { label: "API Key", value: "你的 OpenAI API Key" },
   { label: "模型", value: "按工具模型列表选择当前可用模型" },
+  { label: "保存后怎么测", value: "点击 Test，或新建对话问一句你好" },
 ]
 
 const minimaxOpenAiFields = [
@@ -249,6 +252,7 @@ const minimaxOpenAiFields = [
   { label: "API Key", value: "你的 MiniMax API Key" },
   { label: "日常对话先选", value: "MiniMax-M2.7" },
   { label: "更快版本", value: "MiniMax-M2.7-highspeed" },
+  { label: "保存后怎么测", value: "新建对话，发送：你好，帮我写一句短文案" },
 ]
 
 const minimaxOpenAiConnection: AgentApiConnection = {
@@ -305,6 +309,7 @@ const noCustomApiConnection = (product: string): AgentApiConnection => ({
     { label: "登录方式", value: "官方账号登录" },
     { label: "DeepSeek / Kimi Key", value: "不能直接填到官方桌面版里" },
     { label: "适合新手", value: "截图、文件、日常问答、写作、语音" },
+    { label: "保存后怎么测", value: "登录后直接发一句：你好" },
   ],
   notes: [
     "不要从网盘、群文件、陌生 GitHub 下载所谓破解版桌面端。",
@@ -320,6 +325,7 @@ const localOpenAiServerConnection: AgentApiConnection = {
     { label: "Base URL", value: "http://localhost:1234/v1" },
     { label: "API Key", value: "随便填一个，例如 lm-studio" },
     { label: "Model", value: "选择你在 LM Studio 里加载的模型" },
+    { label: "保存后怎么测", value: "先确认 LM Studio Local Server 是绿色运行状态" },
   ],
   notes: [
     "先在 LM Studio 里下载并加载模型，再开启 Local Server。",
@@ -337,6 +343,7 @@ const anthropicDeepseekConnection: AgentApiConnection = {
     { label: "Auth Token", value: "sk-你的DeepSeek_API_Key" },
     { label: "主模型", value: "deepseek-v4-pro[1m]" },
     { label: "快模型", value: "deepseek-v4-flash" },
+    { label: "保存后怎么测", value: "复制命令启动 claude，问它能不能读取当前目录" },
   ],
   windowsCommand: `$env:ANTHROPIC_BASE_URL="https://api.deepseek.com/anthropic"
 $env:ANTHROPIC_AUTH_TOKEN="sk-你的DeepSeek_API_Key"

@@ -38,6 +38,8 @@ const installFirst = [
   { href: "/learn/2", label: "Hermes 接 DeepSeek V4", note: "先确认官方安装来源，再按 OpenAI/Anthropic Compatible 两种方式接入。" },
   { href: "/news/news-67", label: "Ollama 本地模型安装", note: "Windows/Mac 下载、打开命令提示符、复制 ollama run 命令和报错处理。" },
   { href: "/dify", label: "Dify 网页版入门", note: "不用装软件，先注册登录，再搭一个能回答文档问题的助手。" },
+  { href: "/agent-mini-program", label: "用 Agent 做微信小程序并上线", note: "从一页需求、指挥 Agent 写代码、真机验收到提交审核发布。" },
+  { href: "/member-cases", label: "会员实战案例", note: "把资讯教程搬成能照着做的案例：Agent、小程序、知识库、自动化和内容副业。" },
 ]
 
 const topicGroups = [
@@ -80,6 +82,8 @@ const topicGroups = [
       { href: "/codex", label: "Codex国内使用指南", note: "Agent编程、项目修改和工程任务" },
       { href: "/workflows", label: "AI工作流自动化", note: "日报、客服、线索、内容和监控流程" },
       { href: "/models", label: "AI模型排行榜", note: "模型能力、成本、场景和替代方案" },
+      { href: "/agent-mini-program", label: "用Agent做微信小程序", note: "从需求、指挥AI写代码到微信开发者工具上线" },
+      { href: "/member-cases", label: "会员实战案例", note: "把资讯教程整理成可落地项目案例" },
       { href: "/community", label: "社区实战问答", note: "真实问题、踩坑经验和技术求助" },
       { href: "/cases", label: "AI实战案例库", note: "按办公、Dify、AI编程、绘图和工作流整理案例" },
     ],

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { BookOpen, Bot, Building2, ChevronDown, Compass, Flag, GraduationCap, LogOut, Menu, Newspaper, Search, TerminalSquare, Trophy, Users, Workflow, X } from "lucide-react"
+import { BookOpen, Bot, Building2, ChevronDown, Compass, Crown, Flag, GraduationCap, LogOut, Menu, Newspaper, Search, TerminalSquare, Trophy, Users, Workflow, X } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/AuthContext"
 import { LevelBadge } from "@/components/LevelBadge"
@@ -19,6 +19,7 @@ const links = [
 ]
 
 const moreLinks = [
+  { label: "会员案例", href: "/member-cases", icon: Crown },
   { label: "案例", href: "/cases", icon: BookOpen },
   { label: "选择器", href: "/choose-tool", icon: Search },
   { label: "工作流", href: "/workflows", icon: Workflow },

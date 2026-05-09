@@ -58,6 +58,15 @@ export default function NewsPage() {
         <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.4em',color:'#7a6230',marginBottom:10,fontWeight:700}}>News Feed</p>
         <h1 style={{fontSize:36,fontWeight:900,color:'#fff',marginBottom:8}}>AI 资讯</h1>
         <p style={{fontSize:14,color:'#ccc',lineHeight:1.8,marginBottom:18}}>资讯先看“对新手有什么用”，不用一上来钻太深。想找工具、模型、教程或关键词，直接搜。</p>
+        <div style={{border:'1px solid rgba(82,148,139,0.24)',background:'rgba(82,148,139,0.04)',borderRadius:12,padding:'16px 18px',marginBottom:18}}>
+          <p style={{fontSize:14,color:'#d6f0ec',lineHeight:1.75,marginBottom:10,fontWeight:850}}>
+            资讯会定时更新。能落地的教程和实战过程，会继续整理到「会员实战案例」里，避免新手在新闻流里翻半天。
+          </p>
+          <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+            <Link href="/member-cases" className="btn-outline" style={{textDecoration:'none'}}>看会员实战案例</Link>
+            <Link href="/agent-mini-program" className="btn-outline" style={{textDecoration:'none'}}>看小程序实战</Link>
+          </div>
+        </div>
 
         <div style={{display:'flex',alignItems:'center',background:'rgba(8,8,8,0.94)',border:'1px solid #2a2a2a',borderRadius:10,maxWidth:620,marginBottom:18}}>
           <Search size={15} style={{marginLeft:14,color:'#777',flexShrink:0}} />

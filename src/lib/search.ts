@@ -79,6 +79,22 @@ const seoTutorialResultsSeed = [
     keywords: "AI教程 AI教程大全 AI工具教程 零基础学AI AI小白教程 DeepSeek Dify Gamma 即梦 Agent",
   },
   {
+    id: "member-cases",
+    title: "会员实战案例",
+    description: "把资讯教程整理成能照着做的实战案例，覆盖Agent、小程序、知识库、自动化、办公和内容副业。",
+    href: "/member-cases",
+    meta: "会员案例 · 实战教程 · 项目训练",
+    keywords: "会员实战案例 AI实战教程 Agent实战 小程序上线 AI副业案例 教程实操",
+  },
+  {
+    id: "agent-mini-program",
+    title: "用Agent做微信小程序并上线",
+    description: "从需求、指挥Agent写代码、真机验收到微信开发者工具上传、提交审核和发布。",
+    href: "/agent-mini-program",
+    meta: "Agent教程 · 小程序 · 上线",
+    keywords: "Agent做小程序 AI写小程序 微信小程序上线 Claude Code小程序 Codex小程序 小程序提交审核",
+  },
+  {
     id: "free-ai-tools",
     title: "免费AI工具推荐",
     description: "免费ChatGPT替代、AI绘图、AI写作、AI办公和Agent工具整理。",

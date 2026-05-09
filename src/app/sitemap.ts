@@ -21,6 +21,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: url("/choose-tool"), lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: url("/ai-tools"), lastModified, changeFrequency: "weekly", priority: 0.94 },
     { url: url("/tutorials"), lastModified, changeFrequency: "weekly", priority: 0.93 },
+    { url: url("/member-cases"), lastModified, changeFrequency: "weekly", priority: 0.92 },
+    { url: url("/agent-mini-program"), lastModified, changeFrequency: "weekly", priority: 0.9 },
     { url: url("/cases"), lastModified, changeFrequency: "weekly", priority: 0.91 },
     { url: url("/free-ai-tools"), lastModified, changeFrequency: "weekly", priority: 0.92 },
     { url: url("/chatgpt"), lastModified, changeFrequency: "weekly", priority: 0.92 },
