@@ -6,7 +6,7 @@ import { stages } from "@/data/learning-path"
 import { toolPath } from "@/data/tool-meta"
 import { missions } from "@/data/missions"
 
-export type SearchKind = "工具" | "模型" | "教程" | "任务" | "资讯" | "工作流" | "技能"
+export type SearchKind = "工具" | "模型" | "教程" | "任务" | "资讯" | "工作流" | "技能" | "应用"
 
 export type SearchResult = {
   id: string
@@ -62,6 +62,14 @@ const workflowResultsSeed = [
 ]
 
 const seoTutorialResultsSeed = [
+  {
+    id: "apps",
+    title: "小白应用工坊",
+    description: "站内生成网站首屏、报名表、报价计算器、商品介绍页和点击得分小游戏。",
+    href: "/apps",
+    meta: "应用生成 · H5小应用 · 站内预览",
+    keywords: "小白应用工坊 AI做APP AI生成应用 AI建站 H5小应用 报名表 报价计算器 小游戏 商品页",
+  },
   {
     id: "tutorials",
     title: "AI教程大全",
@@ -270,7 +278,19 @@ export function searchSite(query: string, limit = 40): SearchResult[] {
     score: scoreText(q, [workflow.title, workflow.description, workflow.meta, workflow.keywords]) + 12,
   }))
 
-  return [...toolResults, ...modelResults, ...seoTutorialResults, ...tutorialResults, ...missionResults, ...newsResults, ...workflowResults, ...skillResults]
+  const appResults = [
+    {
+      id: "app-factory",
+      kind: "应用" as const,
+      title: "小白应用工坊",
+      description: "不用跳外部工具，先在小白AI站内生成一个能打开的 H5 小应用。",
+      href: "/apps",
+      meta: "站内生成 · 网站/表单/报价器/小游戏",
+      score: scoreText(q, ["小白应用工坊", "AI做APP", "AI生成应用", "网站首屏", "报名表", "报价计算器", "点击得分小游戏", "H5小应用"]) + 22,
+    },
+  ]
+
+  return [...appResults, ...toolResults, ...modelResults, ...seoTutorialResults, ...tutorialResults, ...missionResults, ...newsResults, ...workflowResults, ...skillResults]
     .filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)

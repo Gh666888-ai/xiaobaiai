@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { BookOpen, Bot, Building2, ChevronDown, Compass, Flag, GraduationCap, LogOut, Menu, Newspaper, Search, TerminalSquare, Trophy, Users, Workflow, X } from "lucide-react"
+import { AppWindow, BookOpen, Bot, Building2, ChevronDown, Compass, Flag, GraduationCap, LogOut, Menu, Newspaper, Search, TerminalSquare, Trophy, Users, Workflow, X } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/AuthContext"
 import { LevelBadge } from "@/components/LevelBadge"
@@ -12,14 +12,15 @@ import { getNextLevel, getUserLevel } from "@/data/user"
 const links = [
   { label: "开始", href: "/start", icon: Compass },
   { label: "任务", href: "/missions", icon: Flag },
+  { label: "应用工坊", href: "/apps", icon: AppWindow },
   { label: "工具", href: "/tools", icon: Compass },
   { label: "Agent安装", href: "/agent-install", icon: TerminalSquare },
   { label: "学习", href: "/learn", icon: GraduationCap },
-  { label: "案例", href: "/cases", icon: BookOpen },
   { label: "社区", href: "/community", icon: Users },
 ]
 
 const moreLinks = [
+  { label: "案例", href: "/cases", icon: BookOpen },
   { label: "选择器", href: "/choose-tool", icon: Search },
   { label: "工作流", href: "/workflows", icon: Workflow },
   { label: "资讯", href: "/news", icon: Newspaper },
