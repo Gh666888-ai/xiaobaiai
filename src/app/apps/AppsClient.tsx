@@ -1,183 +1,153 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { ArrowRight, Check, Clipboard, Code2, Eye, RefreshCcw, Save, Sparkles } from "lucide-react"
+import { Check, Clipboard, Code2, Eye, FileText, Monitor, Save, Sparkles } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import {
   APP_FACTORY_STORAGE_KEY,
-  appTemplates,
-  buildBusinessBlueprint,
   generateAppHtml,
   type AppTemplateId,
   type SavedGeneratedApp,
 } from "@/data/app-templates"
 
-const styleOptions = ["简洁科技", "高端商务", "温暖亲切", "活泼活动"]
-
-const templatePlaybooks: Record<
-  AppTemplateId,
-  {
-    icon: string
-    mode: string
-    output: string
-    when: string
-    preview: string
-    userFeels: string
-    accent: string
-    chips: string[]
-  }
-> = {
-  "site-hero": {
-    icon: "01",
-    mode: "获客成交应用",
-    output: "适合任何行业先获客：自动生成首页、预约、报价、成交、活动 5 个页面。",
-    when: "用户只说“我想让客户了解我并留下线索”，就先用这个。",
-    preview: "预览里默认打开首页，也能翻到预约、报价、成交和活动页。",
-    userFeels: "像一个完整获客系统，不是官网首屏。",
-    accent: "#76b39d",
-    chips: ["首页", "线索", "跟进"],
-  },
-  "lead-form": {
-    icon: "02",
-    mode: "预约报名应用",
-    output: "适合培训、门店、服务业：重点生成预约漏斗、关键字段和跟进说明。",
-    when: "用户想让别人报名、预约、测评、到店、留电话，就选这个。",
-    preview: "预览里默认打开预约页，但仍然带首页、报价、成交、活动页。",
-    userFeels: "像一个预约报名系统，不是普通表单。",
-    accent: "#d8bf76",
-    chips: ["预约", "报名", "测评"],
-  },
-  "quote-calculator": {
-    icon: "03",
-    mode: "智能报价应用",
-    output: "适合定制服务：重点生成预算器、套餐分层、数量和服务深度计算。",
-    when: "用户总被问多少钱，需要先给大概预算再人工确认。",
-    preview: "预览里默认打开报价页，价格能随套餐、数量和深度变化。",
-    userFeels: "像一个报价引擎，不是价格表。",
-    accent: "#86a8e7",
-    chips: ["自动估价", "套餐分层", "预算感"],
-  },
-  "product-page": {
-    icon: "04",
-    mode: "产品成交应用",
-    output: "适合卖商品、课程、服务套餐：重点生成购买理由、套餐和成交按钮。",
-    when: "用户想让客户看完就知道买哪档、为什么买。",
-    preview: "预览里默认打开成交页，并带购买理由和推荐套餐。",
-    userFeels: "像一个成交货架，不是产品介绍。",
-    accent: "#e89f71",
-    chips: ["套餐推荐", "购买理由", "行动按钮"],
-  },
-  "click-game": {
-    icon: "05",
-    mode: "活动裂变应用",
-    output: "适合做活动和引流：重点生成小游戏、倒计时、福利门槛和分享动作。",
-    when: "用户想做节日活动、门店福利、社群裂变、直播预热。",
-    preview: "预览里默认打开活动页，能看到倒计时、得分和福利引导。",
-    userFeels: "像一个活动引擎，不是静态宣传页。",
-    accent: "#c7a8ff",
-    chips: ["能点击", "有倒计时", "领福利"],
-  },
-  "chat-app": {
-    icon: "06",
-    mode: "聊天社交应用",
-    output: "适合做微信、私信、客服、社群和内部沟通：生成会话列表、聊天窗口、通讯录、发现和我的。",
-    when: "用户说聊天、微信、IM、私信、客服系统、群聊，就应该先生成这个。",
-    preview: "预览里会直接出现聊天软件界面，不再套获客页面。",
-    userFeels: "像一个能发消息的聊天软件原型，不是营销页。",
-    accent: "#35d07f",
-    chips: ["会话列表", "聊天窗口", "能发送"],
-  },
+type AppRequirement = {
+  appName: string
+  userRole: string
+  problem: string
+  coreFeatures: string
+  pages: string
+  dataFields: string
+  mainFlow: string
+  visualStyle: string
 }
 
-const demandExamples = [
-  "我要做一个微信一样的聊天软件，可以看会话、点联系人、发送消息。",
-  "我要给烧烤店做一个扫码点餐应用，有菜单、购物车、下单和桌号。",
-  "我要做一个公司排班系统，能看员工、班次、请假和本周排班表。",
-  "我要做一个记账应用，能新增支出、看分类统计和每月账单。",
-  "我开了一家火锅店，想让附近的人看到套餐后加微信预约。",
-  "我做少儿英语培训，想让家长先测评再报名试听。",
+const defaultRequirement: AppRequirement = {
+  appName: "门店扫码点餐桌面管理端",
+  userRole: "门店老板、店员、收银员",
+  problem: "顾客点餐慢、店员容易漏单，老板想看今天卖了什么",
+  coreFeatures: "菜单管理、桌号点餐、购物车、下单、订单状态、今日营业统计",
+  pages: "工作台、菜单、订单、桌台、统计、设置",
+  dataFields: "菜品名称、价格、分类、库存、桌号、订单金额、订单状态、下单时间",
+  mainFlow: "店员打开应用，选择桌号，帮顾客加菜，确认订单，厨房看到新订单，收银员完成结账",
+  visualStyle: "清爽、高级、像真正的桌面软件，字号要大，布局要清楚",
+}
+
+const requirementExamples: Array<{ name: string; value: AppRequirement }> = [
+  {
+    name: "微信聊天软件",
+    value: {
+      appName: "企业微信式聊天桌面端",
+      userRole: "公司员工、客服、客户",
+      problem: "员工需要在一个软件里看会话、找联系人、给客户发消息",
+      coreFeatures: "会话列表、聊天窗口、发送消息、通讯录、群聊、客户资料、我的设置",
+      pages: "消息、通讯录、群聊、客户、文件、我的",
+      dataFields: "联系人昵称、头像、最近消息、未读数、发送时间、客户标签、群名称",
+      mainFlow: "用户打开应用，选择左侧会话，在中间聊天窗口输入消息并发送，再切到通讯录查看联系人",
+      visualStyle: "像成熟桌面聊天软件，左侧导航，中间会话，右侧资料栏，干净高级",
+    },
+  },
+  {
+    name: "公司排班系统",
+    value: {
+      appName: "员工排班考勤桌面系统",
+      userRole: "店长、人事、员工",
+      problem: "排班靠表格很乱，请假、调班、缺勤不好追踪",
+      coreFeatures: "员工列表、周排班表、班次设置、请假审批、考勤异常、统计汇总",
+      pages: "排班表、员工、请假、考勤、班次、统计",
+      dataFields: "员工姓名、岗位、班次、日期、请假状态、出勤状态、工时",
+      mainFlow: "店长选择本周日期，把员工拖入早班/晚班，处理请假申请，查看本周工时统计",
+      visualStyle: "像专业企业管理软件，表格清楚，颜色区分班次，操作按钮明显",
+    },
+  },
+  {
+    name: "记账应用",
+    value: {
+      appName: "个人记账桌面 APP",
+      userRole: "想控制开销的普通用户",
+      problem: "不知道钱花到哪里了，也看不懂每个月支出结构",
+      coreFeatures: "新增收入支出、分类账单、月度统计、预算进度、搜索筛选",
+      pages: "首页、账单、统计、预算、分类、设置",
+      dataFields: "金额、分类、备注、日期、支付方式、收入/支出、预算额度",
+      mainFlow: "用户打开应用，点击新增记录，填写金额和分类，保存后在首页看到月度支出和分类占比",
+      visualStyle: "现代财务工具，图表清晰，重点数字醒目，不要花哨",
+    },
+  },
 ]
 
-function inferAppKindFromDemand(text: string) {
+function inferTemplateId(text: string): AppTemplateId {
   const raw = text.toLowerCase()
-  const rules: Array<[RegExp, string]> = [
-    [/微信|聊天|im|私信|消息|会话|好友|通讯录|群聊|客服系统|在线客服|社交/, "聊天社交应用"],
-    [/点餐|扫码点餐|菜单|购物车|桌号|外卖|堂食|餐桌|加菜/, "餐饮点餐应用"],
-    [/排班|班次|考勤|请假|调休|员工|值班|工时/, "员工排班考勤应用"],
-    [/记账|账单|收入|支出|预算|流水|报销|发票/, "记账财务应用"],
-    [/库存|仓库|进销存|采购|入库|出库|盘点|供应商/, "库存进销存应用"],
-    [/crm|客户管理|客户跟进|销售线索|商机|成交记录|回访/, "客户管理 CRM 应用"],
-    [/招聘|简历|候选人|面试|岗位|offer|入职/, "招聘面试管理应用"],
-    [/学习|课程表|刷题|考试|作业|训练营|打卡学习/, "学习训练应用"],
-    [/工单|报修|售后|派单|维修|客服处理|进度跟踪/, "工单售后应用"],
-    [/社区|帖子|评论|问答|点赞|置顶|发帖/, "社区问答应用"],
-    [/ai助手|智能体|agent|知识库|机器人|客服机器人/, "AI 助手应用"],
-    [/项目|任务|协作|待办|看板|进度/, "项目任务管理应用"],
-    [/预约|报名|试听|测评|留电话|咨询|到店|排队/, "预约报名应用"],
-    [/报价|估价|多少钱|价格|费用|装修|设计|摄影/, "报价计算应用"],
-    [/活动|抽奖|小游戏|裂变|分享|福利|领券/, "活动互动应用"],
-    [/商城|商品|下单|购买|会员|带货|小红书|卖/, "商品成交应用"],
-  ]
-  return rules.find(([pattern]) => pattern.test(raw))?.[1] || "按客户需求定制的业务应用"
-}
-
-function guessTemplateFromDemand(text: string): AppTemplateId {
-  const raw = text.toLowerCase()
-  if (/微信|聊天|im|私信|消息|会话|好友|通讯录|群聊|客服系统|在线客服|社交/.test(raw)) return "chat-app"
-  if (/报价|预算|估价|多少钱|价格|费用|装修|设计|摄影|家政|维修/.test(raw)) return "quote-calculator"
-  if (/活动|抽奖|小游戏|裂变|分享|福利|打卡|直播预热|领券/.test(raw)) return "click-game"
-  if (/卖|商品|课程|套餐|下单|购买|成交|会员|带货|小红书/.test(raw)) return "product-page"
+  if (/微信|聊天|im|私信|消息|会话|好友|通讯录|群聊|客服/.test(raw)) return "chat-app"
+  if (/报价|预算|估价|多少钱|价格|费用|装修|设计|摄影/.test(raw)) return "quote-calculator"
+  if (/活动|抽奖|小游戏|裂变|分享|福利|打卡|领券/.test(raw)) return "click-game"
+  if (/商品|课程|套餐|下单|购买|成交|会员|商城|点餐|菜单|购物车/.test(raw)) return "product-page"
   if (/报名|预约|试听|测评|留电话|咨询|到店|排队/.test(raw)) return "lead-form"
   return "site-hero"
 }
 
-function guessIndustryFromDemand(text: string) {
-  const raw = text.trim()
-  if (!raw) return "餐饮门店"
-  if (/火锅|餐饮|饭店|烧烤|咖啡|奶茶|门店/.test(raw)) return "餐饮门店"
-  if (/英语|培训|课程|老师|家长|学生|考研|教育/.test(raw)) return "教育培训"
-  if (/装修|设计|摄影|婚礼|家政|维修|美容|美甲|健身/.test(raw)) return "本地服务"
-  if (/电商|商品|淘宝|抖店|小红书|带货|直播|私域|卖/.test(raw)) return "电商/私域销售"
-  const match = raw.match(/(?:我做|我开了?一家|我是做|做)([^，。,.]{2,12})/)
-  return match?.[1]?.trim() || "通用业务"
+function inferAppKind(text: string) {
+  const raw = text.toLowerCase()
+  const rules: Array<[RegExp, string]> = [
+    [/微信|聊天|im|私信|消息|会话|好友|通讯录|群聊|客服/, "聊天社交桌面 APP"],
+    [/点餐|扫码点餐|菜单|购物车|桌号|外卖|堂食|餐桌|加菜/, "餐饮点餐桌面 APP"],
+    [/排班|班次|考勤|请假|调休|员工|值班|工时/, "排班考勤桌面 APP"],
+    [/记账|账单|收入|支出|预算|流水|报销|发票/, "记账财务桌面 APP"],
+    [/库存|仓库|进销存|采购|入库|出库|盘点|供应商/, "库存进销存桌面 APP"],
+    [/crm|客户管理|客户跟进|销售线索|商机|成交记录|回访/, "客户管理 CRM 桌面 APP"],
+    [/招聘|简历|候选人|面试|岗位|offer|入职/, "招聘面试桌面 APP"],
+    [/学习|课程表|刷题|考试|作业|训练营|打卡学习/, "学习训练桌面 APP"],
+    [/工单|报修|售后|派单|维修|客服处理|进度跟踪/, "工单售后桌面 APP"],
+    [/社区|帖子|评论|问答|点赞|置顶|发帖/, "社区问答桌面 APP"],
+    [/ai助手|智能体|agent|知识库|机器人|客服机器人/, "AI 助手桌面 APP"],
+    [/项目|任务|协作|待办|看板|进度/, "项目任务管理桌面 APP"],
+  ]
+  return rules.find(([pattern]) => pattern.test(raw))?.[1] || "按需求定制的桌面 APP"
 }
 
-function guessAudienceFromDemand(text: string) {
-  if (/附近|周边|到店|门店/.test(text)) return "附近 3 公里内可能到店的用户"
-  if (/家长|孩子|学生/.test(text)) return "正在帮孩子选择课程的家长"
-  if (/老板|企业|公司|客户/.test(text)) return "正在比较方案和预算的客户"
-  if (/粉丝|私域|社群|直播/.test(text)) return "社群和私域里的潜在用户"
-  return "第一次了解你的潜在客户"
+function requirementToDemand(requirement: AppRequirement) {
+  return [
+    `应用名称：${requirement.appName}`,
+    `给谁使用：${requirement.userRole}`,
+    `要解决的问题：${requirement.problem}`,
+    `核心功能：${requirement.coreFeatures}`,
+    `需要的页面：${requirement.pages}`,
+    `数据字段：${requirement.dataFields}`,
+    `主要使用流程：${requirement.mainFlow}`,
+    `视觉风格：${requirement.visualStyle}`,
+    "请生成一个真实桌面 APP 界面，不要做落地页，不要做宣传页。",
+  ].join("\n")
+}
+
+function requirementPatch(requirement: AppRequirement, patch: Partial<AppRequirement>) {
+  return { ...requirement, ...patch }
 }
 
 export function AppsClient() {
-  const [templateId, setTemplateId] = useState<AppTemplateId>("site-hero")
-  const [demand, setDemand] = useState("我开了一家火锅店，想让附近的人看到套餐后加微信预约")
-  const [industry, setIndustry] = useState("餐饮门店")
-  const [goal, setGoal] = useState("让附近用户看懂特色菜品并愿意加微信预约")
-  const [audience, setAudience] = useState("附近 3 公里内想找聚餐位置的用户")
-  const [style, setStyle] = useState(styleOptions[0])
-  const [contact, setContact] = useState("立即咨询")
+  const [requirement, setRequirement] = useState<AppRequirement>(defaultRequirement)
+  const [generatedHtml, setGeneratedHtml] = useState("")
+  const [previewUrl, setPreviewUrl] = useState("")
   const [savedApps, setSavedApps] = useState<SavedGeneratedApp[]>([])
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [mode, setMode] = useState<"empty" | "ai" | "fallback" | "saved">("empty")
   const [copied, setCopied] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [previewUrl, setPreviewUrl] = useState("")
-  const [aiHtml, setAiHtml] = useState("")
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [generationMode, setGenerationMode] = useState<"template" | "ai" | "fallback">("template")
 
-  const currentTemplate = appTemplates.find((item) => item.id === templateId) || appTemplates[0]
-  const currentPlaybook = templatePlaybooks[templateId]
-  const blueprint = useMemo(
-    () => buildBusinessBlueprint({ templateId, industry, goal, audience, style, contact }),
-    [audience, contact, goal, industry, style, templateId],
-  )
+  const demand = useMemo(() => requirementToDemand(requirement), [requirement])
+  const appKind = useMemo(() => inferAppKind(demand), [demand])
+  const templateId = useMemo(() => inferTemplateId(demand), [demand])
+
   const fallbackHtml = useMemo(
-    () => generateAppHtml({ templateId, industry, goal, audience, style, contact }),
-    [audience, contact, goal, industry, style, templateId],
+    () =>
+      generateAppHtml({
+        templateId,
+        industry: requirement.appName || "桌面应用",
+        goal: `${requirement.problem}。核心功能：${requirement.coreFeatures}`,
+        audience: requirement.userRole,
+        style: requirement.visualStyle,
+        contact: "开始使用",
+      }),
+    [requirement, templateId],
   )
-  const generatedHtml = aiHtml || fallbackHtml
 
   useEffect(() => {
     try {
@@ -189,11 +159,53 @@ export function AppsClient() {
   }, [])
 
   useEffect(() => {
-    const blob = new Blob([generatedHtml], { type: "text/html;charset=utf-8" })
+    const html = generatedHtml || fallbackHtml
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" })
     const url = URL.createObjectURL(blob)
     setPreviewUrl(url)
     return () => URL.revokeObjectURL(url)
-  }, [generatedHtml])
+  }, [fallbackHtml, generatedHtml])
+
+  function updateRequirement(patch: Partial<AppRequirement>) {
+    setRequirement((current) => requirementPatch(current, patch))
+    setGeneratedHtml("")
+    setMode("empty")
+  }
+
+  async function generateApp() {
+    setIsGenerating(true)
+    setGeneratedHtml("")
+    setMode("empty")
+    try {
+      const response = await fetch("/api/apps/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          templateId,
+          appKind,
+          demand,
+          industry: requirement.appName,
+          goal: `${requirement.problem}。核心功能：${requirement.coreFeatures}`,
+          audience: requirement.userRole,
+          style: requirement.visualStyle,
+          contact: "开始使用",
+        }),
+      })
+      const data = await response.json()
+      if (response.ok && data?.html) {
+        setGeneratedHtml(String(data.html))
+        setMode(data.mode === "ai" ? "ai" : "fallback")
+      } else {
+        setGeneratedHtml(fallbackHtml)
+        setMode("fallback")
+      }
+    } catch {
+      setGeneratedHtml(fallbackHtml)
+      setMode("fallback")
+    } finally {
+      setIsGenerating(false)
+    }
+  }
 
   function persist(next: SavedGeneratedApp[]) {
     setSavedApps(next)
@@ -201,373 +213,154 @@ export function AppsClient() {
   }
 
   function saveApp() {
+    const html = generatedHtml || fallbackHtml
     const nextApp: SavedGeneratedApp = {
       id: `${Date.now()}`,
-      title: `${industry || "我的"} · ${currentTemplate.title}`,
+      title: requirement.appName || "我的桌面 APP",
       templateId,
-      industry,
-      goal,
-      audience,
-      style,
-      contact,
-      html: generatedHtml,
+      industry: requirement.appName,
+      goal: requirement.problem,
+      audience: requirement.userRole,
+      style: requirement.visualStyle,
+      contact: "开始使用",
+      html,
       createdAt: new Date().toISOString(),
     }
-    persist([nextApp, ...savedApps].slice(0, 12))
+    persist([nextApp, ...savedApps].slice(0, 10))
     setSaved(true)
-    window.setTimeout(() => setSaved(false), 1500)
+    window.setTimeout(() => setSaved(false), 1400)
   }
 
   async function copyHtml() {
     try {
-      await navigator.clipboard.writeText(generatedHtml)
+      await navigator.clipboard.writeText(generatedHtml || fallbackHtml)
       setCopied(true)
-      window.setTimeout(() => setCopied(false), 1500)
+      window.setTimeout(() => setCopied(false), 1400)
     } catch {
       setCopied(false)
     }
   }
 
-  function resetGeneratedPreview() {
-    setAiHtml("")
-    setGenerationMode("template")
-  }
-
   function loadSaved(app: SavedGeneratedApp) {
-    setTemplateId(app.templateId)
-    setIndustry(app.industry)
-    setGoal(app.goal)
-    setAudience(app.audience)
-    setStyle(app.style)
-    setContact(app.contact)
-    setDemand(`${app.industry}：${app.goal}`)
-    setAiHtml(app.html)
-    setGenerationMode("ai")
-  }
-
-  function selectTemplate(nextTemplateId: AppTemplateId) {
-    const nextTemplate = appTemplates.find((item) => item.id === nextTemplateId)
-    const shouldUseTemplateGoal =
-      !goal.trim() || appTemplates.some((template) => template.id === templateId && template.defaultGoal === goal)
-    setTemplateId(nextTemplateId)
-    resetGeneratedPreview()
-    if (shouldUseTemplateGoal && nextTemplate) {
-      setGoal(nextTemplate.defaultGoal)
-    }
-  }
-
-  async function requestAiApp(payload: {
-    templateId: AppTemplateId
-    appKind: string
-    demand: string
-    industry: string
-    goal: string
-    audience: string
-    style: string
-    contact: string
-  }) {
-    setIsGenerating(true)
-    setAiHtml("")
-    setGenerationMode("template")
-    try {
-      const response = await fetch("/api/apps/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
-      const data = await response.json()
-      if (response.ok && data?.html) {
-        setAiHtml(String(data.html))
-        setGenerationMode(data.mode === "ai" ? "ai" : "fallback")
-      } else {
-        setGenerationMode("fallback")
-      }
-    } catch {
-      setGenerationMode("fallback")
-    } finally {
-      setIsGenerating(false)
-    }
-  }
-
-  function generateFromDemand(nextDemand = demand) {
-    const text = nextDemand.trim()
-    if (!text) return
-    const nextTemplateId = guessTemplateFromDemand(text)
-    const nextAppKind = inferAppKindFromDemand(text)
-    const nextIndustry = guessIndustryFromDemand(text)
-    const nextAudience = guessAudienceFromDemand(text)
-    const nextContact = /微信|聊天|消息|私信/.test(text)
-      ? "发送消息"
-      : /点餐|菜单|购物车|下单/.test(text)
-        ? "提交订单"
-        : /排班|班次|考勤|请假/.test(text)
-          ? "保存排班"
-          : /记账|账单|支出|收入/.test(text)
-            ? "新增记录"
-            : /库存|入库|出库|盘点/.test(text)
-              ? "更新库存"
-              : /工单|报修|售后|派单/.test(text)
-                ? "创建工单"
-                : /crm|客户管理|客户跟进|销售线索/.test(text.toLowerCase())
-                  ? "新增客户"
-      : /报名|试听|测评/.test(text)
-        ? "立即预约"
-        : /下单|购买|套餐/.test(text)
-          ? "咨询套餐"
-          : /报价|预算|多少钱/.test(text)
-            ? "获取正式报价"
-            : "立即咨询"
-    setTemplateId(nextTemplateId)
-    setIndustry(nextIndustry)
-    setAudience(nextAudience)
-    setGoal(text)
-    setContact(nextContact)
-    requestAiApp({
-      templateId: nextTemplateId,
-      appKind: nextAppKind,
-      demand: text,
-      industry: nextIndustry,
-      goal: text,
-      audience: nextAudience,
-      style,
-      contact: nextContact,
+    setRequirement({
+      appName: app.industry,
+      userRole: app.audience,
+      problem: app.goal,
+      coreFeatures: "已保存应用，可继续修改需求后重新生成",
+      pages: "按已保存版本为准",
+      dataFields: "按已保存版本为准",
+      mainFlow: "按已保存版本为准",
+      visualStyle: app.style,
     })
+    setGeneratedHtml(app.html)
+    setMode("saved")
   }
 
   return (
     <div className="xb-workbench" style={{ minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
       <MathRain />
       <NavBar />
-      <main className="xb-workbench-main" style={{ maxWidth: 1240, margin: "0 auto", padding: "54px clamp(16px,5vw,54px) 90px", position: "relative", zIndex: 10 }}>
-        <section style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 18, alignItems: "end", marginBottom: 22 }} className="apps-head">
-          <div>
-            <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.26em", color: "#7a6230", textTransform: "uppercase", fontWeight: 950, marginBottom: 10 }}>XIAOBAI APP FACTORY</p>
-            <h1 style={{ color: "#f8f3e6", fontSize: "clamp(34px,5vw,58px)", lineHeight: 1.08, fontWeight: 950, marginBottom: 12 }}>小白应用工坊</h1>
-            <p style={{ color: "#c8c8bd", fontSize: 16, lineHeight: 1.9, maxWidth: 820 }}>
-              你输入一句真实需求，小白先判断要做哪种跨行业应用，再生成一个能翻页、能交互、看起来像产品的 H5 应用。
-            </p>
-          </div>
-          <div style={{ border: "1px solid rgba(216,191,118,0.24)", background: "rgba(216,191,118,0.08)", borderRadius: 14, padding: "14px 16px", minWidth: 176 }}>
-            <p style={{ color: "#d8bf76", fontSize: 14, fontWeight: 950, marginBottom: 5 }}>当前阶段</p>
-            <p style={{ color: "#f8f3e6", fontSize: 18, fontWeight: 950 }}>需求生成应用</p>
-            <p style={{ color: "#c8c8bd", fontSize: 13, lineHeight: 1.65, marginTop: 5 }}>不是选页面，是生成一套应用。</p>
-          </div>
-        </section>
-
-        <section style={{ display: "grid", gridTemplateColumns: "390px 1fr", gap: 16, alignItems: "start" }} className="apps-shell">
-          <aside style={{ display: "grid", gap: 14 }}>
-            <section style={panelStyle}>
-              <p style={labelStyle}>先输入客户真实需求</p>
-              <textarea
-                value={demand}
-                onChange={(event) => {
-                  setDemand(event.target.value)
-                  resetGeneratedPreview()
-                }}
-                placeholder="例如：我做装修设计，客户老问多少钱，我想先让他自己估预算再预约顾问。"
-                rows={5}
-                style={{ ...inputStyle, minHeight: 118 }}
-              />
-              <button type="button" onClick={() => generateFromDemand()} disabled={isGenerating} style={{ ...primaryButtonStyle, opacity: isGenerating ? 0.72 : 1, width: "100%", justifyContent: "center", marginTop: 12 }}>
-                <Sparkles size={16} /> {isGenerating ? "小白正在生成..." : "生成一个完整应用"}
-              </button>
-              <div style={{ display: "grid", gap: 7, marginTop: 12 }}>
-                {demandExamples.map((example) => (
-                  <button
-                    key={example}
-                    type="button"
-                    onClick={() => {
-                      setDemand(example)
-                      generateFromDemand(example)
-                    }}
-                    style={exampleButtonStyle}
-                  >
-                    {example}
-                  </button>
-                ))}
-              </div>
-            </section>
-
-            <section style={panelStyle}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
-                <p style={{ ...labelStyle, marginBottom: 0 }}>小白判断的应用类型</p>
-                <span style={{ color: "#a99a70", fontSize: 12, fontWeight: 950, display: "inline-flex", alignItems: "center", gap: 5 }}>
-                  <RefreshCcw size={13} /> 切换即重生成
-                </span>
-              </div>
-              <div style={{ display: "grid", gap: 9 }}>
-                {appTemplates.map((template) => {
-                  const active = template.id === templateId
-                  const playbook = templatePlaybooks[template.id]
-                  return (
-                    <button
-                      key={template.id}
-                      type="button"
-                      onClick={() => selectTemplate(template.id)}
-                      style={{
-                        textAlign: "left",
-                        border: active ? `1px solid ${playbook.accent}` : "1px solid rgba(255,255,255,0.11)",
-                        background: active ? `linear-gradient(135deg,${playbook.accent}24,rgba(255,255,255,0.045))` : "rgba(255,255,255,0.035)",
-                        boxShadow: active ? `0 16px 42px ${playbook.accent}18` : "none",
-                        borderRadius: 14,
-                        padding: "14px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 9 }}>
-                        <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <span style={{ width: 34, height: 34, borderRadius: 12, display: "grid", placeItems: "center", background: `${playbook.accent}22`, color: playbook.accent, fontSize: 13, fontWeight: 950 }}>
-                            {playbook.icon}
-                          </span>
-                          <span>
-                            <span style={{ color: active ? "#fff4c9" : "#f8f3e6", fontSize: 16, fontWeight: 950, display: "block", marginBottom: 2 }}>{template.title}</span>
-                            <span style={{ color: "#9f9785", fontSize: 12, fontWeight: 900 }}>{template.bestFor}</span>
-                          </span>
-                        </span>
-                        <ArrowRight size={15} color={active ? playbook.accent : "#6d6a61"} />
-                      </span>
-                      <span style={{ color: "#f1ead8", fontSize: 13, lineHeight: 1.65, fontWeight: 850, display: "block" }}>{playbook.output}</span>
-                      <span style={{ color: "#b9b4a8", fontSize: 12, lineHeight: 1.65, display: "block", marginTop: 6 }}>适合：{playbook.when}</span>
-                      <span style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
-                        {playbook.chips.map((chip) => (
-                          <span key={chip} style={{ border: `1px solid ${playbook.accent}33`, background: `${playbook.accent}14`, color: active ? "#fff4c9" : "#d8d2c5", borderRadius: 999, padding: "5px 8px", fontSize: 12, fontWeight: 950 }}>
-                            {chip}
-                          </span>
-                        ))}
-                      </span>
-                    </button>
-                  )
-                })}
-              </div>
-            </section>
-
-            <section style={panelStyle}>
-              <p style={labelStyle}>小白拆出的关键信息</p>
-              <Field label="行业/业务" value={industry} onChange={(value) => { setIndustry(value); resetGeneratedPreview() }} placeholder="例如：餐饮门店、教育培训、电商、装修" />
-              <Field label="目标用户" value={audience} onChange={(value) => { setAudience(value); resetGeneratedPreview() }} placeholder="例如：附近客户、家长、企业老板" />
-              <Field label="想达成什么" value={goal} onChange={(value) => { setGoal(value); resetGeneratedPreview() }} placeholder={currentTemplate.defaultGoal} textarea />
-              <Field label="按钮/联系方式" value={contact} onChange={(value) => { setContact(value); resetGeneratedPreview() }} placeholder="例如：立即咨询、加微信、预约体验" />
-              <div style={{ marginTop: 12 }}>
-                <p style={{ color: "#f8f3e6", fontSize: 14, fontWeight: 950, marginBottom: 8 }}>风格</p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  {styleOptions.map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => {
-                        setStyle(item)
-                        resetGeneratedPreview()
-                      }}
-                      style={{
-                        border: style === item ? "1px solid rgba(216,191,118,0.55)" : "1px solid rgba(255,255,255,0.12)",
-                        background: style === item ? "rgba(216,191,118,0.14)" : "rgba(255,255,255,0.04)",
-                        color: style === item ? "#f8e3a1" : "#d7d7d7",
-                        borderRadius: 999,
-                        padding: "9px 12px",
-                        fontSize: 14,
-                        fontWeight: 950,
-                        cursor: "pointer",
-                      }}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 18 }}>
-                <button type="button" onClick={saveApp} style={primaryButtonStyle}>
-                  {saved ? <Check size={15} /> : <Save size={15} />} {saved ? "已保存" : "保存应用"}
-                </button>
-                <button type="button" onClick={copyHtml} style={secondaryButtonStyle}>
-                  {copied ? <Check size={15} /> : <Clipboard size={15} />} {copied ? "已复制" : "复制代码"}
-                </button>
-              </div>
-            </section>
-
-            <section style={panelStyle}>
-              <p style={labelStyle}>小白拆出的业务方案</p>
-              <div style={{ display: "grid", gap: 10 }}>
-                <BlueprintRow title="行业判断" value={blueprint.sector} />
-                <BlueprintRow title="核心钩子" value={blueprint.hook} />
-                <BlueprintRow title="用户顾虑" value={blueprint.userPain} />
-                <BlueprintRow title="应用目标" value={blueprint.appGoal} />
-              </div>
-              <div style={{ marginTop: 13 }}>
-                <p style={{ color: "#f8f3e6", fontSize: 14, fontWeight: 950, marginBottom: 8 }}>这版会放进去的内容</p>
-                <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
-                  {[...blueprint.trustProof, ...blueprint.captureFields.slice(0, 3)].map((item) => (
-                    <span key={item} style={{ border: "1px solid rgba(216,191,118,0.22)", background: "rgba(216,191,118,0.07)", color: "#e6d59d", borderRadius: 999, padding: "7px 10px", fontSize: 13, fontWeight: 900 }}>
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div style={{ border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.035)", borderRadius: 12, padding: "12px 13px", marginTop: 13 }}>
-                <p style={{ color: "#d8bf76", fontSize: 13, fontWeight: 950, marginBottom: 5 }}>上线后下一步</p>
-                <p style={{ color: "#c8c8bd", fontSize: 14, lineHeight: 1.7 }}>{blueprint.nextWorkflow}</p>
-              </div>
-            </section>
-
-            {savedApps.length > 0 && (
-              <section style={panelStyle}>
-                <p style={labelStyle}>本机保存</p>
-                <div style={{ display: "grid", gap: 8 }}>
-                  {savedApps.slice(0, 5).map((app) => (
-                    <button key={app.id} type="button" onClick={() => loadSaved(app)} style={savedButtonStyle}>
-                      <span style={{ color: "#f8f3e6", fontWeight: 950 }}>{app.title}</span>
-                      <span style={{ color: "#9f9f96", fontSize: 13 }}>{new Date(app.createdAt).toLocaleString("zh-CN")}</span>
-                    </button>
-                  ))}
-                </div>
-              </section>
-            )}
-          </aside>
-
-          <section style={{ display: "grid", gap: 14 }}>
-            <div style={{ ...panelStyle, padding: "16px 16px 18px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 12 }}>
-                <div>
-                  <p style={{ color: "#d8bf76", fontSize: 14, fontWeight: 950, marginBottom: 4 }}>实时预览</p>
-                  <h2 style={{ color: "#f8f3e6", fontSize: 22, fontWeight: 950 }}>{industry || "我的"} · {currentPlaybook.mode}</h2>
-                  <p style={{ color: "#aaa69b", fontSize: 13, lineHeight: 1.6, marginTop: 4 }}>
-                    小白判断：{inferAppKindFromDemand(goal || demand)}。{currentPlaybook.preview}
-                  </p>
-                </div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <span style={miniPillStyle}><Eye size={13} /> 站内预览</span>
-                  <span style={{ ...miniPillStyle, borderColor: generationMode === "ai" ? "rgba(53,208,127,0.45)" : "rgba(216,191,118,0.35)", color: generationMode === "ai" ? "#b8ffd0" : "#fff4c9" }}>
-                    {generationMode === "ai" ? "AI 实时生成" : generationMode === "fallback" ? "模板兜底" : "本地预览"}
-                  </span>
-                  <span style={{ ...miniPillStyle, borderColor: `${currentPlaybook.accent}40`, color: "#fff4c9" }}>{currentPlaybook.userFeels}</span>
-                  <span style={miniPillStyle}><Code2 size={13} /> 可复制 HTML</span>
-                </div>
-              </div>
-              <div style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: 18, overflow: "hidden", background: "#fff", minHeight: 560 }}>
-                {previewUrl ? (
-                  <iframe title="小白应用预览" sandbox="allow-scripts" src={previewUrl} style={{ width: "100%", height: 620, border: 0, display: "block" }} />
-                ) : (
-                  <div style={{ height: 620, display: "grid", placeItems: "center", color: "#111", fontSize: 16, fontWeight: 900 }}>正在生成预览...</div>
-                )}
+      <main style={{ maxWidth: 1320, margin: "0 auto", padding: "44px clamp(16px,5vw,54px) 90px", position: "relative", zIndex: 10 }}>
+        <section style={{ display: "grid", gridTemplateColumns: "minmax(340px,440px) 1fr", gap: 18, alignItems: "start" }} className="apps-layout">
+          <aside style={formPanelStyle}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+              <span style={iconBoxStyle}><FileText size={18} /></span>
+              <div>
+                <p style={eyebrowStyle}>XIAOBAI APP FACTORY</p>
+                <h1 style={{ color: "#f8f3e6", fontSize: 28, lineHeight: 1.16, fontWeight: 950 }}>填写应用需求模板</h1>
               </div>
             </div>
 
-            <section style={{ ...panelStyle, display: "grid", gridTemplateColumns: "1fr auto", gap: 14, alignItems: "center" }} className="apps-next">
-              <div>
-                <p style={{ color: "#f8f3e6", fontSize: 18, fontWeight: 950, marginBottom: 6 }}>下一步可以怎么升级？</p>
-                <p style={{ color: "#c8c8bd", fontSize: 14, lineHeight: 1.75 }}>
-                  第一版先生成静态 H5。后面可以接账号保存、公开分享链接、接真实表单，再升级到公司工作流。
-                </p>
-              </div>
-              <button type="button" onClick={() => window.dispatchEvent(new CustomEvent("xiaobai:open-goal-router"))} style={primaryButtonStyle}>
-                让小白继续改 <Sparkles size={15} />
+            <p style={{ color: "#c8c3b4", fontSize: 15, lineHeight: 1.8, marginBottom: 18 }}>
+              你不用选一堆类型。把客户想做成的应用按下面填清楚，小白直接生成一个桌面 APP 界面。
+            </p>
+
+            <Field label="应用名称" value={requirement.appName} onChange={(value) => updateRequirement({ appName: value })} placeholder="例如：企业微信式聊天桌面端" />
+            <Field label="给谁使用" value={requirement.userRole} onChange={(value) => updateRequirement({ userRole: value })} placeholder="例如：老板、员工、客户、老师、学生" />
+            <Field label="要解决什么问题" value={requirement.problem} onChange={(value) => updateRequirement({ problem: value })} placeholder="一句话说清楚客户为什么需要这个应用" textarea />
+            <Field label="核心功能" value={requirement.coreFeatures} onChange={(value) => updateRequirement({ coreFeatures: value })} placeholder="例如：聊天、订单、统计、审核、搜索" textarea />
+            <Field label="需要哪些页面" value={requirement.pages} onChange={(value) => updateRequirement({ pages: value })} placeholder="例如：首页、列表、详情、统计、设置" />
+            <Field label="需要记录哪些数据" value={requirement.dataFields} onChange={(value) => updateRequirement({ dataFields: value })} placeholder="例如：姓名、金额、状态、时间、分类" textarea />
+            <Field label="用户怎么操作" value={requirement.mainFlow} onChange={(value) => updateRequirement({ mainFlow: value })} placeholder="按第一步、第二步说清楚真实使用流程" textarea />
+            <Field label="界面风格" value={requirement.visualStyle} onChange={(value) => updateRequirement({ visualStyle: value })} placeholder="例如：像专业桌面软件，清爽，高级，字号大" />
+
+            <button type="button" onClick={generateApp} disabled={isGenerating} style={{ ...primaryButtonStyle, width: "100%", justifyContent: "center", opacity: isGenerating ? 0.72 : 1, marginTop: 18 }}>
+              <Sparkles size={17} /> {isGenerating ? "小白正在生成桌面 APP..." : "生成真实桌面 APP 界面"}
+            </button>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, marginTop: 10 }}>
+              <button type="button" onClick={saveApp} style={secondaryButtonStyle}>
+                {saved ? <Check size={15} /> : <Save size={15} />} {saved ? "已保存" : "保存"}
               </button>
-            </section>
+              <button type="button" onClick={copyHtml} style={secondaryButtonStyle}>
+                {copied ? <Check size={15} /> : <Clipboard size={15} />} {copied ? "已复制" : "复制代码"}
+              </button>
+            </div>
+
+            <div style={{ marginTop: 18 }}>
+              <p style={smallTitleStyle}>一键套用示例</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {requirementExamples.map((example) => (
+                  <button key={example.name} type="button" onClick={() => updateRequirement(example.value)} style={chipButtonStyle}>
+                    {example.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {savedApps.length > 0 && (
+              <div style={{ marginTop: 18 }}>
+                <p style={smallTitleStyle}>已保存</p>
+                <div style={{ display: "grid", gap: 8 }}>
+                  {savedApps.slice(0, 4).map((app) => (
+                    <button key={app.id} type="button" onClick={() => loadSaved(app)} style={savedButtonStyle}>
+                      <span style={{ color: "#f8f3e6", fontWeight: 950 }}>{app.title}</span>
+                      <span style={{ color: "#9f9f96", fontSize: 12 }}>{new Date(app.createdAt).toLocaleString("zh-CN")}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </aside>
+
+          <section style={previewPanelStyle}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 14, alignItems: "center", flexWrap: "wrap", marginBottom: 14 }}>
+              <div>
+                <p style={eyebrowStyle}>DESKTOP APP PREVIEW</p>
+                <h2 style={{ color: "#f8f3e6", fontSize: 24, lineHeight: 1.2, fontWeight: 950 }}>{requirement.appName || "桌面 APP 预览"}</h2>
+                <p style={{ color: "#aaa69b", fontSize: 14, lineHeight: 1.7, marginTop: 5 }}>小白判断：{appKind}</p>
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <span style={miniPillStyle}><Monitor size={13} /> 桌面界面</span>
+                <span style={miniPillStyle}><Eye size={13} /> 站内预览</span>
+                <span style={{ ...miniPillStyle, color: mode === "ai" ? "#b8ffd0" : "#fff4c9" }}>
+                  {mode === "ai" ? "AI 生成" : mode === "fallback" ? "兜底预览" : mode === "saved" ? "已保存版本" : "填写后生成"}
+                </span>
+                <span style={miniPillStyle}><Code2 size={13} /> HTML</span>
+              </div>
+            </div>
+
+            <div style={desktopFrameStyle}>
+              <div style={titlebarStyle}>
+                <span style={{ background: "#ff6464" }} />
+                <span style={{ background: "#ffca5f" }} />
+                <span style={{ background: "#61d17c" }} />
+                <strong>{requirement.appName || "Xiaobai Desktop App"}</strong>
+              </div>
+              <div style={{ background: "#fff", minHeight: 690 }}>
+                {previewUrl ? (
+                  <iframe title="小白桌面 APP 预览" sandbox="allow-scripts" src={previewUrl} style={{ width: "100%", height: 690, border: 0, display: "block" }} />
+                ) : (
+                  <div style={{ height: 690, display: "grid", placeItems: "center", color: "#111", fontSize: 17, fontWeight: 950 }}>填写需求后生成预览</div>
+                )}
+              </div>
+            </div>
           </section>
         </section>
 
         <style>{`
-          @media (max-width: 980px) {
-            .apps-shell, .apps-head, .apps-next { grid-template-columns: 1fr !important; }
+          @media (max-width: 1040px) {
+            .apps-layout { grid-template-columns: 1fr !important; }
           }
         `}</style>
       </main>
@@ -590,9 +383,9 @@ function Field({
 }) {
   return (
     <label style={{ display: "block", marginTop: 12 }}>
-      <span style={{ color: "#f8f3e6", fontSize: 14, fontWeight: 950, display: "block", marginBottom: 7 }}>{label}</span>
+      <span style={{ color: "#f8f3e6", fontSize: 15, fontWeight: 950, display: "block", marginBottom: 7 }}>{label}</span>
       {textarea ? (
-        <textarea value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} rows={4} style={inputStyle} />
+        <textarea value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} rows={3} style={inputStyle} />
       ) : (
         <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} style={inputStyle} />
       )}
@@ -600,38 +393,55 @@ function Field({
   )
 }
 
-function BlueprintRow({ title, value }: { title: string; value: string }) {
-  return (
-    <div style={{ border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.035)", borderRadius: 12, padding: "11px 12px" }}>
-      <p style={{ color: "#d8bf76", fontSize: 13, fontWeight: 950, marginBottom: 4 }}>{title}</p>
-      <p style={{ color: "#f8f3e6", fontSize: 14, fontWeight: 850, lineHeight: 1.65 }}>{value}</p>
-    </div>
-  )
-}
-
-const panelStyle = {
+const formPanelStyle = {
   border: "1px solid rgba(233,215,165,0.14)",
-  background: "rgba(244,240,226,0.045)",
-  borderRadius: 16,
-  padding: "18px 20px",
+  background: "rgba(13,14,16,0.78)",
+  borderRadius: 18,
+  padding: "22px",
+  boxShadow: "0 28px 90px rgba(0,0,0,0.32)",
+  backdropFilter: "blur(18px)",
 } as const
 
-const labelStyle = {
+const previewPanelStyle = {
+  border: "1px solid rgba(233,215,165,0.14)",
+  background: "rgba(13,14,16,0.58)",
+  borderRadius: 18,
+  padding: "18px",
+  boxShadow: "0 28px 90px rgba(0,0,0,0.26)",
+  backdropFilter: "blur(18px)",
+} as const
+
+const iconBoxStyle = {
+  width: 42,
+  height: 42,
+  borderRadius: 13,
+  display: "grid",
+  placeItems: "center",
+  border: "1px solid rgba(216,191,118,0.35)",
+  background: "rgba(216,191,118,0.14)",
+  color: "#f8e3a1",
+} as const
+
+const eyebrowStyle = {
+  fontFamily: "'JetBrains Mono',monospace",
+  fontSize: 10,
+  letterSpacing: "0.22em",
   color: "#d8bf76",
-  fontSize: 14,
+  textTransform: "uppercase",
   fontWeight: 950,
-  marginBottom: 12,
+  marginBottom: 5,
 } as const
 
 const inputStyle = {
   width: "100%",
-  border: "1px solid rgba(255,255,255,0.12)",
-  background: "rgba(255,255,255,0.055)",
+  border: "1px solid rgba(255,255,255,0.13)",
+  background: "rgba(255,255,255,0.06)",
   borderRadius: 12,
   padding: "12px 13px",
   color: "#f8f3e6",
   fontSize: 15,
   fontWeight: 800,
+  lineHeight: 1.55,
   outline: "none",
   fontFamily: "'Noto Sans SC', sans-serif",
   resize: "vertical",
@@ -639,10 +449,10 @@ const inputStyle = {
 
 const primaryButtonStyle = {
   border: "1px solid rgba(216,191,118,0.44)",
-  background: "linear-gradient(180deg,rgba(216,191,118,0.22),rgba(151,126,58,0.16))",
+  background: "linear-gradient(180deg,rgba(216,191,118,0.24),rgba(151,126,58,0.17))",
   color: "#fff4c9",
   borderRadius: 12,
-  padding: "12px 15px",
+  padding: "13px 15px",
   display: "inline-flex",
   alignItems: "center",
   gap: 8,
@@ -656,18 +466,48 @@ const secondaryButtonStyle = {
   background: "rgba(255,255,255,0.045)",
   color: "#e6e2d8",
   borderRadius: 12,
-  padding: "12px 15px",
+  padding: "12px 13px",
   display: "inline-flex",
   alignItems: "center",
+  justifyContent: "center",
   gap: 8,
-  fontSize: 15,
+  fontSize: 14,
   fontWeight: 950,
+  cursor: "pointer",
+} as const
+
+const smallTitleStyle = {
+  color: "#d8bf76",
+  fontSize: 14,
+  fontWeight: 950,
+  marginBottom: 9,
+} as const
+
+const chipButtonStyle = {
+  border: "1px solid rgba(216,191,118,0.22)",
+  background: "rgba(216,191,118,0.08)",
+  color: "#e9dba8",
+  borderRadius: 999,
+  padding: "8px 10px",
+  fontSize: 13,
+  fontWeight: 950,
+  cursor: "pointer",
+} as const
+
+const savedButtonStyle = {
+  border: "1px solid rgba(255,255,255,0.11)",
+  background: "rgba(255,255,255,0.035)",
+  borderRadius: 12,
+  padding: "10px 11px",
+  display: "grid",
+  gap: 3,
+  textAlign: "left",
   cursor: "pointer",
 } as const
 
 const miniPillStyle = {
   border: "1px solid rgba(255,255,255,0.12)",
-  background: "rgba(255,255,255,0.04)",
+  background: "rgba(255,255,255,0.045)",
   color: "#d7d7d7",
   borderRadius: 999,
   padding: "8px 11px",
@@ -678,26 +518,23 @@ const miniPillStyle = {
   fontWeight: 950,
 } as const
 
-const savedButtonStyle = {
-  border: "1px solid rgba(255,255,255,0.11)",
-  background: "rgba(255,255,255,0.035)",
-  borderRadius: 12,
-  padding: "11px 12px",
-  display: "grid",
-  gap: 3,
-  textAlign: "left",
-  cursor: "pointer",
+const desktopFrameStyle = {
+  border: "1px solid rgba(255,255,255,0.14)",
+  borderRadius: 18,
+  overflow: "hidden",
+  background: "#0f1117",
+  boxShadow: "0 34px 120px rgba(0,0,0,0.38)",
 } as const
 
-const exampleButtonStyle = {
-  border: "1px solid rgba(255,255,255,0.1)",
-  background: "rgba(255,255,255,0.035)",
-  color: "#cfc8b7",
-  borderRadius: 12,
-  padding: "10px 11px",
-  textAlign: "left",
+const titlebarStyle = {
+  height: 42,
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  padding: "0 14px",
+  borderBottom: "1px solid rgba(255,255,255,0.1)",
+  background: "linear-gradient(180deg,#222631,#141821)",
+  color: "#d7dbe8",
   fontSize: 13,
-  lineHeight: 1.55,
-  fontWeight: 850,
-  cursor: "pointer",
+  fontWeight: 900,
 } as const
