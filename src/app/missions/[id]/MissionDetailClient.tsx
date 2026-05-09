@@ -17,7 +17,7 @@ import {
 } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
-import type { Mission } from "@/data/missions"
+import { missions, type Mission } from "@/data/missions"
 import { posts } from "@/data/community"
 import { getCasePostsForMission } from "@/data/product-loop"
 import { tools } from "@/data/tools"
@@ -71,6 +71,8 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
   const nextLevel = getNextLevel(user?.xp || 0)
   const nextAfterMission = user ? getUserLevel((user.xp || 0) + mission.xp) : null
   const willLevelUp = !!user && !!nextAfterMission && nextAfterMission.level > userLevel.level
+  const missionIndex = missions.findIndex((item) => item.id === mission.id)
+  const nextMission = missionIndex >= 0 ? missions[(missionIndex + 1) % missions.length] : missions.find((item) => item.id !== mission.id)
 
   function persist(next: MissionProgressState) {
     setProgress(next)
@@ -125,8 +127,8 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
       await refresh().catch(() => undefined)
       setNotice(
         Number(data.awarded || 0) > 0
-          ? `通关奖励到账：${data.awarded} XP。你的等级进度已经推进，下一件装饰正在路上。`
-          : "这条通关奖励已经领取过啦，换个任务继续冲下一段。",
+          ? `通关奖励到账：${data.awarded} XP。下一段建议：${nextMission?.shortTitle || "换一个任务继续做"}.`
+          : `这条通关奖励已经领取过啦。下一段建议：${nextMission?.shortTitle || "换一个任务继续做"}.`,
       )
     } catch (error: any) {
       setNotice(error?.message || "领取失败，请稍后再试。")
@@ -200,7 +202,7 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
 
           <section style={{ display: "grid", gap: 14 }}>
             {current.completed ? (
-              <CompleteCard mission={mission} onCopy={() => copyText("recap", mission.recapTemplate)} copied={copied === "recap"} onClaim={claimMissionXP} claiming={claiming} notice={notice} />
+              <CompleteCard mission={mission} nextMission={nextMission} onCopy={() => copyText("recap", mission.recapTemplate)} copied={copied === "recap"} onClaim={claimMissionXP} claiming={claiming} notice={notice} />
             ) : (
               <StepCard
                 mission={mission}
@@ -486,6 +488,7 @@ function StepCard({
 }
 function CompleteCard({
   mission,
+  nextMission,
   copied,
   onCopy,
   onClaim,
@@ -493,6 +496,7 @@ function CompleteCard({
   notice,
 }: {
   mission: Mission
+  nextMission?: Mission
   copied: boolean
   onCopy: () => void
   onClaim: () => void
@@ -509,6 +513,16 @@ function CompleteCard({
       <div style={{ border: "1px solid #242424", background: "rgba(0,0,0,0.26)", borderRadius: 10, padding: "14px 15px", marginBottom: 16 }}>
         <p style={{ color: "#d7d7d7", fontSize: 15, lineHeight: 1.85, whiteSpace: "pre-line" }}>{mission.recapTemplate}</p>
       </div>
+      {nextMission && (
+        <section style={{ border: "1px solid rgba(201,168,76,0.34)", background: "rgba(201,168,76,0.07)", borderRadius: 12, padding: "16px 18px", marginBottom: 16 }}>
+          <p style={{ color: "#cdbb80", fontSize: 13, fontWeight: 950, marginBottom: 7 }}>下一段建议</p>
+          <h3 style={{ color: "#fff", fontSize: 20, fontWeight: 950, lineHeight: 1.35, marginBottom: 7 }}>{nextMission.shortTitle}</h3>
+          <p style={{ color: "#cfcfcf", fontSize: 14, lineHeight: 1.75, marginBottom: 12 }}>{nextMission.tagline}</p>
+          <Link href={`/missions/${nextMission.id}`} style={{ ...missionSecondaryButtonStyle, textDecoration: "none" }}>
+            进入下一段任务 <ArrowRight size={14} />
+          </Link>
+        </section>
+      )}
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         <button type="button" onClick={onClaim} disabled={claiming} style={missionPrimaryButtonStyle}>
           {claiming ? "领取中..." : `领取 ${mission.xp}XP 通关奖励`} <Trophy size={14} />
