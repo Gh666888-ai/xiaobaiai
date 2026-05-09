@@ -29,6 +29,14 @@ const moreLinks = [
   { label: "关于我们", href: "/about", icon: Building2 },
 ]
 
+const coCreatorPreviewContribution: Record<number, number> = {
+  15: 0,
+  16: 20,
+  17: 60,
+  18: 160,
+  19: 360,
+}
+
 export function NavBar() {
   const { user, logout } = useAuth()
   const pathname = usePathname()
@@ -138,14 +146,19 @@ export function NavBar() {
                   )}
                   {isCoCreatorGod ? (
                     <>
-                      <p className="profile-god-note">共创神已解锁完整等级图鉴，可查看全部等级图标。</p>
+                      <p className="profile-god-note">共创神已解锁完整等级图鉴，可查看全部等级铭牌。</p>
                       <div className="profile-levels is-god-view" aria-label="共创神完整等级图鉴">
                         {levelCatalog.map((item) => (
                           <div key={item.level} className="profile-level-item is-unlocked" title={`${item.name} · ${item.minXP} XP`}>
-                            <span className={`profile-level-token badge-${item.badge}`} aria-hidden="true">
-                              <span>{item.level}</span>
-                            </span>
-                            <span>{item.name}</span>
+                            <LevelBadge
+                              compact
+                              name={item.name}
+                              xp={item.minXP}
+                              track={levelTrack}
+                              coCreatorApproved={item.level >= 15}
+                              contributionPoints={coCreatorPreviewContribution[item.level] || 0}
+                            />
+                            <span className="profile-level-caption">{item.level < 19 ? `LV.${item.level} ${item.name}` : item.name}</span>
                           </div>
                         ))}
                       </div>
@@ -266,7 +279,7 @@ export function NavBar() {
           position: absolute;
           top: calc(100% + 12px);
           right: 0;
-          width: min(368px, calc(100vw - 24px));
+          width: min(560px, calc(100vw - 24px));
           border: 1px solid #2a1f10;
           border-radius: 14px;
           background: rgba(5,5,5,0.98);
@@ -409,8 +422,11 @@ export function NavBar() {
         }
         .profile-levels.is-god-view {
           display: grid;
-          grid-template-columns: repeat(4, minmax(0,1fr));
-          gap: 7px;
+          grid-template-columns: 1fr;
+          gap: 8px;
+          max-height: 420px;
+          overflow-y: auto;
+          padding-right: 4px;
           margin: 14px 0;
         }
         .profile-level-item {
@@ -425,12 +441,13 @@ export function NavBar() {
           opacity: 0.48;
         }
         .profile-levels.is-god-view .profile-level-item {
-          flex-direction: column;
-          justify-content: center;
-          gap: 6px;
-          min-height: 82px;
-          text-align: center;
-          padding: 8px 6px;
+          display: grid;
+          grid-template-columns: minmax(172px, 250px) minmax(0,1fr);
+          align-items: center;
+          gap: 12px;
+          min-height: 60px;
+          text-align: left;
+          padding: 8px 10px;
         }
         .profile-level-item.is-unlocked {
           opacity: 1;
@@ -509,10 +526,14 @@ export function NavBar() {
         }
         .profile-levels.is-god-view .profile-level-item > span:last-child {
           width: 100%;
+          color: #f3ead2;
+          font-size: 12px;
+          font-weight: 950;
           white-space: normal;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
+          line-height: 1.45;
+        }
+        .profile-level-caption {
+          min-width: 0;
         }
         .profile-actions {
           display: flex;
@@ -742,6 +763,11 @@ export function NavBar() {
           .site-mobile-menu {
             grid-template-columns: repeat(2, minmax(0, 1fr));
             padding: 10px 12px 12px;
+          }
+          .profile-levels.is-god-view .profile-level-item {
+            grid-template-columns: 1fr;
+            justify-items: start;
+            gap: 7px;
           }
         }
         @media (max-width: 420px) {

@@ -483,8 +483,8 @@ function CoCreatorBadge({
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 230px;
-            height: 50px;
+            width: 236px;
+            height: 58px;
             position: relative;
             overflow: visible;
             vertical-align: middle;
@@ -494,7 +494,7 @@ function CoCreatorBadge({
           .coCreatorImageBadge-advisor { --stage-glow: rgba(255,122,69,0.48); }
           .coCreatorImageBadge-mentor { --stage-glow: rgba(243,233,208,0.45); }
           .coCreatorImageBadge-partnerPlus { --stage-glow: rgba(55,219,199,0.54); }
-          .coCreatorImageBadge-legend { --stage-glow: rgba(126,231,255,0.76); width: 248px; height: 52px; }
+          .coCreatorImageBadge-legend { --stage-glow: rgba(126,231,255,0.76); width: 292px; height: 64px; }
           .coCreatorImageBadge img {
             display: block;
             width: 100%;
@@ -506,22 +506,22 @@ function CoCreatorBadge({
           }
           @media (max-width: 860px) {
             .coCreatorImageBadge {
-              width: 168px;
-              height: 38px;
+              width: 176px;
+              height: 43px;
             }
             .coCreatorImageBadge-legend {
-              width: 184px;
-              height: 40px;
+              width: 214px;
+              height: 48px;
             }
           }
           @media (max-width: 420px) {
             .coCreatorImageBadge {
-              width: 144px;
-              height: 33px;
+              width: 148px;
+              height: 36px;
             }
             .coCreatorImageBadge-legend {
-              width: 158px;
-              height: 35px;
+              width: 176px;
+              height: 40px;
             }
           }
         `}</style>
