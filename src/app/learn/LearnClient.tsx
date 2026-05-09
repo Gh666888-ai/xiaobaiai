@@ -48,6 +48,57 @@ const firstRunSteps = [
   { title: "留复盘", desc: "记住工具、提示词、失败点和下次改法。" },
 ]
 
+const agentJourney = [
+  {
+    step: "01",
+    title: "第一次用 AI",
+    plain: "先会打开 Kimi / DeepSeek / 豆包，问一个真实问题。",
+    result: "你知道 AI 能回答什么，也知道它会犯错。",
+    href: "/learn/0",
+    cta: "打开第一关",
+  },
+  {
+    step: "02",
+    title: "做出第一个结果",
+    plain: "做 PPT、读资料、写文案、做网页，先交付一个小成果。",
+    result: "你不再只是聊天，而是真的做出东西。",
+    href: "/start",
+    cta: "从任务开始",
+  },
+  {
+    step: "03",
+    title: "安装 Agent",
+    plain: "装 OpenClaw、Claude Code、Codex、Cline 这类能执行任务的工具。",
+    result: "AI 开始能读文件、跑命令、操作项目。",
+    href: "/agent-install",
+    cta: "先装 Agent",
+  },
+  {
+    step: "04",
+    title: "给 Agent 装技能",
+    plain: "给它加搜索、浏览器、表格、文档、行业插件。",
+    result: "Agent 不只是会说话，而是多了能办事的手脚。",
+    href: "/missions/agent-skill-first-install",
+    cta: "装第一个 Skill",
+  },
+  {
+    step: "05",
+    title: "训练成你的工作助手",
+    plain: "把你的行业、资料、流程、判断标准喂给它。",
+    result: "它开始懂你的工作，不再每次从零解释。",
+    href: "/missions/industry-skill-stack-plan",
+    cta: "配置行业能力",
+  },
+  {
+    step: "06",
+    title: "把固定工作交给它",
+    plain: "日报、客服、资料整理、内容流程、代码小改，交给 Agent 跑。",
+    result: "你负责验收和决策，Agent 负责重复执行。",
+    href: "/missions/n8n-ai-news-automation",
+    cta: "跑工作流",
+  },
+]
+
 const nextAfterFirstTask = [
   { title: "第 1 个结果", desc: "先完成一个 PPT、资料摘要或内容草稿。", href: "/start", cta: "继续做第一步" },
   { title: "第 2 个结果", desc: "换一种场景再做一次，确认不是只会复制模板。", href: "/missions", cta: "看任务库" },
@@ -243,8 +294,8 @@ export default function LearnPage() {
           <div style={{display:'flex',justifyContent:'space-between',gap:18,alignItems:'flex-start',flexWrap:'wrap',marginBottom:18}}>
             <div style={{maxWidth:680}}>
               <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.22em',color:'#7a6230',textTransform:'uppercase',fontWeight:950,marginBottom:10}}>XIAOBAI LEARNING</p>
-              <h1 style={{fontSize:'clamp(30px,5vw,52px)',fontWeight:950,color:'#fff',letterSpacing:0,lineHeight:1.12,marginBottom:12}}>先做一件事，再学需要的 AI 工具</h1>
-              <p style={{fontSize:16,color:'#d0d0d0',lineHeight:1.9,maxWidth:660,fontWeight:850}}>学习页不应该像课程超市。你只要告诉小白你的行业和想做成什么事，小白会给你对应的任务入口；你自己点进去以后，它会按“跑通、验收、迭代、复盘”带你做完。</p>
+              <h1 style={{fontSize:'clamp(31px,5vw,54px)',fontWeight:950,color:'#fff',letterSpacing:0,lineHeight:1.12,marginBottom:12}}>从第一次用 AI，到训练自己的 Agent</h1>
+              <p style={{fontSize:18,color:'#f0f0f0',lineHeight:1.85,maxWidth:700,fontWeight:900}}>你不用先懂一堆术语。小白会带你从打开第一个 AI 工具开始，一步一步做到：安装 Agent、装技能、训练它，最后把固定工作交给它。</p>
             </div>
             <div style={{minWidth:150,border:'1px solid #242424',background:'rgba(255,255,255,0.025)',borderRadius:10,padding:'14px 15px'}}>
               <p style={{fontSize:12,fontWeight:950,color:'#fff',marginBottom:8}}>我的进度</p>
@@ -260,6 +311,27 @@ export default function LearnPage() {
             <Link href={nextMainAction} className="btn-primary" style={{textDecoration:'none'}}>{nextMainText}</Link>
             <Link href="/agent-install" className="btn-outline" style={{textDecoration:'none'}}>先装 Agent 工具</Link>
             <Link href="/missions" className="btn-outline" style={{textDecoration:'none'}}>查看任务库</Link>
+          </div>
+        </section>
+
+        <section style={{border:'1px solid rgba(201,168,76,0.24)',background:'rgba(0,0,0,0.74)',borderRadius:12,padding:'20px 20px',marginBottom:14}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'end',gap:14,flexWrap:'wrap',marginBottom:16}}>
+            <div>
+              <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950,color:'#7a6230',letterSpacing:'0.16em',marginBottom:8}}>MAIN ROAD</p>
+              <h2 style={{fontSize:25,fontWeight:950,color:'#fff',lineHeight:1.35}}>小白只看这 6 步就够了</h2>
+            </div>
+            <span style={{color:'#e8c96a',fontSize:13,fontWeight:950}}>从会用 AI 到会指挥 Agent</span>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:10}} className="learn-choice-grid">
+            {agentJourney.map((item,index)=>(
+              <Link key={item.step} href={item.href} style={{textDecoration:'none',border:index===0?'1px solid #8c7333':'1px solid #242424',background:index===0?'rgba(201,168,76,0.085)':'rgba(255,255,255,0.026)',borderRadius:12,padding:'18px 18px',minHeight:218,display:'flex',flexDirection:'column'}}>
+                <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:13,fontWeight:950,color:'#e8c96a',marginBottom:10}}>{item.step}</p>
+                <h3 style={{fontSize:22,fontWeight:950,color:'#fff',lineHeight:1.32,marginBottom:10}}>{item.title}</h3>
+                <p style={{fontSize:15,color:'#d6d6d6',lineHeight:1.75,fontWeight:850,marginBottom:10}}>{item.plain}</p>
+                <p style={{fontSize:13,color:'#9fd6ae',lineHeight:1.65,marginTop:'auto',marginBottom:12}}>做到后：{item.result}</p>
+                <span style={{fontSize:14,color:'#e8c96a',fontWeight:950}}>{item.cta}</span>
+              </Link>
+            ))}
           </div>
         </section>
 
@@ -320,7 +392,7 @@ export default function LearnPage() {
         </section>
 
         <details style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.035)',borderRadius:12,padding:'16px 18px',marginBottom:12}}>
-          <summary style={{color:'#e8c96a',fontSize:15,fontWeight:950,cursor:'pointer'}}>做完第一个任务以后，下一步学什么</summary>
+          <summary style={{color:'#e8c96a',fontSize:17,fontWeight:950,cursor:'pointer'}}>已经做完第一步？展开看下一步</summary>
           <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(0,1fr))',gap:10,marginTop:16}} className="learn-choice-grid">
             {nextAfterFirstTask.map((item,index)=>(
               <Link key={item.title} href={item.href} style={{textDecoration:'none',border:'1px solid #242424',background:'rgba(0,0,0,0.24)',borderRadius:10,padding:'15px 14px',minHeight:126}}>
@@ -334,7 +406,7 @@ export default function LearnPage() {
         </details>
 
         <details style={{border:'1px solid #1f1f1f',background:'rgba(255,255,255,0.022)',borderRadius:12,padding:'16px 18px',marginBottom:12}}>
-          <summary style={{color:'#e8c96a',fontSize:15,fontWeight:950,cursor:'pointer'}}>完整学习目录</summary>
+          <summary style={{color:'#e8c96a',fontSize:17,fontWeight:950,cursor:'pointer'}}>备用：按章节看详细教程</summary>
           <div style={{display:'flex',flexDirection:'column',gap:9,marginTop:16}}>
             {stages.map((stage,i)=>{
               const st=tools.filter(t=>t.stage===stage.id)
@@ -363,7 +435,7 @@ export default function LearnPage() {
         </details>
 
         <details style={{border:'1px solid #1f1f1f',background:'rgba(255,255,255,0.022)',borderRadius:12,padding:'16px 18px'}}>
-          <summary style={{color:'#e8c96a',fontSize:15,fontWeight:950,cursor:'pointer'}}>更深的 3 周路线</summary>
+          <summary style={{color:'#e8c96a',fontSize:17,fontWeight:950,cursor:'pointer'}}>备用：3 周变强路线</summary>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:10,marginTop:16}}>
             {deepTrack.map((item,index)=>(
               <Link key={item.phase} href={item.href} style={{textDecoration:'none',border:'1px solid #242424',background:index===0?'rgba(201,168,76,0.055)':'rgba(0,0,0,0.24)',borderRadius:10,padding:'15px 14px',minHeight:168}}>
