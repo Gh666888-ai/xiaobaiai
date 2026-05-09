@@ -5,6 +5,7 @@ import { models, Model } from "@/data/models"
 import { modelRankingMeta } from "@/data/model-meta"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
+import { LiveEvaluationNotice } from "@/components/LiveEvaluationNotice"
 import { Search, Zap, Cpu, Trophy } from "lucide-react"
 
 type PriceSnapshot = {
@@ -55,6 +56,8 @@ export default function ModelsPage() {
         <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.4em',color:'#7a6230',textTransform:'uppercase',marginBottom:10,fontWeight:700}}>Model Rankings</p>
         <h1 style={{fontSize:36,fontWeight:900,color:'#fff',letterSpacing:'0.02em',marginBottom:8}}>AI 模型排行</h1>
         <p style={{fontSize:15,fontWeight:500,color:'#ccc',marginBottom:24}}>不用先看完整榜单。先按你的任务选一个模型，跑通以后再比较价格和排名。</p>
+
+        <LiveEvaluationNotice scope="models" />
 
         <section style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.045)',borderRadius:12,padding:'20px 22px',marginBottom:18}}>
           <h2 style={{fontSize:23,fontWeight:950,color:'#fff',lineHeight:1.35,marginBottom:8}}>小白先这样选</h2>

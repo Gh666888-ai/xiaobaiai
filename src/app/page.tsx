@@ -5,6 +5,7 @@ import Link from "next/link"
 import { AppWindow, Search } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
 import { LevelBadge } from "@/components/LevelBadge"
+import { LiveEvaluationNotice } from "@/components/LiveEvaluationNotice"
 import { useAuth } from "@/lib/AuthContext"
 
 const SYMBOLS = [
@@ -114,7 +115,11 @@ export default function HomePage() {
             <button type="submit" style={{ marginRight: 6, height: 34, padding: "0 14px", borderRadius: 8, border: "1px solid #7a6230", background: "rgba(201,168,76,0.12)", color: "#e8c96a", fontSize: 12, fontWeight: 950, cursor: "pointer" }}>搜索</button>
           </form>
 
-          <div style={{ marginTop: 14, opacity: 0, animation: "fadeUp 0.8s ease forwards 1.44s" }}>
+          <div style={{ opacity: 0, animation: "fadeUp 0.8s ease forwards 1.4s" }}>
+            <LiveEvaluationNotice scope="home" compact />
+          </div>
+
+          <div style={{ marginTop: 14, opacity: 0, animation: "fadeUp 0.8s ease forwards 1.5s" }}>
             <Link href="/apps" style={{ display: "inline-flex", alignItems: "center", gap: 9, minHeight: 42, padding: "10px 16px", borderRadius: 999, border: "1px solid rgba(201,168,76,0.28)", background: "rgba(201,168,76,0.08)", color: "#e8c96a", fontSize: 13, fontWeight: 950, textDecoration: "none" }}>
               <AppWindow size={15} /> 站内做一个小应用
             </Link>

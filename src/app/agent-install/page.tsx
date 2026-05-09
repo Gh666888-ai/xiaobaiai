@@ -3,6 +3,7 @@ import Link from "next/link"
 import { ArrowRight, Search, ShieldCheck } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
+import { LiveEvaluationNotice } from "@/components/LiveEvaluationNotice"
 import { agentInstallGuides } from "@/data/agent-install-guides"
 
 const agentDesktopCategories = new Set(["Agent 桌面应用"])
@@ -85,6 +86,8 @@ export default function AgentInstallPage() {
           />
           <button type="submit" style={{ marginRight: 6, height: 34, padding: "0 14px", border: "1px solid #7a6230", borderRadius: 8, background: "rgba(201,168,76,0.13)", color: "#e8c96a", fontSize: 12, fontWeight: 950, cursor: "pointer" }}>搜索</button>
         </form>
+
+        <LiveEvaluationNotice scope="agents" />
 
         <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.045)", borderRadius: 12, padding: "22px 24px", marginBottom: 24 }}>
           <div style={{ display: "flex", alignItems: "end", justifyContent: "space-between", gap: 14, flexWrap: "wrap", marginBottom: 16 }}>

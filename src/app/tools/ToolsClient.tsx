@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { tools, categories, ToolCategory } from "@/data/tools"
 import { Search } from "lucide-react"
+import { LiveEvaluationNotice } from "@/components/LiveEvaluationNotice"
 
 function letter(n:string){return /^[a-zA-Z]/.test(n)?n[0].toUpperCase():n[0]}
 function avColor(n:string){const c=["#c9a84c","#e8c96a","#7a6230","#5a8a5a"];let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return c[Math.abs(h)%c.length]}
@@ -56,6 +57,8 @@ export default function ToolsClient() {
         <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="搜索工具..."
           style={{flex:1,background:'transparent',border:'none',outline:'none',padding:'11px 14px',fontSize:13,color:'#fff',fontFamily:"'Noto Sans SC', sans-serif"}} />
       </div>
+
+      <LiveEvaluationNotice scope="tools" />
 
       {/* 选中分类后的专属页面 */}
       {cat && <div style={{marginBottom:32}}>
