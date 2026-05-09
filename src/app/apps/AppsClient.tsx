@@ -15,6 +15,71 @@ import {
 
 const styleOptions = ["简洁科技", "高端商务", "温暖亲切", "活泼活动"]
 
+const templatePlaybooks: Record<
+  AppTemplateId,
+  {
+    icon: string
+    mode: string
+    output: string
+    when: string
+    preview: string
+    userFeels: string
+    accent: string
+    chips: string[]
+  }
+> = {
+  "site-hero": {
+    icon: "01",
+    mode: "官网首屏",
+    output: "生成一页能讲清业务的门面：主张、指标、信任证明、下一步动作。",
+    when: "客户还不知道你是谁，先让他 10 秒内判断值不值得继续看。",
+    preview: "会看到大标题、业务指标、转化路径和一个像增长中控的展示区。",
+    userFeels: "像一个正式官网的第一屏，不是普通介绍卡片。",
+    accent: "#76b39d",
+    chips: ["品牌门面", "信任证明", "转化路径"],
+  },
+  "lead-form": {
+    icon: "02",
+    mode: "预约漏斗",
+    output: "生成一个会筛选客户的表单：字段、填写原因、提交后的跟进动作。",
+    when: "你需要收集报名、预约、咨询线索，不能只让用户填姓名电话。",
+    preview: "会看到完整表单，每个字段都解释为什么要问，提交后进入跟进。",
+    userFeels: "像一个小型获客系统，不是问卷。",
+    accent: "#d8bf76",
+    chips: ["关键字段", "线索筛选", "跟进提醒"],
+  },
+  "quote-calculator": {
+    icon: "03",
+    mode: "报价系统",
+    output: "生成能互动估价的报价器：套餐、数量、服务深度、自动计算价格。",
+    when: "客户总问多少钱，你要先给预算范围，再引导咨询确认。",
+    preview: "会看到可选择套餐、输入数量、点击重新估算的交互面板。",
+    userFeels: "像一个可用的报价工具，不是价格表。",
+    accent: "#86a8e7",
+    chips: ["自动估价", "套餐分层", "预算感"],
+  },
+  "product-page": {
+    icon: "04",
+    mode: "成交页",
+    output: "生成一个产品/服务成交页：卖点、套餐、购买理由、信任解释。",
+    when: "你要卖一个商品、课程、服务套餐，让用户看完就知道买哪档。",
+    preview: "会看到推荐套餐、购买理由、适合人群和行动按钮。",
+    userFeels: "像一张能卖货的详情页，不是产品简介。",
+    accent: "#e89f71",
+    chips: ["套餐推荐", "购买理由", "行动按钮"],
+  },
+  "click-game": {
+    icon: "05",
+    mode: "活动游戏",
+    output: "生成一个能玩的互动活动：倒计时、点击得分、奖励门槛、结束引导。",
+    when: "你要做门店福利、引流活动、社群小游戏，让用户先参与。",
+    preview: "会看到分数、倒计时、点击按钮和结束后的领取动作。",
+    userFeels: "像一个轻量活动页，不是静态宣传页。",
+    accent: "#c7a8ff",
+    chips: ["能点击", "有倒计时", "领福利"],
+  },
+}
+
 export function AppsClient() {
   const [templateId, setTemplateId] = useState<AppTemplateId>("site-hero")
   const [industry, setIndustry] = useState("餐饮门店")
@@ -28,6 +93,7 @@ export function AppsClient() {
   const [previewUrl, setPreviewUrl] = useState("")
 
   const currentTemplate = appTemplates.find((item) => item.id === templateId) || appTemplates[0]
+  const currentPlaybook = templatePlaybooks[templateId]
   const blueprint = useMemo(
     () => buildBusinessBlueprint({ templateId, industry, goal, audience, style, contact }),
     [audience, contact, goal, industry, style, templateId],
@@ -95,6 +161,16 @@ export function AppsClient() {
     setContact(app.contact)
   }
 
+  function selectTemplate(nextTemplateId: AppTemplateId) {
+    const nextTemplate = appTemplates.find((item) => item.id === nextTemplateId)
+    const shouldUseTemplateGoal =
+      !goal.trim() || appTemplates.some((template) => template.id === templateId && template.defaultGoal === goal)
+    setTemplateId(nextTemplateId)
+    if (shouldUseTemplateGoal && nextTemplate) {
+      setGoal(nextTemplate.defaultGoal)
+    }
+  }
+
   return (
     <div className="xb-workbench" style={{ minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
       <MathRain />
@@ -118,26 +194,52 @@ export function AppsClient() {
         <section style={{ display: "grid", gridTemplateColumns: "390px 1fr", gap: 16, alignItems: "start" }} className="apps-shell">
           <aside style={{ display: "grid", gap: 14 }}>
             <section style={panelStyle}>
-              <p style={labelStyle}>选择小应用类型</p>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
+                <p style={{ ...labelStyle, marginBottom: 0 }}>选择小应用类型</p>
+                <span style={{ color: "#a99a70", fontSize: 12, fontWeight: 950, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                  <RefreshCcw size={13} /> 切换即重生成
+                </span>
+              </div>
               <div style={{ display: "grid", gap: 9 }}>
                 {appTemplates.map((template) => {
                   const active = template.id === templateId
+                  const playbook = templatePlaybooks[template.id]
                   return (
                     <button
                       key={template.id}
                       type="button"
-                      onClick={() => setTemplateId(template.id)}
+                      onClick={() => selectTemplate(template.id)}
                       style={{
                         textAlign: "left",
-                        border: active ? "1px solid rgba(216,191,118,0.54)" : "1px solid rgba(255,255,255,0.11)",
-                        background: active ? "rgba(216,191,118,0.12)" : "rgba(255,255,255,0.035)",
-                        borderRadius: 12,
-                        padding: "13px 14px",
+                        border: active ? `1px solid ${playbook.accent}` : "1px solid rgba(255,255,255,0.11)",
+                        background: active ? `linear-gradient(135deg,${playbook.accent}24,rgba(255,255,255,0.045))` : "rgba(255,255,255,0.035)",
+                        boxShadow: active ? `0 16px 42px ${playbook.accent}18` : "none",
+                        borderRadius: 14,
+                        padding: "14px",
                         cursor: "pointer",
                       }}
                     >
-                      <span style={{ color: active ? "#f8e3a1" : "#f8f3e6", fontSize: 16, fontWeight: 950, display: "block", marginBottom: 4 }}>{template.title}</span>
-                      <span style={{ color: "#c8c8bd", fontSize: 13, lineHeight: 1.6 }}>{template.description}</span>
+                      <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 9 }}>
+                        <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <span style={{ width: 34, height: 34, borderRadius: 12, display: "grid", placeItems: "center", background: `${playbook.accent}22`, color: playbook.accent, fontSize: 13, fontWeight: 950 }}>
+                            {playbook.icon}
+                          </span>
+                          <span>
+                            <span style={{ color: active ? "#fff4c9" : "#f8f3e6", fontSize: 16, fontWeight: 950, display: "block", marginBottom: 2 }}>{playbook.mode}</span>
+                            <span style={{ color: "#9f9785", fontSize: 12, fontWeight: 900 }}>{template.shortTitle} · {template.bestFor}</span>
+                          </span>
+                        </span>
+                        <ArrowRight size={15} color={active ? playbook.accent : "#6d6a61"} />
+                      </span>
+                      <span style={{ color: "#f1ead8", fontSize: 13, lineHeight: 1.65, fontWeight: 850, display: "block" }}>{playbook.output}</span>
+                      <span style={{ color: "#b9b4a8", fontSize: 12, lineHeight: 1.65, display: "block", marginTop: 6 }}>适合：{playbook.when}</span>
+                      <span style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
+                        {playbook.chips.map((chip) => (
+                          <span key={chip} style={{ border: `1px solid ${playbook.accent}33`, background: `${playbook.accent}14`, color: active ? "#fff4c9" : "#d8d2c5", borderRadius: 999, padding: "5px 8px", fontSize: 12, fontWeight: 950 }}>
+                            {chip}
+                          </span>
+                        ))}
+                      </span>
                     </button>
                   )
                 })}
@@ -228,10 +330,12 @@ export function AppsClient() {
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 12 }}>
                 <div>
                   <p style={{ color: "#d8bf76", fontSize: 14, fontWeight: 950, marginBottom: 4 }}>实时预览</p>
-                  <h2 style={{ color: "#f8f3e6", fontSize: 22, fontWeight: 950 }}>{industry || "我的"} · {currentTemplate.shortTitle}</h2>
+                  <h2 style={{ color: "#f8f3e6", fontSize: 22, fontWeight: 950 }}>{industry || "我的"} · {currentPlaybook.mode}</h2>
+                  <p style={{ color: "#aaa69b", fontSize: 13, lineHeight: 1.6, marginTop: 4 }}>{currentPlaybook.preview}</p>
                 </div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   <span style={miniPillStyle}><Eye size={13} /> 站内预览</span>
+                  <span style={{ ...miniPillStyle, borderColor: `${currentPlaybook.accent}40`, color: "#fff4c9" }}>{currentPlaybook.userFeels}</span>
                   <span style={miniPillStyle}><Code2 size={13} /> 可复制 HTML</span>
                 </div>
               </div>
