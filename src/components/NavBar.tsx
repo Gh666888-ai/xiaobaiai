@@ -15,7 +15,7 @@ const links = [
   { label: "任务", href: "/missions", icon: Flag },
   { label: "Agent安装", href: "/agent-install", icon: TerminalSquare },
   { label: "工具", href: "/tools", icon: Compass },
-  { label: "会员案例", href: "/member-cases", icon: Crown },
+  { label: "实战案例", href: "/member-cases", icon: Crown },
   { label: "社区", href: "/community", icon: Users },
 ]
 
@@ -38,14 +38,21 @@ export function NavBar() {
   const [profileOpen, setProfileOpen] = useState(false)
   const userXP = user?.xp || 0
   const levelTrack = user?.coCreatorTrack === "team" ? "team" : "personal"
-  const levelAccess = useMemo(() => ({ coCreatorApproved: Boolean(user?.coCreatorApproved) }), [user?.coCreatorApproved])
+  const contributionPoints = Number(user?.contributionPoints || 0)
+  const levelAccess = useMemo(() => ({ coCreatorApproved: Boolean(user?.coCreatorApproved), contributionPoints }), [contributionPoints, user?.coCreatorApproved])
   const level = useMemo(() => getUserLevel(userXP, levelTrack, levelAccess), [levelAccess, levelTrack, userXP])
   const next = useMemo(() => getNextLevel(userXP, levelTrack, levelAccess), [levelAccess, levelTrack, userXP])
-  const progress = next?.requiresReview ? 100 : next ? Math.min(100, Math.round(((userXP - level.minXP) / (next.level.minXP - level.minXP)) * 100)) : 100
+  const progress = next?.requiresReview
+    ? 100
+    : next?.requiresContribution
+      ? Math.min(100, Math.max(8, Math.round((contributionPoints / Math.max(1, contributionPoints + next.need)) * 100)))
+      : next
+        ? Math.min(100, Math.round(((userXP - level.minXP) / (next.level.minXP - level.minXP)) * 100))
+        : 100
   const xpNeed = next?.need || 0
   const idleMinutesNeed = xpNeed ? Math.ceil((xpNeed / 2) * 5) : 0
   const missionDaysNeed = xpNeed ? Math.ceil(xpNeed / 110) : 0
-  const xpLabel = next?.requiresReview ? `${userXP} XP · 共创待审核` : next ? `${userXP} XP` : "已达最高档"
+  const xpLabel = next?.requiresContribution ? `${contributionPoints} 贡献值` : next?.requiresReview ? `${userXP} XP · 共创待审核` : next ? `${userXP} XP` : "已达最高档"
   const prefetchRoute = (href: string) => {
     router.prefetch(href)
   }
@@ -101,13 +108,13 @@ export function NavBar() {
           {user ? (
             <div className="site-profile-wrap">
               <button type="button" className="site-auth-link site-profile-button" aria-label={`${user.name} 的等级`} onClick={() => setProfileOpen((open) => !open)}>
-              <span className="desktop-level"><LevelBadge name={user.name} xp={userXP} track={levelTrack} coCreatorApproved={user.coCreatorApproved} /></span>
-              <span className="mobile-level"><LevelBadge compact name={user.name} xp={userXP} track={levelTrack} coCreatorApproved={user.coCreatorApproved} /></span>
+              <span className="desktop-level"><LevelBadge name={user.name} xp={userXP} track={levelTrack} contributionPoints={contributionPoints} coCreatorApproved={user.coCreatorApproved} /></span>
+              <span className="mobile-level"><LevelBadge compact name={user.name} xp={userXP} track={levelTrack} contributionPoints={contributionPoints} coCreatorApproved={user.coCreatorApproved} /></span>
               </button>
               {profileOpen && (
                 <div className="site-profile-popover">
                   <div className="profile-head">
-                <LevelBadge compact name={user.name} xp={userXP} track={levelTrack} coCreatorApproved={user.coCreatorApproved} />
+                <LevelBadge compact name={user.name} xp={userXP} track={levelTrack} contributionPoints={contributionPoints} coCreatorApproved={user.coCreatorApproved} />
                     <div className="profile-title">
                       <p>{user.name}</p>
                       <span>{user.email}</span>
@@ -120,8 +127,8 @@ export function NavBar() {
                   <div className="profile-progress">
                     <span style={{ width: `${progress}%` }} />
                   </div>
-                  <p className="profile-next">{next ? next.requiresReview ? `已达到共创门槛，提交真实案例和复盘后，由小白AI人工审核解锁 LV.${next.level.level} ${next.level.name}。` : `距离 LV.${next.level.level} ${next.level.name} 还差 ${next.need} XP` : "已达最高档，继续完成任务和复盘，保持共创身份。"}</p>
-                  {next && !next.requiresReview && (
+                  <p className="profile-next">{next ? next.requiresReview ? `已达到共创门槛，提交真实案例和复盘后，由小白AI人工审核解锁 LV.${next.level.level} ${next.level.name}。` : next.requiresContribution ? `距离 LV.${next.level.level} ${next.level.name} 还差 ${next.need} 贡献值，实战案例被验证后涨得最快。` : `距离 LV.${next.level.level} ${next.level.name} 还差 ${next.need} XP` : "已达最高档，继续完成任务和复盘，保持共创身份。"}</p>
+                  {next && !next.requiresReview && !next.requiresContribution && (
                     <div className="profile-upgrade-hint">
                       <span>约挂机 {idleMinutesNeed} 分钟</span>
                       <span>或做 {missionDaysNeed} 天任务</span>

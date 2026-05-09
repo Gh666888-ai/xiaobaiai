@@ -1,6 +1,6 @@
 "use client"
 
-import { Crown, Diamond, Gem, Hexagon, Sparkle, Star, Zap } from "lucide-react"
+import { Crown, Diamond, Gem, Hexagon, LucideIcon, Shield, Sparkle, Star, Zap } from "lucide-react"
 import { getNextLevel, getUserLevel, LevelTrack } from "@/data/user"
 
 type LevelBadgeProps = {
@@ -12,160 +12,453 @@ type LevelBadgeProps = {
   coCreatorApproved?: boolean
 }
 
-const badgeStyles: Record<number, { icon: any; shape: string; bg: string; glow: string; label: string }> = {
-  0: { icon: Hexagon, shape: "22% 78% 78% 22% / 50% 50% 50% 50%", bg: "linear-gradient(145deg,#f5f5f5,#8f8f8f)", glow: "rgba(190,190,190,0.35)", label: "新芽" },
-  1: { icon: Sparkle, shape: "50%", bg: "radial-gradient(circle at 35% 20%,#fff3c4,#d08a42 62%,#6d3d16)", glow: "rgba(255,170,80,0.48)", label: "星火" },
-  2: { icon: Star, shape: "30% 70% 70% 30% / 30% 30% 70% 70%", bg: "linear-gradient(145deg,#ffffff,#9fb2c8 58%,#43556a)", glow: "rgba(210,232,255,0.5)", label: "银翼" },
-  3: { icon: Zap, shape: "12px", bg: "radial-gradient(circle at 32% 24%,#fff6bd,#c9a84c 58%,#6d541d)", glow: "rgba(255,216,96,0.58)", label: "金核" },
-  4: { icon: Gem, shape: "18% 82% 50% 50% / 24% 24% 76% 76%", bg: "linear-gradient(145deg,#dffff9,#26d7c6 52%,#11756d)", glow: "rgba(38,215,198,0.62)", label: "曜石" },
-  5: { icon: Diamond, shape: "26% 74% 50% 50% / 28% 28% 72% 72%", bg: "linear-gradient(145deg,#ffffff,#b692ff 52%,#5932a6)", glow: "rgba(182,146,255,0.72)", label: "星环" },
-  6: { icon: Crown, shape: "14px", bg: "linear-gradient(145deg,#fff8c8 0%,#ffd86b 38%,#ffad2f 72%,#714205 100%)", glow: "rgba(255,216,107,0.86)", label: "皇冠" },
-  7: { icon: Diamond, shape: "22% 78% 50% 50% / 26% 26% 74% 74%", bg: "linear-gradient(145deg,#ffffff 0%,#bff8ff 28%,#47d9ff 58%,#7f66ff 100%)", glow: "rgba(126,231,255,0.95)", label: "共创" },
+type BadgeStyle = {
+  icon: LucideIcon
+  shape: string
+  bg: string
+  glow: string
 }
 
-function CoCreatorAvatar({ compact, level }: { compact: boolean; level: number }) {
-  const size = compact ? 32 : 42
-  const ringOpacity = level >= 19 ? 0.98 : level >= 18 ? 0.78 : level >= 17 ? 0.58 : level >= 16 ? 0.42 : 0.28
-  const aura = level >= 19
-    ? "0 0 24px rgba(126,231,255,0.95), 0 0 48px rgba(182,146,255,0.72), 0 0 72px rgba(255,216,107,0.32)"
-    : level >= 18
-      ? "0 0 22px rgba(182,146,255,0.82), 0 0 42px rgba(126,231,255,0.46)"
-      : level >= 17
-        ? "0 0 20px rgba(38,215,198,0.72), 0 0 34px rgba(126,231,255,0.28)"
-        : level >= 16
-          ? "0 0 18px rgba(255,216,107,0.62), 0 0 28px rgba(182,146,255,0.20)"
-          : "0 0 16px rgba(201,168,76,0.52)"
+type CoCreatorStage = {
+  shortName: string
+  fullName: string
+  className: string
+  icon: LucideIcon
+  seal: string
+  motif: string
+  nextLabel: string
+}
+
+const badgeStyles: Record<number, BadgeStyle> = {
+  0: { icon: Hexagon, shape: "22% 78% 78% 22% / 50% 50% 50% 50%", bg: "linear-gradient(145deg,#f5f5f5,#8f8f8f)", glow: "rgba(190,190,190,0.35)" },
+  1: { icon: Sparkle, shape: "50%", bg: "radial-gradient(circle at 35% 20%,#fff3c4,#d08a42 62%,#6d3d16)", glow: "rgba(255,170,80,0.48)" },
+  2: { icon: Star, shape: "30% 70% 70% 30% / 30% 30% 70% 70%", bg: "linear-gradient(145deg,#ffffff,#9fb2c8 58%,#43556a)", glow: "rgba(210,232,255,0.5)" },
+  3: { icon: Zap, shape: "12px", bg: "radial-gradient(circle at 32% 24%,#fff6bd,#c9a84c 58%,#6d541d)", glow: "rgba(255,216,96,0.58)" },
+  4: { icon: Gem, shape: "18% 82% 50% 50% / 24% 24% 76% 76%", bg: "linear-gradient(145deg,#dffff9,#26d7c6 52%,#11756d)", glow: "rgba(38,215,198,0.62)" },
+  5: { icon: Diamond, shape: "26% 74% 50% 50% / 28% 28% 72% 72%", bg: "linear-gradient(145deg,#ffffff,#b692ff 52%,#5932a6)", glow: "rgba(182,146,255,0.72)" },
+  6: { icon: Crown, shape: "14px", bg: "linear-gradient(145deg,#fff8c8 0%,#ffd86b 38%,#ffad2f 72%,#714205 100%)", glow: "rgba(255,216,107,0.86)" },
+  7: { icon: Diamond, shape: "22% 78% 50% 50% / 26% 26% 74% 74%", bg: "linear-gradient(145deg,#ffffff 0%,#bff8ff 28%,#47d9ff 58%,#7f66ff 100%)", glow: "rgba(126,231,255,0.95)" },
+}
+
+const coCreatorStages: Record<number, CoCreatorStage> = {
+  15: { shortName: "共创伙伴", fullName: "小白AI共创伙伴", className: "partner", icon: Shield, seal: "共", motif: "金纹", nextLabel: "升级看贡献" },
+  16: { shortName: "共创顾问", fullName: "小白AI共创顾问", className: "advisor", icon: Crown, seal: "顾", motif: "焰纹", nextLabel: "解锁顾问名牌" },
+  17: { shortName: "共创导师", fullName: "小白AI共创导师", className: "mentor", icon: Zap, seal: "导", motif: "风纹", nextLabel: "解锁导师名牌" },
+  18: { shortName: "共创合伙人", fullName: "小白AI共创合伙人", className: "partnerPlus", icon: Star, seal: "合", motif: "星环", nextLabel: "解锁合伙人名牌" },
+  19: { shortName: "共创神", fullName: "小白AI共创神", className: "legend", icon: Diamond, seal: "神", motif: "天穹", nextLabel: "最高共创名牌" },
+}
+
+function getCoCreatorStage(level: number) {
+  if (level >= 19) return coCreatorStages[19]
+  if (level >= 18) return coCreatorStages[18]
+  if (level >= 17) return coCreatorStages[17]
+  if (level >= 16) return coCreatorStages[16]
+  return coCreatorStages[15]
+}
+
+function CoCreatorBadge({
+  name,
+  level,
+  next,
+  contributionPoints,
+  progress,
+  compact,
+}: {
+  name: string
+  level: ReturnType<typeof getUserLevel>
+  next: ReturnType<typeof getNextLevel>
+  contributionPoints: number
+  progress: number
+  compact: boolean
+}) {
+  const stage = getCoCreatorStage(level.level)
+  const StageIcon = stage.icon
+  const nextText = next?.requiresContribution ? `还差 ${next.need} 贡献` : "最高共创"
+  const targetText = next?.requiresContribution ? `${contributionPoints}/${contributionPoints + next.need}` : `${contributionPoints}`
+
   return (
     <span
-      aria-hidden="true"
-      style={{
-        width: size,
-        height: size,
-        borderRadius: "26% 74% 50% 50% / 28% 28% 72% 72%",
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexShrink: 0,
-        position: "relative",
-        transform: "rotate(45deg)",
-        overflow: "hidden",
-        background: "linear-gradient(145deg,#ffffff,#9df3ff 36%,#5d7dff 68%,#28155f)",
-        border: "1px solid rgba(255,255,255,0.78)",
-        boxShadow: `${aura}, inset 0 2px 8px rgba(255,255,255,0.9), inset 0 -10px 16px rgba(0,0,0,0.25)`,
-      }}
+      className={`coCreatorBadge coCreatorBadge-${stage.className} ${compact ? "isCompact" : ""}`}
+      title={`LV.${level.level} ${stage.fullName} · ${contributionPoints} 贡献值 · ${level.desc}`}
     >
-      <span
-        style={{
-          position: "absolute",
-          inset: level >= 19 ? 1 : 3,
-          borderRadius: "inherit",
-          border: `1px solid rgba(255,255,255,${ringOpacity})`,
-          boxShadow: level >= 18 ? "inset 0 0 12px rgba(255,255,255,0.42)" : "none",
-          pointerEvents: "none",
-        }}
-      />
-      {level >= 17 && (
-        <span
-          style={{
-            position: "absolute",
-            inset: level >= 19 ? -9 : -6,
-            borderRadius: "inherit",
-            border: `1px solid ${level >= 19 ? "rgba(255,216,107,0.72)" : "rgba(126,231,255,0.42)"}`,
-            transform: "rotate(8deg)",
-            opacity: compact ? 0.45 : 0.72,
-            pointerEvents: "none",
-          }}
-        />
-      )}
-      <span
-        style={{
-          position: "absolute",
-          inset: 4,
-          borderRadius: "50%",
-          background: "rgba(255,255,255,0.82)",
-          transform: "rotate(-45deg)",
-          boxShadow: "inset 0 0 0 1px rgba(126,231,255,0.42)",
-        }}
-      />
-      <img
-        src="/xiaobai-mascot-cutout.png"
-        alt=""
-        style={{
-          width: compact ? 37 : 50,
-          height: compact ? 37 : 50,
-          objectFit: "contain",
-          position: "relative",
-          zIndex: 2,
-          transform: "rotate(-45deg) translateY(1px)",
-          filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.28))",
-        }}
-      />
-      <span
-        style={{
-          position: "absolute",
-          width: "150%",
-          height: 8,
-          background: level >= 19 ? "linear-gradient(90deg, transparent, rgba(255,255,255,1), rgba(255,216,107,0.96), transparent)" : "linear-gradient(90deg, transparent, rgba(255,255,255,0.95), transparent)",
-          transform: "rotate(-18deg) translateX(-32%)",
-          animation: `coCreatorGemShine ${level >= 19 ? "2.05s" : level >= 18 ? "2.35s" : "2.8s"} ease-in-out infinite`,
-          zIndex: 3,
-        }}
-      />
+      <span className="coCreatorAura" aria-hidden="true" />
+      <span className="coCreatorPlate" aria-hidden="true" />
+      <span className="coCreatorIconWrap" aria-hidden="true">
+        <span className="coCreatorSeal">{stage.seal}</span>
+        <span className="coCreatorMascotFrame">
+          <img src="/xiaobai-mascot-cutout.png" alt="" className="coCreatorMascot" />
+        </span>
+        <span className="coCreatorRankIcon">
+          <StageIcon size={compact ? 12 : 14} strokeWidth={2.5} />
+        </span>
+      </span>
+      <span className="coCreatorContent">
+        <span className="coCreatorTopline">
+          <span className="coCreatorName">{name}</span>
+          <span className="coCreatorLevel">LV.{level.level}</span>
+        </span>
+        <span className="coCreatorTitle">{stage.shortName}</span>
+        <span className="coCreatorMeta">
+          <span>{stage.motif}</span>
+          <span>{targetText} 贡献</span>
+        </span>
+        {!compact && (
+          <span className="coCreatorProgress" aria-hidden="true">
+            <span style={{ width: `${progress}%` }} />
+          </span>
+        )}
+      </span>
+      <span className="coCreatorNext">{compact ? nextText : stage.nextLabel}</span>
+      <style>{`
+        .coCreatorBadge {
+          --stage-main: #ffd86b;
+          --stage-soft: rgba(255,216,107,0.2);
+          --stage-deep: #251805;
+          --stage-glow: rgba(255,216,107,0.42);
+          display: inline-grid;
+          grid-template-columns: auto minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 11px;
+          width: 330px;
+          min-height: 74px;
+          padding: 10px 14px 10px 10px;
+          color: #fff;
+          position: relative;
+          isolation: isolate;
+          overflow: hidden;
+          border: 1px solid color-mix(in srgb, var(--stage-main) 76%, #fff 8%);
+          border-radius: 14px;
+          background:
+            radial-gradient(circle at 18% 38%, rgba(255,255,255,0.2), transparent 18%),
+            linear-gradient(135deg, color-mix(in srgb, var(--stage-main) 22%, transparent), rgba(255,255,255,0.055) 38%, var(--stage-deep));
+          box-shadow: 0 0 26px var(--stage-glow), inset 0 0 0 1px rgba(255,255,255,0.1);
+          clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+          text-decoration: none;
+          vertical-align: middle;
+        }
+        .coCreatorBadge.isCompact {
+          width: 238px;
+          min-height: 62px;
+          gap: 9px;
+          padding: 8px 11px 8px 8px;
+          border-radius: 12px;
+        }
+        .coCreatorBadge-advisor {
+          --stage-main: #ffcf5a;
+          --stage-soft: rgba(255,207,90,0.24);
+          --stage-deep: #2d1505;
+          --stage-glow: rgba(255,164,46,0.48);
+          clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 12px);
+        }
+        .coCreatorBadge-mentor {
+          --stage-main: #32dccd;
+          --stage-soft: rgba(50,220,205,0.24);
+          --stage-deep: #041d22;
+          --stage-glow: rgba(50,220,205,0.46);
+          clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+        }
+        .coCreatorBadge-partnerPlus {
+          --stage-main: #b692ff;
+          --stage-soft: rgba(182,146,255,0.24);
+          --stage-deep: #160b2d;
+          --stage-glow: rgba(182,146,255,0.52);
+          clip-path: polygon(0 16px, 16px 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+        }
+        .coCreatorBadge-legend {
+          --stage-main: #7ee7ff;
+          --stage-soft: rgba(126,231,255,0.28);
+          --stage-deep: #08061f;
+          --stage-glow: rgba(126,231,255,0.72);
+          border-color: rgba(255,246,199,0.9);
+          background:
+            radial-gradient(circle at 22% 38%, rgba(255,255,255,0.26), transparent 18%),
+            radial-gradient(circle at 78% 24%, rgba(255,216,107,0.28), transparent 22%),
+            linear-gradient(135deg, rgba(126,231,255,0.26), rgba(255,216,107,0.14) 30%, rgba(182,146,255,0.22) 58%, #08061f);
+          box-shadow: 0 0 34px rgba(126,231,255,0.76), 0 0 68px rgba(182,146,255,0.42), inset 0 0 0 1px rgba(255,255,255,0.18);
+          clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 0 100%, 12px 50%);
+        }
+        .coCreatorPlate {
+          position: absolute;
+          inset: 3px;
+          z-index: -2;
+          opacity: 0.68;
+          background:
+            repeating-linear-gradient(130deg, transparent 0 13px, var(--stage-soft) 13px 14px, transparent 14px 26px),
+            linear-gradient(90deg, rgba(255,255,255,0.09), transparent 62%);
+          border-radius: 12px;
+          pointer-events: none;
+        }
+        .coCreatorAura {
+          position: absolute;
+          right: -24px;
+          top: -34px;
+          width: 118px;
+          height: 118px;
+          border-radius: 50%;
+          background: radial-gradient(circle, var(--stage-soft), transparent 62%);
+          z-index: -1;
+          pointer-events: none;
+        }
+        .coCreatorIconWrap {
+          width: 52px;
+          height: 52px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          flex-shrink: 0;
+        }
+        .isCompact .coCreatorIconWrap {
+          width: 44px;
+          height: 44px;
+        }
+        .coCreatorMascotFrame {
+          width: 46px;
+          height: 46px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          background: linear-gradient(145deg, #fff, var(--stage-main) 42%, var(--stage-deep));
+          border: 1px solid rgba(255,255,255,0.76);
+          border-radius: 16px 8px 16px 8px;
+          box-shadow: 0 0 20px var(--stage-glow), inset 0 2px 9px rgba(255,255,255,0.78), inset 0 -10px 16px rgba(0,0,0,0.24);
+          transform: rotate(45deg);
+        }
+        .coCreatorBadge-mentor .coCreatorMascotFrame {
+          border-radius: 10px 20px 10px 20px;
+          transform: skewX(-8deg);
+        }
+        .coCreatorBadge-partnerPlus .coCreatorMascotFrame {
+          border-radius: 50%;
+          transform: none;
+        }
+        .coCreatorBadge-legend .coCreatorMascotFrame {
+          border-radius: 30% 70% 50% 50% / 28% 28% 72% 72%;
+          transform: rotate(45deg);
+        }
+        .isCompact .coCreatorMascotFrame {
+          width: 39px;
+          height: 39px;
+        }
+        .coCreatorMascot {
+          width: 54px;
+          height: 54px;
+          object-fit: contain;
+          transform: rotate(-45deg) translateY(2px);
+          filter: drop-shadow(0 2px 3px rgba(0,0,0,0.34));
+        }
+        .coCreatorBadge-mentor .coCreatorMascot {
+          transform: skewX(8deg) translateY(2px);
+        }
+        .coCreatorBadge-partnerPlus .coCreatorMascot {
+          transform: translateY(2px);
+        }
+        .isCompact .coCreatorMascot {
+          width: 46px;
+          height: 46px;
+        }
+        .coCreatorSeal {
+          position: absolute;
+          left: -3px;
+          top: -5px;
+          z-index: 3;
+          min-width: 19px;
+          height: 19px;
+          border-radius: 6px 2px 6px 2px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: #0b0b0b;
+          background: var(--stage-main);
+          border: 1px solid rgba(255,255,255,0.7);
+          font-size: 11px;
+          font-weight: 950;
+          box-shadow: 0 3px 12px var(--stage-glow);
+        }
+        .coCreatorRankIcon {
+          position: absolute;
+          right: -2px;
+          bottom: -2px;
+          z-index: 3;
+          width: 23px;
+          height: 23px;
+          border-radius: 50%;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: #0b0b0b;
+          background: linear-gradient(145deg, #fff, var(--stage-main));
+          border: 1px solid rgba(255,255,255,0.74);
+          box-shadow: 0 3px 12px var(--stage-glow);
+        }
+        .isCompact .coCreatorRankIcon {
+          width: 20px;
+          height: 20px;
+        }
+        .coCreatorContent {
+          display: flex;
+          flex-direction: column;
+          min-width: 0;
+          line-height: 1.05;
+          position: relative;
+          z-index: 2;
+        }
+        .coCreatorTopline {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          min-width: 0;
+        }
+        .coCreatorName {
+          color: #fff;
+          font-size: 13px;
+          font-weight: 950;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          max-width: 88px;
+        }
+        .coCreatorLevel {
+          color: #090909;
+          background: var(--stage-main);
+          border-radius: 5px;
+          padding: 2px 5px;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          font-weight: 950;
+          box-shadow: 0 0 12px var(--stage-glow);
+        }
+        .coCreatorTitle {
+          color: #fff;
+          font-size: 18px;
+          font-weight: 950;
+          margin-top: 5px;
+          white-space: nowrap;
+          text-shadow: 0 0 14px var(--stage-glow);
+        }
+        .isCompact .coCreatorTitle {
+          font-size: 14px;
+          margin-top: 4px;
+        }
+        .coCreatorMeta {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-top: 6px;
+          color: color-mix(in srgb, var(--stage-main) 82%, #fff 18%);
+          font-size: 11px;
+          font-weight: 900;
+          white-space: nowrap;
+        }
+        .isCompact .coCreatorMeta {
+          display: none;
+        }
+        .coCreatorProgress {
+          height: 4px;
+          margin-top: 8px;
+          border-radius: 999px;
+          background: rgba(255,255,255,0.14);
+          overflow: hidden;
+        }
+        .coCreatorProgress span {
+          display: block;
+          height: 100%;
+          border-radius: inherit;
+          background: linear-gradient(90deg, var(--stage-main), #fff);
+          box-shadow: 0 0 12px var(--stage-glow);
+        }
+        .coCreatorNext {
+          align-self: stretch;
+          min-width: 48px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding-left: 9px;
+          border-left: 1px solid rgba(255,255,255,0.16);
+          color: color-mix(in srgb, var(--stage-main) 78%, #fff 22%);
+          font-size: 11px;
+          font-weight: 950;
+          writing-mode: vertical-rl;
+          letter-spacing: 0;
+          white-space: nowrap;
+        }
+        .isCompact .coCreatorNext {
+          display: none;
+        }
+        .coCreatorBadge::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          z-index: 4;
+          background: linear-gradient(110deg, transparent 0%, transparent 36%, rgba(255,255,255,0.25) 48%, transparent 60%, transparent 100%);
+          transform: translateX(-78%);
+          animation: coCreatorBadgeShine 2.9s ease-in-out infinite;
+          pointer-events: none;
+        }
+        .coCreatorBadge-legend::after {
+          animation-duration: 2.15s;
+          background: linear-gradient(110deg, transparent 0%, transparent 34%, rgba(255,246,199,0.42) 48%, transparent 62%, transparent 100%);
+        }
+        @keyframes coCreatorBadgeShine {
+          0% { transform: translateX(-82%); }
+          68%, 100% { transform: translateX(82%); }
+        }
+        @media (max-width: 860px) {
+          .coCreatorBadge.isCompact {
+            width: 174px;
+            min-height: 50px;
+            gap: 7px;
+            padding: 6px 9px 6px 6px;
+          }
+          .coCreatorBadge.isCompact .coCreatorIconWrap {
+            width: 36px;
+            height: 36px;
+          }
+          .coCreatorBadge.isCompact .coCreatorMascotFrame {
+            width: 33px;
+            height: 33px;
+            border-radius: 12px 6px 12px 6px;
+          }
+          .coCreatorBadge.isCompact .coCreatorMascot {
+            width: 40px;
+            height: 40px;
+          }
+          .coCreatorBadge.isCompact .coCreatorName {
+            max-width: 58px;
+            font-size: 11px;
+          }
+          .coCreatorBadge.isCompact .coCreatorLevel {
+            font-size: 9px;
+            padding: 1px 4px;
+          }
+          .coCreatorBadge.isCompact .coCreatorTitle {
+            font-size: 13px;
+          }
+          .coCreatorBadge.isCompact .coCreatorSeal {
+            min-width: 17px;
+            height: 17px;
+            font-size: 10px;
+          }
+          .coCreatorBadge.isCompact .coCreatorRankIcon {
+            width: 18px;
+            height: 18px;
+          }
+        }
+        @media (max-width: 420px) {
+          .coCreatorBadge.isCompact {
+            width: 148px;
+          }
+          .coCreatorBadge.isCompact .coCreatorName {
+            max-width: 42px;
+          }
+          .coCreatorBadge.isCompact .coCreatorTitle {
+            font-size: 12px;
+          }
+        }
+      `}</style>
     </span>
   )
-}
-
-function coCreatorTone(level: number) {
-  if (level >= 19) return {
-    border: "rgba(126,231,255,0.92)",
-    radius: "16px 34px 16px 34px",
-    clipPath: "polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%, 10px 50%)",
-    bg: "radial-gradient(circle at 20% 35%, rgba(255,255,255,0.24), transparent 18%), radial-gradient(circle at 72% 44%, rgba(255,216,107,0.28), transparent 22%), linear-gradient(135deg, rgba(126,231,255,0.28), rgba(255,216,107,0.15) 27%, rgba(182,146,255,0.18) 50%, rgba(11,8,32,0.92)), linear-gradient(90deg, rgba(255,255,255,0.22), transparent)",
-    glow: "0 0 34px rgba(126,231,255,0.72), 0 0 62px rgba(182,146,255,0.44), 0 0 86px rgba(255,216,107,0.18), inset 0 0 0 1px rgba(255,255,255,0.18)",
-    tag: "MAX",
-    shine: "rgba(255,216,107,0.36)",
-    pattern: "divine",
-  }
-  if (level >= 18) return {
-    border: "rgba(182,146,255,0.84)",
-    radius: "18px 30px 18px 30px",
-    clipPath: "polygon(0 0, calc(100% - 12px) 0, 100% 24%, 100% 100%, 12px 100%, 0 76%)",
-    bg: "radial-gradient(circle at 84% 28%, rgba(126,231,255,0.22), transparent 24%), linear-gradient(135deg, rgba(182,146,255,0.22), rgba(126,231,255,0.10) 42%, rgba(16,10,36,0.86)), linear-gradient(90deg, rgba(255,255,255,0.14), transparent)",
-    glow: "0 0 26px rgba(182,146,255,0.48), 0 0 42px rgba(126,231,255,0.18), inset 0 0 0 1px rgba(255,255,255,0.12)",
-    tag: `LV.${level}`,
-    shine: "rgba(182,146,255,0.30)",
-    pattern: "star-ring",
-  }
-  if (level >= 17) return {
-    border: "rgba(38,215,198,0.78)",
-    radius: "14px 26px 14px 26px",
-    clipPath: "polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%)",
-    bg: "radial-gradient(circle at 24% 72%, rgba(126,231,255,0.18), transparent 22%), linear-gradient(135deg, rgba(38,215,198,0.20), rgba(255,255,255,0.07) 40%, rgba(4,31,36,0.86)), linear-gradient(90deg, rgba(255,255,255,0.12), transparent)",
-    glow: "0 0 24px rgba(38,215,198,0.42), inset 0 0 0 1px rgba(255,255,255,0.10)",
-    tag: `LV.${level}`,
-    shine: "rgba(126,231,255,0.24)",
-    pattern: "wind",
-  }
-  if (level >= 16) return {
-    border: "rgba(255,216,107,0.76)",
-    radius: "22px 12px 22px 12px",
-    clipPath: "polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px)",
-    bg: "radial-gradient(circle at 78% 64%, rgba(255,216,107,0.22), transparent 22%), linear-gradient(135deg, rgba(255,216,107,0.20), rgba(182,146,255,0.07) 40%, rgba(40,26,8,0.86)), linear-gradient(90deg, rgba(255,255,255,0.12), transparent)",
-    glow: "0 0 22px rgba(255,216,107,0.38), inset 0 0 0 1px rgba(255,255,255,0.10)",
-    tag: `LV.${level}`,
-    shine: "rgba(255,216,107,0.22)",
-    pattern: "gold-flame",
-  }
-  return {
-    border: "rgba(201,168,76,0.72)",
-    radius: "18px",
-    clipPath: "none",
-    bg: "linear-gradient(135deg, rgba(201,168,76,0.17), rgba(255,255,255,0.06) 40%, rgba(28,20,8,0.84)), linear-gradient(90deg, rgba(255,255,255,0.10), transparent)",
-    glow: "0 0 18px rgba(201,168,76,0.34), inset 0 0 0 1px rgba(255,255,255,0.09)",
-    tag: `LV.${level}`,
-    shine: "rgba(201,168,76,0.18)",
-    pattern: "scale",
-  }
 }
 
 export function LevelBadge({ name, xp, contributionPoints = 0, compact = false, track = "personal", coCreatorApproved = false }: LevelBadgeProps) {
@@ -176,22 +469,33 @@ export function LevelBadge({ name, xp, contributionPoints = 0, compact = false, 
   const progress = next?.requiresReview
     ? 100
     : next?.requiresContribution
-      ? Math.min(100, Math.max(10, Math.round((contributionPoints / Math.max(1, contributionPoints + next.need)) * 100)))
+      ? Math.min(100, Math.max(8, Math.round((contributionPoints / Math.max(1, contributionPoints + next.need)) * 100)))
       : next
         ? Math.min(100, Math.round(((xp - level.minXP) / (next.level.minXP - level.minXP)) * 100))
         : 100
-  const xpLabel = isCoCreator
-    ? `${contributionPoints} 贡献值`
-    : next?.requiresReview
-      ? `${xp} XP · 共创待审核`
-      : next
-        ? `${xp} XP`
-        : "已达最高档"
+
+  if (isCoCreator) {
+    return (
+      <CoCreatorBadge
+        name={name}
+        level={level}
+        next={next}
+        contributionPoints={contributionPoints}
+        progress={progress}
+        compact={compact}
+      />
+    )
+  }
+
+  const xpLabel = next?.requiresReview
+    ? `${xp} XP · 共创待审核`
+    : next
+      ? `${xp} XP`
+      : "已达最高档"
   const visual = badgeStyles[level.level] || badgeStyles[0]
   const Icon = visual.icon
   const isHigh = level.level >= 4
   const isCrown = level.level === 6
-  const coTone = coCreatorTone(level.level)
 
   return (
     <span
@@ -200,149 +504,55 @@ export function LevelBadge({ name, xp, contributionPoints = 0, compact = false, 
         display: "inline-flex",
         alignItems: "center",
         gap: compact ? 7 : 10,
-        minWidth: compact ? isCoCreator ? 178 + Math.max(0, level.level - 15) * 5 : 0 : isCoCreator ? 220 + Math.max(0, level.level - 15) * 8 : 174,
-        minHeight: compact && isCoCreator ? 52 : undefined,
-        padding: compact ? isCoCreator ? "7px 13px 7px 7px" : "5px 9px 5px 6px" : isCoCreator ? "8px 16px 8px 8px" : "6px 13px 6px 7px",
-        borderRadius: isCoCreator ? coTone.radius : 999,
-        clipPath: isCoCreator ? coTone.clipPath : "none",
-        border: `1px solid ${isCoCreator ? coTone.border : level.color}`,
-        background: isCoCreator
-          ? coTone.bg
-          : isCrown
-            ? "linear-gradient(135deg, rgba(255,216,107,0.18), rgba(255,255,255,0.08) 42%, rgba(0,0,0,0.72)), linear-gradient(90deg, rgba(255,255,255,0.14), transparent)"
-            : `linear-gradient(135deg, rgba(255,255,255,0.055), rgba(0,0,0,0.58)), linear-gradient(135deg, ${level.color}22, transparent 62%)`,
-        boxShadow: isCoCreator
-          ? coTone.glow
-          : isHigh
-            ? `0 0 24px ${visual.glow}, inset 0 0 0 1px rgba(255,255,255,0.1)`
-            : "inset 0 0 0 1px rgba(255,255,255,0.05)",
+        minWidth: compact ? 0 : 174,
+        padding: compact ? "5px 9px 5px 6px" : "6px 13px 6px 7px",
+        borderRadius: 999,
+        border: `1px solid ${level.color}`,
+        background: isCrown
+          ? "linear-gradient(135deg, rgba(255,216,107,0.18), rgba(255,255,255,0.08) 42%, rgba(0,0,0,0.72)), linear-gradient(90deg, rgba(255,255,255,0.14), transparent)"
+          : `linear-gradient(135deg, rgba(255,255,255,0.055), rgba(0,0,0,0.58)), linear-gradient(135deg, ${level.color}22, transparent 62%)`,
+        boxShadow: isHigh
+          ? `0 0 24px ${visual.glow}, inset 0 0 0 1px rgba(255,255,255,0.1)`
+          : "inset 0 0 0 1px rgba(255,255,255,0.05)",
         color: "#fff",
         textDecoration: "none",
         position: "relative",
         overflow: "hidden",
-        isolation: isCoCreator ? "isolate" : undefined,
       }}
     >
-      {isCoCreator ? (
-        <CoCreatorAvatar compact={compact} level={level.level} />
-      ) : (
-        <span
-          aria-hidden="true"
-          style={{
-            width: compact ? 26 : 34,
-            height: compact ? 26 : 34,
-            borderRadius: visual.shape,
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-            color: level.level <= 1 ? "#211405" : "#071416",
-            background: visual.bg,
-            boxShadow: `0 0 18px ${visual.glow}, inset 0 1px 7px rgba(255,255,255,0.78), inset 0 -8px 12px rgba(0,0,0,0.2)`,
-            transform: level.level >= 4 && !isCrown ? "rotate(45deg)" : "none",
-            border: "1px solid rgba(255,255,255,0.55)",
-            position: "relative",
-          }}
-        >
-          <Icon
-            size={compact ? 15 : 18}
-            strokeWidth={2.5}
-            fill={isCrown ? "#ffe28a" : "none"}
-            color={isCrown ? "#5c3500" : undefined}
-            style={{ transform: level.level >= 4 && !isCrown ? "rotate(-45deg)" : "none", filter: isCrown ? "drop-shadow(0 2px 2px rgba(0,0,0,0.3))" : undefined }}
-          />
-        </span>
-      )}
-      {isCoCreator && (
-        <>
-          <span
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              inset: compact ? 2 : 3,
-              borderRadius: "inherit",
-              background:
-                coTone.pattern === "divine"
-                  ? "repeating-linear-gradient(118deg, transparent 0 13px, rgba(255,216,107,0.16) 13px 14px, transparent 14px 25px), radial-gradient(circle at 82% 50%, rgba(126,231,255,0.22), transparent 28%)"
-                  : coTone.pattern === "star-ring"
-                    ? "repeating-radial-gradient(circle at 78% 42%, transparent 0 10px, rgba(182,146,255,0.20) 10px 11px, transparent 11px 20px)"
-                    : coTone.pattern === "wind"
-                      ? "repeating-linear-gradient(150deg, transparent 0 16px, rgba(126,231,255,0.16) 16px 18px, transparent 18px 30px)"
-                      : coTone.pattern === "gold-flame"
-                        ? "radial-gradient(ellipse at 76% 68%, rgba(255,216,107,0.22), transparent 34%), repeating-linear-gradient(42deg, transparent 0 18px, rgba(255,216,107,0.14) 18px 19px, transparent 19px 32px)"
-                        : "repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0 4px, transparent 4px 12px)",
-              opacity: compact ? 0.42 : 0.68,
-              mixBlendMode: "screen",
-              pointerEvents: "none",
-              zIndex: 0,
-            }}
-          />
-          <span
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              left: compact ? 8 : 12,
-              right: compact ? 10 : 14,
-              bottom: compact ? 5 : 7,
-              height: level.level >= 19 ? 3 : 2,
-              borderRadius: 999,
-              background: level.level >= 19
-                ? "linear-gradient(90deg, transparent, rgba(126,231,255,0.95), rgba(255,216,107,0.92), transparent)"
-                : `linear-gradient(90deg, transparent, ${coTone.border}, transparent)`,
-              boxShadow: level.level >= 18 ? `0 0 12px ${coTone.border}` : "none",
-              opacity: level.level >= 16 ? 0.9 : 0.62,
-              zIndex: 1,
-              pointerEvents: "none",
-            }}
-          />
-          <span
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              right: compact ? -16 : -12,
-              top: compact ? -20 : -18,
-              width: level.level >= 19 ? 92 : level.level >= 18 ? 78 : 58,
-              height: level.level >= 19 ? 92 : level.level >= 18 ? 78 : 58,
-              borderRadius: "50%",
-              background: level.level >= 19
-                ? "conic-gradient(from 120deg, transparent, rgba(255,216,107,0.28), rgba(126,231,255,0.36), transparent)"
-                : level.level >= 18
-                  ? "conic-gradient(from 120deg, transparent, rgba(182,146,255,0.30), rgba(126,231,255,0.24), transparent)"
-                  : "radial-gradient(circle, rgba(255,255,255,0.12), transparent 62%)",
-              opacity: level.level >= 17 ? 0.84 : 0.32,
-              zIndex: 0,
-              pointerEvents: "none",
-            }}
-          />
-          {level.level >= 18 && (
-            <span
-              aria-hidden="true"
-              style={{
-                position: "absolute",
-                right: compact ? 8 : 14,
-                top: compact ? 6 : 8,
-                width: compact ? 38 : 58,
-                height: compact ? 18 : 24,
-                borderRadius: "50%",
-                borderTop: `2px solid ${level.level >= 19 ? "rgba(255,216,107,0.72)" : "rgba(126,231,255,0.54)"}`,
-                borderRight: `1px solid ${level.level >= 19 ? "rgba(255,255,255,0.46)" : "rgba(182,146,255,0.38)"}`,
-                transform: "rotate(-12deg)",
-                filter: "blur(0.1px)",
-                opacity: compact ? 0.48 : 0.76,
-                pointerEvents: "none",
-                zIndex: 1,
-              }}
-            />
-          )}
-        </>
-      )}
+      <span
+        aria-hidden="true"
+        style={{
+          width: compact ? 26 : 34,
+          height: compact ? 26 : 34,
+          borderRadius: visual.shape,
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          color: level.level <= 1 ? "#211405" : "#071416",
+          background: visual.bg,
+          boxShadow: `0 0 18px ${visual.glow}, inset 0 1px 7px rgba(255,255,255,0.78), inset 0 -8px 12px rgba(0,0,0,0.2)`,
+          transform: level.level >= 4 && !isCrown ? "rotate(45deg)" : "none",
+          border: "1px solid rgba(255,255,255,0.55)",
+          position: "relative",
+        }}
+      >
+        <Icon
+          size={compact ? 15 : 18}
+          strokeWidth={2.5}
+          fill={isCrown ? "#ffe28a" : "none"}
+          color={isCrown ? "#5c3500" : undefined}
+          style={{ transform: level.level >= 4 && !isCrown ? "rotate(-45deg)" : "none", filter: isCrown ? "drop-shadow(0 2px 2px rgba(0,0,0,0.3))" : undefined }}
+        />
+      </span>
       <span style={{ display: "flex", flexDirection: "column", minWidth: 0, lineHeight: 1.1, position: "relative", zIndex: 2 }}>
         <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
           <span style={{ maxWidth: compact ? 70 : 92, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 12, fontWeight: 950, color: "#fff" }}>
             {name}
           </span>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 900, color: level.accent, letterSpacing: "0.04em" }}>
-            {isCoCreator ? coTone.tag : `LV.${level.level}`}
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 900, color: level.accent, letterSpacing: 0 }}>
+            LV.{level.level}
           </span>
         </span>
         {!compact && (
@@ -356,16 +566,16 @@ export function LevelBadge({ name, xp, contributionPoints = 0, compact = false, 
           </span>
         )}
       </span>
-      {(isHigh || isCoCreator) && (
+      {isHigh && (
         <span
           aria-hidden="true"
           style={{
             position: "absolute",
             inset: 0,
-            background: `linear-gradient(110deg, transparent 0%, transparent 34%, ${isCoCreator ? coTone.shine : `${level.accent}2e`} 48%, transparent 62%, transparent 100%)`,
+            background: `linear-gradient(110deg, transparent 0%, transparent 34%, ${level.accent}2e 48%, transparent 62%, transparent 100%)`,
             transform: "translateX(-35%)",
             pointerEvents: "none",
-            animation: level.level >= 6 ? `levelShine ${isCoCreator && level.level >= 19 ? "2.05s" : isCoCreator ? "2.35s" : "2.6s"} ease-in-out infinite` : "none",
+            animation: level.level >= 6 ? "levelShine 2.6s ease-in-out infinite" : "none",
           }}
         />
       )}
@@ -373,11 +583,6 @@ export function LevelBadge({ name, xp, contributionPoints = 0, compact = false, 
         @keyframes levelShine {
           0% { transform: translateX(-80%); }
           70%, 100% { transform: translateX(80%); }
-        }
-        @keyframes coCreatorGemShine {
-          0% { transform: rotate(-18deg) translateX(-95%); opacity: 0; }
-          18% { opacity: 0.95; }
-          48%, 100% { transform: rotate(-18deg) translateX(95%); opacity: 0; }
         }
       `}</style>
     </span>

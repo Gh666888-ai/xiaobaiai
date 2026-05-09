@@ -100,7 +100,7 @@ export default function HomePage() {
           {user ? (
             <div style={{ marginTop: 14, marginBottom: 22, color: "#8e7d4b", fontSize: 12, lineHeight: 1.75, opacity: 0, animation: "fadeUp 0.8s ease forwards 1.08s", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
               <span>欢迎回来</span>
-              <LevelBadge name={user.name} xp={user.xp} compact />
+              <LevelBadge name={user.name} xp={user.xp} contributionPoints={user.contributionPoints} track={user.coCreatorTrack === "team" ? "team" : "personal"} coCreatorApproved={user.coCreatorApproved} compact />
             </div>
           ) : null}
 

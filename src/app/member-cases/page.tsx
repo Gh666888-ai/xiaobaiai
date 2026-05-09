@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowRight, Crown, FileText, LockKeyhole, Sparkles } from "lucide-react"
-import { MathRain } from "@/components/MathRain"
+import { ArrowRight, Bot, BriefcaseBusiness, CheckCircle2, Code2, FileText, Home, Palette, Rocket, Sparkles } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
 import { news } from "@/data/news"
 
@@ -9,70 +8,85 @@ export const dynamic = "force-dynamic"
 export const revalidate = 0
 
 export const metadata: Metadata = {
-  title: "会员实战案例 - 小白AI教程实操库、Agent项目、小程序上线和AI副业案例",
+  title: "实战案例 - 小白AI从下载安装到项目交付的可照做案例",
   description:
-    "小白AI会员实战案例页，把资讯里的教程资源整理成可落地案例，覆盖Agent安装、模型API接入、小程序开发上线、知识库客服、自动化、AI绘图、办公和内容创作。",
-  keywords: ["会员实战案例", "AI实战教程", "Agent实战", "小程序上线教程", "AI副业案例", "AI教程实操", "小白AI会员"],
+    "小白AI实战案例页，把教程资讯整理成能照着做的项目路线，覆盖Agent安装、模型API接入、小程序上线、知识库客服、自动化、AI漫剧、办公接单和在家创业。",
+  keywords: ["小白AI实战案例", "AI实战教程", "Agent实战", "小程序上线教程", "AI副业案例", "AI教程实操", "AI在家创业"],
   alternates: { canonical: "/member-cases" },
   openGraph: {
-    title: "会员实战案例 | 小白AI",
-    description: "把资讯教程整理成能照着做的实战案例。",
+    title: "实战案例 | 小白AI",
+    description: "不是看资讯，而是照着做出一个能交付的 AI 项目结果。",
     url: "/member-cases",
-    images: [{ url: "/xiaobai-mascot-cutout.png", alt: "小白AI 会员实战案例" }],
+    images: [{ url: "/xiaobai-mascot-cutout.png", alt: "小白AI 实战案例" }],
   },
 }
 
 const featuredCases = [
   {
-    title: "用 Agent 做微信小程序并上线",
-    desc: "从一页需求开始，指挥 Agent 写代码、修报错、真机验收，最后用微信开发者工具上传、提交审核、发布。",
+    icon: Code2,
+    title: "指挥 Agent 做一个微信小程序并上线",
+    audience: "适合想做应用、工具、客户项目的人",
+    outcome: "一个能提交审核的小程序版本",
+    steps: ["写清楚小程序要解决什么问题", "让 Agent 拆页面、写代码、修报错", "真机预览、提交审核、发布"],
     href: "/agent-mini-program",
-    tag: "项目实战",
-    result: "一个可提交审核的小程序版本",
+    tone: "cyan",
   },
   {
-    title: "Claude Code 接 DeepSeek V4 改项目",
-    desc: "先选模型大脑，再让 Claude Code 读项目、列计划、改指定文件、跑检查，把 Agent 当工程助手用。",
+    icon: Bot,
+    title: "安装 Claude Code 并接入国内模型 API",
+    audience: "适合想让 Agent 改项目、写代码的人",
+    outcome: "一个能启动、能读项目、能改小功能的工程 Agent",
+    steps: ["先选模型大脑，比如 Minimax 或 DeepSeek", "安装 Node.js 和 Claude Code", "配置 API、启动、跑一次真实任务"],
     href: "/agent-install/claude-code",
-    tag: "Agent 编程",
-    result: "一个真实项目的小功能修改",
+    tone: "gold",
   },
   {
-    title: "Dify 知识库客服从资料到上线",
-    desc: "整理 FAQ、上传资料、设置检索、写转人工边界，把教程变成一个可测试的客服助手。",
+    icon: BriefcaseBusiness,
+    title: "搭一个企业知识库客服",
+    audience: "适合企业、门店、团队做资料问答",
+    outcome: "一个能按资料回答问题的客服 Bot",
+    steps: ["整理 FAQ 和产品资料", "上传到 Dify 或同类平台", "设置边界、测试问题、接人工"],
     href: "/dify-knowledge-base",
-    tag: "企业案例",
-    result: "一个能回答资料问题的客服 Bot",
+    tone: "green",
   },
   {
-    title: "AI 漫剧第一集样片",
-    desc: "先打开工具，再用小白模板生成角色、分镜、画面和配音清单，不要求证据，先做第一个样片。",
+    icon: Palette,
+    title: "做一集 AI 漫剧样片方案",
+    audience: "适合在家做内容、账号、短剧方向的人",
+    outcome: "角色、分镜、画面提示词和配音清单",
+    steps: ["先确定题材和主角", "用模板生成分镜和画面提示词", "检查风格统一，再进入制作工具"],
     href: "/missions/ai-comic-video-first-episode",
-    tag: "个人在家",
-    result: "一个可展示的 AI 漫剧样片方案",
+    tone: "purple",
   },
 ]
 
-const caseGroups = [
+const quickPaths = [
+  { icon: Home, label: "个人在家创业", desc: "先做样稿、样片、作品集，不一上来谈赚钱。", href: "/start" },
+  { icon: BriefcaseBusiness, label: "企业流程提效", desc: "先做知识库、日报、SOP、客服和资料整理。", href: "/missions/dify-knowledge-base-bot" },
+  { icon: Bot, label: "训练自己的 Agent", desc: "安装 Agent、配模型、设人设、设记忆和验收标准。", href: "/agent-install" },
+  { icon: Rocket, label: "做真实项目交付", desc: "让 Agent 写代码、跑检查、上线，再沉淀复盘。", href: "/agent-mini-program" },
+]
+
+const tutorialGroups = [
   {
     title: "Agent 安装和模型接入",
-    desc: "先解决能不能启动、能不能接模型、能不能让 Agent 真正干活。",
-    match: /Claude Code|Codex|DeepSeek|中转站|Ollama|Agent到底|OpenClaw|Chatbox/i,
+    desc: "先解决能不能启动、模型怎么选、API 怎么填、报错怎么修。",
+    match: /Claude Code|Codex|DeepSeek|中转站|Ollama|Agent到底|OpenClaw|Chatbox|API|模型/i,
   },
   {
     title: "应用、小程序和代码项目",
-    desc: "从需求、指挥 Agent 写代码、检查、上线，把 AI 编程变成真实交付。",
-    match: /代码|编程|小程序|Claude|Codex|ClawX|应用|上线/i,
+    desc: "从需求、指挥 Agent 写代码、检查、预览到上线。",
+    match: /代码|编程|小程序|Claude|Codex|ClawX|应用|上线|网站/i,
   },
   {
     title: "知识库客服和企业流程",
-    desc: "适合企业、门店、团队，把 FAQ、资料、客服和自动化流程沉淀下来。",
-    match: /Dify|客服|知识库|Coze|n8n|自动化|飞书|微信/i,
+    desc: "把 FAQ、资料、客服和自动化流程沉淀下来。",
+    match: /Dify|客服|知识库|Coze|n8n|自动化|飞书|微信|流程/i,
   },
   {
     title: "个人在家和内容副业",
-    desc: "适合先做作品、样稿、样片、文案和可展示案例，不先谈收益。",
-    match: /AI绘画|商用|Prompt|个人|写作|知识管理|内容|视频|文案/i,
+    desc: "先做可展示的作品、文案、样片、账号内容和复盘。",
+    match: /AI绘画|商用|Prompt|个人|写作|知识管理|内容|视频|文案|漫剧|小红书/i,
   },
 ]
 
@@ -81,14 +95,14 @@ const tutorialItems = news
   .sort((a, b) => b.importance - a.importance)
 
 function pickGroupItems(match: RegExp) {
-  return tutorialItems.filter((item) => match.test(`${item.title} ${item.summary} ${item.content || ""}`)).slice(0, 6)
+  return tutorialItems.filter((item) => match.test(`${item.title} ${item.summary} ${item.content || ""}`)).slice(0, 5)
 }
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  name: "会员实战案例",
-  description: "小白AI把资讯教程整理成可落地的会员实战案例。",
+  name: "小白AI实战案例",
+  description: "把教程资讯整理成能照着做的 AI 实战案例。",
   url: "https://www.xiaobaiai.cn/member-cases",
   inLanguage: "zh-CN",
   mainEntity: {
@@ -104,106 +118,442 @@ const jsonLd = {
 
 export default function MemberCasesPage() {
   return (
-    <div className="xb-workbench" style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
+    <div className="casePage">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <MathRain />
       <NavBar />
-      <main className="xb-workbench-main" style={{ maxWidth: 1120, margin: "0 auto", padding: "64px clamp(16px,5vw,60px) 104px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.92)" }}>
-        <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.32em", color: "#7a6230", textTransform: "uppercase", fontWeight: 950, marginBottom: 12 }}>Member Case Lab</p>
-        <h1 style={{ color: "#fff", fontSize: 42, fontWeight: 950, lineHeight: 1.2, marginBottom: 14 }}>会员实战案例</h1>
-        <p style={{ color: "#ccc", fontSize: 16, lineHeight: 1.9, maxWidth: 880, marginBottom: 22 }}>
-          这里不是普通资讯列表。我们把教程、踩坑、项目过程整理成能照着做的实战案例：先看目标，再看工具，再照着步骤做出一个结果。
-        </p>
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 32 }}>
-          <Link href="#featured" className="btn-primary" style={{ textDecoration: "none" }}>先看精选案例</Link>
-          <Link href="#tutorial-cases" className="btn-outline" style={{ textDecoration: "none" }}>看教程搬运区</Link>
-          <Link href="/community/new" className="btn-outline" style={{ textDecoration: "none" }}>提交你的案例</Link>
-        </div>
-
-        <section style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 12, marginBottom: 34 }} className="member-case-grid">
-          {[
-            { icon: <Crown size={18} />, title: "先免费开放", desc: "现在先把会员内容形态铺好，后面再接会员权益。" },
-            { icon: <Sparkles size={18} />, title: "只放能落地的", desc: "不是新闻标题，要能做出页面、样片、客服、工作流或上线版本。" },
-            { icon: <LockKeyhole size={18} />, title: "后续可做定制", desc: "会员可以围绕行业、职业和目标定制案例与工作流。" },
-          ].map((item) => (
-            <div key={item.title} style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.045)", borderRadius: 10, padding: "18px 20px" }}>
-              <div style={{ color: "#e8c96a", marginBottom: 10 }}>{item.icon}</div>
-              <h2 style={{ color: "#fff", fontSize: 16, fontWeight: 950, marginBottom: 7 }}>{item.title}</h2>
-              <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.75 }}>{item.desc}</p>
-            </div>
-          ))}
-        </section>
-
-        <section id="featured" style={{ marginBottom: 44 }}>
-          <div style={{ marginBottom: 16 }}>
-            <h2 style={{ color: "#fff", fontSize: 25, fontWeight: 950, marginBottom: 8 }}>精选实战路线</h2>
-            <p style={{ color: "#aaa", fontSize: 14, lineHeight: 1.8 }}>这些是最适合拿来做会员训练营的案例：目标明确、过程可控、结果能验收。</p>
+      <main className="caseMain">
+        <section className="caseHero">
+          <div className="caseHeroText">
+            <p className="caseEyebrow">实战案例</p>
+            <h1>看完不是收藏，是照着做出一个结果</h1>
+            <p>
+              这里放的不是普通新闻，也不是工具目录。每个案例都按“小白能不能跟着完成”来整理：先明确目标，再选工具，再一步一步做出能验收的东西。
+            </p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,250px),1fr))", gap: 12 }}>
-            {featuredCases.map((item) => (
-              <Link key={item.href} href={item.href} style={{ display: "block", textDecoration: "none", border: "1px solid #2a1f10", background: "rgba(201,168,76,0.05)", borderRadius: 12, padding: "18px 20px", minHeight: 218 }}>
-                <span style={{ display: "inline-flex", border: "1px solid #7a6230", color: "#e8c96a", borderRadius: 999, padding: "2px 8px", fontSize: 10, fontWeight: 950, marginBottom: 10 }}>{item.tag}</span>
-                <h3 style={{ color: "#fff", fontSize: 18, fontWeight: 950, lineHeight: 1.4, marginBottom: 9 }}>{item.title}</h3>
-                <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.75, marginBottom: 12 }}>{item.desc}</p>
-                <p style={{ color: "#9ee5d9", fontSize: 12, lineHeight: 1.65, marginBottom: 12 }}>产出：{item.result}</p>
-                <span style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950, display: "inline-flex", alignItems: "center", gap: 7 }}>
-                  打开案例 <ArrowRight size={13} />
-                </span>
-              </Link>
-            ))}
+          <div className="caseHeroPanel">
+            <span><CheckCircle2 size={16} /> 有明确产出</span>
+            <span><CheckCircle2 size={16} /> 有工具入口</span>
+            <span><CheckCircle2 size={16} /> 有踩坑处理</span>
+            <span><CheckCircle2 size={16} /> 后续会沉淀成会员定制路线</span>
           </div>
         </section>
 
-        <section id="tutorial-cases" style={{ marginBottom: 44 }}>
-          <div style={{ marginBottom: 16 }}>
-            <h2 style={{ color: "#fff", fontSize: 25, fontWeight: 950, marginBottom: 8 }}>从资讯教程搬过来的实战入口</h2>
-            <p style={{ color: "#aaa", fontSize: 14, lineHeight: 1.8 }}>原来散在资讯里的教程资源，先集中到这里。后面会继续把高质量内容改成更完整的会员案例。</p>
-          </div>
-
-          {caseGroups.map((group) => {
-            const items = pickGroupItems(group.match)
-            if (!items.length) return null
+        <section className="quickPathGrid" aria-label="实战方向">
+          {quickPaths.map((item) => {
+            const Icon = item.icon
             return (
-              <section key={group.title} style={{ marginBottom: 34 }}>
-                <div style={{ display: "flex", alignItems: "end", justifyContent: "space-between", gap: 14, flexWrap: "wrap", marginBottom: 12 }}>
-                  <div>
-                    <h3 style={{ color: "#fff", fontSize: 21, fontWeight: 950, marginBottom: 6 }}>{group.title}</h3>
-                    <p style={{ color: "#aaa", fontSize: 13, lineHeight: 1.75 }}>{group.desc}</p>
-                  </div>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,260px),1fr))", gap: 12 }}>
-                  {items.map((item) => (
-                    <Link key={item.id} href={`/news/${item.id}`} style={{ display: "block", textDecoration: "none", border: "1px solid #1c1c1c", background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: "17px 18px", minHeight: 184 }}>
-                      <span style={{ color: "#888", fontSize: 11, fontWeight: 850, display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 9 }}>
-                        <FileText size={12} /> {item.source}
-                      </span>
-                      <h4 style={{ color: "#fff", fontSize: 16, fontWeight: 950, lineHeight: 1.42, marginBottom: 8 }}>{item.title}</h4>
-                      <p style={{ color: "#bdbdbd", fontSize: 13, lineHeight: 1.75 }}>{item.summary}</p>
-                    </Link>
-                  ))}
-                </div>
-              </section>
+              <Link key={item.label} href={item.href} className="quickPathCard">
+                <Icon size={20} />
+                <strong>{item.label}</strong>
+                <span>{item.desc}</span>
+              </Link>
             )
           })}
         </section>
 
-        <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 12, padding: "24px 26px" }}>
-          <h2 style={{ color: "#fff", fontSize: 21, fontWeight: 950, marginBottom: 10 }}>这个页面后面怎么变成会员内容？</h2>
-          <p style={{ color: "#ccc", fontSize: 14, lineHeight: 1.9, marginBottom: 16 }}>
-            现在先不收费，先把案例结构铺好：每个案例都要有目标、工具、步骤、验收、踩坑和下一步。等内容厚起来，再做会员专属定制、行业模板和一对一工作流。
-          </p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <Link href="/agent-mini-program" className="btn-primary" style={{ textDecoration: "none" }}>看小程序实战</Link>
-            <Link href="/tutorials" className="btn-outline" style={{ textDecoration: "none" }}>看教程大全</Link>
-            <Link href="/cases" className="btn-outline" style={{ textDecoration: "none" }}>看社区案例库</Link>
-            <Link href="/start" className="btn-outline" style={{ textDecoration: "none" }}>从开始页定制路线</Link>
+        <section className="sectionBlock" id="featured">
+          <div className="sectionHead">
+            <p>先看这四个</p>
+            <h2>能代表小白AI价值的实战路线</h2>
           </div>
+          <div className="featuredGrid">
+            {featuredCases.map((item) => {
+              const Icon = item.icon
+              return (
+                <Link key={item.href} href={item.href} className={`featuredCase tone-${item.tone}`}>
+                  <div className="featuredTop">
+                    <span className="caseIcon"><Icon size={22} /></span>
+                    <span className="caseOutcome">{item.outcome}</span>
+                  </div>
+                  <h3>{item.title}</h3>
+                  <p>{item.audience}</p>
+                  <ol>
+                    {item.steps.map((step) => <li key={step}>{step}</li>)}
+                  </ol>
+                  <span className="caseLink">打开案例 <ArrowRight size={14} /></span>
+                </Link>
+              )
+            })}
+          </div>
+        </section>
+
+        <section className="sectionBlock">
+          <div className="sectionHead">
+            <p>教程沉淀区</p>
+            <h2>把资讯里的教程搬成可落地案例</h2>
+          </div>
+          <div className="tutorialGroupList">
+            {tutorialGroups.map((group) => {
+              const items = pickGroupItems(group.match)
+              return (
+                <section key={group.title} className="tutorialGroup">
+                  <div className="tutorialGroupHead">
+                    <h3>{group.title}</h3>
+                    <p>{group.desc}</p>
+                  </div>
+                  {items.length ? (
+                    <div className="tutorialLinks">
+                      {items.map((item) => (
+                        <Link key={item.id} href={`/news/${item.id}`} className="tutorialLink">
+                          <FileText size={15} />
+                          <span>{item.title}</span>
+                          <ArrowRight size={14} />
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="emptyGroup">这组还在整理，后面会补成可照做的案例。</p>
+                  )}
+                </section>
+              )
+            })}
+          </div>
+        </section>
+
+        <section className="caseBottom">
+          <div>
+            <p className="caseEyebrow">下一步</p>
+            <h2>现在先不收会员费，先把案例做厚</h2>
+            <p>后面收费的不是“看几篇文章”，而是按职业和目标给用户定制工具、Agent、Skill、任务路线和验收标准。现在先把这些能力在页面上铺出来。</p>
+          </div>
+          <Link href="/community/new" className="bottomButton">提交你的实战案例 <Sparkles size={16} /></Link>
         </section>
       </main>
       <style>{`
-        @media (max-width: 820px) {
-          .member-case-grid {
-            grid-template-columns: 1fr !important;
+        .casePage {
+          min-height: 100vh;
+          background: linear-gradient(180deg,#07100f 0%,#0b0d0c 46%,#070707 100%);
+          color: #f8f3e6;
+          font-family: 'Noto Sans SC', sans-serif;
+        }
+        .caseMain {
+          width: min(1120px, calc(100% - 32px));
+          margin: 0 auto;
+          padding: 40px 0 90px;
+        }
+        .caseHero {
+          min-height: 360px;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 330px;
+          gap: 24px;
+          align-items: center;
+          border: 1px solid rgba(233,215,165,0.13);
+          background: rgba(244,240,226,0.04);
+          border-radius: 18px;
+          padding: clamp(24px,4vw,42px);
+          box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+        }
+        .caseEyebrow {
+          color: #d8bf76;
+          font-size: 15px;
+          font-weight: 950;
+          margin: 0 0 10px;
+        }
+        .caseHero h1 {
+          color: #f8f3e6;
+          font-size: clamp(34px,6vw,58px);
+          font-weight: 950;
+          line-height: 1.12;
+          margin: 0;
+          letter-spacing: 0;
+        }
+        .caseHeroText > p:last-child {
+          color: #c8c8bd;
+          font-size: 17px;
+          font-weight: 850;
+          line-height: 1.8;
+          margin: 16px 0 0;
+          max-width: 720px;
+        }
+        .caseHeroPanel {
+          display: grid;
+          gap: 10px;
+        }
+        .caseHeroPanel span {
+          min-height: 48px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          border: 1px solid rgba(216,191,118,0.18);
+          background: rgba(0,0,0,0.22);
+          border-radius: 13px;
+          padding: 12px 14px;
+          color: #fff4c9;
+          font-size: 15px;
+          font-weight: 900;
+        }
+        .caseHeroPanel svg {
+          color: #d8bf76;
+          flex-shrink: 0;
+        }
+        .quickPathGrid {
+          display: grid;
+          grid-template-columns: repeat(4,minmax(0,1fr));
+          gap: 10px;
+          margin: 18px 0 34px;
+        }
+        .quickPathCard {
+          min-height: 132px;
+          border: 1px solid rgba(216,191,118,0.16);
+          background: rgba(0,0,0,0.2);
+          border-radius: 14px;
+          padding: 18px;
+          color: #aaa59a;
+          text-decoration: none;
+          display: flex;
+          flex-direction: column;
+          gap: 9px;
+        }
+        .quickPathCard svg {
+          color: #d8bf76;
+        }
+        .quickPathCard strong {
+          color: #fff4c9;
+          font-size: 19px;
+          font-weight: 950;
+          line-height: 1.35;
+        }
+        .quickPathCard span {
+          color: #aaa59a;
+          font-size: 14px;
+          font-weight: 850;
+          line-height: 1.65;
+        }
+        .sectionBlock {
+          border-top: 1px solid rgba(255,255,255,0.08);
+          padding-top: 26px;
+          margin-top: 26px;
+        }
+        .sectionHead {
+          margin-bottom: 16px;
+        }
+        .sectionHead p {
+          color: #d8bf76;
+          font-size: 14px;
+          font-weight: 950;
+          margin: 0 0 7px;
+        }
+        .sectionHead h2 {
+          color: #f8f3e6;
+          font-size: clamp(26px,3.6vw,38px);
+          font-weight: 950;
+          line-height: 1.2;
+          margin: 0;
+          letter-spacing: 0;
+        }
+        .featuredGrid {
+          display: grid;
+          grid-template-columns: repeat(2,minmax(0,1fr));
+          gap: 14px;
+        }
+        .featuredCase {
+          --tone: #d8bf76;
+          min-height: 315px;
+          border: 1px solid color-mix(in srgb, var(--tone) 32%, transparent);
+          background: linear-gradient(135deg, color-mix(in srgb, var(--tone) 10%, transparent), rgba(0,0,0,0.28));
+          border-radius: 16px;
+          padding: 22px;
+          color: #c8c8bd;
+          text-decoration: none;
+          display: flex;
+          flex-direction: column;
+        }
+        .tone-cyan { --tone: #62d9df; }
+        .tone-gold { --tone: #d8bf76; }
+        .tone-green { --tone: #76d89c; }
+        .tone-purple { --tone: #b692ff; }
+        .featuredTop {
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
+          align-items: center;
+          margin-bottom: 15px;
+        }
+        .caseIcon {
+          width: 44px;
+          height: 44px;
+          border-radius: 14px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: #07100f;
+          background: var(--tone);
+          box-shadow: 0 0 24px color-mix(in srgb, var(--tone) 35%, transparent);
+          flex-shrink: 0;
+        }
+        .caseOutcome {
+          color: var(--tone);
+          font-size: 12px;
+          font-weight: 950;
+          line-height: 1.45;
+          text-align: right;
+        }
+        .featuredCase h3 {
+          color: #fff;
+          font-size: 24px;
+          font-weight: 950;
+          line-height: 1.32;
+          margin: 0 0 9px;
+          letter-spacing: 0;
+        }
+        .featuredCase p {
+          color: #aaa59a;
+          font-size: 15px;
+          font-weight: 850;
+          line-height: 1.7;
+          margin: 0 0 14px;
+        }
+        .featuredCase ol {
+          margin: 0 0 18px;
+          padding-left: 20px;
+          color: #d8d2bf;
+          font-size: 15px;
+          font-weight: 850;
+          line-height: 1.8;
+        }
+        .caseLink {
+          margin-top: auto;
+          color: var(--tone);
+          font-size: 14px;
+          font-weight: 950;
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+        }
+        .tutorialGroupList {
+          display: grid;
+          gap: 12px;
+        }
+        .tutorialGroup {
+          border: 1px solid rgba(255,255,255,0.08);
+          background: rgba(0,0,0,0.2);
+          border-radius: 15px;
+          padding: 18px;
+        }
+        .tutorialGroupHead {
+          margin-bottom: 12px;
+        }
+        .tutorialGroup h3 {
+          color: #fff4c9;
+          font-size: 21px;
+          font-weight: 950;
+          margin: 0 0 7px;
+        }
+        .tutorialGroup p {
+          color: #aaa59a;
+          font-size: 14px;
+          font-weight: 850;
+          line-height: 1.65;
+          margin: 0;
+        }
+        .tutorialLinks {
+          display: grid;
+          grid-template-columns: repeat(auto-fit,minmax(min(100%,260px),1fr));
+          gap: 9px;
+        }
+        .tutorialLink {
+          min-height: 54px;
+          display: grid;
+          grid-template-columns: auto minmax(0,1fr) auto;
+          gap: 9px;
+          align-items: center;
+          border: 1px solid rgba(216,191,118,0.13);
+          background: rgba(244,240,226,0.035);
+          border-radius: 11px;
+          padding: 12px 13px;
+          color: #d8d2bf;
+          text-decoration: none;
+          font-size: 14px;
+          font-weight: 900;
+          line-height: 1.45;
+        }
+        .tutorialLink span {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .tutorialLink svg {
+          color: #d8bf76;
+          flex-shrink: 0;
+        }
+        .emptyGroup {
+          color: #7d7a70 !important;
+          font-size: 14px !important;
+        }
+        .caseBottom {
+          margin-top: 34px;
+          border: 1px solid rgba(216,191,118,0.16);
+          background: rgba(244,240,226,0.04);
+          border-radius: 18px;
+          padding: 24px;
+          display: grid;
+          grid-template-columns: minmax(0,1fr) auto;
+          gap: 18px;
+          align-items: center;
+        }
+        .caseBottom h2 {
+          color: #f8f3e6;
+          font-size: 26px;
+          font-weight: 950;
+          margin: 0 0 9px;
+        }
+        .caseBottom p:not(.caseEyebrow) {
+          color: #c8c8bd;
+          font-size: 15px;
+          font-weight: 850;
+          line-height: 1.75;
+          margin: 0;
+        }
+        .bottomButton {
+          min-height: 46px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          border-radius: 12px;
+          padding: 12px 16px;
+          color: #07100f;
+          background: #d8bf76;
+          text-decoration: none;
+          font-size: 15px;
+          font-weight: 950;
+          white-space: nowrap;
+        }
+        @media (max-width: 900px) {
+          .caseHero,
+          .caseBottom {
+            grid-template-columns: 1fr;
+          }
+          .quickPathGrid,
+          .featuredGrid {
+            grid-template-columns: repeat(2,minmax(0,1fr));
+          }
+        }
+        @media (max-width: 560px) {
+          .caseMain {
+            width: min(100% - 24px, 1120px);
+            padding-top: 24px;
+          }
+          .caseHero {
+            padding: 22px 18px;
+            min-height: 0;
+          }
+          .quickPathGrid,
+          .featuredGrid {
+            grid-template-columns: 1fr;
+          }
+          .featuredCase {
+            min-height: 0;
+          }
+          .caseOutcome {
+            text-align: left;
+          }
+          .featuredTop {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+          .bottomButton {
+            width: 100%;
           }
         }
       `}</style>
