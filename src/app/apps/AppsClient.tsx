@@ -78,17 +78,53 @@ const templatePlaybooks: Record<
     accent: "#c7a8ff",
     chips: ["能点击", "有倒计时", "领福利"],
   },
+  "chat-app": {
+    icon: "06",
+    mode: "聊天社交应用",
+    output: "适合做微信、私信、客服、社群和内部沟通：生成会话列表、聊天窗口、通讯录、发现和我的。",
+    when: "用户说聊天、微信、IM、私信、客服系统、群聊，就应该先生成这个。",
+    preview: "预览里会直接出现聊天软件界面，不再套获客页面。",
+    userFeels: "像一个能发消息的聊天软件原型，不是营销页。",
+    accent: "#35d07f",
+    chips: ["会话列表", "聊天窗口", "能发送"],
+  },
 }
 
 const demandExamples = [
+  "我要做一个微信一样的聊天软件，可以看会话、点联系人、发送消息。",
+  "我要给烧烤店做一个扫码点餐应用，有菜单、购物车、下单和桌号。",
+  "我要做一个公司排班系统，能看员工、班次、请假和本周排班表。",
+  "我要做一个记账应用，能新增支出、看分类统计和每月账单。",
   "我开了一家火锅店，想让附近的人看到套餐后加微信预约。",
   "我做少儿英语培训，想让家长先测评再报名试听。",
-  "我做装修设计，客户老问多少钱，我想先让他自己估预算。",
-  "我卖小红书课程，想让用户看懂适合谁并咨询购买。",
 ]
+
+function inferAppKindFromDemand(text: string) {
+  const raw = text.toLowerCase()
+  const rules: Array<[RegExp, string]> = [
+    [/微信|聊天|im|私信|消息|会话|好友|通讯录|群聊|客服系统|在线客服|社交/, "聊天社交应用"],
+    [/点餐|扫码点餐|菜单|购物车|桌号|外卖|堂食|餐桌|加菜/, "餐饮点餐应用"],
+    [/排班|班次|考勤|请假|调休|员工|值班|工时/, "员工排班考勤应用"],
+    [/记账|账单|收入|支出|预算|流水|报销|发票/, "记账财务应用"],
+    [/库存|仓库|进销存|采购|入库|出库|盘点|供应商/, "库存进销存应用"],
+    [/crm|客户管理|客户跟进|销售线索|商机|成交记录|回访/, "客户管理 CRM 应用"],
+    [/招聘|简历|候选人|面试|岗位|offer|入职/, "招聘面试管理应用"],
+    [/学习|课程表|刷题|考试|作业|训练营|打卡学习/, "学习训练应用"],
+    [/工单|报修|售后|派单|维修|客服处理|进度跟踪/, "工单售后应用"],
+    [/社区|帖子|评论|问答|点赞|置顶|发帖/, "社区问答应用"],
+    [/ai助手|智能体|agent|知识库|机器人|客服机器人/, "AI 助手应用"],
+    [/项目|任务|协作|待办|看板|进度/, "项目任务管理应用"],
+    [/预约|报名|试听|测评|留电话|咨询|到店|排队/, "预约报名应用"],
+    [/报价|估价|多少钱|价格|费用|装修|设计|摄影/, "报价计算应用"],
+    [/活动|抽奖|小游戏|裂变|分享|福利|领券/, "活动互动应用"],
+    [/商城|商品|下单|购买|会员|带货|小红书|卖/, "商品成交应用"],
+  ]
+  return rules.find(([pattern]) => pattern.test(raw))?.[1] || "按客户需求定制的业务应用"
+}
 
 function guessTemplateFromDemand(text: string): AppTemplateId {
   const raw = text.toLowerCase()
+  if (/微信|聊天|im|私信|消息|会话|好友|通讯录|群聊|客服系统|在线客服|社交/.test(raw)) return "chat-app"
   if (/报价|预算|估价|多少钱|价格|费用|装修|设计|摄影|家政|维修/.test(raw)) return "quote-calculator"
   if (/活动|抽奖|小游戏|裂变|分享|福利|打卡|直播预热|领券/.test(raw)) return "click-game"
   if (/卖|商品|课程|套餐|下单|购买|成交|会员|带货|小红书/.test(raw)) return "product-page"
@@ -127,6 +163,9 @@ export function AppsClient() {
   const [copied, setCopied] = useState(false)
   const [saved, setSaved] = useState(false)
   const [previewUrl, setPreviewUrl] = useState("")
+  const [aiHtml, setAiHtml] = useState("")
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generationMode, setGenerationMode] = useState<"template" | "ai" | "fallback">("template")
 
   const currentTemplate = appTemplates.find((item) => item.id === templateId) || appTemplates[0]
   const currentPlaybook = templatePlaybooks[templateId]
@@ -134,10 +173,11 @@ export function AppsClient() {
     () => buildBusinessBlueprint({ templateId, industry, goal, audience, style, contact }),
     [audience, contact, goal, industry, style, templateId],
   )
-  const generatedHtml = useMemo(
+  const fallbackHtml = useMemo(
     () => generateAppHtml({ templateId, industry, goal, audience, style, contact }),
     [audience, contact, goal, industry, style, templateId],
   )
+  const generatedHtml = aiHtml || fallbackHtml
 
   useEffect(() => {
     try {
@@ -188,6 +228,11 @@ export function AppsClient() {
     }
   }
 
+  function resetGeneratedPreview() {
+    setAiHtml("")
+    setGenerationMode("template")
+  }
+
   function loadSaved(app: SavedGeneratedApp) {
     setTemplateId(app.templateId)
     setIndustry(app.industry)
@@ -196,6 +241,8 @@ export function AppsClient() {
     setStyle(app.style)
     setContact(app.contact)
     setDemand(`${app.industry}：${app.goal}`)
+    setAiHtml(app.html)
+    setGenerationMode("ai")
   }
 
   function selectTemplate(nextTemplateId: AppTemplateId) {
@@ -203,8 +250,42 @@ export function AppsClient() {
     const shouldUseTemplateGoal =
       !goal.trim() || appTemplates.some((template) => template.id === templateId && template.defaultGoal === goal)
     setTemplateId(nextTemplateId)
+    resetGeneratedPreview()
     if (shouldUseTemplateGoal && nextTemplate) {
       setGoal(nextTemplate.defaultGoal)
+    }
+  }
+
+  async function requestAiApp(payload: {
+    templateId: AppTemplateId
+    appKind: string
+    demand: string
+    industry: string
+    goal: string
+    audience: string
+    style: string
+    contact: string
+  }) {
+    setIsGenerating(true)
+    setAiHtml("")
+    setGenerationMode("template")
+    try {
+      const response = await fetch("/api/apps/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      const data = await response.json()
+      if (response.ok && data?.html) {
+        setAiHtml(String(data.html))
+        setGenerationMode(data.mode === "ai" ? "ai" : "fallback")
+      } else {
+        setGenerationMode("fallback")
+      }
+    } catch {
+      setGenerationMode("fallback")
+    } finally {
+      setIsGenerating(false)
     }
   }
 
@@ -212,15 +293,45 @@ export function AppsClient() {
     const text = nextDemand.trim()
     if (!text) return
     const nextTemplateId = guessTemplateFromDemand(text)
+    const nextAppKind = inferAppKindFromDemand(text)
+    const nextIndustry = guessIndustryFromDemand(text)
+    const nextAudience = guessAudienceFromDemand(text)
+    const nextContact = /微信|聊天|消息|私信/.test(text)
+      ? "发送消息"
+      : /点餐|菜单|购物车|下单/.test(text)
+        ? "提交订单"
+        : /排班|班次|考勤|请假/.test(text)
+          ? "保存排班"
+          : /记账|账单|支出|收入/.test(text)
+            ? "新增记录"
+            : /库存|入库|出库|盘点/.test(text)
+              ? "更新库存"
+              : /工单|报修|售后|派单/.test(text)
+                ? "创建工单"
+                : /crm|客户管理|客户跟进|销售线索/.test(text.toLowerCase())
+                  ? "新增客户"
+      : /报名|试听|测评/.test(text)
+        ? "立即预约"
+        : /下单|购买|套餐/.test(text)
+          ? "咨询套餐"
+          : /报价|预算|多少钱/.test(text)
+            ? "获取正式报价"
+            : "立即咨询"
     setTemplateId(nextTemplateId)
-    setIndustry(guessIndustryFromDemand(text))
-    setAudience(guessAudienceFromDemand(text))
+    setIndustry(nextIndustry)
+    setAudience(nextAudience)
     setGoal(text)
-    if (/微信/.test(text)) setContact("加微信咨询")
-    else if (/报名|试听|测评/.test(text)) setContact("立即预约")
-    else if (/下单|购买|套餐/.test(text)) setContact("咨询套餐")
-    else if (/报价|预算|多少钱/.test(text)) setContact("获取正式报价")
-    else setContact("立即咨询")
+    setContact(nextContact)
+    requestAiApp({
+      templateId: nextTemplateId,
+      appKind: nextAppKind,
+      demand: text,
+      industry: nextIndustry,
+      goal: text,
+      audience: nextAudience,
+      style,
+      contact: nextContact,
+    })
   }
 
   return (
@@ -249,13 +360,16 @@ export function AppsClient() {
               <p style={labelStyle}>先输入客户真实需求</p>
               <textarea
                 value={demand}
-                onChange={(event) => setDemand(event.target.value)}
+                onChange={(event) => {
+                  setDemand(event.target.value)
+                  resetGeneratedPreview()
+                }}
                 placeholder="例如：我做装修设计，客户老问多少钱，我想先让他自己估预算再预约顾问。"
                 rows={5}
                 style={{ ...inputStyle, minHeight: 118 }}
               />
-              <button type="button" onClick={() => generateFromDemand()} style={{ ...primaryButtonStyle, width: "100%", justifyContent: "center", marginTop: 12 }}>
-                <Sparkles size={16} /> 生成一个完整应用
+              <button type="button" onClick={() => generateFromDemand()} disabled={isGenerating} style={{ ...primaryButtonStyle, opacity: isGenerating ? 0.72 : 1, width: "100%", justifyContent: "center", marginTop: 12 }}>
+                <Sparkles size={16} /> {isGenerating ? "小白正在生成..." : "生成一个完整应用"}
               </button>
               <div style={{ display: "grid", gap: 7, marginTop: 12 }}>
                 {demandExamples.map((example) => (
@@ -329,10 +443,10 @@ export function AppsClient() {
 
             <section style={panelStyle}>
               <p style={labelStyle}>小白拆出的关键信息</p>
-              <Field label="行业/业务" value={industry} onChange={setIndustry} placeholder="例如：餐饮门店、教育培训、电商、装修" />
-              <Field label="目标用户" value={audience} onChange={setAudience} placeholder="例如：附近客户、家长、企业老板" />
-              <Field label="想达成什么" value={goal} onChange={setGoal} placeholder={currentTemplate.defaultGoal} textarea />
-              <Field label="按钮/联系方式" value={contact} onChange={setContact} placeholder="例如：立即咨询、加微信、预约体验" />
+              <Field label="行业/业务" value={industry} onChange={(value) => { setIndustry(value); resetGeneratedPreview() }} placeholder="例如：餐饮门店、教育培训、电商、装修" />
+              <Field label="目标用户" value={audience} onChange={(value) => { setAudience(value); resetGeneratedPreview() }} placeholder="例如：附近客户、家长、企业老板" />
+              <Field label="想达成什么" value={goal} onChange={(value) => { setGoal(value); resetGeneratedPreview() }} placeholder={currentTemplate.defaultGoal} textarea />
+              <Field label="按钮/联系方式" value={contact} onChange={(value) => { setContact(value); resetGeneratedPreview() }} placeholder="例如：立即咨询、加微信、预约体验" />
               <div style={{ marginTop: 12 }}>
                 <p style={{ color: "#f8f3e6", fontSize: 14, fontWeight: 950, marginBottom: 8 }}>风格</p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -340,7 +454,10 @@ export function AppsClient() {
                     <button
                       key={item}
                       type="button"
-                      onClick={() => setStyle(item)}
+                      onClick={() => {
+                        setStyle(item)
+                        resetGeneratedPreview()
+                      }}
                       style={{
                         border: style === item ? "1px solid rgba(216,191,118,0.55)" : "1px solid rgba(255,255,255,0.12)",
                         background: style === item ? "rgba(216,191,118,0.14)" : "rgba(255,255,255,0.04)",
@@ -412,10 +529,15 @@ export function AppsClient() {
                 <div>
                   <p style={{ color: "#d8bf76", fontSize: 14, fontWeight: 950, marginBottom: 4 }}>实时预览</p>
                   <h2 style={{ color: "#f8f3e6", fontSize: 22, fontWeight: 950 }}>{industry || "我的"} · {currentPlaybook.mode}</h2>
-                  <p style={{ color: "#aaa69b", fontSize: 13, lineHeight: 1.6, marginTop: 4 }}>{currentPlaybook.preview}</p>
+                  <p style={{ color: "#aaa69b", fontSize: 13, lineHeight: 1.6, marginTop: 4 }}>
+                    小白判断：{inferAppKindFromDemand(goal || demand)}。{currentPlaybook.preview}
+                  </p>
                 </div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   <span style={miniPillStyle}><Eye size={13} /> 站内预览</span>
+                  <span style={{ ...miniPillStyle, borderColor: generationMode === "ai" ? "rgba(53,208,127,0.45)" : "rgba(216,191,118,0.35)", color: generationMode === "ai" ? "#b8ffd0" : "#fff4c9" }}>
+                    {generationMode === "ai" ? "AI 实时生成" : generationMode === "fallback" ? "模板兜底" : "本地预览"}
+                  </span>
                   <span style={{ ...miniPillStyle, borderColor: `${currentPlaybook.accent}40`, color: "#fff4c9" }}>{currentPlaybook.userFeels}</span>
                   <span style={miniPillStyle}><Code2 size={13} /> 可复制 HTML</span>
                 </div>
