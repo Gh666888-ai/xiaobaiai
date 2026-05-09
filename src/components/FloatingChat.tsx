@@ -47,7 +47,7 @@ const DEFAULT_FLOAT_ANCHOR: FloatAnchor = { right: 22, bottom: 22 }
 const SHORT_GOAL_KEYWORDS = [
   "ai漫剧", "漫剧", "动漫", "动画", "漫画", "分镜", "短剧", "视频",
   "ppt", "资料", "文档", "合同", "客服", "知识库", "自动化", "日报",
-  "网文", "小说", "编程", "网站", "本地模型", "openclaw", "claude code",
+  "网文", "小说", "编程", "网站", "网页", "小游戏", "游戏", "本地模型", "openclaw", "claude code",
 ]
 
 function looksLikeGoalShortcut(message: string) {
@@ -130,6 +130,11 @@ function looksLikeIndustryGoal(message: string) {
     "销售",
     "ai",
   ].some((keyword) => text.includes(keyword))
+}
+
+function missionKindLabel(missionId: string) {
+  if (missionId === "n8n-ai-news-automation" || missionId === "dify-knowledge-base-bot") return "公司工作流"
+  return "任务模板"
 }
 
 export function FloatingChat() {
@@ -449,12 +454,13 @@ export function FloatingChat() {
     setSpeaking(false)
     if (user && (looksLikeIndustryGoal(value) || looksLikeGoalShortcut(value))) {
       const mission = await assignMissionFromGoal(value)
+      const kindLabel = missionKindLabel(mission.id)
       setMode("site")
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: `收到，直接带你进「${mission.shortTitle}」学习任务。\n\n第一步只做这个：${mission.steps[0]?.action || "先打开任务页开始。"}\n\n我会记住进度，下次继续从这里走。`,
+          content: `收到，直接带你进「${mission.shortTitle}」${kindLabel}。\n\n第一步只做这个：${mission.steps[0]?.action || "先打开任务页开始。"}\n\n我会记住进度，下次继续从这里走。`,
         },
       ])
       setSpeaking(true)

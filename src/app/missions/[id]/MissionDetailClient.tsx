@@ -270,14 +270,16 @@ function StepCard({
   const currentAction = stepIndex === 0
     ? "先把这个任务要用的 AI 工具打开或登录好。能看到输入框、创建按钮或工作台以后，回来点确认。"
     : step.action
-  const guidePhases = [
-    ...(stepIndex === 0 ? [{ key: "tool", label: "下载/打开工具", doneText: step.toolAction ? "工具已经打开/下载完成" : "我已经打开可用工具" }] : []),
-    ...(stepIndex === 0 && step.clickPath && step.clickPath.length > 0 ? [{ key: "path", label: "按路径操作", doneText: "我已经走到输入位置" }] : []),
-    ...(stepIndex > 0 ? [{ key: "prompt", label: "复制模板", doneText: "我已经复制并点击生成" }] : []),
-    ...(stepIndex > 0 && step.promptRules && step.promptRules.length > 0 ? [{ key: "rules", label: "提示词规则", doneText: "我看懂了这些规则" }] : []),
-    ...(stepIndex > 0 ? [{ key: "check", label: "检查结果", doneText: "我已经检查结果" }] : []),
-    { key: "done", label: "确认完成", doneText: "" },
-  ]
+  const guidePhases =
+    stepIndex === 0
+      ? [
+          { key: "tool", label: "打开工具", doneText: step.toolAction ? "工具能打开，继续" : "我已经打开可用工具" },
+          { key: "done", label: "确认完成", doneText: "" },
+        ]
+      : [
+          { key: "make", label: "复制模板并生成", doneText: "我已经生成出结果" },
+          { key: "done", label: "确认结果能用", doneText: "" },
+        ]
   const currentGuideStep = Math.min(guideStep, guidePhases.length - 1)
   const currentPhase = guidePhases[currentGuideStep]
   const isDonePhase = currentPhase.key === "done"
@@ -357,26 +359,42 @@ function StepCard({
                 <p style={{ color: "#c8c8c8", fontSize: 14, lineHeight: 1.7, marginTop: 6 }}>{step.toolAction.readyText}</p>
               </div>
             )}
+            {step.clickPath && step.clickPath.length > 0 && (
+              <div style={{ ...primaryBlockStyle, marginTop: 12 }}>
+                <h3 style={blockTitleStyle}>小白点哪，你就点哪</h3>
+                <div style={{ display: "flex", gap: 7, flexWrap: "wrap", alignItems: "center", marginBottom: 10 }}>
+                  {step.clickPath.map((item, index) => (
+                    <span key={`${item}-${index}`} style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+                      <span style={{ color: "#eee", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.055)", borderRadius: 999, padding: "9px 12px", fontSize: 14, fontWeight: 850 }}>{item}</span>
+                      {index < step.clickPath!.length - 1 && <ChevronRight size={13} color="#6f6f6f" />}
+                    </span>
+                  ))}
+                </div>
+                <p style={{ color: "#c8c8c8", fontSize: 14, lineHeight: 1.7 }}>走到能输入、能创建或能上传的位置，就回来点确认。</p>
+              </div>
+            )}
+            {step.validation && step.validation.length > 0 && (
+              <details style={detailsStyle}>
+                <summary style={summaryStyle}>不确定有没有打开对？点这里检查</summary>
+                <div style={{ display: "grid", gap: 8, marginTop: 10 }}>{step.validation.map((item) => <CheckLine key={item}>{item}</CheckLine>)}</div>
+              </details>
+            )}
           </div>
         )}
 
-        {currentPhase.key === "path" && step.clickPath && (
+        {currentPhase.key === "make" && (
           <div>
-            <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.7, marginBottom: 12 }}>按下面顺序点，走到可以输入内容的位置。走到以后回来点确认。</p>
-            <div style={{ display: "flex", gap: 7, flexWrap: "wrap", alignItems: "center", marginBottom: 12 }}>
-              {step.clickPath.map((item, index) => (
-                <span key={`${item}-${index}`} style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
-                  <span style={{ color: "#eee", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.055)", borderRadius: 999, padding: "9px 12px", fontSize: 14, fontWeight: 850 }}>{item}</span>
-                  {index < step.clickPath!.length - 1 && <ChevronRight size={13} color="#6f6f6f" />}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {currentPhase.key === "prompt" && (
-          <div>
-            <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.7, marginBottom: 12 }}>这是小白先写好的通用模板。复制下面这段，粘贴到刚才打开的 AI / 工具里，然后点生成。</p>
+            <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.7, marginBottom: 12 }}>这是小白写好的模板。复制下面这段，粘贴到刚才打开的 AI / 工具里，直接点生成。先看到结果，不要在这里研究太久。</p>
+            {step.clickPath && step.clickPath.length > 0 && (
+              <div style={{ display: "flex", gap: 7, flexWrap: "wrap", alignItems: "center", marginBottom: 14 }}>
+                {step.clickPath.map((item, index) => (
+                  <span key={`${item}-${index}`} style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+                    <span style={{ color: "#eee", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.055)", borderRadius: 999, padding: "9px 12px", fontSize: 14, fontWeight: 850 }}>{item}</span>
+                    {index < step.clickPath!.length - 1 && <ChevronRight size={13} color="#6f6f6f" />}
+                  </span>
+                ))}
+              </div>
+            )}
             <section style={primaryBlockStyle}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", marginBottom: 10 }}>
                 <h3 style={{ ...blockTitleStyle, marginBottom: 0 }}>直接复制这一段</h3>
@@ -386,27 +404,15 @@ function StepCard({
               </div>
               <p style={{ color: "#d7d7d7", fontSize: 15, lineHeight: 1.9, whiteSpace: "pre-line" }}>{step.prompt}</p>
             </section>
-          </div>
-        )}
-
-        {currentPhase.key === "rules" && step.promptRules && (
-          <div>
-            <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.7, marginBottom: 12 }}>先不用自己发明提示词，记住下面几条规则就够了。</p>
-            <section style={primaryBlockStyle}>
-              <h3 style={blockTitleStyle}>这类提示词怎么写</h3>
-              <div style={{ display: "grid", gap: 8 }}>
-                {step.promptRules.map((item) => <CheckLine key={item}>{item}</CheckLine>)}
-              </div>
-            </section>
-          </div>
-        )}
-
-        {currentPhase.key === "check" && (
-          <div>
-            <p style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.7, marginBottom: 12 }}>现在检查 AI 给你的结果。符合下面标准，再点确认。</p>
+            {step.promptRules && step.promptRules.length > 0 && (
+              <details style={detailsStyle}>
+                <summary style={summaryStyle}>想知道为什么这样写？点这里看规则</summary>
+                <div style={{ display: "grid", gap: 8, marginTop: 10 }}>{step.promptRules.map((item) => <CheckLine key={item}>{item}</CheckLine>)}</div>
+              </details>
+            )}
             {step.validation && step.validation.length > 0 && (
               <div style={primaryBlockStyle}>
-                <h3 style={blockTitleStyle}>做到这样就可以继续</h3>
+                <h3 style={blockTitleStyle}>生成后只看这几个点</h3>
                 <div style={{ display: "grid", gap: 8 }}>{step.validation.map((item) => <CheckLine key={item}>{item}</CheckLine>)}</div>
               </div>
             )}

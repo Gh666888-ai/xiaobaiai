@@ -20,6 +20,14 @@ const missionRules: MissionRule[] = [
     keywords: ["客服", "售后", "知识库", "问答", "客户", "私域", "企业微信", "faq", "咨询", "话术"],
   },
   {
+    id: "ai-click-game-first-run",
+    keywords: ["小游戏", "游戏", "点击得分", "互动", "h5小游戏", "网页游戏", "活动游戏", "抽奖游戏"],
+  },
+  {
+    id: "ai-website-first-page",
+    keywords: ["做网站", "建网站", "网站", "网页", "落地页", "官网", "主页", "个人页", "产品页", "门店页", "活动页"],
+  },
+  {
     id: "ai-ppt-first-deck",
     keywords: ["ppt", "汇报", "方案", "课件", "演示", "路演", "产品介绍", "工作报告", "述职", "提案"],
   },
@@ -37,7 +45,7 @@ const missionRules: MissionRule[] = [
   },
   {
     id: "codex-small-feature",
-    keywords: ["codex", "编程", "代码", "网站", "网页", "开发", "项目", "功能", "bug", "程序"],
+    keywords: ["codex", "编程", "代码", "开发", "项目", "功能", "bug", "程序", "改代码", "真实项目"],
   },
   {
     id: "claude-code-deepseek-project",
