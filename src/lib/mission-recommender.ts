@@ -8,8 +8,28 @@ type MissionRule = {
 
 const missionRules: MissionRule[] = [
   {
+    id: "dify-knowledge-base-bot",
+    keywords: ["企业知识库", "企业客服", "公司客服", "团队客服", "知识库客服", "产品问答", "人工接管"],
+  },
+  {
+    id: "kimi-k26-long-doc",
+    keywords: ["企业办公", "企业办公提效", "公司办公", "团队办公", "会议纪要", "sop", "周报日报", "资料读取", "制度文档"],
+  },
+  {
+    id: "n8n-ai-news-automation",
+    keywords: ["企业自动化", "企业流程", "公司自动化", "自动化流程", "定时日报", "自动通知", "数据同步", "流程提醒"],
+  },
+  {
+    id: "industry-skill-stack-plan",
+    keywords: ["企业营销", "营销内容", "销售支持", "销售话术", "活动文案", "企业获客", "产品资料"],
+  },
+  {
+    id: "ai-ppt-first-deck",
+    keywords: ["办公接单", "ppt接单", "ppt代做", "简历优化", "会议纪要接单", "资料整理接单", "文档接单"],
+  },
+  {
     id: "xiaohongshu-ai-content-loop",
-    keywords: ["在家创业", "在家接单", "副业", "接单", "在家赚钱", "不出门", "宝妈", "失业", "待业"],
+    keywords: ["在家创业", "在家接单", "副业", "接单", "在家赚钱", "不出门", "宝妈", "失业", "待业", "个人在家", "做内容账号"],
   },
   {
     id: "ai-comic-video-first-episode",

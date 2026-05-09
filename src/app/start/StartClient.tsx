@@ -5,30 +5,71 @@ import { NavBar } from "@/components/NavBar"
 
 const goalOptions = [
   {
+    group: "个人在家",
     label: "在家创业接单",
     desc: "不先谈赚钱，先做一个能展示的作品。",
+    missionId: "xiaohongshu-ai-content-loop",
     prompt: "我想在家创业接单，不想出门。请给我推荐一个最容易开始的任务入口。我的情况先按：每天有一点时间、电脑基础一般、还不确定是否露脸。",
   },
   {
-    label: "提高工作效率",
-    desc: "把日报、PPT、表格、资料整理交给 AI。",
-    prompt: "我想用 AI 提高现在工作的效率。请给我推荐一个最容易开始的任务入口，先从办公、资料、PPT 或表格里选。",
-  },
-  {
+    group: "个人在家",
     label: "做内容账号",
     desc: "图文、短视频、AI漫剧先做一个样片。",
+    missionId: "ai-comic-video-first-episode",
     prompt: "我想用 AI 做内容账号。请给我推荐一个最容易开始的任务入口，先从图文、短视频或 AI 漫剧里选。",
   },
   {
+    group: "个人在家",
+    label: "办公接单",
+    desc: "PPT、简历、会议纪要先做一个样稿。",
+    missionId: "ai-ppt-first-deck",
+    prompt: "我想在家做办公接单。请给我推荐一个最容易开始的任务入口，先从 PPT、简历、会议纪要或资料整理里选。",
+  },
+  {
+    group: "个人在家",
     label: "训练个人Agent",
     desc: "安装工具后设人设、记忆和验收标准。",
+    missionId: "agent-skill-first-install",
     prompt: "我想训练一个个人 Agent 帮我做固定工作。请给我推荐一个最容易开始的任务入口，先从安装 Agent、配置模型、人设记忆开始。",
+  },
+  {
+    group: "企业团队",
+    label: "企业知识库客服",
+    desc: "先整理 FAQ，再搭可测试客服助手。",
+    missionId: "dify-knowledge-base-bot",
+    prompt: "我们是企业团队，想用 AI 做知识库客服。请给我推荐一个最容易开始的任务入口，先从 FAQ、产品资料和人工接管边界开始。",
+  },
+  {
+    group: "企业团队",
+    label: "企业办公提效",
+    desc: "会议纪要、SOP、周报日报、资料整理。",
+    missionId: "kimi-k26-long-doc",
+    prompt: "我们是企业团队，想用 AI 做办公提效。请给我推荐一个最容易开始的任务入口，先从资料读取、会议纪要、SOP 或周报日报开始。",
+  },
+  {
+    group: "企业团队",
+    label: "企业营销内容",
+    desc: "产品资料、活动文案、销售话术、案例复盘。",
+    missionId: "industry-skill-stack-plan",
+    prompt: "我们是企业团队，想用 AI 做营销内容和销售支持。请给我推荐一个最容易开始的任务入口，先从产品资料、活动文案和销售话术开始。",
+  },
+  {
+    group: "企业团队",
+    label: "企业自动化流程",
+    desc: "定时日报、通知、数据同步和流程提醒。",
+    missionId: "n8n-ai-news-automation",
+    prompt: "我们是企业团队，想用 AI 做自动化流程。请给我推荐一个最容易开始的任务入口，先从定时日报、通知、数据同步或流程提醒开始。",
   },
 ]
 
 export function StartClient() {
-  function openGoalOption(prompt: string) {
-    window.dispatchEvent(new CustomEvent("xiaobai:open-goal-router", { detail: { goal: prompt } }))
+  const personalOptions = goalOptions.filter((option) => option.group === "个人在家")
+  const enterpriseOptions = goalOptions.filter((option) => option.group === "企业团队")
+
+  function openGoalOption(option: (typeof goalOptions)[number]) {
+    window.dispatchEvent(new CustomEvent("xiaobai:open-goal-router", {
+      detail: { goal: option.prompt, missionId: option.missionId, audience: option.group, label: option.label },
+    }))
   }
 
   return (
@@ -39,18 +80,31 @@ export function StartClient() {
           <p style={eyebrowStyle}>开始</p>
           <h1 style={goalTitleStyle}>你想用 AI 做什么？</h1>
           <p style={goalDescStyle}>
-            先点一个方向。小白会在右下角给你一个任务入口，你自己点进去开始，不会突然跳转。
+            个人和企业不要混在一起。先选你是哪一种，小白会在右下角给你对应任务入口，你自己点进去开始。
           </p>
-          <div style={goalGridStyle}>
-            {goalOptions.map((option) => (
-              <button key={option.label} type="button" onClick={() => openGoalOption(option.prompt)} style={goalOptionStyle}>
-                <span style={goalOptionTitleStyle}>{option.label}</span>
-                <span style={goalOptionDescStyle}>{option.desc}</span>
-              </button>
-            ))}
-          </div>
+          <GoalGroup title="个人在家" note="适合自己一个人在家先做作品、练接单、做内容。" options={personalOptions} onPick={openGoalOption} />
+          <GoalGroup title="企业团队" note="适合公司、门店、团队先做流程提效和知识沉淀。" options={enterpriseOptions} onPick={openGoalOption} />
         </section>
       </main>
+    </div>
+  )
+}
+
+function GoalGroup({ title, note, options, onPick }: { title: string; note: string; options: typeof goalOptions; onPick: (option: (typeof goalOptions)[number]) => void }) {
+  return (
+    <div style={goalGroupStyle}>
+      <div style={goalGroupHeadStyle}>
+        <h2 style={goalGroupTitleStyle}>{title}</h2>
+        <p style={goalGroupNoteStyle}>{note}</p>
+      </div>
+      <div style={goalGridStyle}>
+        {options.map((option) => (
+          <button key={option.label} type="button" onClick={() => onPick(option)} style={goalOptionStyle}>
+            <span style={goalOptionTitleStyle}>{option.label}</span>
+            <span style={goalOptionDescStyle}>{option.desc}</span>
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
@@ -100,6 +154,37 @@ const goalGridStyle: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,190px),1fr))",
   gap: 10,
+}
+
+const goalGroupStyle: CSSProperties = {
+  borderTop: "1px solid rgba(255,255,255,0.08)",
+  paddingTop: 18,
+  marginTop: 18,
+}
+
+const goalGroupHeadStyle: CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 14,
+  alignItems: "end",
+  flexWrap: "wrap",
+  marginBottom: 10,
+}
+
+const goalGroupTitleStyle: CSSProperties = {
+  color: "#fff4c9",
+  fontSize: 21,
+  fontWeight: 950,
+  lineHeight: 1.35,
+  margin: 0,
+}
+
+const goalGroupNoteStyle: CSSProperties = {
+  color: "#aaa59a",
+  fontSize: 14,
+  fontWeight: 850,
+  lineHeight: 1.65,
+  margin: 0,
 }
 
 const goalOptionStyle: CSSProperties = {

@@ -36,9 +36,9 @@ type FloatAnchor = {
 
 const START_INDUSTRY_PROMPT_KEY = "xiaobaiai:start-industry-prompt:v1"
 const START_INDUSTRY_PROMPT =
-  "你已经登录了。先告诉我两件事：你想在家创业接单、提高工作效率、做内容账号，还是训练个人 Agent？你现在会什么、每天有多少时间？我会给你一个任务入口。"
+  "你已经登录了。先告诉我你属于哪一种：个人在家，还是企业团队？再说你想做成什么事、每天有多少时间。我会给你对应的任务入口。"
 const GOAL_ROUTER_PROMPT =
-  "先选一个方向：在家创业接单、提高工作效率、做内容账号、训练个人 Agent。\n\n再告诉我：你会什么、每天有多少时间、想做出什么结果。\n\n我收到后会给你一个任务入口，你点一下再进入，不会突然跳走。"
+  "先选清楚：个人在家，还是企业团队。\n\n个人适合先做作品、接单样稿、内容账号、个人 Agent；企业适合先做客服知识库、SOP、会议纪要、销售支持、自动化流程。\n\n我收到后会给你一个任务入口，你点一下再进入，不会突然跳走。"
 const HOME_AGENT_PROMPT_KEY = "xiaobaiai:home-agent-prompt:v1"
 const HOME_GUEST_PROMPT =
   "先登录，然后我来制定接下来的一切。登录后我会先问你的行业和目标。"
@@ -147,18 +147,51 @@ function missionKindLabel(missionId: string) {
   return "任务模板"
 }
 
+function classifyGoal(goal: string) {
+  const text = goal.toLowerCase()
+  const personalWords = ["个人", "在家", "创业", "副业", "接单", "不出门", "内容账号", "办公接单", "个人 agent"]
+  const enterpriseWords = ["企业", "公司", "团队", "员工", "sop", "知识库客服", "办公提效", "自动化流程", "销售支持"]
+  if (personalWords.some((word) => text.includes(word))) return "personal"
+  if (enterpriseWords.some((word) => text.includes(word))) return "enterprise"
+  return "general"
+}
+
+function getMissionById(missionId?: string) {
+  return missionId ? missions.find((item) => item.id === missionId) : undefined
+}
+
 function buildSkillPlanReply(goal: string) {
+  const audience = classifyGoal(goal)
   const plan = recommendSkillsForGoal(goal, 4)
   const directMission = recommendMissionFromGoal(goal)
   const planMission = missions.find((item) => item.id === plan.nextMissionId)
   const mission = directMission.id !== "industry-skill-stack-plan" ? directMission : planMission || directMission
   const topSkills = plan.recommendations.slice(0, 3)
   const skillLines = topSkills.map((item, index) => `${index + 1}. ${item.skill.name} ${item.score}分：${item.reason}`)
+  if (audience === "personal") {
+    return {
+      mission,
+      content: `我按「个人在家」给你排路线。个人先不要碰企业 SOP、周报系统这些，先做一个能展示的作品。\n\n先做的工作：选一个小方向 → 做第一个样稿/样片 → 写展示文案 → 发到社区复盘\n\n先用工具：DeepSeek/Kimi、即梦/剪映、WPS/Gamma、Canva。复杂 Skill 和自动化后面再装。\n\n第一步先点下面入口：${mission.shortTitle}`,
+    }
+  }
+  const opening = audience === "enterprise"
+      ? "我按「企业团队」给你排路线。企业先不要做个人接单作品，先做能复用、能检查、能交接的流程。"
+      : `我按「${plan.track.shortTitle}」给你排了一条路线。`
 
   return {
     mission,
-    content: `我按「${plan.track.shortTitle}」给你排了一条路线。\n\n先做的工作：${plan.workflow.slice(0, 4).join(" → ")}\n\n先装 Skill：\n${skillLines.join("\n")}\n\n第一步先点下面入口：${mission.shortTitle}`,
+    content: `${opening}\n\n先做的工作：${plan.workflow.slice(0, 4).join(" → ")}\n\n先装 Skill：\n${skillLines.join("\n")}\n\n第一步先点下面入口：${mission.shortTitle}`,
   }
+}
+
+function buildPickedGoalReply(goal: string, missionId?: string, audience?: string, label?: string) {
+  const mission = getMissionById(missionId) || recommendMissionFromGoal(goal)
+  const isEnterprise = audience === "企业团队"
+  const content = isEnterprise
+    ? `我按「企业团队｜${label || mission.shortTitle}」给你排路线。\n\n企业适合先做：客服知识库、会议纪要、SOP、周报日报、销售话术、自动化通知。\n\n这类任务重点不是做作品，而是把资料、流程、权限边界和验收标准沉淀下来。\n\n第一步先点下面入口：${mission.shortTitle}`
+    : `我按「个人在家｜${label || mission.shortTitle}」给你排路线。\n\n个人适合先做：图文内容、短视频样片、AI漫剧、办公样稿、电商文案、个人 Agent。\n\n这类任务先不谈收益，先做一个能展示、能发出去、能让别人看懂的作品。\n\n第一步先点下面入口：${mission.shortTitle}`
+
+  return { mission, content }
 }
 
 export function FloatingChat() {
@@ -214,11 +247,14 @@ export function FloatingChat() {
     }
     const openGoalRouter = (event?: Event) => {
       const goal = event instanceof CustomEvent && typeof event.detail?.goal === "string" ? event.detail.goal : ""
+      const missionId = event instanceof CustomEvent && typeof event.detail?.missionId === "string" ? event.detail.missionId : ""
+      const audience = event instanceof CustomEvent && typeof event.detail?.audience === "string" ? event.detail.audience : ""
+      const label = event instanceof CustomEvent && typeof event.detail?.label === "string" ? event.detail.label : ""
       const customPrompt = event instanceof CustomEvent && typeof event.detail?.prompt === "string" ? event.detail.prompt : GOAL_ROUTER_PROMPT
       openChat()
       setInput("")
       if (goal) {
-        const { mission, content } = buildSkillPlanReply(goal)
+        const { mission, content } = buildPickedGoalReply(goal, missionId, audience, label)
         const nextProgress = selectMission(readMissionProgress(), mission.id)
         writeMissionProgress(nextProgress)
         setMissionProgress(nextProgress)
@@ -628,7 +664,7 @@ export function FloatingChat() {
                 }}
                 disabled={loading}
                 rows={2}
-                placeholder={user ? "比如：在家创业接单，每天3小时，会剪映" : "注册后可按方向定制推荐"}
+                placeholder={user ? "比如：个人在家，每天3小时，会剪映，想做AI漫剧" : "注册后可按方向定制推荐"}
               />
               <button type="button" onClick={() => send()} disabled={sending || !input.trim() || loading} aria-label="发送给小白AI">
                 <ArrowUp size={18} />
