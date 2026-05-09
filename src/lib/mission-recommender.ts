@@ -8,6 +8,10 @@ type MissionRule = {
 
 const missionRules: MissionRule[] = [
   {
+    id: "xiaohongshu-ai-content-loop",
+    keywords: ["在家创业", "在家接单", "副业", "接单", "在家赚钱", "不出门", "宝妈", "失业", "待业"],
+  },
+  {
     id: "ai-comic-video-first-episode",
     keywords: ["动漫", "漫画", "漫剧", "短剧", "视频", "分镜", "配音", "剪映", "动画", "角色", "剧情", "ai剧"],
   },

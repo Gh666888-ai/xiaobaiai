@@ -36,9 +36,9 @@ type FloatAnchor = {
 
 const START_INDUSTRY_PROMPT_KEY = "xiaobaiai:start-industry-prompt:v1"
 const START_INDUSTRY_PROMPT =
-  "你已经登录了。先告诉我两件事：你做什么行业或岗位？最想用 AI 做成什么？我会给你排学习计划，从第 1 步带你做。"
+  "你已经登录了。先告诉我两件事：你想在家创业接单、提高工作效率、做内容账号，还是训练个人 Agent？你现在会什么、每天有多少时间？我会给你一个任务入口。"
 const GOAL_ROUTER_PROMPT =
-  "直接说一句：你做什么行业 + 想用 AI 做成什么。\n\n比如：我做电商，想用 AI 做客服和短视频。\n\n我收到后会给你一个任务入口，你点一下再进入，不会突然跳走。"
+  "先选一个方向：在家创业接单、提高工作效率、做内容账号、训练个人 Agent。\n\n再告诉我：你会什么、每天有多少时间、想做出什么结果。\n\n我收到后会给你一个任务入口，你点一下再进入，不会突然跳走。"
 const HOME_AGENT_PROMPT_KEY = "xiaobaiai:home-agent-prompt:v1"
 const HOME_GUEST_PROMPT =
   "先登录，然后我来制定接下来的一切。登录后我会先问你的行业和目标。"
@@ -51,6 +51,7 @@ const SHORT_GOAL_KEYWORDS = [
   "ai漫剧", "漫剧", "动漫", "动画", "漫画", "分镜", "短剧", "视频",
   "ppt", "资料", "文档", "合同", "客服", "知识库", "自动化", "日报",
   "网文", "小说", "编程", "网站", "网页", "小游戏", "游戏", "本地模型", "openclaw", "claude code",
+  "在家创业", "副业", "接单", "在家赚钱", "不出门",
 ]
 
 function looksLikeGoalShortcut(message: string) {
@@ -131,6 +132,12 @@ function looksLikeIndustryGoal(message: string) {
     "设计",
     "运营",
     "销售",
+    "在家",
+    "创业",
+    "副业",
+    "接单",
+    "赚钱",
+    "不出门",
     "ai",
   ].some((keyword) => text.includes(keyword))
 }
@@ -203,13 +210,14 @@ export function FloatingChat() {
       setHasSavedMissionProgress(Boolean(window.localStorage.getItem(MISSION_PROGRESS_KEY)))
       setMissionProgress(readMissionProgress())
     }
-    const openGoalRouter = () => {
+    const openGoalRouter = (event?: Event) => {
+      const customPrompt = event instanceof CustomEvent && typeof event.detail?.prompt === "string" ? event.detail.prompt : GOAL_ROUTER_PROMPT
       openChat()
       setInput("")
       setMessages((prev) => (
-        prev.some((message) => message.content === GOAL_ROUTER_PROMPT)
+        prev.some((message) => message.content === customPrompt)
           ? prev
-          : [...prev, { role: "assistant", content: GOAL_ROUTER_PROMPT }]
+          : [...prev, { role: "assistant", content: customPrompt }]
       ))
       setSpeaking(true)
       window.setTimeout(() => setSpeaking(false), 1800)
@@ -596,7 +604,7 @@ export function FloatingChat() {
                 }}
                 disabled={loading}
                 rows={2}
-                placeholder={user ? "说你的行业：比如电商，想用 AI 做客服和短视频" : "注册后可按行业定制推荐"}
+                placeholder={user ? "比如：在家创业接单，每天3小时，会剪映" : "注册后可按方向定制推荐"}
               />
               <button type="button" onClick={() => send()} disabled={sending || !input.trim() || loading} aria-label="发送给小白AI">
                 <ArrowUp size={18} />

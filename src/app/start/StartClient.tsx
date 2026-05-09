@@ -18,6 +18,28 @@ import {
 } from "@/lib/mission-progress"
 
 const initialMission = missions[0]
+const goalOptions = [
+  {
+    label: "在家创业接单",
+    desc: "不先谈赚钱，先做一个能展示的作品。",
+    prompt: "我想在家创业接单，不想出门。请先问我会什么、每天有多少时间、愿不愿意露脸、有没有预算，然后给我一个最容易开始的任务入口。",
+  },
+  {
+    label: "提高工作效率",
+    desc: "把日报、PPT、表格、资料整理交给 AI。",
+    prompt: "我想用 AI 提高现在工作的效率。请先问我的岗位和最重复的工作，然后给我一个任务入口。",
+  },
+  {
+    label: "做内容账号",
+    desc: "图文、短视频、AI漫剧先做一个样片。",
+    prompt: "我想用 AI 做内容账号。请先问我想做图文、短视频还是 AI 漫剧，然后给我一个任务入口。",
+  },
+  {
+    label: "训练个人Agent",
+    desc: "安装工具后设人设、记忆和验收标准。",
+    prompt: "我想训练一个个人 Agent 帮我做固定工作。请先问我的行业、工具基础和想交给 Agent 的工作，然后给我一个任务入口。",
+  },
+]
 
 function starterProgress(): MissionProgressState {
   return { activeMissionId: initialMission.id, missions: {} }
@@ -167,10 +189,28 @@ export function StartClient() {
     }
   }
 
+  function openGoalOption(prompt: string) {
+    window.dispatchEvent(new CustomEvent("xiaobai:open-goal-router", { detail: { prompt } }))
+  }
+
   return (
     <div style={{ background: "linear-gradient(180deg,#07100f 0%,#0b0d0c 46%,#070707 100%)", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative" }}>
       <NavBar />
       <main style={mainStyle}>
+        <section style={goalPanelStyle}>
+          <p style={eyebrowStyle}>先选方向</p>
+          <h1 style={goalTitleStyle}>你想用 AI 做什么？</h1>
+          <p style={goalDescStyle}>在家创业只是其中一个方向。你先点一个，小白会在右下角继续问你情况，再给任务入口。</p>
+          <div style={goalGridStyle}>
+            {goalOptions.map((option) => (
+              <button key={option.label} type="button" onClick={() => openGoalOption(option.prompt)} style={goalOptionStyle}>
+                <span style={goalOptionTitleStyle}>{option.label}</span>
+                <span style={goalOptionDescStyle}>{option.desc}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
         <section style={panelStyle}>
           <div style={topRowStyle}>
             <div>
@@ -268,13 +308,70 @@ function MissionTemplateDropdown({ currentMissionId, compact = false }: { curren
 }
 
 const mainStyle: CSSProperties = {
-  maxWidth: 780,
+  maxWidth: 860,
   margin: "0 auto",
   minHeight: "calc(100vh - 76px)",
   padding: "38px clamp(16px,5vw,42px) 76px",
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
+}
+
+const goalPanelStyle: CSSProperties = {
+  border: "1px solid rgba(233,215,165,0.13)",
+  background: "rgba(244,240,226,0.04)",
+  borderRadius: 18,
+  padding: "24px clamp(20px,4vw,32px)",
+  marginBottom: 18,
+}
+
+const goalTitleStyle: CSSProperties = {
+  color: "#f8f3e6",
+  fontSize: "clamp(28px,5vw,42px)",
+  fontWeight: 950,
+  lineHeight: 1.2,
+  margin: 0,
+}
+
+const goalDescStyle: CSSProperties = {
+  color: "#c8c8bd",
+  fontSize: 16,
+  lineHeight: 1.8,
+  margin: "10px 0 18px",
+}
+
+const goalGridStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,180px),1fr))",
+  gap: 10,
+}
+
+const goalOptionStyle: CSSProperties = {
+  minHeight: 104,
+  border: "1px solid rgba(216,191,118,0.18)",
+  background: "rgba(0,0,0,0.22)",
+  borderRadius: 13,
+  padding: "16px 17px",
+  textAlign: "left",
+  fontFamily: "'Noto Sans SC', sans-serif",
+  cursor: "pointer",
+}
+
+const goalOptionTitleStyle: CSSProperties = {
+  display: "block",
+  color: "#fff4c9",
+  fontSize: 18,
+  fontWeight: 950,
+  lineHeight: 1.35,
+  marginBottom: 8,
+}
+
+const goalOptionDescStyle: CSSProperties = {
+  display: "block",
+  color: "#aaa59a",
+  fontSize: 13,
+  fontWeight: 800,
+  lineHeight: 1.65,
 }
 
 const panelStyle: CSSProperties = {
