@@ -149,7 +149,9 @@ function missionKindLabel(missionId: string) {
 
 function buildSkillPlanReply(goal: string) {
   const plan = recommendSkillsForGoal(goal, 4)
-  const mission = missions.find((item) => item.id === plan.nextMissionId) || recommendMissionFromGoal(goal)
+  const directMission = recommendMissionFromGoal(goal)
+  const planMission = missions.find((item) => item.id === plan.nextMissionId)
+  const mission = directMission.id !== "industry-skill-stack-plan" ? directMission : planMission || directMission
   const topSkills = plan.recommendations.slice(0, 3)
   const skillLines = topSkills.map((item, index) => `${index + 1}. ${item.skill.name} ${item.score}分：${item.reason}`)
 
@@ -211,9 +213,31 @@ export function FloatingChat() {
       setMissionProgress(readMissionProgress())
     }
     const openGoalRouter = (event?: Event) => {
+      const goal = event instanceof CustomEvent && typeof event.detail?.goal === "string" ? event.detail.goal : ""
       const customPrompt = event instanceof CustomEvent && typeof event.detail?.prompt === "string" ? event.detail.prompt : GOAL_ROUTER_PROMPT
       openChat()
       setInput("")
+      if (goal) {
+        const { mission, content } = buildSkillPlanReply(goal)
+        const nextProgress = selectMission(readMissionProgress(), mission.id)
+        writeMissionProgress(nextProgress)
+        setMissionProgress(nextProgress)
+        setHasSavedMissionProgress(true)
+        window.localStorage.setItem(ONBOARDING_PROFILE_KEY, goal.slice(0, 240))
+        setMode("site")
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: `${content}\n\n我已经给你放好入口了。你想开始时，自己点下面按钮进入任务。`,
+            actionHref: `/missions/${mission.id}`,
+            actionLabel: `打开「${mission.shortTitle}」`,
+          },
+        ])
+        setSpeaking(true)
+        window.setTimeout(() => setSpeaking(false), 1800)
+        return
+      }
       setMessages((prev) => (
         prev.some((message) => message.content === customPrompt)
           ? prev
