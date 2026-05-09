@@ -42,6 +42,13 @@ type CoCreatorStage = {
   plateImage: string
 }
 
+type PlateBeastStyle = {
+  className: string
+  name: string
+  shortName: string
+  sigil: string
+}
+
 const badgeStyles: Record<number, BadgeStyle> = {
   0: { icon: Hexagon, shape: "22% 78% 78% 22% / 50% 50% 50% 50%", bg: "linear-gradient(145deg,#f5f5f5,#8f8f8f)", glow: "rgba(190,190,190,0.35)" },
   1: { icon: Sparkle, shape: "50%", bg: "radial-gradient(circle at 35% 20%,#fff3c4,#d08a42 62%,#6d3d16)", glow: "rgba(255,170,80,0.48)" },
@@ -93,6 +100,16 @@ function getPlateTier(level: number) {
   return "starter"
 }
 
+function getPlateBeast(level: number): PlateBeastStyle {
+  if (level >= 10) {
+    return { className: "yingzhao", name: "英招镇山纹", shortName: "英招纹", sigil: "招" }
+  }
+  if (level >= 5) {
+    return { className: "bifang", name: "毕方炎羽纹", shortName: "毕方纹", sigil: "方" }
+  }
+  return { className: "lushu", name: "鹿蜀启灵纹", shortName: "鹿蜀纹", sigil: "鹿" }
+}
+
 function LevelTitlePlate({
   name,
   level,
@@ -120,11 +137,12 @@ function LevelTitlePlate({
   } as CSSProperties
   const isPeakBeforeCoCreator = level.level >= 12
   const plateTier = getPlateTier(level.level)
+  const plateBeast = getPlateBeast(level.level)
 
   return (
     <span
-      className={`levelTitlePlate levelTier-${plateTier} levelFrame-${plate.frame} ${compact ? "isCompact" : ""}`}
-      title={`${level.name} · ${xpLabel} · ${level.desc}${next ? next.requiresReview ? ` · 达到共创门槛，需要人工审核后解锁 ${next.level.name}` : ` · 距离 ${next.level.name} 还差 ${next.need} XP` : " · 已达最高档。"}`}
+      className={`levelTitlePlate levelTier-${plateTier} levelBeast-${plateBeast.className} levelFrame-${plate.frame} ${compact ? "isCompact" : ""}`}
+      title={`${level.name} · ${plateBeast.name} · ${xpLabel} · ${level.desc}${next ? next.requiresReview ? ` · 达到共创门槛，需要人工审核后解锁 ${next.level.name}` : ` · 距离 ${next.level.name} 还差 ${next.need} XP` : " · 已达最高档。"}`}
       style={cssVars}
     >
       <span className="levelWing left" aria-hidden="true" />
@@ -133,6 +151,9 @@ function LevelTitlePlate({
       <span className="levelFlame right" aria-hidden="true" />
       <span className="levelBackPlate" aria-hidden="true" />
       <span className="levelPlateCore" aria-hidden="true" />
+      <span className="levelBeastSigil" aria-hidden="true">
+        <span>{plateBeast.sigil}</span>
+      </span>
       <span className="levelGemWrap" aria-hidden="true">
         <span className="levelGem">
           <Icon size={compact ? 14 : 17} strokeWidth={2.6} />
@@ -147,6 +168,7 @@ function LevelTitlePlate({
         {!compact && (
           <span className="levelRankLine">
             <span className="levelRankName">{level.name}</span>
+            <span className="levelBeastName">{plateBeast.shortName}</span>
             {isPeakBeforeCoCreator && <span className="levelNearCoCreator">准共创</span>}
             <span className="levelProgress"><span /></span>
           </span>
@@ -211,6 +233,8 @@ function LevelTitlePlate({
           inset: 2px 8px;
           border-radius: 999px;
           background:
+            radial-gradient(circle at 12% 50%, color-mix(in srgb, var(--plate-accent) 18%, transparent), transparent 15%),
+            radial-gradient(circle at 88% 50%, color-mix(in srgb, var(--plate-accent) 14%, transparent), transparent 16%),
             radial-gradient(ellipse at 24% 40%, rgba(255,255,255,0.16), transparent 36%),
             linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--plate-main) 22%, transparent) 22%, rgba(255,255,255,0.08) 50%, color-mix(in srgb, var(--plate-main) 18%, transparent) 78%, transparent 100%);
           opacity: 0.68;
@@ -219,6 +243,8 @@ function LevelTitlePlate({
           inset: -1px -2px;
           border-radius: 18px 999px 18px 999px;
           background:
+            radial-gradient(circle at 13% 50%, color-mix(in srgb, var(--plate-accent) 22%, transparent), transparent 13%),
+            radial-gradient(circle at 87% 50%, color-mix(in srgb, var(--plate-accent) 20%, transparent), transparent 13%),
             linear-gradient(90deg, transparent 0 3%, color-mix(in srgb, var(--plate-main) 38%, transparent) 18%, rgba(255,255,255,0.11) 50%, color-mix(in srgb, var(--plate-main) 35%, transparent) 82%, transparent 97%),
             repeating-linear-gradient(135deg, transparent 0 10px, color-mix(in srgb, var(--plate-accent) 18%, transparent) 10px 12px);
           clip-path: polygon(5% 50%, 14% 8%, 86% 8%, 95% 50%, 86% 92%, 14% 92%);
@@ -228,6 +254,7 @@ function LevelTitlePlate({
           inset: -5px -6px;
           border-radius: 24px;
           background:
+            radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--plate-accent) 18%, transparent), transparent 23%),
             radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--plate-accent) 28%, transparent), transparent 54%),
             linear-gradient(90deg, transparent 0 4%, color-mix(in srgb, var(--plate-main) 45%, transparent) 16%, rgba(255,255,255,0.14) 50%, color-mix(in srgb, var(--plate-main) 42%, transparent) 84%, transparent 96%);
           clip-path: polygon(8% 50%, 14% 2%, 50% 10%, 86% 2%, 92% 50%, 86% 98%, 50% 90%, 14% 98%);
@@ -256,6 +283,7 @@ function LevelTitlePlate({
           inset: 5px 15px;
           border-radius: 999px;
           background:
+            repeating-linear-gradient(90deg, transparent 0 16px, color-mix(in srgb, var(--plate-accent) 13%, transparent) 16px 18px),
             radial-gradient(ellipse at 18% 36%, rgba(255,255,255,0.4), transparent 25%),
             linear-gradient(90deg, rgba(255,255,255,0.19), transparent 16%, transparent 82%, rgba(255,255,255,0.12)),
             linear-gradient(180deg, color-mix(in srgb, var(--plate-main) 34%, #fff 9%), color-mix(in srgb, var(--plate-main) 18%, var(--plate-deep) 54%) 54%, var(--plate-deep));
@@ -270,6 +298,7 @@ function LevelTitlePlate({
           border-radius: 18px 999px 18px 999px;
           clip-path: polygon(5% 50%, 13% 8%, 87% 8%, 95% 50%, 87% 92%, 13% 92%);
           background:
+            repeating-linear-gradient(132deg, transparent 0 12px, color-mix(in srgb, var(--plate-accent) 17%, transparent) 12px 14px),
             radial-gradient(ellipse at 14% 36%, rgba(255,255,255,0.5), transparent 23%),
             radial-gradient(ellipse at 88% 35%, color-mix(in srgb, var(--plate-main) 34%, transparent), transparent 30%),
             linear-gradient(110deg, rgba(255,255,255,0.26), transparent 17%, transparent 78%, rgba(255,255,255,0.2)),
@@ -281,6 +310,7 @@ function LevelTitlePlate({
           border-radius: 22px;
           clip-path: polygon(7% 50%, 13% 6%, 50% 13%, 87% 6%, 93% 50%, 87% 94%, 50% 87%, 13% 94%);
           background:
+            repeating-radial-gradient(ellipse at 50% 50%, transparent 0 12px, color-mix(in srgb, var(--plate-accent) 11%, transparent) 12px 14px),
             radial-gradient(ellipse at 50% 2%, rgba(255,255,255,0.38), transparent 34%),
             radial-gradient(ellipse at 16% 43%, rgba(255,255,255,0.42), transparent 25%),
             radial-gradient(ellipse at 86% 38%, color-mix(in srgb, var(--plate-main) 42%, transparent), transparent 28%),
@@ -343,6 +373,56 @@ function LevelTitlePlate({
         }
         .levelTier-master .levelPlateCore::before { left: 14px; }
         .levelTier-master .levelPlateCore::after { right: 14px; transform: translateY(-50%) scaleX(-1); }
+        .levelBeastSigil {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          z-index: 1;
+          width: 42px;
+          height: 42px;
+          transform: translate(-50%, -50%);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: color-mix(in srgb, var(--plate-accent) 76%, #fff 24%);
+          opacity: 0.18;
+          pointer-events: none;
+          user-select: none;
+          filter: drop-shadow(0 0 10px var(--plate-glow));
+        }
+        .levelBeastSigil span {
+          font-family: 'Noto Serif SC', 'Noto Sans SC', serif;
+          font-size: 25px;
+          font-weight: 950;
+          line-height: 1;
+        }
+        .levelBeast-lushu .levelBeastSigil {
+          left: 58%;
+          width: 36px;
+          height: 36px;
+          border: 1px solid color-mix(in srgb, var(--plate-accent) 38%, transparent);
+          border-radius: 44% 56% 48% 52% / 58% 44% 56% 42%;
+          opacity: 0.16;
+        }
+        .levelBeast-bifang .levelBeastSigil {
+          left: 54%;
+          width: 46px;
+          height: 36px;
+          clip-path: polygon(0 50%, 32% 10%, 68% 20%, 100% 50%, 68% 80%, 32% 90%);
+          background: color-mix(in srgb, var(--plate-main) 16%, transparent);
+          opacity: 0.2;
+        }
+        .levelBeast-yingzhao .levelBeastSigil {
+          left: 55%;
+          width: 54px;
+          height: 44px;
+          border: 1px solid color-mix(in srgb, var(--plate-accent) 46%, transparent);
+          border-radius: 50% 50% 44% 44% / 36% 36% 64% 64%;
+          background:
+            radial-gradient(circle at 50% 18%, color-mix(in srgb, var(--plate-accent) 20%, transparent), transparent 24%),
+            color-mix(in srgb, var(--plate-main) 12%, transparent);
+          opacity: 0.22;
+        }
         .levelWing {
           position: absolute;
           top: 9px;
@@ -538,6 +618,20 @@ function LevelTitlePlate({
         .levelFrame-preLegend .levelGem svg {
           transform: rotate(-45deg);
         }
+        .levelBeast-lushu .levelGem {
+          border-radius: 46% 54% 45% 55% / 60% 45% 55% 40%;
+        }
+        .levelBeast-bifang .levelGem {
+          border-radius: 38% 62% 50% 50% / 30% 30% 70% 70%;
+          clip-path: polygon(50% 0, 84% 26%, 100% 64%, 50% 100%, 0 64%, 16% 26%);
+        }
+        .levelBeast-yingzhao .levelGem {
+          border-radius: 28% 72% 50% 50% / 28% 28% 72% 72%;
+          transform: rotate(45deg);
+        }
+        .levelBeast-yingzhao .levelGem svg {
+          transform: rotate(-45deg);
+        }
         .levelPlateText {
           min-width: 0;
           display: flex;
@@ -590,6 +684,17 @@ function LevelTitlePlate({
           white-space: nowrap;
           text-shadow: 0 0 9px var(--plate-glow);
         }
+        .levelBeastName {
+          color: color-mix(in srgb, var(--plate-accent) 72%, #fff 28%);
+          border: 1px solid color-mix(in srgb, var(--plate-main) 38%, transparent);
+          border-radius: 999px;
+          background: rgba(0,0,0,0.22);
+          padding: 1px 5px;
+          font-size: 9px;
+          font-weight: 950;
+          white-space: nowrap;
+          text-shadow: 0 0 8px var(--plate-glow);
+        }
         .levelNearCoCreator {
           color: #160d00;
           border-radius: 999px;
@@ -634,6 +739,13 @@ function LevelTitlePlate({
           .levelTitlePlate.isCompact .levelNumber {
             font-size: 8px;
             padding: 1px 4px;
+          }
+          .levelTitlePlate.isCompact .levelBeastSigil {
+            width: 30px;
+            height: 30px;
+          }
+          .levelTitlePlate.isCompact .levelBeastSigil span {
+            font-size: 18px;
           }
         }
       `}</style>
