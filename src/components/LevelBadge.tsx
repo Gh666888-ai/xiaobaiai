@@ -87,6 +87,12 @@ function getCoCreatorStage(level: number) {
   return coCreatorStages[15]
 }
 
+function getPlateTier(level: number) {
+  if (level >= 10) return "master"
+  if (level >= 5) return "adept"
+  return "starter"
+}
+
 function LevelTitlePlate({
   name,
   level,
@@ -113,10 +119,11 @@ function LevelTitlePlate({
     "--plate-progress": `${progress}%`,
   } as CSSProperties
   const isPeakBeforeCoCreator = level.level >= 12
+  const plateTier = getPlateTier(level.level)
 
   return (
     <span
-      className={`levelTitlePlate levelFrame-${plate.frame} ${compact ? "isCompact" : ""}`}
+      className={`levelTitlePlate levelTier-${plateTier} levelFrame-${plate.frame} ${compact ? "isCompact" : ""}`}
       title={`${level.name} · ${xpLabel} · ${level.desc}${next ? next.requiresReview ? ` · 达到共创门槛，需要人工审核后解锁 ${next.level.name}` : ` · 距离 ${next.level.name} 还差 ${next.need} XP` : " · 已达最高档。"}`}
       style={cssVars}
     >
@@ -162,6 +169,27 @@ function LevelTitlePlate({
           vertical-align: middle;
           filter: drop-shadow(0 0 16px var(--plate-glow));
         }
+        .levelTier-starter {
+          min-width: 206px;
+          padding-right: 17px;
+          filter: drop-shadow(0 0 11px var(--plate-glow));
+        }
+        .levelTier-adept {
+          min-width: 224px;
+          gap: 12px;
+          filter:
+            drop-shadow(0 0 13px var(--plate-glow))
+            drop-shadow(0 5px 12px rgba(0,0,0,0.26));
+        }
+        .levelTier-master {
+          min-width: 238px;
+          min-height: 60px;
+          gap: 13px;
+          padding: 9px 22px 9px 11px;
+          filter:
+            drop-shadow(0 0 16px var(--plate-glow))
+            drop-shadow(0 7px 14px rgba(0,0,0,0.34));
+        }
         .levelTitlePlate.isCompact {
           min-width: 176px;
           min-height: 46px;
@@ -178,6 +206,32 @@ function LevelTitlePlate({
             linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--plate-main) 26%, transparent) 18%, rgba(255,255,255,0.08) 50%, color-mix(in srgb, var(--plate-main) 22%, transparent) 82%, transparent 100%);
           opacity: 0.88;
           filter: blur(0.2px);
+        }
+        .levelTier-starter .levelBackPlate {
+          inset: 2px 8px;
+          border-radius: 999px;
+          background:
+            radial-gradient(ellipse at 24% 40%, rgba(255,255,255,0.16), transparent 36%),
+            linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--plate-main) 22%, transparent) 22%, rgba(255,255,255,0.08) 50%, color-mix(in srgb, var(--plate-main) 18%, transparent) 78%, transparent 100%);
+          opacity: 0.68;
+        }
+        .levelTier-adept .levelBackPlate {
+          inset: -1px -2px;
+          border-radius: 18px 999px 18px 999px;
+          background:
+            linear-gradient(90deg, transparent 0 3%, color-mix(in srgb, var(--plate-main) 38%, transparent) 18%, rgba(255,255,255,0.11) 50%, color-mix(in srgb, var(--plate-main) 35%, transparent) 82%, transparent 97%),
+            repeating-linear-gradient(135deg, transparent 0 10px, color-mix(in srgb, var(--plate-accent) 18%, transparent) 10px 12px);
+          clip-path: polygon(5% 50%, 14% 8%, 86% 8%, 95% 50%, 86% 92%, 14% 92%);
+          opacity: 0.9;
+        }
+        .levelTier-master .levelBackPlate {
+          inset: -5px -6px;
+          border-radius: 24px;
+          background:
+            radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--plate-accent) 28%, transparent), transparent 54%),
+            linear-gradient(90deg, transparent 0 4%, color-mix(in srgb, var(--plate-main) 45%, transparent) 16%, rgba(255,255,255,0.14) 50%, color-mix(in srgb, var(--plate-main) 42%, transparent) 84%, transparent 96%);
+          clip-path: polygon(8% 50%, 14% 2%, 50% 10%, 86% 2%, 92% 50%, 86% 98%, 50% 90%, 14% 98%);
+          opacity: 0.98;
         }
         .levelPlateCore {
           position: absolute;
@@ -197,6 +251,48 @@ function LevelTitlePlate({
             inset 13px 0 16px rgba(255,255,255,0.12),
             inset -16px 0 18px rgba(0,0,0,0.22),
             0 0 20px var(--plate-glow);
+        }
+        .levelTier-starter .levelPlateCore {
+          inset: 5px 15px;
+          border-radius: 999px;
+          background:
+            radial-gradient(ellipse at 18% 36%, rgba(255,255,255,0.4), transparent 25%),
+            linear-gradient(90deg, rgba(255,255,255,0.19), transparent 16%, transparent 82%, rgba(255,255,255,0.12)),
+            linear-gradient(180deg, color-mix(in srgb, var(--plate-main) 34%, #fff 9%), color-mix(in srgb, var(--plate-main) 18%, var(--plate-deep) 54%) 54%, var(--plate-deep));
+          box-shadow:
+            inset 0 2px 0 rgba(255,255,255,0.26),
+            inset 0 -2px 0 rgba(0,0,0,0.34),
+            0 0 14px var(--plate-glow);
+        }
+        .levelTier-adept .levelPlateCore {
+          inset: 4px 10px;
+          border-width: 1px;
+          border-radius: 18px 999px 18px 999px;
+          clip-path: polygon(5% 50%, 13% 8%, 87% 8%, 95% 50%, 87% 92%, 13% 92%);
+          background:
+            radial-gradient(ellipse at 14% 36%, rgba(255,255,255,0.5), transparent 23%),
+            radial-gradient(ellipse at 88% 35%, color-mix(in srgb, var(--plate-main) 34%, transparent), transparent 30%),
+            linear-gradient(110deg, rgba(255,255,255,0.26), transparent 17%, transparent 78%, rgba(255,255,255,0.2)),
+            linear-gradient(180deg, color-mix(in srgb, var(--plate-main) 50%, #fff 12%), color-mix(in srgb, var(--plate-main) 24%, var(--plate-deep) 50%) 47%, var(--plate-deep));
+        }
+        .levelTier-master .levelPlateCore {
+          inset: 3px 9px;
+          border-width: 2px;
+          border-radius: 22px;
+          clip-path: polygon(7% 50%, 13% 6%, 50% 13%, 87% 6%, 93% 50%, 87% 94%, 50% 87%, 13% 94%);
+          background:
+            radial-gradient(ellipse at 50% 2%, rgba(255,255,255,0.38), transparent 34%),
+            radial-gradient(ellipse at 16% 43%, rgba(255,255,255,0.42), transparent 25%),
+            radial-gradient(ellipse at 86% 38%, color-mix(in srgb, var(--plate-main) 42%, transparent), transparent 28%),
+            repeating-linear-gradient(120deg, transparent 0 9px, rgba(255,255,255,0.055) 9px 10px),
+            linear-gradient(90deg, rgba(255,255,255,0.28), transparent 14%, transparent 82%, rgba(255,255,255,0.22)),
+            linear-gradient(180deg, color-mix(in srgb, var(--plate-main) 56%, #fff 12%), color-mix(in srgb, var(--plate-main) 25%, var(--plate-deep) 52%) 45%, var(--plate-deep));
+          box-shadow:
+            inset 0 2px 0 rgba(255,255,255,0.4),
+            inset 0 -2px 0 rgba(0,0,0,0.34),
+            inset 16px 0 18px rgba(255,255,255,0.14),
+            inset -18px 0 20px rgba(0,0,0,0.23),
+            0 0 24px var(--plate-glow);
         }
         .levelPlateCore::before,
         .levelPlateCore::after {
@@ -219,6 +315,34 @@ function LevelTitlePlate({
         .levelPlateCore::after {
           right: 8px;
         }
+        .levelTier-starter .levelPlateCore::before,
+        .levelTier-starter .levelPlateCore::after {
+          width: 8px;
+          height: 8px;
+          border-radius: 999px;
+          opacity: 0.72;
+        }
+        .levelTier-starter .levelPlateCore::before { left: 10px; }
+        .levelTier-starter .levelPlateCore::after { right: 10px; }
+        .levelTier-adept .levelPlateCore::before,
+        .levelTier-adept .levelPlateCore::after {
+          width: 17px;
+          height: 17px;
+          border-radius: 4px;
+          clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+        }
+        .levelTier-adept .levelPlateCore::before { left: 12px; }
+        .levelTier-adept .levelPlateCore::after { right: 12px; }
+        .levelTier-master .levelPlateCore::before,
+        .levelTier-master .levelPlateCore::after {
+          width: 22px;
+          height: 22px;
+          border-radius: 6px;
+          clip-path: polygon(50% 0, 100% 28%, 84% 100%, 16% 100%, 0 28%);
+          transform: translateY(-50%);
+        }
+        .levelTier-master .levelPlateCore::before { left: 14px; }
+        .levelTier-master .levelPlateCore::after { right: 14px; transform: translateY(-50%) scaleX(-1); }
         .levelWing {
           position: absolute;
           top: 9px;
@@ -232,6 +356,33 @@ function LevelTitlePlate({
           opacity: 0.78;
           filter: drop-shadow(0 0 8px var(--plate-glow));
         }
+        .levelTier-starter .levelWing {
+          top: 14px;
+          width: 27px;
+          height: 20px;
+          clip-path: polygon(0 50%, 82% 14%, 100% 50%, 82% 86%);
+          opacity: 0.28;
+        }
+        .levelTier-starter .levelWing.left { left: -8px; }
+        .levelTier-starter .levelWing.right { right: -8px; }
+        .levelTier-adept .levelWing {
+          top: 8px;
+          width: 58px;
+          height: 36px;
+          clip-path: polygon(0 50%, 36% 10%, 100% 0, 72% 50%, 100% 100%, 36% 90%);
+          opacity: 0.88;
+        }
+        .levelTier-adept .levelWing.left { left: -32px; }
+        .levelTier-adept .levelWing.right { right: -32px; }
+        .levelTier-master .levelWing {
+          top: 6px;
+          width: 66px;
+          height: 42px;
+          clip-path: polygon(0 50%, 20% 16%, 44% 30%, 62% 6%, 100% 50%, 62% 94%, 44% 70%, 20% 84%);
+          opacity: 0.96;
+        }
+        .levelTier-master .levelWing.left { left: -38px; }
+        .levelTier-master .levelWing.right { right: -38px; }
         .levelWing.left {
           left: -28px;
         }
@@ -239,6 +390,12 @@ function LevelTitlePlate({
           right: -28px;
           transform: scaleX(-1);
         }
+        .levelTier-starter .levelWing.left { left: -8px; }
+        .levelTier-starter .levelWing.right { right: -8px; }
+        .levelTier-adept .levelWing.left { left: -32px; }
+        .levelTier-adept .levelWing.right { right: -32px; }
+        .levelTier-master .levelWing.left { left: -38px; }
+        .levelTier-master .levelWing.right { right: -38px; }
         .levelFlame {
           position: absolute;
           top: 0;
@@ -283,6 +440,38 @@ function LevelTitlePlate({
           border-radius: 999px 16px 999px 16px;
           border-color: rgba(255,246,199,0.9);
           box-shadow: inset 0 2px 0 rgba(255,255,255,0.36), inset 0 -2px 0 rgba(0,0,0,0.28), 0 0 26px var(--plate-glow);
+        }
+        .levelTier-starter .levelWing {
+          width: 27px;
+          height: 20px;
+          top: 14px;
+          clip-path: polygon(0 50%, 82% 14%, 100% 50%, 82% 86%);
+        }
+        .levelTier-adept .levelWing {
+          width: 58px;
+          height: 36px;
+          top: 8px;
+          clip-path: polygon(0 50%, 36% 10%, 100% 0, 72% 50%, 100% 100%, 36% 90%);
+        }
+        .levelTier-master .levelWing {
+          width: 66px;
+          height: 42px;
+          top: 6px;
+          clip-path: polygon(0 50%, 20% 16%, 44% 30%, 62% 6%, 100% 50%, 62% 94%, 44% 70%, 20% 84%);
+        }
+        .levelTitlePlate.isCompact.levelTier-starter {
+          min-width: 158px;
+        }
+        .levelTitlePlate.isCompact.levelTier-adept {
+          min-width: 178px;
+        }
+        .levelTitlePlate.isCompact.levelTier-master {
+          min-width: 188px;
+          min-height: 48px;
+          padding: 6px 14px 6px 8px;
+        }
+        .levelTitlePlate.isCompact.levelTier-master .levelPlateCore {
+          inset: 4px 8px;
         }
         .levelGemWrap {
           width: 40px;
@@ -494,7 +683,14 @@ function CoCreatorBadge({
           .coCreatorImageBadge-advisor { --stage-glow: rgba(255,122,69,0.48); }
           .coCreatorImageBadge-mentor { --stage-glow: rgba(243,233,208,0.45); }
           .coCreatorImageBadge-partnerPlus { --stage-glow: rgba(55,219,199,0.54); }
-          .coCreatorImageBadge-legend { --stage-glow: rgba(126,231,255,0.76); width: 292px; height: 64px; }
+          .coCreatorImageBadge-legend {
+            --stage-glow: rgba(235,248,255,0.9);
+            width: 292px;
+            height: 64px;
+            filter:
+              drop-shadow(0 0 10px rgba(245,252,255,0.72))
+              drop-shadow(0 0 22px rgba(126,215,255,0.62));
+          }
           .coCreatorImageBadge img {
             display: block;
             width: 100%;
@@ -503,6 +699,9 @@ function CoCreatorBadge({
             object-fit: contain;
             pointer-events: none;
             user-select: none;
+          }
+          .coCreatorImageBadge-legend img {
+            filter: saturate(0.38) brightness(1.24) contrast(1.18);
           }
           @media (max-width: 860px) {
             .coCreatorImageBadge {
@@ -593,13 +792,16 @@ function CoCreatorBadge({
           --stage-glow: rgba(55,219,199,0.54);
         }
         .coCreatorBadge-legend {
-          --stage-main: #7ee7ff;
-          --stage-soft: rgba(126,231,255,0.28);
-          --stage-deep: #03142c;
-          --stage-glow: rgba(126,231,255,0.84);
+          --stage-main: #edf8ff;
+          --stage-soft: rgba(235,248,255,0.3);
+          --stage-deep: #061521;
+          --stage-glow: rgba(235,248,255,0.9);
           width: 330px;
           height: 74px;
           padding: 10px 74px;
+          filter:
+            drop-shadow(0 0 12px rgba(245,252,255,0.7))
+            drop-shadow(0 0 28px rgba(126,215,255,0.6));
         }
         .coCreatorPlateImage {
           position: absolute;
@@ -614,6 +816,7 @@ function CoCreatorBadge({
         }
         .coCreatorBadge-legend .coCreatorPlateImage {
           width: 128%;
+          filter: saturate(0.38) brightness(1.24) contrast(1.18);
         }
         .coCreatorNamePanel {
           position: absolute;
@@ -638,9 +841,12 @@ function CoCreatorBadge({
           width: 52%;
           height: 50%;
           background:
-            linear-gradient(180deg, rgba(255,255,255,0.16), transparent 42%),
-            linear-gradient(180deg, rgba(5,27,58,0.98), rgba(1,10,27,0.98));
-          border-color: rgba(215,242,255,0.86);
+            linear-gradient(180deg, rgba(255,255,255,0.22), transparent 42%),
+            linear-gradient(180deg, rgba(12,32,48,0.98), rgba(3,14,24,0.98));
+          border-color: rgba(245,252,255,0.9);
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.42),
+            inset 0 -8px 15px rgba(0,0,0,0.48);
         }
         .coCreatorContent {
           display: flex;
@@ -693,17 +899,18 @@ function CoCreatorBadge({
         }
         .coCreatorBadge-legend .coCreatorRankLabel {
           max-width: 96px;
-          color: #dff7ff;
+          color: #f5fcff;
           font-size: 10px;
         }
         .coCreatorBadge-legend .coCreatorTitle {
           max-width: 142px;
-          color: #f4fbff;
+          color: #ffffff;
           font-family: 'Noto Serif SC', 'Noto Sans SC', serif;
           font-size: 24px;
           text-shadow:
             0 2px 0 rgba(5,20,42,0.95),
-            0 0 10px rgba(126,231,255,0.58);
+            0 0 10px rgba(245,252,255,0.72),
+            0 0 18px rgba(126,215,255,0.5);
         }
         .coCreatorContribution {
           display: inline-flex;
