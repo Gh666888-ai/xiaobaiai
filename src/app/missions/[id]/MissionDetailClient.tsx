@@ -17,7 +17,7 @@ import {
 } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
-import { missions, type Mission } from "@/data/missions"
+import { missions, type Mission, type MissionStep } from "@/data/missions"
 import { posts } from "@/data/community"
 import { getCasePostsForMission } from "@/data/product-loop"
 import { tools } from "@/data/tools"
@@ -157,6 +157,23 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
           </div>
         </section>
 
+        <section className="mission-depth-intro" style={depthIntroStyle}>
+          <div>
+            <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 7 }}>这不是复制提示词教程</p>
+            <p style={{ color: "#f2f2f2", fontSize: 18, fontWeight: 950, lineHeight: 1.65, marginBottom: 7 }}>
+              这一关要练的是：跑通结果、看懂好坏、会二次修改、留下可复用经验。
+            </p>
+            <p style={{ color: "#aaa", fontSize: 14, lineHeight: 1.75 }}>
+              小白会一次只放出当前小步。引导型任务不用上传截图，高阶独立交付任务才需要证据。
+            </p>
+          </div>
+          <div style={depthRailStyle}>
+            {["跑通", "验收", "迭代", "复盘"].map((item) => (
+              <span key={item} style={depthRailItemStyle}>{item}</span>
+            ))}
+          </div>
+        </section>
+
         <section style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 16, alignItems: "start" }} className="mission-shell">
           <aside style={{ border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.028)", borderRadius: 12, padding: 16, position: "sticky", top: 74 }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
@@ -242,6 +259,7 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
             .mission-shell { grid-template-columns: 1fr !important; }
             .mission-shell aside { position: static !important; }
             .mission-head { grid-template-columns: 1fr !important; }
+            .mission-depth-intro { grid-template-columns: 1fr !important; }
           }
           @media (max-width: 720px) {
             .step-action-row, .case-grid { grid-template-columns: 1fr !important; }
@@ -269,6 +287,7 @@ function StepCard({
   const [guideStep, setGuideStep] = useState(0)
   const recommendedTools = mission.toolIds.map((id) => tools.find((tool) => tool.id === id)).filter(Boolean) as typeof tools
   const primaryTool = recommendedTools[0]
+  const hasFixPrompt = Boolean(step.fixPrompt)
   const currentAction = stepIndex === 0
     ? "先把这个任务要用的 AI 工具打开或登录好。能看到输入框、创建按钮或工作台以后，回来点确认。"
     : step.action
@@ -276,11 +295,15 @@ function StepCard({
     stepIndex === 0
       ? [
           { key: "tool", label: "打开工具", doneText: step.toolAction ? "工具能打开，继续" : "我已经打开可用工具" },
+          { key: "inspect", label: "确认入口", doneText: "入口找到了，继续" },
           { key: "done", label: "确认完成", doneText: "" },
         ]
       : [
           { key: "make", label: "复制模板并生成", doneText: "我已经生成出结果" },
-          { key: "done", label: "确认结果能用", doneText: "" },
+          { key: "inspect", label: "验收结果", doneText: "我按标准看过了" },
+          ...(hasFixPrompt ? [{ key: "improve", label: "二次修改", doneText: "我知道怎么补救了" }] : []),
+          { key: "recap", label: "沉淀经验", doneText: "我记住这一步经验了" },
+          { key: "done", label: "确认进入下一步", doneText: "" },
         ]
   const currentGuideStep = Math.min(guideStep, guidePhases.length - 1)
   const currentPhase = guidePhases[currentGuideStep]
@@ -406,54 +429,23 @@ function StepCard({
               </div>
               <p style={{ color: "#d7d7d7", fontSize: 15, lineHeight: 1.9, whiteSpace: "pre-line" }}>{step.prompt}</p>
             </section>
-            {step.promptRules && step.promptRules.length > 0 && (
-              <details style={detailsStyle}>
-                <summary style={summaryStyle}>想知道为什么这样写？点这里看规则</summary>
-                <div style={{ display: "grid", gap: 8, marginTop: 10 }}>{step.promptRules.map((item) => <CheckLine key={item}>{item}</CheckLine>)}</div>
-              </details>
-            )}
-            {step.validation && step.validation.length > 0 && (
-              <div style={primaryBlockStyle}>
-                <h3 style={blockTitleStyle}>生成后只看这几个点</h3>
-                <div style={{ display: "grid", gap: 8 }}>{step.validation.map((item) => <CheckLine key={item}>{item}</CheckLine>)}</div>
-              </div>
-            )}
             <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.055)", borderRadius: 12, padding: "16px 18px", marginBottom: 12 }}>
               <p style={{ color: "#999", fontSize: 13, fontWeight: 950, marginBottom: 7 }}>这一步交付物</p>
               <p style={{ color: "#e8c96a", fontSize: 15, fontWeight: 950, lineHeight: 1.75 }}>{step.deliverable}</p>
             </section>
-            {step.fixPrompt && (
-              <details style={detailsStyle}>
-                <summary style={summaryStyle}>结果不好？点这里复制补救提示词</summary>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", marginBottom: 10 }}>
-                  <h3 style={{ ...blockTitleStyle, marginBottom: 0 }}>补救提示词</h3>
-                  <button type="button" onClick={() => onCopy("fix", step.fixPrompt!)} style={miniButtonStyle}>
-                    {copied === "fix" ? <Check size={13} /> : <Clipboard size={13} />} {copied === "fix" ? "已复制" : "复制"}
-                  </button>
-                </div>
-                <p style={{ color: "#d7d7d7", fontSize: 15, lineHeight: 1.9 }}>{step.fixPrompt}</p>
-              </details>
-            )}
-            {step.checklist && step.checklist.length > 0 && (
-              <details style={detailsStyle}>
-                <summary style={summaryStyle}>更多提醒</summary>
-                <div style={{ display: "grid", gap: 8, marginTop: 10 }}>{step.checklist.map((item) => <CheckLine key={item}>{item}</CheckLine>)}</div>
-              </details>
-            )}
-            {step.troubleTips && step.troubleTips.length > 0 && (
-              <details style={detailsStyle}>
-                <summary style={summaryStyle}>卡住了再看</summary>
-                <div style={{ display: "grid", gap: 9 }}>
-                  {step.troubleTips.map((tip) => (
-                    <div key={tip.problem} style={{ border: "1px solid #222", borderRadius: 9, padding: "11px 12px", background: "rgba(0,0,0,0.18)" }}>
-                      <p style={{ color: "#fff", fontSize: 14, fontWeight: 950, marginBottom: 5 }}>{tip.problem}</p>
-                      <p style={{ color: "#cfcfcf", fontSize: 14, lineHeight: 1.75 }}>{tip.fix}</p>
-                    </div>
-                  ))}
-                </div>
-              </details>
-            )}
           </div>
+        )}
+
+        {currentPhase.key === "inspect" && (
+          <InspectPhase step={step} stepIndex={stepIndex} />
+        )}
+
+        {currentPhase.key === "improve" && (
+          <ImprovePhase step={step} copied={copied} onCopy={onCopy} />
+        )}
+
+        {currentPhase.key === "recap" && (
+          <RecapPhase mission={mission} step={step} stepIndex={stepIndex} />
         )}
       </section>
       {isDonePhase && (
@@ -486,6 +478,102 @@ function StepCard({
     </article>
   )
 }
+
+function InspectPhase({ step, stepIndex }: { step: MissionStep; stepIndex: number }) {
+  const checks = step.validation?.length ? step.validation : step.checklist || []
+  const title = stepIndex === 0 ? "确认你找到了正确入口" : "别急着确认，先验收结果"
+  const intro = stepIndex === 0
+    ? "这一步不是学概念，是确认工具真的能继续往下做。只要下面几条能对上，就可以进入下一步。"
+    : "AI 生成出来不代表能用。先按下面标准看一遍，知道哪里能用、哪里要改，这才算真正学会。"
+
+  return (
+    <div>
+      <section style={primaryBlockStyle}>
+        <h3 style={blockTitleStyle}>{title}</h3>
+        <p style={{ color: "#cfcfcf", fontSize: 15, lineHeight: 1.85, marginBottom: 12 }}>{intro}</p>
+        {checks.length > 0 ? (
+          <div style={{ display: "grid", gap: 9 }}>{checks.map((item) => <CheckLine key={item}>{item}</CheckLine>)}</div>
+        ) : (
+          <CheckLine>你能清楚说出这一步做出了什么，以及下一步要把它用在哪里。</CheckLine>
+        )}
+      </section>
+      {step.promptRules && step.promptRules.length > 0 && (
+        <section style={learningBlockStyle}>
+          <h3 style={blockTitleStyle}>这一段提示词真正教你的东西</h3>
+          <div style={{ display: "grid", gap: 9 }}>{step.promptRules.map((item) => <CheckLine key={item}>{item}</CheckLine>)}</div>
+        </section>
+      )}
+    </div>
+  )
+}
+
+function ImprovePhase({
+  step,
+  copied,
+  onCopy,
+}: {
+  step: MissionStep
+  copied: "prompt" | "fix" | "recap" | null
+  onCopy: (kind: "prompt" | "fix" | "recap", text: string) => void
+}) {
+  return (
+    <div>
+      <section style={primaryBlockStyle}>
+        <h3 style={blockTitleStyle}>结果不好时，别重开，先二次修改</h3>
+        <p style={{ color: "#cfcfcf", fontSize: 15, lineHeight: 1.85, marginBottom: 12 }}>
+          小白真正要教你的不是“第一句提示词”，而是看到问题以后怎么让 AI 改到能交付。
+        </p>
+        {step.fixPrompt && (
+          <>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center", marginBottom: 10 }}>
+              <p style={{ color: "#e8c96a", fontSize: 14, fontWeight: 950 }}>复制这段去补救</p>
+              <button type="button" onClick={() => onCopy("fix", step.fixPrompt!)} style={miniButtonStyle}>
+                {copied === "fix" ? <Check size={13} /> : <Clipboard size={13} />} {copied === "fix" ? "已复制" : "复制"}
+              </button>
+            </div>
+            <p style={{ color: "#d7d7d7", fontSize: 15, lineHeight: 1.9 }}>{step.fixPrompt}</p>
+          </>
+        )}
+      </section>
+      {step.troubleTips && step.troubleTips.length > 0 && (
+        <section style={learningBlockStyle}>
+          <h3 style={blockTitleStyle}>常见卡点怎么判断</h3>
+          <div style={{ display: "grid", gap: 9 }}>
+            {step.troubleTips.map((tip) => (
+              <div key={tip.problem} style={{ border: "1px solid #222", borderRadius: 9, padding: "12px 13px", background: "rgba(0,0,0,0.18)" }}>
+                <p style={{ color: "#fff", fontSize: 15, fontWeight: 950, marginBottom: 5 }}>{tip.problem}</p>
+                <p style={{ color: "#cfcfcf", fontSize: 14, lineHeight: 1.75 }}>{tip.fix}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  )
+}
+
+function RecapPhase({ mission, step, stepIndex }: { mission: Mission; step: MissionStep; stepIndex: number }) {
+  const recapLines = stepIndex === 0
+    ? ["我选了哪个工具", "打开过程哪里卡住过", "下次让小白先提醒我什么"]
+    : ["这次生成结果哪里能直接用", "哪里必须人工修改", "下一次提示词要补哪一句"]
+
+  return (
+    <section style={primaryBlockStyle}>
+      <h3 style={blockTitleStyle}>把这一小步变成你的经验</h3>
+      <p style={{ color: "#cfcfcf", fontSize: 15, lineHeight: 1.85, marginBottom: 12 }}>
+        真正的深度不是页面更长，而是你下次能少踩一次坑。确认前在心里过一遍这三句话：
+      </p>
+      <div style={{ display: "grid", gap: 9, marginBottom: 14 }}>
+        {recapLines.map((item) => <CheckLine key={item}>{item}</CheckLine>)}
+      </div>
+      <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.055)", borderRadius: 12, padding: "14px 16px" }}>
+        <p style={{ color: "#999", fontSize: 13, fontWeight: 950, marginBottom: 7 }}>完整通关后会让你复盘</p>
+        <p style={{ color: "#e8c96a", fontSize: 15, fontWeight: 950, lineHeight: 1.75 }}>{mission.badge} · {step.deliverable}</p>
+      </section>
+    </section>
+  )
+}
+
 function CompleteCard({
   mission,
   nextMission,
@@ -542,6 +630,44 @@ function CompleteCard({
 const primaryBlockStyle: CSSProperties = {
   border: "1px solid rgba(255,255,255,0.09)",
   background: "rgba(255,255,255,0.04)",
+  borderRadius: 12,
+  padding: "18px 20px",
+  marginBottom: 14,
+}
+
+const depthIntroStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "1fr auto",
+  gap: 16,
+  alignItems: "center",
+  border: "1px solid rgba(201,168,76,0.24)",
+  background: "linear-gradient(135deg,rgba(201,168,76,0.08),rgba(255,255,255,0.026))",
+  borderRadius: 14,
+  padding: "18px 20px",
+  marginBottom: 18,
+}
+
+const depthRailStyle: CSSProperties = {
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
+  justifyContent: "flex-end",
+  maxWidth: 360,
+}
+
+const depthRailItemStyle: CSSProperties = {
+  border: "1px solid rgba(201,168,76,0.3)",
+  background: "rgba(0,0,0,0.22)",
+  color: "#e8c96a",
+  borderRadius: 999,
+  padding: "9px 12px",
+  fontSize: 13,
+  fontWeight: 950,
+}
+
+const learningBlockStyle: CSSProperties = {
+  border: "1px solid rgba(201,168,76,0.18)",
+  background: "rgba(201,168,76,0.045)",
   borderRadius: 12,
   padding: "18px 20px",
   marginBottom: 14,

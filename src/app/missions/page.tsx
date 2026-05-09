@@ -26,7 +26,7 @@ export default function MissionsPage() {
         <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.34em", color: "#7a6230", textTransform: "uppercase", marginBottom: 12, fontWeight: 900 }}>Mission Library</p>
         <h1 style={{ fontSize: 42, color: "#fff", fontWeight: 950, lineHeight: 1.22, marginBottom: 14 }}>小白AI实战任务库</h1>
         <p style={{ fontSize: 16, color: "#ccc", lineHeight: 1.9, maxWidth: 860, marginBottom: 24 }}>
-          每个任务都不是“看一篇教程”，而是围绕一个真实目标，拆成能交付、能检查、能复盘的小步骤。你做过的进度会被小白记住，下次回来继续。
+          每个任务都不是“下载工具 + 复制提示词”。小白会带你跑通结果、验收好坏、二次修改、沉淀复盘。你做过的进度会被记住，下次回来继续。
         </p>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 38 }}>
           <Link href="/start" className="btn-primary" style={{ textDecoration: "none" }}>让小白推荐今天任务</Link>
@@ -41,7 +41,7 @@ export default function MissionsPage() {
             <div>
               <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.22em", color: "#7a6230", textTransform: "uppercase", fontWeight: 950, marginBottom: 8 }}>Start Today</p>
               <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>今天只选一个任务</h2>
-              <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.85 }}>不用先看完整任务库。先做一个能交付、能检查、能复盘的小结果。</p>
+              <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.85 }}>不用先看完整任务库。先做一个能交付的小结果，再学会验收、改稿和复盘。</p>
             </div>
             <Link href="/start" className="btn-primary" style={{ textDecoration: "none" }}>让小白带我选</Link>
           </div>
@@ -112,7 +112,7 @@ export default function MissionsPage() {
               <div style={{ marginTop: "auto", display: "grid", gap: 9 }}>
                 <p style={{ color: "#cdbb80", fontSize: 12, fontWeight: 900 }}>{mission.stage} · {mission.minutes}</p>
                 <p style={{ color: "#ddd", fontSize: 12, display: "flex", alignItems: "center", gap: 7 }}>
-                  <CheckCircle2 size={14} style={{ color: "#3DA563" }} /> {mission.steps.length} 步交付闭环
+                  <CheckCircle2 size={14} style={{ color: "#3DA563" }} /> 跑通 · 验收 · 迭代 · 复盘
                 </p>
                 <span style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, display: "inline-flex", alignItems: "center", gap: 8 }}>
                   开始任务 <ArrowRight size={14} />

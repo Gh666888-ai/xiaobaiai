@@ -237,7 +237,7 @@ export default function LearnPage() {
             <div style={{maxWidth:680}}>
               <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.22em',color:'#7a6230',textTransform:'uppercase',fontWeight:950,marginBottom:10}}>XIAOBAI LEARNING</p>
               <h1 style={{fontSize:'clamp(30px,5vw,52px)',fontWeight:950,color:'#fff',letterSpacing:0,lineHeight:1.12,marginBottom:12}}>先做一件事，再学需要的 AI 工具</h1>
-              <p style={{fontSize:15,color:'#b8b8b8',lineHeight:1.9,maxWidth:640}}>学习页不应该像课程超市。你只要告诉小白你的行业和想做成什么事，小白会直接跳到对应的任务模板，一步一步带你做完。真正跨工具、跨系统、自动运行的公司流程，才放进工作流。</p>
+              <p style={{fontSize:15,color:'#b8b8b8',lineHeight:1.9,maxWidth:640}}>学习页不应该像课程超市。你只要告诉小白你的行业和想做成什么事，小白会给你对应的任务入口；你自己点进去以后，它再一步一步带你做完。真正跨工具、跨系统、自动运行的公司流程，才放进工作流。</p>
             </div>
             <div style={{minWidth:150,border:'1px solid #242424',background:'rgba(255,255,255,0.025)',borderRadius:10,padding:'14px 15px'}}>
               <p style={{fontSize:12,fontWeight:950,color:'#fff',marginBottom:8}}>我的进度</p>
@@ -260,7 +260,7 @@ export default function LearnPage() {
           <div style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.045)',borderRadius:12,padding:'20px 20px'}}>
             <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950,color:'#7a6230',letterSpacing:'0.12em',marginBottom:8}}>START</p>
             <h2 style={{fontSize:22,fontWeight:950,color:'#fff',lineHeight:1.35,marginBottom:10}}>第一次来，只做这一个动作</h2>
-            <p style={{fontSize:14,color:'#bbb',lineHeight:1.85,marginBottom:16}}>点击开始，把你的行业和目标告诉右下角小白。页面不要你自己选一堆课，小白会帮你进入固定任务模板。</p>
+            <p style={{fontSize:14,color:'#bbb',lineHeight:1.85,marginBottom:16}}>点击开始，把你的行业和目标告诉右下角小白。页面不要你自己选一堆课，小白会给你一个固定任务模板入口。</p>
             <Link href="/start" className="btn-primary" style={{textDecoration:'none'}}>让小白给我定计划</Link>
           </div>
 

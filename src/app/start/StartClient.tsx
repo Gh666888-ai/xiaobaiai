@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react"
 import type { CSSProperties } from "react"
-import { ArrowRight, CheckCircle2, Clipboard, MessageCircle, RotateCcw } from "lucide-react"
+import Link from "next/link"
+import { ArrowRight, CheckCircle2, Clipboard, ListChecks, RotateCcw } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
@@ -166,10 +167,6 @@ export function StartClient() {
     }
   }
 
-  function openGoalRouter() {
-    window.dispatchEvent(new CustomEvent("xiaobai:open-goal-router"))
-  }
-
   return (
     <div style={{ background: "linear-gradient(180deg,#07100f 0%,#0b0d0c 46%,#070707 100%)", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative" }}>
       <NavBar />
@@ -190,7 +187,7 @@ export function StartClient() {
 
           <div style={taskBoxStyle}>
             <p style={smallLabelStyle}>现在只做这件事</p>
-            <p style={taskTextStyle}>{completed ? "点小白，说一句行业和目标，它会直接打开下一条任务模板。" : currentStep.action}</p>
+            <p style={taskTextStyle}>{completed ? "这个任务已经完成。你可以从下面的任务模板列表里，自己选下一条继续做。" : currentStep.action}</p>
           </div>
 
           {!completed && (
@@ -199,9 +196,7 @@ export function StartClient() {
 
           <div style={actionRowStyle}>
             {completed ? (
-              <button type="button" onClick={openGoalRouter} style={buttonStyle}>
-                让小白打开任务模板 <MessageCircle size={16} />
-              </button>
+              <MissionTemplateDropdown currentMissionId={selected.id} />
             ) : (
               <button type="button" onClick={confirmCurrentStep} style={buttonStyle}>
                 我做完了，确认 <CheckCircle2 size={16} />
@@ -223,16 +218,52 @@ export function StartClient() {
         </section>
 
         <section style={agentHintStyle}>
-          <p style={{ color: "#f7f1df", fontSize: 21, fontWeight: 950, marginBottom: 8 }}>想换成你的行业任务？</p>
+          <p style={{ color: "#f7f1df", fontSize: 21, fontWeight: 950, marginBottom: 8 }}>想换一个方向？</p>
           <p style={{ color: "#c8c8bd", fontSize: 16, lineHeight: 1.8, marginBottom: 16 }}>
-            告诉小白一句行业和目标，它会直接跳到对应的固定任务模板，并记住你做到哪一步。
+            不用让小白自动跳转。先从任务模板列表里选一个方向，进入后它会记住你做到哪一步。
           </p>
-          <button type="button" onClick={openGoalRouter} style={agentButtonStyle}>
-            直接分配任务 <ArrowRight size={14} />
-          </button>
+          <MissionTemplateDropdown currentMissionId={selected.id} compact />
         </section>
       </main>
     </div>
+  )
+}
+
+function MissionTemplateDropdown({ currentMissionId, compact = false }: { currentMissionId: string; compact?: boolean }) {
+  const visibleMissions = missions.slice(0, compact ? 8 : 10)
+
+  return (
+    <details style={templateDropdownStyle}>
+      <summary style={compact ? templateSummaryCompactStyle : templateSummaryStyle}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
+          <ListChecks size={compact ? 15 : 17} />
+          选择任务模板
+        </span>
+        <ArrowRight size={compact ? 13 : 15} />
+      </summary>
+      <div style={templateMenuStyle}>
+        {visibleMissions.map((mission) => {
+          const isCurrent = mission.id === currentMissionId
+          return (
+            <Link
+              key={mission.id}
+              href={`/missions/${mission.id}`}
+              style={{
+                ...templateItemStyle,
+                borderColor: isCurrent ? "rgba(216,191,118,0.38)" : "rgba(255,255,255,0.09)",
+                background: isCurrent ? "rgba(216,191,118,0.1)" : "rgba(255,255,255,0.035)",
+              }}
+            >
+              <span style={{ color: "#f7f1df", fontSize: 15, fontWeight: 950, lineHeight: 1.45 }}>{mission.shortTitle}</span>
+              <span style={{ color: "#aaa49a", fontSize: 13, lineHeight: 1.55 }}>{mission.difficulty} · {mission.minutes}</span>
+            </Link>
+          )
+        })}
+        <Link href="/missions" style={templateAllLinkStyle}>
+          查看全部任务模板 <ArrowRight size={13} />
+        </Link>
+      </div>
+    </details>
   )
 }
 
@@ -424,4 +455,60 @@ const agentButtonStyle: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
   gap: 8,
+}
+
+const templateDropdownStyle: CSSProperties = {
+  position: "relative",
+  minWidth: 250,
+}
+
+const templateSummaryStyle: CSSProperties = {
+  ...buttonStyle,
+  listStyle: "none",
+  userSelect: "none",
+  justifyContent: "space-between",
+}
+
+const templateSummaryCompactStyle: CSSProperties = {
+  ...outlineButtonStyle,
+  listStyle: "none",
+  userSelect: "none",
+  justifyContent: "space-between",
+  minWidth: 230,
+}
+
+const templateMenuStyle: CSSProperties = {
+  position: "absolute",
+  left: 0,
+  top: "calc(100% + 10px)",
+  zIndex: 20,
+  width: "min(420px, calc(100vw - 36px))",
+  maxHeight: 430,
+  overflowY: "auto",
+  border: "1px solid rgba(233,215,165,0.16)",
+  background: "rgba(12,15,14,0.98)",
+  borderRadius: 14,
+  padding: 10,
+  boxShadow: "0 24px 70px rgba(0,0,0,0.46)",
+}
+
+const templateItemStyle: CSSProperties = {
+  display: "grid",
+  gap: 4,
+  border: "1px solid rgba(255,255,255,0.09)",
+  borderRadius: 10,
+  padding: "13px 14px",
+  textDecoration: "none",
+  marginBottom: 8,
+}
+
+const templateAllLinkStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 7,
+  color: "#d8bf76",
+  fontSize: 14,
+  fontWeight: 950,
+  textDecoration: "none",
+  padding: "8px 4px 2px",
 }

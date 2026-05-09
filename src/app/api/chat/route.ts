@@ -209,7 +209,7 @@ function siteToolRecommendation(message: string) {
     return `${index + 1}. ${tool.name}（${tool.category}，${tool.pricing}，${meta.difficulty}，中文支持${meta.chineseSupport}）\n   适合：${tool.description}\n   站内入口：${readableToolEntry(tool)}`
   })
 
-  return `收到，我先按「${rule.name}」这个方向给你配一套站内工具组合，小白雷达已经转起来了。\n\n建议组合：\n${toolLines.join("\n")}\n\n第一步：${rule.firstStep}\n\n学习路线：\n1. 先点「AI 工具选择器」，确认用途、预算和网络偏好。\n2. 再点「小白爱学习」，看「${stageLabels[rule.learnStage] || "对应阶段"}」相关教程。\n3. 如果要做客服、知识库或自动化，再学「Agent 入门」。\n\n更省事的做法：直接告诉右下角小白你的行业和目标，它会打开对应的固定任务模板。`
+  return `收到，我先按「${rule.name}」这个方向给你配一套站内工具组合，小白雷达已经转起来了。\n\n建议组合：\n${toolLines.join("\n")}\n\n第一步：${rule.firstStep}\n\n学习路线：\n1. 先点「AI 工具选择器」，确认用途、预算和网络偏好。\n2. 再点「小白爱学习」，看「${stageLabels[rule.learnStage] || "对应阶段"}」相关教程。\n3. 如果要做客服、知识库或自动化，再学「Agent 入门」。\n\n更省事的做法：直接告诉右下角小白你的行业和目标，它会给你对应任务入口，你自己点进去开始。`
 }
 
 function siteReply(message: string) {
@@ -286,7 +286,7 @@ function siteReply(message: string) {
     return "登录入口在顶部右侧「登录」。\n\n当前登录用于：\n1. 使用小白AI站内问答。\n2. 同步学习进度和任务进度。\n3. 投稿、社区互动和成长等级。\n\n如果你是从小白浮窗进入登录，登录后会自动回到当前页面。"
   }
 
-  return "这个问题和小白AI网站有关，我先给你站内路线：\n\n1. 想选工具：点「AI 工具选择器」。\n2. 想系统学习：点「小白爱学习」。\n3. 想看模型排行和价格：点「模型排行」。\n4. 想看资讯：点「资讯」。\n5. 想看案例或投稿：点「社区」。\n6. 想每天打卡：点「成长舱」。\n\n你也可以直接告诉我：你现在想完成什么任务，我会帮你打开对应任务模板。"
+  return "这个问题和小白AI网站有关，我先给你站内路线：\n\n1. 想选工具：点「AI 工具选择器」。\n2. 想系统学习：点「小白爱学习」。\n3. 想看模型排行和价格：点「模型排行」。\n4. 想看资讯：点「资讯」。\n5. 想看案例或投稿：点「社区」。\n6. 想每天打卡：点「成长舱」。\n\n你也可以直接告诉我：你现在想完成什么任务，我会给你对应任务入口。"
 }
 
 function beginnerClaudeCodeReply(message: string) {
