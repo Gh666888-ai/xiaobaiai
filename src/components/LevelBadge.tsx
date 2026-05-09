@@ -427,21 +427,6 @@ function LevelTitlePlate({
           background: linear-gradient(90deg, var(--plate-main), var(--plate-accent));
           box-shadow: 0 0 8px var(--plate-glow);
         }
-        .levelTitlePlate::after {
-          content: "";
-          position: absolute;
-          inset: 4px 14px;
-          z-index: 3;
-          border-radius: 999px 12px 999px 12px;
-          background: linear-gradient(110deg, transparent 0%, transparent 35%, rgba(255,255,255,0.32) 48%, transparent 60%, transparent 100%);
-          transform: translateX(-70%);
-          animation: levelPlateShine 3.2s ease-in-out infinite;
-          pointer-events: none;
-        }
-        @keyframes levelPlateShine {
-          0% { transform: translateX(-78%); }
-          70%, 100% { transform: translateX(78%); }
-        }
         @media (max-width: 860px) {
           .levelTitlePlate.isCompact {
             min-width: 148px;
@@ -481,7 +466,6 @@ function CoCreatorBadge({
   compact: boolean
 }) {
   const stage = getCoCreatorStage(level.level)
-  const StageIcon = stage.icon
   const targetText = next?.requiresContribution ? `${contributionPoints}/${contributionPoints + next.need}` : `${contributionPoints}`
 
   return (
@@ -491,25 +475,13 @@ function CoCreatorBadge({
     >
       <img className="coCreatorPlateImage" src={stage.plateImage} alt="" aria-hidden="true" />
       <span className="coCreatorNamePanel" aria-hidden="true" />
-      <span className="coCreatorIconWrap" aria-hidden="true">
-        <span className="coCreatorSeal">{stage.seal}</span>
-        <span className="coCreatorMascotFrame">
-          <img src="/xiaobai-mascot-cutout.png" alt="" className="coCreatorMascot" />
-        </span>
-        <span className="coCreatorRankIcon">
-          <StageIcon size={compact ? 11 : 13} strokeWidth={2.5} />
-        </span>
-      </span>
       <span className="coCreatorContent">
         <span className="coCreatorTopline">
           <span className="coCreatorRankLabel">{stage.shortName}</span>
           {level.level < 19 && <span className="coCreatorLevel">LV.{level.level}</span>}
         </span>
         <span className="coCreatorTitle">{name}</span>
-        <span className="coCreatorMeta">
-          <span>{stage.motif}</span>
-          {level.level < 19 && <span className="coCreatorContribution">{targetText} 贡献</span>}
-        </span>
+        {level.level < 19 && !compact && <span className="coCreatorContribution">{targetText} 贡献</span>}
       </span>
       <style>{`
         .coCreatorBadge {
@@ -517,13 +489,12 @@ function CoCreatorBadge({
           --stage-soft: rgba(255,216,107,0.2);
           --stage-deep: #251805;
           --stage-glow: rgba(255,216,107,0.42);
-          display: inline-grid;
-          grid-template-columns: 34px minmax(0, 1fr);
+          display: inline-flex;
           align-items: center;
-          gap: 7px;
+          justify-content: center;
           width: 270px;
           height: 56px;
-          padding: 7px 43px 7px 36px;
+          padding: 7px 58px;
           color: #fff;
           position: relative;
           isolation: isolate;
@@ -537,11 +508,9 @@ function CoCreatorBadge({
           filter: drop-shadow(0 0 14px var(--stage-glow));
         }
         .coCreatorBadge.isCompact {
-          width: 230px;
-          height: 48px;
-          grid-template-columns: 30px minmax(0, 1fr);
-          gap: 6px;
-          padding: 6px 36px 6px 30px;
+          width: 212px;
+          height: 44px;
+          padding: 5px 44px;
         }
         .coCreatorBadge-partner {
           --stage-main: #73d6c7;
@@ -574,137 +543,48 @@ function CoCreatorBadge({
           --stage-glow: rgba(126,231,255,0.84);
           width: 330px;
           height: 74px;
-          grid-template-columns: 42px minmax(0, 1fr);
-          gap: 10px;
-          padding: 10px 64px 10px 52px;
+          padding: 10px 74px;
         }
         .coCreatorPlateImage {
           position: absolute;
           left: 50%;
           top: 50%;
           z-index: -2;
-          width: 133%;
+          width: 122%;
           height: auto;
           transform: translate(-50%, -50%);
           pointer-events: none;
           user-select: none;
         }
         .coCreatorBadge-legend .coCreatorPlateImage {
-          width: 145%;
+          width: 128%;
         }
         .coCreatorNamePanel {
           position: absolute;
           left: 50%;
           top: 51%;
           z-index: 0;
-          width: 46%;
-          height: 54%;
+          width: 55%;
+          height: 58%;
           transform: translate(-50%, -50%);
           border-radius: 999px;
           background:
-            linear-gradient(180deg, rgba(255,255,255,0.2), transparent 42%),
-            linear-gradient(180deg, color-mix(in srgb, var(--stage-main) 16%, #06110f 84%), rgba(1,6,8,0.94));
+            linear-gradient(180deg, rgba(255,255,255,0.14), transparent 42%),
+            linear-gradient(180deg, color-mix(in srgb, var(--stage-main) 10%, #06110f 90%), rgba(1,6,8,0.98));
           border: 1px solid color-mix(in srgb, var(--stage-main) 58%, #fff 18%);
           box-shadow:
-            0 0 14px color-mix(in srgb, var(--stage-main) 48%, transparent),
-            inset 0 1px 0 rgba(255,255,255,0.32),
-            inset 0 -8px 15px rgba(0,0,0,0.44);
-          opacity: 0.96;
+            inset 0 1px 0 rgba(255,255,255,0.26),
+            inset 0 -8px 15px rgba(0,0,0,0.48);
+          opacity: 0.98;
           pointer-events: none;
         }
         .coCreatorBadge-legend .coCreatorNamePanel {
-          width: 43%;
-          height: 48%;
+          width: 52%;
+          height: 50%;
           background:
-            linear-gradient(180deg, rgba(255,255,255,0.28), transparent 42%),
-            linear-gradient(180deg, rgba(7,38,77,0.96), rgba(1,12,31,0.96));
+            linear-gradient(180deg, rgba(255,255,255,0.16), transparent 42%),
+            linear-gradient(180deg, rgba(5,27,58,0.98), rgba(1,10,27,0.98));
           border-color: rgba(215,242,255,0.86);
-        }
-        .coCreatorIconWrap {
-          width: 32px;
-          height: 32px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          position: relative;
-          z-index: 2;
-          flex-shrink: 0;
-        }
-        .isCompact .coCreatorIconWrap {
-          width: 29px;
-          height: 29px;
-        }
-        .coCreatorMascotFrame {
-          width: 29px;
-          height: 29px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-          background: linear-gradient(145deg, #fff, var(--stage-main) 42%, var(--stage-deep));
-          border: 1px solid rgba(255,255,255,0.76);
-          border-radius: 50%;
-          box-shadow: 0 0 16px var(--stage-glow), inset 0 2px 8px rgba(255,255,255,0.75), inset 0 -8px 12px rgba(0,0,0,0.24);
-        }
-        .coCreatorBadge-legend .coCreatorMascotFrame {
-          width: 37px;
-          height: 37px;
-          border-radius: 14px;
-          background:
-            radial-gradient(circle at 36% 20%, #f8fdff 0%, #7ee7ff 34%, #0c4a82 72%, #03142c 100%);
-          border-color: rgba(220,248,255,0.94);
-          box-shadow:
-            0 0 22px rgba(126,231,255,0.8),
-            0 0 34px rgba(60,156,255,0.28),
-            inset 0 2px 9px rgba(255,255,255,0.78),
-            inset 0 -12px 18px rgba(0,0,0,0.34);
-          transform: rotate(45deg);
-        }
-        .coCreatorMascot {
-          width: 36px;
-          height: 36px;
-          object-fit: contain;
-          transform: translateY(2px);
-          filter: drop-shadow(0 2px 3px rgba(0,0,0,0.34));
-        }
-        .coCreatorBadge-legend .coCreatorMascot {
-          width: 39px;
-          height: 39px;
-          transform: translateY(2px) rotate(-45deg);
-        }
-        .coCreatorSeal {
-          position: absolute;
-          left: -3px;
-          top: -5px;
-          z-index: 3;
-          min-width: 17px;
-          height: 17px;
-          border-radius: 6px 2px 6px 2px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          color: #0b0b0b;
-          background: var(--stage-main);
-          border: 1px solid rgba(255,255,255,0.7);
-          font-size: 10px;
-          font-weight: 950;
-          box-shadow: 0 3px 12px var(--stage-glow);
-        }
-        .coCreatorRankIcon {
-          position: absolute;
-          right: -2px;
-          bottom: -2px;
-          z-index: 3;
-          width: 18px;
-          height: 18px;
-          border-radius: 50%;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          color: #0b0b0b;
-          background: linear-gradient(145deg, #fff, var(--stage-main));
-          border: 1px solid rgba(255,255,255,0.74);
-          box-shadow: 0 3px 12px var(--stage-glow);
         }
         .coCreatorContent {
           display: flex;
@@ -751,9 +631,9 @@ function CoCreatorBadge({
           text-overflow: ellipsis;
           font-size: 18px;
           font-weight: 950;
-          margin-top: 4px;
+          margin-top: 2px;
           white-space: nowrap;
-          text-shadow: 0 0 10px rgba(0,0,0,0.92), 0 0 14px var(--stage-glow);
+          text-shadow: 0 1px 0 rgba(0,0,0,0.92), 0 0 8px rgba(0,0,0,0.82);
         }
         .coCreatorBadge-legend .coCreatorRankLabel {
           max-width: 96px;
@@ -767,133 +647,69 @@ function CoCreatorBadge({
           font-size: 24px;
           text-shadow:
             0 2px 0 rgba(5,20,42,0.95),
-            0 0 12px rgba(126,231,255,0.8),
-            0 0 22px rgba(60,156,255,0.62);
-        }
-        .coCreatorMeta {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          margin-top: 3px;
-          color: color-mix(in srgb, var(--stage-main) 82%, #fff 18%);
-          font-size: 10px;
-          font-weight: 900;
-          white-space: nowrap;
-          text-shadow: 0 0 8px rgba(0,0,0,0.75);
+            0 0 10px rgba(126,231,255,0.58);
         }
         .coCreatorContribution {
           display: inline-flex;
           align-items: center;
+          margin-top: 3px;
           border: 1px solid color-mix(in srgb, var(--stage-main) 44%, transparent);
           border-radius: 999px;
           background: rgba(0,0,0,0.35);
           padding: 1px 5px;
           color: #fff4c9;
-        }
-        .coCreatorBadge::after {
-          content: "";
-          position: absolute;
-          inset: 0;
-          z-index: 4;
-          background: linear-gradient(110deg, transparent 0%, transparent 36%, rgba(255,255,255,0.22) 48%, transparent 60%, transparent 100%);
-          transform: translateX(-78%);
-          animation: coCreatorBadgeShine 2.9s ease-in-out infinite;
-          pointer-events: none;
-        }
-        .coCreatorBadge-legend::after {
-          animation-duration: 2.15s;
-          background: linear-gradient(110deg, transparent 0%, transparent 30%, rgba(215,242,255,0.54) 44%, rgba(60,156,255,0.28) 52%, transparent 66%, transparent 100%);
-        }
-        @keyframes coCreatorBadgeShine {
-          0% { transform: translateX(-82%); }
-          68%, 100% { transform: translateX(82%); }
+          font-size: 10px;
+          font-weight: 900;
+          white-space: nowrap;
         }
         @media (max-width: 860px) {
           .coCreatorBadge-legend {
-            width: 258px;
-            height: 60px;
-            grid-template-columns: 34px minmax(0, 1fr);
-            gap: 7px;
-            padding: 8px 48px 8px 42px;
+            width: 236px;
+            height: 54px;
+            padding: 7px 52px;
           }
           .coCreatorBadge-legend .coCreatorTitle {
             max-width: 106px;
             font-size: 18px;
           }
-          .coCreatorBadge-legend .coCreatorMascotFrame {
-            width: 31px;
-            height: 31px;
-            border-radius: 11px;
-          }
-          .coCreatorBadge-legend .coCreatorMascot {
-            width: 34px;
-            height: 34px;
-          }
           .coCreatorBadge.isCompact {
-            width: 180px;
-            height: 42px;
-            grid-template-columns: 27px minmax(0, 1fr);
-            gap: 5px;
-            padding: 5px 28px 5px 24px;
-          }
-          .coCreatorBadge.isCompact .coCreatorIconWrap {
-            width: 27px;
-            height: 27px;
-          }
-          .coCreatorBadge.isCompact .coCreatorMascotFrame {
-            width: 25px;
-            height: 25px;
-          }
-          .coCreatorBadge.isCompact .coCreatorMascot {
-            width: 31px;
-            height: 31px;
+            width: 168px;
+            height: 38px;
+            padding: 4px 34px;
           }
           .coCreatorBadge.isCompact .coCreatorRankLabel {
-            max-width: 62px;
-            font-size: 9px;
+            max-width: 70px;
+            font-size: 8px;
           }
           .coCreatorBadge.isCompact .coCreatorLevel {
             font-size: 8px;
             padding: 1px 3px;
           }
           .coCreatorBadge.isCompact .coCreatorTitle {
-            max-width: 76px;
-            font-size: 13px;
-            margin-top: 2px;
-          }
-          .coCreatorBadge.isCompact .coCreatorMeta {
-            display: none;
-          }
-          .coCreatorBadge.isCompact .coCreatorSeal {
-            min-width: 15px;
-            height: 15px;
-            font-size: 9px;
-          }
-          .coCreatorBadge.isCompact .coCreatorRankIcon {
-            width: 16px;
-            height: 16px;
+            max-width: 86px;
+            font-size: 15px;
+            margin-top: 1px;
           }
         }
         @media (max-width: 420px) {
           .coCreatorBadge-legend.isCompact {
-            width: 190px;
-            height: 48px;
-            padding: 6px 34px 6px 30px;
+            width: 166px;
+            height: 40px;
+            padding: 5px 34px;
           }
           .coCreatorBadge-legend.isCompact .coCreatorTitle {
-            max-width: 80px;
-            font-size: 15px;
+            max-width: 78px;
+            font-size: 14px;
           }
           .coCreatorBadge.isCompact {
-            width: 152px;
+            width: 146px;
           }
           .coCreatorBadge.isCompact .coCreatorRankLabel {
-            max-width: 46px;
+            max-width: 56px;
           }
           .coCreatorBadge.isCompact .coCreatorTitle {
-            max-width: 58px;
-            font-size: 12px;
+            max-width: 68px;
+            font-size: 13px;
           }
         }
       `}</style>
@@ -931,111 +747,14 @@ export function LevelBadge({ name, xp, contributionPoints = 0, compact = false, 
     : next
       ? `${xp} XP`
       : "已达最高档"
-  if (!isCoCreator) {
-    return (
-      <LevelTitlePlate
-        name={name}
-        level={level}
-        next={next}
-        xpLabel={xpLabel}
-        progress={progress}
-        compact={compact}
-      />
-    )
-  }
-  const visual = badgeStyles[level.level] || badgeStyles[0]
-  const Icon = visual.icon
-  const isHigh = level.level >= 4
-  const isCrown = level.level === 6
-
   return (
-    <span
-      title={`${level.name} · ${xpLabel} · ${level.desc}${next ? next.requiresReview ? ` · 达到共创门槛，需人工审核后解锁 ${next.level.name}` : ` · 距离 ${next.level.name} 还差 ${next.need} XP` : " · 已达最高档"}`}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: compact ? 7 : 10,
-        minWidth: compact ? 0 : 174,
-        padding: compact ? "5px 9px 5px 6px" : "6px 13px 6px 7px",
-        borderRadius: 999,
-        border: `1px solid ${level.color}`,
-        background: isCrown
-          ? "linear-gradient(135deg, rgba(255,216,107,0.18), rgba(255,255,255,0.08) 42%, rgba(0,0,0,0.72)), linear-gradient(90deg, rgba(255,255,255,0.14), transparent)"
-          : `linear-gradient(135deg, rgba(255,255,255,0.055), rgba(0,0,0,0.58)), linear-gradient(135deg, ${level.color}22, transparent 62%)`,
-        boxShadow: isHigh
-          ? `0 0 24px ${visual.glow}, inset 0 0 0 1px rgba(255,255,255,0.1)`
-          : "inset 0 0 0 1px rgba(255,255,255,0.05)",
-        color: "#fff",
-        textDecoration: "none",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      <span
-        aria-hidden="true"
-        style={{
-          width: compact ? 26 : 34,
-          height: compact ? 26 : 34,
-          borderRadius: visual.shape,
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
-          color: level.level <= 1 ? "#211405" : "#071416",
-          background: visual.bg,
-          boxShadow: `0 0 18px ${visual.glow}, inset 0 1px 7px rgba(255,255,255,0.78), inset 0 -8px 12px rgba(0,0,0,0.2)`,
-          transform: level.level >= 4 && !isCrown ? "rotate(45deg)" : "none",
-          border: "1px solid rgba(255,255,255,0.55)",
-          position: "relative",
-        }}
-      >
-        <Icon
-          size={compact ? 15 : 18}
-          strokeWidth={2.5}
-          fill={isCrown ? "#ffe28a" : "none"}
-          color={isCrown ? "#5c3500" : undefined}
-          style={{ transform: level.level >= 4 && !isCrown ? "rotate(-45deg)" : "none", filter: isCrown ? "drop-shadow(0 2px 2px rgba(0,0,0,0.3))" : undefined }}
-        />
-      </span>
-      <span style={{ display: "flex", flexDirection: "column", minWidth: 0, lineHeight: 1.1, position: "relative", zIndex: 2 }}>
-        <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <span style={{ maxWidth: compact ? 70 : 92, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 12, fontWeight: 950, color: "#fff" }}>
-            {name}
-          </span>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 900, color: level.accent, letterSpacing: 0 }}>
-            LV.{level.level}
-          </span>
-        </span>
-        {!compact && (
-          <span style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 5 }}>
-            <span style={{ color: level.accent, fontSize: 10, fontWeight: 950, whiteSpace: "nowrap" }}>
-              {isCrown ? "皇冠领航" : level.name}
-            </span>
-            <span style={{ flex: 1, height: 3, minWidth: 38, borderRadius: 999, background: "rgba(255,255,255,0.12)", overflow: "hidden" }}>
-              <span style={{ display: "block", width: `${progress}%`, height: "100%", borderRadius: 999, background: `linear-gradient(90deg, ${level.color}, ${level.accent})` }} />
-            </span>
-          </span>
-        )}
-      </span>
-      {isHigh && (
-        <span
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: `linear-gradient(110deg, transparent 0%, transparent 34%, ${level.accent}2e 48%, transparent 62%, transparent 100%)`,
-            transform: "translateX(-35%)",
-            pointerEvents: "none",
-            animation: level.level >= 6 ? "levelShine 2.6s ease-in-out infinite" : "none",
-          }}
-        />
-      )}
-      <style>{`
-        @keyframes levelShine {
-          0% { transform: translateX(-80%); }
-          70%, 100% { transform: translateX(80%); }
-        }
-      `}</style>
-    </span>
+    <LevelTitlePlate
+      name={name}
+      level={level}
+      next={next}
+      xpLabel={xpLabel}
+      progress={progress}
+      compact={compact}
+    />
   )
 }
