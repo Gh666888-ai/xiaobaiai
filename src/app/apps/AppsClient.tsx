@@ -24,6 +24,7 @@ export function AppsClient() {
   const [savedApps, setSavedApps] = useState<SavedGeneratedApp[]>([])
   const [copied, setCopied] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState("")
 
   const currentTemplate = appTemplates.find((item) => item.id === templateId) || appTemplates[0]
   const generatedHtml = useMemo(
@@ -39,6 +40,13 @@ export function AppsClient() {
       setSavedApps([])
     }
   }, [])
+
+  useEffect(() => {
+    const blob = new Blob([generatedHtml], { type: "text/html;charset=utf-8" })
+    const url = URL.createObjectURL(blob)
+    setPreviewUrl(url)
+    return () => URL.revokeObjectURL(url)
+  }, [generatedHtml])
 
   function persist(next: SavedGeneratedApp[]) {
     setSavedApps(next)
@@ -199,7 +207,11 @@ export function AppsClient() {
                 </div>
               </div>
               <div style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: 18, overflow: "hidden", background: "#fff", minHeight: 560 }}>
-                <iframe title="小白应用预览" sandbox="allow-scripts" srcDoc={generatedHtml} style={{ width: "100%", height: 620, border: 0, display: "block" }} />
+                {previewUrl ? (
+                  <iframe title="小白应用预览" sandbox="allow-scripts" src={previewUrl} style={{ width: "100%", height: 620, border: 0, display: "block" }} />
+                ) : (
+                  <div style={{ height: 620, display: "grid", placeItems: "center", color: "#111", fontSize: 16, fontWeight: 900 }}>正在生成预览...</div>
+                )}
               </div>
             </div>
 
