@@ -467,11 +467,70 @@ function CoCreatorBadge({
 }) {
   const stage = getCoCreatorStage(level.level)
   const targetText = next?.requiresContribution ? `${contributionPoints}/${contributionPoints + next.need}` : `${contributionPoints}`
+  const titleText = `${level.level < 19 ? `LV.${level.level} ` : ""}${stage.fullName}${level.level < 19 ? ` · ${contributionPoints} 贡献值` : ""} · ${level.desc}`
+
+  if (compact) {
+    return (
+      <span
+        className={`coCreatorImageBadge coCreatorImageBadge-${stage.className}`}
+        title={titleText}
+        aria-label={titleText}
+      >
+        <img src={stage.plateImage} alt="" aria-hidden="true" />
+        <style>{`
+          .coCreatorImageBadge {
+            --stage-glow: rgba(255,216,107,0.42);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 214px;
+            height: 54px;
+            position: relative;
+            overflow: visible;
+            vertical-align: middle;
+            filter: drop-shadow(0 0 12px var(--stage-glow));
+          }
+          .coCreatorImageBadge-partner { --stage-glow: rgba(115,214,199,0.42); }
+          .coCreatorImageBadge-advisor { --stage-glow: rgba(255,122,69,0.48); }
+          .coCreatorImageBadge-mentor { --stage-glow: rgba(243,233,208,0.45); }
+          .coCreatorImageBadge-partnerPlus { --stage-glow: rgba(55,219,199,0.54); }
+          .coCreatorImageBadge-legend { --stage-glow: rgba(126,231,255,0.76); width: 238px; height: 58px; }
+          .coCreatorImageBadge img {
+            display: block;
+            width: 100%;
+            height: auto;
+            pointer-events: none;
+            user-select: none;
+          }
+          @media (max-width: 860px) {
+            .coCreatorImageBadge {
+              width: 168px;
+              height: 42px;
+            }
+            .coCreatorImageBadge-legend {
+              width: 184px;
+              height: 45px;
+            }
+          }
+          @media (max-width: 420px) {
+            .coCreatorImageBadge {
+              width: 144px;
+              height: 36px;
+            }
+            .coCreatorImageBadge-legend {
+              width: 158px;
+              height: 39px;
+            }
+          }
+        `}</style>
+      </span>
+    )
+  }
 
   return (
     <span
-      className={`coCreatorBadge coCreatorBadge-${stage.className} ${compact ? "isCompact" : ""}`}
-      title={`${level.level < 19 ? `LV.${level.level} ` : ""}${stage.fullName}${level.level < 19 ? ` · ${contributionPoints} 贡献值` : ""} · ${level.desc}`}
+      className={`coCreatorBadge coCreatorBadge-${stage.className}`}
+      title={titleText}
     >
       <img className="coCreatorPlateImage" src={stage.plateImage} alt="" aria-hidden="true" />
       <span className="coCreatorNamePanel" aria-hidden="true" />
@@ -506,11 +565,6 @@ function CoCreatorBadge({
           text-decoration: none;
           vertical-align: middle;
           filter: drop-shadow(0 0 14px var(--stage-glow));
-        }
-        .coCreatorBadge.isCompact {
-          width: 212px;
-          height: 44px;
-          padding: 5px 44px;
         }
         .coCreatorBadge-partner {
           --stage-main: #73d6c7;
@@ -671,45 +725,6 @@ function CoCreatorBadge({
           .coCreatorBadge-legend .coCreatorTitle {
             max-width: 106px;
             font-size: 18px;
-          }
-          .coCreatorBadge.isCompact {
-            width: 168px;
-            height: 38px;
-            padding: 4px 34px;
-          }
-          .coCreatorBadge.isCompact .coCreatorRankLabel {
-            max-width: 70px;
-            font-size: 8px;
-          }
-          .coCreatorBadge.isCompact .coCreatorLevel {
-            font-size: 8px;
-            padding: 1px 3px;
-          }
-          .coCreatorBadge.isCompact .coCreatorTitle {
-            max-width: 86px;
-            font-size: 15px;
-            margin-top: 1px;
-          }
-        }
-        @media (max-width: 420px) {
-          .coCreatorBadge-legend.isCompact {
-            width: 166px;
-            height: 40px;
-            padding: 5px 34px;
-          }
-          .coCreatorBadge-legend.isCompact .coCreatorTitle {
-            max-width: 78px;
-            font-size: 14px;
-          }
-          .coCreatorBadge.isCompact {
-            width: 146px;
-          }
-          .coCreatorBadge.isCompact .coCreatorRankLabel {
-            max-width: 56px;
-          }
-          .coCreatorBadge.isCompact .coCreatorTitle {
-            max-width: 68px;
-            font-size: 13px;
           }
         }
       `}</style>
