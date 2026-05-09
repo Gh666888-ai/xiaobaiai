@@ -5,6 +5,7 @@ import { categoryPath } from "@/data/tool-meta"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { CategoryIcon } from "@/components/CategoryIcon"
+import { PersonalizedTools } from "./PersonalizedTools"
 import { Search } from "lucide-react"
 
 export const metadata: Metadata = {
@@ -70,10 +71,11 @@ export default function ToolsPage() {
       <main style={{ maxWidth: 1120, margin: "0 auto", padding: "60px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.86)" }} className="max-sm:px-4">
         <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.4em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 700 }}>Directory</p>
         <h1 style={{ fontSize: 36, fontWeight: 900, color: "#fff", letterSpacing: "0.02em", marginBottom: 8 }}>AI工具导航大全</h1>
-        <p style={{ fontSize: 15, color: "#ccc", marginBottom: 18, lineHeight: 1.8 }}>先按你要做的事选分类，再看适合新手的工具。这里保留工具入口，但不让工具名盖过任务本身。</p>
+        <p style={{ fontSize: 16, color: "#d6d6d6", fontWeight: 750, marginBottom: 22, lineHeight: 1.8 }}>先看和你行业有关的工具组合。没找到，再搜索或展开全部分类。</p>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 36 }}>
-          <Link href="/search?q=帮我选一个 AI 工具" className="btn-primary" style={{ textDecoration: "none" }}>帮我选工具</Link>
+        <PersonalizedTools />
+
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 24 }}>
           <form action="/search" style={{ display: "flex", alignItems: "center", flex: "1 1 320px", maxWidth: 520, minWidth: 260, height: 44, border: "1px solid rgba(201,168,76,0.28)", background: "rgba(10,10,10,0.86)", borderRadius: 10, boxShadow: "0 14px 34px rgba(0,0,0,0.22)" }}>
             <Search size={16} style={{ marginLeft: 14, color: "#c9a84c", flexShrink: 0 }} />
             <input
@@ -86,9 +88,9 @@ export default function ToolsPage() {
           </form>
         </div>
 
-        <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 12, padding: "20px 22px", marginBottom: 18 }}>
-          <h2 style={{ fontSize: 22, color: "#fff", fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>先看这 6 个入口</h2>
-          <p style={{ fontSize: 13, color: "#aaa", lineHeight: 1.8, marginBottom: 14 }}>不要一上来翻完整工具库。先按你今天要做的事选一个方向，再进去看工具。</p>
+        <section style={{ border: "1px solid #222", background: "rgba(255,255,255,0.025)", borderRadius: 12, padding: "18px 20px", marginBottom: 18 }}>
+          <h2 style={{ fontSize: 21, color: "#fff", fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>常用入口</h2>
+          <p style={{ fontSize: 14, color: "#aaa", fontWeight: 700, lineHeight: 1.8, marginBottom: 14 }}>只保留高频方向，完整分类放到下面折叠里。</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,250px),1fr))", gap: 10 }}>
           {categories.filter((cat) => focusCategoryKeys.includes(cat.key)).map((cat) => {
             const items = tools.filter((tool) => tool.category === cat.key)
