@@ -7,6 +7,8 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || ""
 const supabaseKey = supabaseServiceKey || supabaseAnonKey
 const MAX_LEVEL_EMAILS = new Set(["15171192200@163.com", "109020070@qq.com", "771239559@qq.com"])
 const MAX_LEVEL_XP = 100000
+const MAX_CONTRIBUTION_EMAIL = "15171192200@163.com"
+const MAX_CONTRIBUTION_POINTS = 99999
 
 function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status })
@@ -125,13 +127,17 @@ export async function GET(req: NextRequest) {
     const coCreatorApproved = Boolean(profile?.co_creator_approved) || isMaxLevelUser
     const coCreatorTrack = profile?.co_creator_track === "team" ? "team" : "personal"
     const xp = Math.max(Number(profile?.xp || 0), isMaxLevelUser ? MAX_LEVEL_XP : 0)
+    const contributionPoints = email.toLowerCase() === MAX_CONTRIBUTION_EMAIL
+      ? MAX_CONTRIBUTION_POINTS
+      : Number(profile?.contribution_points || 0)
 
-    if (!profile || (isMaxLevelUser && (Number(profile?.xp || 0) < MAX_LEVEL_XP || !profile?.co_creator_approved))) {
+    if (!profile || (isMaxLevelUser && (Number(profile?.xp || 0) < MAX_LEVEL_XP || !profile?.co_creator_approved)) || contributionPoints !== Number(profile?.contribution_points || 0)) {
       await supabase.from("profiles").upsert({
         id: data.user.id,
         name: profile?.name || data.user.user_metadata?.name || data.user.email?.split("@")[0] || "用户",
         email,
         xp,
+        contribution_points: contributionPoints,
         joined_at: new Date().toISOString().slice(0, 10),
       }, { onConflict: "id" })
     }
@@ -142,6 +148,7 @@ export async function GET(req: NextRequest) {
         email,
         name: profile?.name || data.user.user_metadata?.name || data.user.email?.split("@")[0] || "用户",
         xp,
+        contributionPoints,
         coCreatorApproved,
         coCreatorTrack,
       },

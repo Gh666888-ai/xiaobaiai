@@ -8,6 +8,7 @@ export interface AuthUser {
   email: string
   name: string
   xp: number
+  contributionPoints?: number
   coCreatorApproved?: boolean
   coCreatorTrack?: "personal" | "team"
 }
@@ -48,11 +49,12 @@ export function AuthProvider({children}:{children:ReactNode}){
         email: data.user.email || auth.user?.email || "",
         name: data.user.name || auth.user?.name || "用户",
         xp: Number(data.user.xp || auth.user?.xp || 0),
+        contributionPoints: Number(data.user.contributionPoints || auth.user?.contributionPoints || 0),
         coCreatorApproved: Boolean(data.user.coCreatorApproved || auth.user?.coCreatorApproved),
         coCreatorTrack,
       }
       setUser(nextUser)
-      writeAppAuth({ ...auth, user: { id: nextUser.userId, email: nextUser.email, name: nextUser.name, xp: nextUser.xp, coCreatorApproved: nextUser.coCreatorApproved, coCreatorTrack: nextUser.coCreatorTrack } })
+      writeAppAuth({ ...auth, user: { id: nextUser.userId, email: nextUser.email, name: nextUser.name, xp: nextUser.xp, contributionPoints: nextUser.contributionPoints, coCreatorApproved: nextUser.coCreatorApproved, coCreatorTrack: nextUser.coCreatorTrack } })
     }catch{
       setUser(null)
     }finally{
@@ -67,6 +69,7 @@ export function AuthProvider({children}:{children:ReactNode}){
       email: auth.user?.email || "",
       name: auth.user?.name || auth.user?.email?.split("@")[0] || "用户",
       xp: Number(auth.user?.xp || 0),
+      contributionPoints: Number(auth.user?.contributionPoints || 0),
       coCreatorApproved: Boolean(auth.user?.coCreatorApproved),
       coCreatorTrack: auth.user?.coCreatorTrack === "team" ? "team" : "personal",
     })

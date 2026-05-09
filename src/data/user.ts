@@ -20,10 +20,12 @@ export type LevelReward = {
 export type LevelTrack = "personal" | "team"
 export type LevelAccess = {
   coCreatorApproved?: boolean
+  contributionPoints?: number
 }
 
 const CO_CREATOR_START_LEVEL = 15
 const HIGHEST_AUTO_LEVEL = CO_CREATOR_START_LEVEL - 1
+const CO_CREATOR_CONTRIBUTION_THRESHOLDS = [0, 20, 60, 160, 360]
 
 const levelNameTracks: Record<LevelTrack, string[]> = {
   personal: [
@@ -123,8 +125,9 @@ function rewardForLevel(level: number, track: LevelTrack = "personal"): LevelRew
   }
   if (level >= 18) return { title: isTeam ? "共创合伙团队名牌" : "共创合伙人名牌", vanity: isTeam ? "团队高阶身份、团队案例高亮、成员协作标识" : "高阶身份名牌、Agent 实战标识、评论区高亮边框" }
   if (level >= 17) return { title: isTeam ? "共创导师团边框" : "共创导师边框", vanity: isTeam ? "团队头像框、导师团称号、复盘卡片装饰" : "高级头像框、任务导师称号、复盘卡片装饰" }
-  if (level >= 15) return { title: isTeam ? "共创团队身份" : "共创伙伴身份", vanity: isTeam ? "团队共创名牌、企业案例标识、社区评论金色描边" : "共创名牌、导师标识、社区评论金色描边" }
-  if (level >= 12) return { title: isTeam ? "企业AI推进装饰" : "Agent训练装饰", vanity: isTeam ? "团队主页身份条、流程复盘卡片装饰" : "曜石头像框、主页身份条、任务复盘卡片装饰" }
+  if (level >= 15) return { title: isTeam ? "共创团队身份" : "共创伙伴身份", vanity: isTeam ? "团队共创名牌、企业案例标识、社区评论金色描边；后续升级看贡献值，不再看 XP" : "共创名牌、导师标识、社区评论金色描边；后续升级看贡献值，不再看 XP" }
+  if (level >= 13) return { title: isTeam ? "团队实战内容体验" : "付费实战内容体验", vanity: isTeam ? "解锁一次早期团队实战内容体验，先不收费，作为高阶成长奖励" : "解锁一次早期付费实战内容体验，先不收费，让你提前看到高阶交付课怎么做" }
+  if (level >= 12) return { title: isTeam ? "企业AI推进装饰" : "Agent训练装饰", vanity: isTeam ? "团队主页身份条、流程复盘卡片装饰；下一档预告早期实战内容体验" : "曜石头像框、主页身份条、任务复盘卡片装饰；下一档预告早期付费内容体验" }
   if (level >= 8) return { title: isTeam ? "团队效率名牌" : "个人项目名牌", vanity: isTeam ? "团队等级名牌、评论区等级展示、团队进度条发光" : "金色等级名牌、评论区等级展示、个人主页进度条发光" }
   if (level >= 7) return { title: isTeam ? "团队之魂体验" : "项目主理人体验", vanity: "高亮名牌 7 天体验、评论区高亮试用、主页身份条预览" }
   if (level >= 6) return { title: isTeam ? "部门效率边框体验" : "工作流边框体验", vanity: "钻石头像框 5 天体验、任务完成动效增强、昵称旁等级闪光" }
@@ -167,7 +170,22 @@ function visibleLevels(track: LevelTrack, access: LevelAccess = {}) {
   return access.coCreatorApproved ? levels : levels.filter((level) => level.level <= HIGHEST_AUTO_LEVEL)
 }
 
+function coCreatorLevelFromContribution(contributionPoints = 0) {
+  let offset = 0
+  for (let index = CO_CREATOR_CONTRIBUTION_THRESHOLDS.length - 1; index >= 0; index--) {
+    if (contributionPoints >= CO_CREATOR_CONTRIBUTION_THRESHOLDS[index]) {
+      offset = index
+      break
+    }
+  }
+  return CO_CREATOR_START_LEVEL + offset
+}
+
 export function getUserLevel(xp: number, track: LevelTrack = "personal", access: LevelAccess = {}) {
+  if (access.coCreatorApproved && xp >= minXPForLevel(CO_CREATOR_START_LEVEL)) {
+    const level = coCreatorLevelFromContribution(access.contributionPoints || 0)
+    return LEVEL_TRACKS[track][level] || LEVEL_TRACKS[track][CO_CREATOR_START_LEVEL]
+  }
   const levels = visibleLevels(track, access)
   for (let i = levels.length - 1; i >= 0; i--) if (xp >= levels[i].minXP) return levels[i]
   return levels[0]
@@ -176,6 +194,18 @@ export function getUserLevel(xp: number, track: LevelTrack = "personal", access:
 export function getNextLevel(xp: number, track: LevelTrack = "personal", access: LevelAccess = {}) {
   if (!access.coCreatorApproved && xp >= minXPForLevel(CO_CREATOR_START_LEVEL)) {
     return { level: LEVEL_TRACKS[track][CO_CREATOR_START_LEVEL], need: 0, requiresReview: true }
+  }
+  if (access.coCreatorApproved && xp >= minXPForLevel(CO_CREATOR_START_LEVEL)) {
+    const currentLevel = coCreatorLevelFromContribution(access.contributionPoints || 0)
+    const nextLevel = currentLevel + 1
+    if (nextLevel > 19) return null
+    const nextIndex = Math.max(0, nextLevel - CO_CREATOR_START_LEVEL)
+    const nextContribution = CO_CREATOR_CONTRIBUTION_THRESHOLDS[nextIndex] || 0
+    return {
+      level: LEVEL_TRACKS[track][nextLevel],
+      need: Math.max(0, nextContribution - Number(access.contributionPoints || 0)),
+      requiresContribution: true,
+    }
   }
   const levels = visibleLevels(track, access)
   const next = levels.find((level) => level.minXP > xp)

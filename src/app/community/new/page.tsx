@@ -6,6 +6,7 @@ import { FileText, Lightbulb, Send, Sparkles } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { getUserLevel } from "@/data/user"
+import { COMMUNITY_REWARDS } from "@/data/growth"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
 
@@ -140,7 +141,10 @@ export default function NewPostPage() {
         <div style={{ textAlign: "center", maxWidth: 460, border: "1px solid #1a1a1a", borderRadius: 14, padding: 34, background: "rgba(255,255,255,0.03)" }}>
           <FileText size={42} style={{ color: "#e8c96a", marginBottom: 16 }} />
           <h2 style={{ fontSize: 22, color: "#fff", marginBottom: 10 }}>投稿已提交，等待审核</h2>
-          <p style={{ fontSize: 14, color: "#aaa", lineHeight: 1.8, marginBottom: 18 }}>{user ? "帖子通过审核后会自动发放经验，问题求助帖通过后 +12XP，其他帖子 +10XP。" : "帖子已提交；登录用户的帖子通过审核后才会领取经验。"}如果有人帮你解决了问题，你可以认可那条评论，评论会置顶，答主再得 +30XP。</p>
+          <p style={{ fontSize: 14, color: "#aaa", lineHeight: 1.8, marginBottom: 18 }}>
+            {user ? `帖子通过审核后会自动发放奖励：实战复盘/任务成果 +${COMMUNITY_REWARDS.practicalCaseApprovedXP}XP，验证可行后再 +${COMMUNITY_REWARDS.practicalCaseVerifiedXP}XP；问题求助帖 +${COMMUNITY_REWARDS.questionPostApprovedXP}XP，普通经验帖 +${COMMUNITY_REWARDS.normalPostApprovedXP}XP。` : "帖子已提交；登录用户的帖子通过审核后才会领取奖励。"}
+            达到共创后不再靠 XP 升级，改为累计贡献值。
+          </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }} className="max-sm:grid-cols-1">
             <button onClick={() => router.push("/growth")} className="btn-primary">看今日排名</button>
             <button onClick={() => router.push("/community")} className="btn-outline">返回社区</button>
@@ -159,8 +163,8 @@ export default function NewPostPage() {
         <h1 style={{ fontSize: 34, fontWeight: 950, color: "#fff", marginBottom: 10 }}>发布 AI 实战复盘</h1>
         <p style={{ fontSize: 14, color: "#bbb", lineHeight: 1.9, marginBottom: 16 }}>这里不是普通灌水区。请把“行业、目标、工具、步骤、提示词、成本、效果、坑点”写清楚，让后来的人能照着完成第一步。不要发布 API Key、账号密码、客户隐私和未授权内容。</p>
         <div style={{ border: "1px solid rgba(201,168,76,0.36)", borderRadius: 12, background: "rgba(201,168,76,0.055)", padding: "14px 16px", marginBottom: 18 }}>
-          <p style={{ color: "#fff", fontSize: 14, fontWeight: 950, marginBottom: 5 }}>审核通过 +10XP，优质复盘会进入案例库</p>
-          <p style={{ color: "#d6c28a", fontSize: 12, lineHeight: 1.75 }}>越像真实复盘越容易通过：写清楚你是谁、想做什么、怎么做、花了多久、最后效果如何、别人照着做要注意什么。</p>
+          <p style={{ color: "#fff", fontSize: 14, fontWeight: 950, marginBottom: 5 }}>实战案例审核通过 +{COMMUNITY_REWARDS.practicalCaseApprovedXP}XP，验证可行后再 +{COMMUNITY_REWARDS.practicalCaseVerifiedXP}XP</p>
+          <p style={{ color: "#d6c28a", fontSize: 12, lineHeight: 1.75 }}>越像真实复盘越容易通过：写清楚你是谁、想做什么、怎么做、花了多久、最后效果如何、别人照着做要注意什么。共创用户不再刷 XP，改记贡献值。</p>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "center", border: "1px solid rgba(201,168,76,0.35)", borderRadius: 12, background: "rgba(201,168,76,0.055)", padding: "14px 16px", marginBottom: 18 }} className="max-sm:grid-cols-1">
           <p style={{ color: "#ddd", fontSize: 13, lineHeight: 1.75 }}>

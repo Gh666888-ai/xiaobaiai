@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createHash } from "crypto"
 import { createClient } from "@supabase/supabase-js"
 import { requireUser } from "@/lib/server-auth"
+import { COMMUNITY_REWARDS } from "@/data/growth"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "",
@@ -11,8 +12,6 @@ const supabase = createClient(
 const MAX_LEVEL_EMAILS = new Set(["15171192200@163.com", "109020070@qq.com", "771239559@qq.com"])
 const MAX_LEVEL_XP = 100000
 const ADMIN_EMAILS = new Set(["15171192200@163.com"])
-const POST_APPROVED_XP = 10
-const QUESTION_POST_APPROVED_XP = 12
 const POST_HOURLY_LIMIT = 3
 const POST_DAILY_LIMIT = 10
 const IP_HOURLY_LIMIT = 5
@@ -32,6 +31,37 @@ const REVIEW_RULES = [
 
 function normalizeXP(email?: string | null, xp?: number | null) {
   return MAX_LEVEL_EMAILS.has(String(email || "").toLowerCase()) ? MAX_LEVEL_XP : Number(xp || 0)
+}
+
+function isCoCreatorProfile(profile: any) {
+  return Boolean(profile?.co_creator_approved) || MAX_LEVEL_EMAILS.has(String(profile?.email || "").toLowerCase())
+}
+
+function isQuestionCategory(category: unknown) {
+  return String(category || "").includes("问题")
+}
+
+function isPracticalCaseCategory(category: unknown) {
+  const text = String(category || "")
+  return text.includes("实战复盘") || text.includes("任务成果") || text.includes("案例")
+}
+
+function rewardForPostCategory(category: unknown) {
+  if (isPracticalCaseCategory(category)) return {
+    amount: COMMUNITY_REWARDS.practicalCaseApprovedXP,
+    contribution: COMMUNITY_REWARDS.coCreatorCaseContribution,
+    reason: "practical-case-approved",
+  }
+  if (isQuestionCategory(category)) return {
+    amount: COMMUNITY_REWARDS.questionPostApprovedXP,
+    contribution: COMMUNITY_REWARDS.coCreatorPostContribution,
+    reason: "question-post-approved",
+  }
+  return {
+    amount: COMMUNITY_REWARDS.normalPostApprovedXP,
+    contribution: COMMUNITY_REWARDS.coCreatorPostContribution,
+    reason: "post-approved",
+  }
 }
 
 function dayKey(now = new Date()) {
@@ -286,16 +316,53 @@ export async function POST(req: NextRequest) {
   })
 }
 
+async function recordContribution(userId: string, eventKey: string, reason: string, amount: number) {
+  const { error } = await supabase.from("contribution_events").insert({
+    user_id: userId,
+    event_key: eventKey,
+    reason,
+    amount,
+    day_key: dayKey(),
+  })
+  if (error && String(error.code || "") === "23505") return false
+  if (error) {
+    console.error("[posts:contribution-event]", {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    })
+    return false
+  }
+  return true
+}
+
+async function awardCommunityValue(userId: string, profile: any, eventKey: string, reason: string, xpAmount: number, contributionAmount: number) {
+  if (isCoCreatorProfile(profile)) {
+    const inserted = await recordContribution(userId, eventKey.replace(/^community-/, "contribution-"), reason.replace(/-approved$/, "-contribution"), contributionAmount)
+    if (!inserted) return { awarded: 0, contribution: 0, mode: "contribution" as const }
+    const nextContribution = Number(profile?.contribution_points || 0) + contributionAmount
+    await supabase.from("profiles").update({ contribution_points: nextContribution }).eq("id", userId)
+    return { awarded: 0, contribution: contributionAmount, mode: "contribution" as const }
+  }
+
+  const eventInserted = await recordGrowthEvent(userId, eventKey, reason, xpAmount)
+  if (!eventInserted) return { awarded: 0, contribution: 0, mode: "xp" as const }
+  const nextXP = Number(profile?.xp || 0) + xpAmount
+  await supabase.from("profiles").update({ xp: nextXP }).eq("id", userId)
+  return { awarded: xpAmount, contribution: 0, mode: "xp" as const, nextXP }
+}
+
 export async function PATCH(req: NextRequest) {
   const admin = await requireAdmin(req)
   if (!admin.ok) return NextResponse.json({ error: admin.error }, { status: admin.status })
-  const { id, status, pinned, featured, editor_note, reject_reason } = await req.json()
+  const { id, status, pinned, featured, editor_note, reject_reason, verified_case } = await req.json()
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 })
   if (status && !["pending", "approved", "rejected"].includes(status)) return NextResponse.json({ error: "Invalid status" }, { status: 400 })
 
   const { data: current, error: readError } = await supabase
     .from("community_posts")
-    .select("id,author_id,author_email,author_xp,status,category")
+    .select("id,author_id,author_email,author_xp,status,category,verified_case")
     .eq("id", id)
     .maybeSingle()
   if (readError) return NextResponse.json({ error: readError.message }, { status: 500 })
@@ -305,6 +372,10 @@ export async function PATCH(req: NextRequest) {
   if (status) update.status = status
   if (typeof pinned === "boolean") update.pinned = pinned
   if (typeof featured === "boolean") update.featured = featured
+  if (typeof verified_case === "boolean") {
+    update.verified_case = verified_case
+    if (verified_case && !(current as any).verified_case) update.verified_at = new Date().toISOString()
+  }
   if (typeof editor_note === "string") update.editor_note = editor_note
   if (typeof reject_reason === "string") update.reject_reason = reject_reason
   if (status === "approved" && current.status !== "approved") {
@@ -324,25 +395,45 @@ export async function PATCH(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   let awarded = 0
+  let contribution = 0
+  let rewardMode: "xp" | "contribution" = "xp"
   if (status === "approved" && current.status !== "approved" && current.author_id) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("xp,email")
+      .select("xp,email,co_creator_approved,contribution_points")
       .eq("id", current.author_id)
       .maybeSingle()
-    if (MAX_LEVEL_EMAILS.has(String(profile?.email || current.author_email || "").toLowerCase())) {
-      return NextResponse.json({ success: true, awarded: 0 })
-    }
-    const isQuestionPost = String((current as any).category || "").includes("问题")
-    const postXP = isQuestionPost ? QUESTION_POST_APPROVED_XP : POST_APPROVED_XP
-    const eventInserted = await recordGrowthEvent(current.author_id, `community-post-approved:${id}`, isQuestionPost ? "question-post-approved" : "post-approved", postXP)
-    if (eventInserted) {
-      const nextXP = Number(profile?.xp ?? current.author_xp ?? 0) + postXP
-      await supabase.from("profiles").update({ xp: nextXP }).eq("id", current.author_id)
-      await supabase.from("community_posts").update({ author_xp: normalizeXP(profile?.email || current.author_email, nextXP) }).eq("id", id)
-      awarded = postXP
+    const reward = rewardForPostCategory((current as any).category)
+    const result = await awardCommunityValue(current.author_id, profile, `community-post-approved:${id}`, reward.reason, reward.amount, reward.contribution)
+    awarded += result.awarded
+    contribution += result.contribution
+    rewardMode = result.mode
+    if (result.nextXP !== undefined) {
+      await supabase.from("community_posts").update({ author_xp: normalizeXP(profile?.email || current.author_email, result.nextXP) }).eq("id", id)
     }
   }
 
-  return NextResponse.json({ success: true, awarded })
+  if (verified_case === true && !(current as any).verified_case && current.author_id) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("xp,email,co_creator_approved,contribution_points")
+      .eq("id", current.author_id)
+      .maybeSingle()
+    const result = await awardCommunityValue(
+      current.author_id,
+      profile,
+      `community-case-verified:${id}`,
+      "practical-case-verified",
+      COMMUNITY_REWARDS.practicalCaseVerifiedXP,
+      COMMUNITY_REWARDS.coCreatorVerifiedCaseContribution,
+    )
+    awarded += result.awarded
+    contribution += result.contribution
+    rewardMode = result.mode
+    if (result.nextXP !== undefined) {
+      await supabase.from("community_posts").update({ author_xp: normalizeXP(profile?.email || current.author_email, result.nextXP) }).eq("id", id)
+    }
+  }
+
+  return NextResponse.json({ success: true, awarded, contribution, reward_mode: rewardMode })
 }

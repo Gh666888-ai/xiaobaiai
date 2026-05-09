@@ -31,6 +31,7 @@ type LeaderboardUser = {
 
 type ViewerLeaderboardHint = {
   dailyXP: number
+  onlineMinutes?: number
   rank: number | null
   needXP: number
 }
@@ -115,7 +116,9 @@ export default function GrowthClient() {
   const today = todayKey()
   const checkedToday = state.lastCheckIn === today
   const doneCount = missions.filter((mission) => state.doneMissions[missionDoneKey(mission, today)]).length
-  const levelAccess = { coCreatorApproved: Boolean(user?.coCreatorApproved) }
+  const contributionPoints = Number(user?.contributionPoints || 0)
+  const levelAccess = { coCreatorApproved: Boolean(user?.coCreatorApproved), contributionPoints }
+  const isCoCreatorMode = Boolean(user?.coCreatorApproved)
   const currentLevel = getUserLevel(state.xp, "personal", levelAccess)
   const nextLevelInfo = getNextLevel(state.xp, "personal", levelAccess)
   const nextLevel = nextLevelInfo?.level || null
@@ -130,8 +133,9 @@ export default function GrowthClient() {
   const levelNextXP = nextLevel?.minXP || Math.max(currentLevel.minXP + 1, state.xp)
   const levelPercent = Math.min(100, Math.round(((state.xp - levelBaseXP) / Math.max(1, levelNextXP - levelBaseXP)) * 100))
   const currentDailyXP = viewerHint?.dailyXP || 0
+  const currentOnlineMinutes = viewerHint?.onlineMinutes || 0
   const topDailyXP = dailyLeaders[0]?.xp || 68
-  const needToTop = Math.max(0, topDailyXP - currentDailyXP + 1)
+  const needToTop = Math.max(0, topDailyXP - currentOnlineMinutes + 5)
   const welcomeMission = missions.find((mission) => mission.id === "welcome")
   const welcomeDone = !!welcomeMission && !!state.doneMissions[missionDoneKey(welcomeMission, today)]
   const starterSteps = [
@@ -333,7 +337,7 @@ export default function GrowthClient() {
         <section style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0,1fr))", gap: 10, marginBottom: 18 }} className="max-sm:grid-cols-2">
           {[
             { icon: <Trophy size={18} />, label: "等级", value: `LV.${currentLevel.level} ${currentLevel.name}` },
-            { icon: <Sparkles size={18} />, label: "成长积分", value: nextLevel ? `${displayXP} XP` : "已达最高档" },
+            { icon: <Sparkles size={18} />, label: isCoCreatorMode ? "共创贡献" : "成长积分", value: isCoCreatorMode ? `${contributionPoints} 贡献值` : nextLevel ? `${displayXP} XP` : "已达最高档" },
             { icon: <Flame size={18} />, label: "连续打卡", value: `${state.streak} 天` },
             { icon: <CheckCircle2 size={18} />, label: "今日任务", value: `${doneCount}/${missions.length}` },
           ].map((item) => (
@@ -357,7 +361,7 @@ export default function GrowthClient() {
               </div>
               <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7, marginTop: 10 }}>
                 当前战利品：{currentLevel.reward.vanity}
-                {nextLevel ? ` 下一步再拿 ${nextLevel.minXP - state.xp} XP，解锁 LV.${nextLevel.level} ${nextLevel.name}：${nextLevel.reward.title}。` : " 你已经点亮最高身份。"}
+                {nextLevel ? nextLevelInfo?.requiresContribution ? ` 下一步再做 ${nextLevelInfo.need} 贡献值，解锁 LV.${nextLevel.level} ${nextLevel.name}：${nextLevel.reward.title}。` : ` 下一步再拿 ${nextLevel.minXP - state.xp} XP，解锁 LV.${nextLevel.level} ${nextLevel.name}：${nextLevel.reward.title}。` : " 你已经点亮最高身份。"}
               </p>
         </section>
 
@@ -367,17 +371,17 @@ export default function GrowthClient() {
               <Medal size={18} style={{ color: "#e8c96a" }} />
               <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950 }}>成长榜</h2>
             </div>
-            <Link href="/community/new" style={{ color: "#e8c96a", textDecoration: "none", fontSize: 12, fontWeight: 950 }}>发帖 +10XP 冲榜</Link>
+            <Link href="/missions" style={{ color: "#e8c96a", textDecoration: "none", fontSize: 12, fontWeight: 950 }}>做任务冲榜</Link>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }} className="max-sm:grid-cols-1">
             <div style={{ border: "1px solid #242424", borderRadius: 10, background: "rgba(0,0,0,0.24)", padding: 14 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
                 <Trophy size={15} style={{ color: "#e8c96a" }} />
-                <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>今日经验榜</p>
+                <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>今日在线时长榜</p>
               </div>
               {user && viewerHint && (
                 <p style={{ color: viewerHint.needXP <= 0 ? "#3DA563" : "#d6c28a", fontSize: 12, lineHeight: 1.7, marginBottom: 10 }}>
-                  {viewerHint.needXP <= 0 ? `你今天已拿 ${viewerHint.dailyXP} XP，正在榜内。` : `你今天已拿 ${viewerHint.dailyXP} XP，再拿 ${viewerHint.needXP} XP 就能冲进今日榜。`}
+                  {viewerHint.needXP <= 0 ? `你今天在线 ${currentOnlineMinutes} 分钟，正在榜内。` : `你今天在线 ${currentOnlineMinutes} 分钟，再在线 ${viewerHint.needXP} 分钟就能冲进今日榜。`}
                 </p>
               )}
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -385,7 +389,7 @@ export default function GrowthClient() {
                   <div key={`${item.rank}-${item.name}`} style={{ display: "grid", gridTemplateColumns: "34px 1fr auto", gap: 10, alignItems: "center", minHeight: 40 }}>
                     <span style={{ fontFamily: "'JetBrains Mono',monospace", color: rankColor(item.rank), fontSize: 13, fontWeight: 950 }}>#{item.rank}</span>
                     <LevelBadge compact name={item.name} xp={Number(item.totalXP || item.xp || 0)} />
-                    <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 11, fontWeight: 900 }}>+{item.xp} XP</span>
+                    <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 11, fontWeight: 900 }}>{item.xp} 分钟</span>
                   </div>
                 ))}
               </div>
@@ -393,14 +397,14 @@ export default function GrowthClient() {
             <div style={{ border: "1px solid #2a1f10", borderRadius: 10, background: "rgba(201,168,76,0.045)", padding: 14 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
                 <TrendingUp size={15} style={{ color: "#3DA563" }} />
-                <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>近 7 天活跃榜</p>
+                <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>近 7 天任务个数榜</p>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {(weeklyLeaders.length ? weeklyLeaders.slice(0, 6) : [{ rank: 1, name: "今天第一个冲榜的人", xp: 0, totalXP: 0 }]).map((item) => (
                   <div key={`${item.rank}-${item.name}`} style={{ display: "grid", gridTemplateColumns: "34px 1fr auto", gap: 10, alignItems: "center", minHeight: 40 }}>
                     <span style={{ fontFamily: "'JetBrains Mono',monospace", color: rankColor(item.rank), fontSize: 13, fontWeight: 950 }}>#{item.rank}</span>
                     <LevelBadge compact name={item.name} xp={Number(item.totalXP || item.xp || 0)} />
-                    <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#3DA563", fontSize: 11, fontWeight: 900 }}>+{item.xp} XP</span>
+                    <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#3DA563", fontSize: 11, fontWeight: 900 }}>{item.xp} 个任务</span>
                   </div>
                 ))}
               </div>
@@ -477,7 +481,7 @@ export default function GrowthClient() {
               <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, marginBottom: 6 }}>等级档案</h2>
               <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7 }}>个人和公司团队用两套称号。共创是最高档，不会在普通等级里乱出现。</p>
             </div>
-            <LevelBadge compact name={user?.name || "个人"} xp={state.xp} coCreatorApproved={user?.coCreatorApproved} />
+            <LevelBadge compact name={user?.name || "个人"} xp={state.xp} contributionPoints={contributionPoints} coCreatorApproved={user?.coCreatorApproved} />
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }} className="max-sm:grid-cols-1">
             <div style={{ border: `1px solid ${currentLevel.color}`, borderRadius: 10, background: `${currentLevel.color}12`, padding: "14px 15px" }}>
@@ -486,7 +490,7 @@ export default function GrowthClient() {
               <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginBottom: 8 }}>{currentLevel.reward.vanity}</p>
               <p style={{ color: "#8f8f8f", fontSize: 12, lineHeight: 1.7, marginBottom: 8 }}>{currentLevel.desc}</p>
               <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10 }}>
-                {nextLevel ? personalNeedsReview ? `共创门槛已到：申请审核后解锁 LV.${nextLevel.level} ${nextLevel.name}` : `下一档：LV.${nextLevel.level} ${nextLevel.name}，还差 ${nextLevel.minXP - state.xp} XP` : "最高档：小白AI共创神"}
+                {nextLevel ? personalNeedsReview ? `共创门槛已到：申请审核后解锁 LV.${nextLevel.level} ${nextLevel.name}` : nextLevelInfo?.requiresContribution ? `下一档：LV.${nextLevel.level} ${nextLevel.name}，还差 ${nextLevelInfo.need} 贡献值` : `下一档：LV.${nextLevel.level} ${nextLevel.name}，还差 ${nextLevel.minXP - state.xp} XP` : "最高档：小白AI共创神"}
               </p>
             </div>
             <div style={{ border: `1px solid ${teamLevel.color}`, borderRadius: 10, background: `${teamLevel.color}12`, padding: "14px 15px" }}>
@@ -495,7 +499,7 @@ export default function GrowthClient() {
               <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginBottom: 8 }}>{teamLevel.reward.vanity}</p>
               <p style={{ color: "#8f8f8f", fontSize: 12, lineHeight: 1.7, marginBottom: 8 }}>{teamLevel.desc}</p>
               <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10 }}>
-                {teamNextLevel ? teamNeedsReview ? `共创门槛已到：申请审核后解锁 LV.${teamNextLevel.level} ${teamNextLevel.name}` : `下一档：LV.${teamNextLevel.level} ${teamNextLevel.name}，还差 ${teamNextLevel.minXP - state.xp} XP` : "最高档：小白AI共创神队"}
+                {teamNextLevel ? teamNeedsReview ? `共创门槛已到：申请审核后解锁 LV.${teamNextLevel.level} ${teamNextLevel.name}` : teamNextLevelInfo?.requiresContribution ? `下一档：LV.${teamNextLevel.level} ${teamNextLevel.name}，还差 ${teamNextLevelInfo.need} 贡献值` : `下一档：LV.${teamNextLevel.level} ${teamNextLevel.name}，还差 ${teamNextLevel.minXP - state.xp} XP` : "最高档：小白AI共创神队"}
               </p>
             </div>
           </div>
@@ -505,7 +509,7 @@ export default function GrowthClient() {
                 <p style={{ color: "#aaa", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>个人下一级 · LV.{nextLevel.level} {nextLevel.name}</p>
                 <p style={{ color: "#bbb", fontSize: 12, fontWeight: 950, lineHeight: 1.55, marginBottom: 5 }}>{nextLevel.reward.title}</p>
                 <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginBottom: 8 }}>{nextLevel.reward.vanity}</p>
-                <p style={{ fontFamily: "'JetBrains Mono',monospace", color: personalNeedsReview ? "#e8c96a" : "#777", fontSize: 10 }}>{personalNeedsReview ? "已达到 XP 门槛，需要人工审核真实案例和复盘质量" : `还差 ${nextLevel.minXP - state.xp} XP`}</p>
+                <p style={{ fontFamily: "'JetBrains Mono',monospace", color: personalNeedsReview || nextLevelInfo?.requiresContribution ? "#e8c96a" : "#777", fontSize: 10 }}>{personalNeedsReview ? "已达到 XP 门槛，需要人工审核真实案例和复盘质量" : nextLevelInfo?.requiresContribution ? `还差 ${nextLevelInfo.need} 贡献值，实战案例被验证后涨得最快` : `还差 ${nextLevel.minXP - state.xp} XP`}</p>
               </div>
             ) : (
               <div style={{ border: "1px solid #2a1f10", borderRadius: 10, background: "rgba(201,168,76,0.045)", padding: "14px 15px" }}>
@@ -520,7 +524,7 @@ export default function GrowthClient() {
                 <p style={{ color: "#aaa", fontSize: 13, fontWeight: 950, marginBottom: 6 }}>团队下一级 · LV.{teamNextLevel.level} {teamNextLevel.name}</p>
                 <p style={{ color: "#bbb", fontSize: 12, fontWeight: 950, lineHeight: 1.55, marginBottom: 5 }}>{teamNextLevel.reward.title}</p>
                 <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.75, marginBottom: 8 }}>{teamNextLevel.reward.vanity}</p>
-                <p style={{ fontFamily: "'JetBrains Mono',monospace", color: teamNeedsReview ? "#e8c96a" : "#777", fontSize: 10 }}>{teamNeedsReview ? "已达到 XP 门槛，需要人工审核团队案例和流程沉淀" : `还差 ${teamNextLevel.minXP - state.xp} XP`}</p>
+                <p style={{ fontFamily: "'JetBrains Mono',monospace", color: teamNeedsReview || teamNextLevelInfo?.requiresContribution ? "#e8c96a" : "#777", fontSize: 10 }}>{teamNeedsReview ? "已达到 XP 门槛，需要人工审核团队案例和流程沉淀" : teamNextLevelInfo?.requiresContribution ? `还差 ${teamNextLevelInfo.need} 贡献值，团队案例被验证后涨得最快` : `还差 ${teamNextLevel.minXP - state.xp} XP`}</p>
               </div>
             ) : (
               <div style={{ border: "1px solid #2a1f10", borderRadius: 10, background: "rgba(201,168,76,0.045)", padding: "14px 15px" }}>

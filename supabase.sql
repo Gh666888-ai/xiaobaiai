@@ -8,6 +8,7 @@ CREATE TABLE profiles (
   phone TEXT,
   name TEXT NOT NULL DEFAULT '',
   xp INTEGER NOT NULL DEFAULT 0,
+  contribution_points INTEGER NOT NULL DEFAULT 0,
   co_creator_approved BOOLEAN NOT NULL DEFAULT FALSE,
   co_creator_track TEXT NOT NULL DEFAULT 'personal',
   co_creator_reviewed_at TIMESTAMPTZ,
@@ -85,6 +86,7 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS co_creator_approved BOOLEAN NOT NU
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS co_creator_track TEXT NOT NULL DEFAULT 'personal';
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS co_creator_reviewed_at TIMESTAMPTZ;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS co_creator_note TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS contribution_points INTEGER NOT NULL DEFAULT 0;
 
 -- 共创者账号：必须审核通过后才显示共创最高等级，XP 只代表达到候选门槛。
 UPDATE profiles
@@ -94,6 +96,35 @@ SET xp = GREATEST(COALESCE(xp, 0), 100000),
     co_creator_reviewed_at = COALESCE(co_creator_reviewed_at, NOW()),
     co_creator_note = COALESCE(co_creator_note, 'founder approved')
 WHERE lower(email) IN ('15171192200@163.com', '109020070@qq.com', '771239559@qq.com');
+
+UPDATE profiles
+SET contribution_points = CASE
+  WHEN lower(email) = '15171192200@163.com' THEN 99999
+  ELSE 0
+END
+WHERE lower(email) IN ('15171192200@163.com', '109020070@qq.com', '771239559@qq.com');
+
+-- 共创阶段贡献值事件表。达到共创后不再靠 XP 升级，而靠实战案例、可行验证、有效答疑等贡献累计。
+CREATE TABLE IF NOT EXISTS contribution_events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  event_key TEXT NOT NULL,
+  reason TEXT NOT NULL,
+  amount INTEGER NOT NULL DEFAULT 0,
+  day_key TEXT,
+  awarded_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, event_key)
+);
+
+CREATE INDEX IF NOT EXISTS contribution_events_user_awarded_idx ON contribution_events(user_id, awarded_at DESC);
+CREATE INDEX IF NOT EXISTS contribution_events_user_day_reason_idx ON contribution_events(user_id, day_key, reason);
+
+GRANT SELECT ON TABLE contribution_events TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE contribution_events TO service_role;
+
+ALTER TABLE contribution_events ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can read own contribution events" ON contribution_events;
+CREATE POLICY "Users can read own contribution events" ON contribution_events FOR SELECT USING (auth.uid() = user_id);
 
 -- 成长经验事件表：防止签到、任务、在线挂机经验被重复领取。
 CREATE TABLE IF NOT EXISTS growth_events (
@@ -244,6 +275,8 @@ CREATE TABLE IF NOT EXISTS community_posts (
   editor_note TEXT,
   pinned BOOLEAN DEFAULT FALSE,
   featured BOOLEAN DEFAULT FALSE,
+  verified_case BOOLEAN DEFAULT FALSE,
+  verified_at TIMESTAMPTZ,
   published_at TEXT,
   likes INTEGER DEFAULT 0,
   comments_count INTEGER DEFAULT 0,
@@ -342,6 +375,8 @@ CREATE POLICY "Users can report community posts" ON community_post_reports FOR I
 -- 社区投稿审核增强字段。如果你已经有 community_posts 表，直接执行这一段即可。
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS pinned BOOLEAN DEFAULT FALSE;
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS featured BOOLEAN DEFAULT FALSE;
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS verified_case BOOLEAN DEFAULT FALSE;
+ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS verified_at TIMESTAMPTZ;
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS editor_note TEXT;
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS published_at TEXT;
 ALTER TABLE community_posts ADD COLUMN IF NOT EXISTS likes INTEGER DEFAULT 0;

@@ -6,6 +6,7 @@ import { getNextLevel, getUserLevel, LevelTrack } from "@/data/user"
 type LevelBadgeProps = {
   name: string
   xp: number
+  contributionPoints?: number
   compact?: boolean
   track?: LevelTrack
   coCreatorApproved?: boolean
@@ -117,6 +118,8 @@ function CoCreatorAvatar({ compact, level }: { compact: boolean; level: number }
 function coCreatorTone(level: number) {
   if (level >= 19) return {
     border: "rgba(126,231,255,0.92)",
+    radius: "16px 34px 16px 34px",
+    clipPath: "polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%, 10px 50%)",
     bg: "radial-gradient(circle at 20% 35%, rgba(255,255,255,0.24), transparent 18%), radial-gradient(circle at 72% 44%, rgba(255,216,107,0.28), transparent 22%), linear-gradient(135deg, rgba(126,231,255,0.28), rgba(255,216,107,0.15) 27%, rgba(182,146,255,0.18) 50%, rgba(11,8,32,0.92)), linear-gradient(90deg, rgba(255,255,255,0.22), transparent)",
     glow: "0 0 34px rgba(126,231,255,0.72), 0 0 62px rgba(182,146,255,0.44), 0 0 86px rgba(255,216,107,0.18), inset 0 0 0 1px rgba(255,255,255,0.18)",
     tag: "MAX",
@@ -125,6 +128,8 @@ function coCreatorTone(level: number) {
   }
   if (level >= 18) return {
     border: "rgba(182,146,255,0.84)",
+    radius: "18px 30px 18px 30px",
+    clipPath: "polygon(0 0, calc(100% - 12px) 0, 100% 24%, 100% 100%, 12px 100%, 0 76%)",
     bg: "radial-gradient(circle at 84% 28%, rgba(126,231,255,0.22), transparent 24%), linear-gradient(135deg, rgba(182,146,255,0.22), rgba(126,231,255,0.10) 42%, rgba(16,10,36,0.86)), linear-gradient(90deg, rgba(255,255,255,0.14), transparent)",
     glow: "0 0 26px rgba(182,146,255,0.48), 0 0 42px rgba(126,231,255,0.18), inset 0 0 0 1px rgba(255,255,255,0.12)",
     tag: `LV.${level}`,
@@ -133,6 +138,8 @@ function coCreatorTone(level: number) {
   }
   if (level >= 17) return {
     border: "rgba(38,215,198,0.78)",
+    radius: "14px 26px 14px 26px",
+    clipPath: "polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%)",
     bg: "radial-gradient(circle at 24% 72%, rgba(126,231,255,0.18), transparent 22%), linear-gradient(135deg, rgba(38,215,198,0.20), rgba(255,255,255,0.07) 40%, rgba(4,31,36,0.86)), linear-gradient(90deg, rgba(255,255,255,0.12), transparent)",
     glow: "0 0 24px rgba(38,215,198,0.42), inset 0 0 0 1px rgba(255,255,255,0.10)",
     tag: `LV.${level}`,
@@ -141,6 +148,8 @@ function coCreatorTone(level: number) {
   }
   if (level >= 16) return {
     border: "rgba(255,216,107,0.76)",
+    radius: "22px 12px 22px 12px",
+    clipPath: "polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px)",
     bg: "radial-gradient(circle at 78% 64%, rgba(255,216,107,0.22), transparent 22%), linear-gradient(135deg, rgba(255,216,107,0.20), rgba(182,146,255,0.07) 40%, rgba(40,26,8,0.86)), linear-gradient(90deg, rgba(255,255,255,0.12), transparent)",
     glow: "0 0 22px rgba(255,216,107,0.38), inset 0 0 0 1px rgba(255,255,255,0.10)",
     tag: `LV.${level}`,
@@ -149,6 +158,8 @@ function coCreatorTone(level: number) {
   }
   return {
     border: "rgba(201,168,76,0.72)",
+    radius: "18px",
+    clipPath: "none",
     bg: "linear-gradient(135deg, rgba(201,168,76,0.17), rgba(255,255,255,0.06) 40%, rgba(28,20,8,0.84)), linear-gradient(90deg, rgba(255,255,255,0.10), transparent)",
     glow: "0 0 18px rgba(201,168,76,0.34), inset 0 0 0 1px rgba(255,255,255,0.09)",
     tag: `LV.${level}`,
@@ -157,16 +168,29 @@ function coCreatorTone(level: number) {
   }
 }
 
-export function LevelBadge({ name, xp, compact = false, track = "personal", coCreatorApproved = false }: LevelBadgeProps) {
-  const level = getUserLevel(xp, track, { coCreatorApproved })
-  const next = getNextLevel(xp, track, { coCreatorApproved })
-  const progress = next?.requiresReview ? 100 : next ? Math.min(100, Math.round(((xp - level.minXP) / (next.level.minXP - level.minXP)) * 100)) : 100
-  const xpLabel = next?.requiresReview ? `${xp} XP · 共创待审核` : next ? `${xp} XP` : "已达最高档"
+export function LevelBadge({ name, xp, contributionPoints = 0, compact = false, track = "personal", coCreatorApproved = false }: LevelBadgeProps) {
+  const levelAccess = { coCreatorApproved, contributionPoints }
+  const level = getUserLevel(xp, track, levelAccess)
+  const next = getNextLevel(xp, track, levelAccess)
+  const isCoCreator = coCreatorApproved && level.level >= 15
+  const progress = next?.requiresReview
+    ? 100
+    : next?.requiresContribution
+      ? Math.min(100, Math.max(10, Math.round((contributionPoints / Math.max(1, contributionPoints + next.need)) * 100)))
+      : next
+        ? Math.min(100, Math.round(((xp - level.minXP) / (next.level.minXP - level.minXP)) * 100))
+        : 100
+  const xpLabel = isCoCreator
+    ? `${contributionPoints} 贡献值`
+    : next?.requiresReview
+      ? `${xp} XP · 共创待审核`
+      : next
+        ? `${xp} XP`
+        : "已达最高档"
   const visual = badgeStyles[level.level] || badgeStyles[0]
   const Icon = visual.icon
   const isHigh = level.level >= 4
   const isCrown = level.level === 6
-  const isCoCreator = coCreatorApproved && level.level >= 15
   const coTone = coCreatorTone(level.level)
 
   return (
@@ -176,9 +200,11 @@ export function LevelBadge({ name, xp, compact = false, track = "personal", coCr
         display: "inline-flex",
         alignItems: "center",
         gap: compact ? 7 : 10,
-        minWidth: compact ? 0 : isCoCreator ? 208 : 174,
-        padding: compact ? "5px 9px 5px 6px" : "6px 13px 6px 7px",
-        borderRadius: 999,
+        minWidth: compact ? isCoCreator ? 178 + Math.max(0, level.level - 15) * 5 : 0 : isCoCreator ? 220 + Math.max(0, level.level - 15) * 8 : 174,
+        minHeight: compact && isCoCreator ? 52 : undefined,
+        padding: compact ? isCoCreator ? "7px 13px 7px 7px" : "5px 9px 5px 6px" : isCoCreator ? "8px 16px 8px 8px" : "6px 13px 6px 7px",
+        borderRadius: isCoCreator ? coTone.radius : 999,
+        clipPath: isCoCreator ? coTone.clipPath : "none",
         border: `1px solid ${isCoCreator ? coTone.border : level.color}`,
         background: isCoCreator
           ? coTone.bg
@@ -194,6 +220,7 @@ export function LevelBadge({ name, xp, compact = false, track = "personal", coCr
         textDecoration: "none",
         position: "relative",
         overflow: "hidden",
+        isolation: isCoCreator ? "isolate" : undefined,
       }}
     >
       {isCoCreator ? (
@@ -233,7 +260,7 @@ export function LevelBadge({ name, xp, compact = false, track = "personal", coCr
             style={{
               position: "absolute",
               inset: compact ? 2 : 3,
-              borderRadius: 999,
+              borderRadius: "inherit",
               background:
                 coTone.pattern === "divine"
                   ? "repeating-linear-gradient(118deg, transparent 0 13px, rgba(255,216,107,0.16) 13px 14px, transparent 14px 25px), radial-gradient(circle at 82% 50%, rgba(126,231,255,0.22), transparent 28%)"
@@ -246,6 +273,44 @@ export function LevelBadge({ name, xp, compact = false, track = "personal", coCr
                         : "repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0 4px, transparent 4px 12px)",
               opacity: compact ? 0.42 : 0.68,
               mixBlendMode: "screen",
+              pointerEvents: "none",
+              zIndex: 0,
+            }}
+          />
+          <span
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              left: compact ? 8 : 12,
+              right: compact ? 10 : 14,
+              bottom: compact ? 5 : 7,
+              height: level.level >= 19 ? 3 : 2,
+              borderRadius: 999,
+              background: level.level >= 19
+                ? "linear-gradient(90deg, transparent, rgba(126,231,255,0.95), rgba(255,216,107,0.92), transparent)"
+                : `linear-gradient(90deg, transparent, ${coTone.border}, transparent)`,
+              boxShadow: level.level >= 18 ? `0 0 12px ${coTone.border}` : "none",
+              opacity: level.level >= 16 ? 0.9 : 0.62,
+              zIndex: 1,
+              pointerEvents: "none",
+            }}
+          />
+          <span
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              right: compact ? -16 : -12,
+              top: compact ? -20 : -18,
+              width: level.level >= 19 ? 92 : level.level >= 18 ? 78 : 58,
+              height: level.level >= 19 ? 92 : level.level >= 18 ? 78 : 58,
+              borderRadius: "50%",
+              background: level.level >= 19
+                ? "conic-gradient(from 120deg, transparent, rgba(255,216,107,0.28), rgba(126,231,255,0.36), transparent)"
+                : level.level >= 18
+                  ? "conic-gradient(from 120deg, transparent, rgba(182,146,255,0.30), rgba(126,231,255,0.24), transparent)"
+                  : "radial-gradient(circle, rgba(255,255,255,0.12), transparent 62%)",
+              opacity: level.level >= 17 ? 0.84 : 0.32,
+              zIndex: 0,
               pointerEvents: "none",
             }}
           />
@@ -265,12 +330,13 @@ export function LevelBadge({ name, xp, compact = false, track = "personal", coCr
                 filter: "blur(0.1px)",
                 opacity: compact ? 0.48 : 0.76,
                 pointerEvents: "none",
+                zIndex: 1,
               }}
             />
           )}
         </>
       )}
-      <span style={{ display: "flex", flexDirection: "column", minWidth: 0, lineHeight: 1.1 }}>
+      <span style={{ display: "flex", flexDirection: "column", minWidth: 0, lineHeight: 1.1, position: "relative", zIndex: 2 }}>
         <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
           <span style={{ maxWidth: compact ? 70 : 92, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 12, fontWeight: 950, color: "#fff" }}>
             {name}

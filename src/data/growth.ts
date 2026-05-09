@@ -3,6 +3,20 @@ export const ONLINE_XP_PER_HEARTBEAT = 1
 export const DAILY_ONLINE_XP_CAP = 20
 export const LEARNING_STAGE_XP = 80
 
+export const COMMUNITY_REWARDS = {
+  commentXP: 3,
+  acceptedAnswerXP: 30,
+  normalPostApprovedXP: 10,
+  questionPostApprovedXP: 12,
+  practicalCaseApprovedXP: 60,
+  practicalCaseVerifiedXP: 120,
+  coCreatorCommentContribution: 1,
+  coCreatorAcceptedAnswerContribution: 5,
+  coCreatorPostContribution: 3,
+  coCreatorCaseContribution: 8,
+  coCreatorVerifiedCaseContribution: 18,
+}
+
 export type GrowthMission = {
   id: string
   title: string

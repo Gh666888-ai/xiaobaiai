@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createServerSupabase, hasSupabaseConfig, requireUser } from "@/lib/server-auth"
 import { getSeedCommunityComments } from "@/data/community-comments"
+import { COMMUNITY_REWARDS } from "@/data/growth"
 
 const MAX_LEVEL_EMAILS = new Set(["15171192200@163.com", "109020070@qq.com", "771239559@qq.com"])
 const MAX_LEVEL_XP = 100000
-const COMMENT_XP = 3
-const ACCEPTED_ANSWER_XP = 30
 const COMMENT_COOLDOWN_MS = 30_000
 const LINK_PATTERN = /(https?:\/\/|www\.|\.com\b|\.cn\b|\.net\b|\.org\b|\.top\b|\.xyz\b|\.vip\b)/i
 const HARD_BLOCK_RULES = [
@@ -24,6 +23,10 @@ const REVIEW_RULES = [
 
 function normalizeXP(email?: string | null, xp?: number | null) {
   return MAX_LEVEL_EMAILS.has(String(email || "").toLowerCase()) ? MAX_LEVEL_XP : Number(xp || 0)
+}
+
+function isCoCreatorProfile(profile: any) {
+  return Boolean(profile?.co_creator_approved) || MAX_LEVEL_EMAILS.has(String(profile?.email || "").toLowerCase())
 }
 
 function dayKey(now = new Date()) {
@@ -51,24 +54,59 @@ async function recordGrowthEvent(supabase: ReturnType<typeof createServerSupabas
   return true
 }
 
-async function awardXP(supabase: ReturnType<typeof createServerSupabase>, userId: string, amount: number, eventKey: string, reason: string) {
+async function recordContributionEvent(supabase: ReturnType<typeof createServerSupabase>, userId: string, eventKey: string, reason: string, amount: number) {
+  const { error } = await supabase.from("contribution_events").insert({
+    user_id: userId,
+    event_key: eventKey,
+    reason,
+    amount,
+    day_key: dayKey(),
+  })
+  if (error && String(error.code || "") === "23505") return false
+  if (error) {
+    console.error("[comments:contribution-event]", {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    })
+    return false
+  }
+  return true
+}
+
+async function awardCommunityValue(
+  supabase: ReturnType<typeof createServerSupabase>,
+  userId: string,
+  xpAmount: number,
+  contributionAmount: number,
+  eventKey: string,
+  reason: string,
+) {
   const { data: profile } = await supabase
     .from("profiles")
-    .select("xp,email")
+    .select("xp,email,co_creator_approved,contribution_points")
     .eq("id", userId)
     .maybeSingle()
-  if (MAX_LEVEL_EMAILS.has(String(profile?.email || "").toLowerCase())) return 0
 
-  const inserted = await recordGrowthEvent(supabase, userId, eventKey, reason, amount)
-  if (!inserted) return 0
+  if (isCoCreatorProfile(profile)) {
+    const inserted = await recordContributionEvent(supabase, userId, eventKey.replace(/^comment/, "contribution-comment"), `${reason}-contribution`, contributionAmount)
+    if (!inserted) return { awarded: 0, contribution: 0, mode: "contribution" as const }
+    const nextContribution = Number(profile?.contribution_points || 0) + contributionAmount
+    await supabase.from("profiles").update({ contribution_points: nextContribution }).eq("id", userId)
+    return { awarded: 0, contribution: contributionAmount, mode: "contribution" as const }
+  }
 
-  const nextXP = Number(profile?.xp || 0) + amount
+  const inserted = await recordGrowthEvent(supabase, userId, eventKey, reason, xpAmount)
+  if (!inserted) return { awarded: 0, contribution: 0, mode: "xp" as const }
+
+  const nextXP = Number(profile?.xp || 0) + xpAmount
   const { error } = await supabase.from("profiles").update({ xp: nextXP }).eq("id", userId)
   if (error) {
-    console.error("[comments:award-xp]", error)
-    return 0
+    console.error("[comments:award-community-value]", error)
+    return { awarded: 0, contribution: 0, mode: "xp" as const }
   }
-  return amount
+  return { awarded: xpAmount, contribution: 0, mode: "xp" as const, nextXP }
 }
 
 function cleanContent(value: unknown) {
@@ -178,6 +216,8 @@ export async function POST(req: NextRequest) {
   }
 
   let awarded = 0
+  let contribution = 0
+  let rewardMode: "xp" | "contribution" = "xp"
   if (moderation.status === "approved") {
     const { data: post } = await auth.adminSupabase
       .from("community_posts")
@@ -190,12 +230,20 @@ export async function POST(req: NextRequest) {
         .update({ comments_count: Number(post.comments_count || 0) + 1 })
         .eq("id", postId)
     }
-    if (!MAX_LEVEL_EMAILS.has(String(email || "").toLowerCase())) {
-      awarded = await awardXP(auth.adminSupabase, auth.user.id, COMMENT_XP, `comment:${result.data?.id || Date.now()}`, "comment")
-    }
+    const reward = await awardCommunityValue(
+      auth.adminSupabase,
+      auth.user.id,
+      COMMUNITY_REWARDS.commentXP,
+      COMMUNITY_REWARDS.coCreatorCommentContribution,
+      `comment:${result.data?.id || Date.now()}`,
+      "comment",
+    )
+    awarded = reward.awarded
+    contribution = reward.contribution
+    rewardMode = reward.mode
   }
 
-  return NextResponse.json({ ...result.data, awarded })
+  return NextResponse.json({ ...result.data, awarded, contribution, reward_mode: rewardMode })
 }
 
 export async function PATCH(req: NextRequest) {
@@ -244,8 +292,15 @@ export async function PATCH(req: NextRequest) {
     .single()
   if (acceptError) return NextResponse.json({ error: acceptError.message }, { status: 500 })
 
-  const awarded = await awardXP(auth.adminSupabase, comment.author_id, ACCEPTED_ANSWER_XP, `comment-accepted:${commentId}`, "comment-accepted")
-  if (awarded > 0) {
+  const reward = await awardCommunityValue(
+    auth.adminSupabase,
+    comment.author_id,
+    COMMUNITY_REWARDS.acceptedAnswerXP,
+    COMMUNITY_REWARDS.coCreatorAcceptedAnswerContribution,
+    `comment-accepted:${commentId}`,
+    "comment-accepted",
+  )
+  if (reward.awarded > 0) {
     const { data: profile } = await auth.adminSupabase
       .from("profiles")
       .select("xp,email")
@@ -258,5 +313,5 @@ export async function PATCH(req: NextRequest) {
     if (accepted) accepted.author_xp = normalizeXP(profile?.email, profile?.xp)
   }
 
-  return NextResponse.json({ ...accepted, awarded })
+  return NextResponse.json({ ...accepted, awarded: reward.awarded, contribution: reward.contribution, reward_mode: reward.mode })
 }

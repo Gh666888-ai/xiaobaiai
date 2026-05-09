@@ -11,6 +11,7 @@ import { LevelBadge } from "@/components/LevelBadge"
 import { SeoKeywordLinks } from "@/components/SeoKeywordLinks"
 import { SeoRelatedLinks } from "@/components/SeoRelatedLinks"
 import { getUserLevel } from "@/data/user"
+import { COMMUNITY_REWARDS } from "@/data/growth"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
 import { communityImage } from "@/lib/visual-assets"
@@ -123,7 +124,9 @@ export default function PostDetailPage() {
         setCommentError("评论已提交，但命中风险词，暂不公开展示。")
       } else {
         setComments(prev => [...prev, data])
-        setCommentError(`评论已发布，+${Number(data?.awarded || 3)}XP 会进入今日经验榜。再发一篇模板帖可以继续 +10XP。`)
+        setCommentError(data?.reward_mode === "contribution"
+          ? `评论已发布，+${Number(data?.contribution || 0)} 贡献值。共创阶段重点看真实贡献，不再靠刷 XP。`
+          : `评论已发布，+${Number(data?.awarded || COMMUNITY_REWARDS.commentXP)}XP 会进入今日任务记录。再发一篇实战案例，审核通过奖励更高。`)
         await refresh().catch(() => undefined)
       }
       setCommentText("")
@@ -158,7 +161,9 @@ export default function PostDetailPage() {
           ? { ...item, ...data, is_accepted: true }
           : { ...item, is_accepted: false }
       )))
-      setCommentError(`已认可这条解决方案，评论会置顶，答主 +${Number(data?.awarded || 0)}XP。`)
+      setCommentError(data?.reward_mode === "contribution"
+        ? `已认可这条解决方案，评论会置顶，答主 +${Number(data?.contribution || 0)} 贡献值。`
+        : `已认可这条解决方案，评论会置顶，答主 +${Number(data?.awarded || 0)}XP。`)
       await refresh().catch(() => undefined)
     } catch (error: any) {
       setCommentError(error?.message || "认可失败，请稍后再试。")
@@ -236,8 +241,8 @@ export default function PostDetailPage() {
 
         <section style={{display:'grid',gridTemplateColumns:'1fr auto',gap:12,alignItems:'center',border:'1px solid rgba(201,168,76,0.34)',background:'rgba(201,168,76,0.045)',borderRadius:12,padding:'14px 16px',marginBottom:18}} className="max-sm:grid-cols-1">
           <div>
-            <p style={{color:'#fff',fontSize:14,fontWeight:950,marginBottom:4}}>{isQuestionPost ? "帮楼主解决问题 +3XP，被认可再加 30XP 并置顶" : "写一条有效评论 +3XP，今日经验榜实时刷新"}</p>
-            <p style={{color:'#d6c28a',fontSize:12,lineHeight:1.7}}>{user ? "补充你的用法、踩坑点、替代工具或可执行步骤，越具体越容易被楼主认可。" : "登录后评论 +3XP，回答问题被认可还能获得更多经验。"}</p>
+            <p style={{color:'#fff',fontSize:14,fontWeight:950,marginBottom:4}}>{isQuestionPost ? `帮楼主解决问题 +${COMMUNITY_REWARDS.commentXP}XP，被认可再加 ${COMMUNITY_REWARDS.acceptedAnswerXP}XP 并置顶` : `写一条有效评论 +${COMMUNITY_REWARDS.commentXP}XP，今日任务榜实时刷新`}</p>
+            <p style={{color:'#d6c28a',fontSize:12,lineHeight:1.7}}>{user?.coCreatorApproved ? "你已进入共创阶段，后续重点累计贡献值，不再靠刷 XP 升级。" : user ? "补充你的用法、踩坑点、替代工具或可执行步骤，越具体越容易被楼主认可。" : `登录后评论 +${COMMUNITY_REWARDS.commentXP}XP，回答问题被认可还能获得更多经验。`}</p>
           </div>
           <button onClick={()=>setShowCommentBox(true)} className="btn-outline" style={{whiteSpace:'nowrap'}}>去评论</button>
         </section>
@@ -260,7 +265,7 @@ export default function PostDetailPage() {
               <textarea
                 value={commentText}
                 onChange={e=>setCommentText(e.target.value)}
-                placeholder={user ? "写评论..." : "登录后评论 +3XP，今天也能冲榜..."}
+                placeholder={user ? "写评论..." : `登录后评论 +${COMMUNITY_REWARDS.commentXP}XP，今天也能冲榜...`}
                 className="form-input"
                 rows={3}
                 style={{flex:1,minHeight:78,resize:'vertical'}}

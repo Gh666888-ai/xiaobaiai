@@ -273,6 +273,7 @@ export default function ModeratePage() {
                       <span className="tag tag-gold">{post.category || "未分类"}</span>
                       {post.pinned && <span className="tag tag-blue">置顶</span>}
                       {post.featured && <span className="tag tag-green">精华</span>}
+                      {post.verified_case && <span className="tag tag-green">已验证可行</span>}
                       <span style={{ fontSize: 11, color: advice.color, fontWeight: 900 }}>AI 审核分 {advice.score} · {advice.label}</span>
                     </div>
                     <h3 style={{ color: "#fff", fontSize: 17, fontWeight: 900, lineHeight: 1.5 }}>{post.title}</h3>
@@ -282,6 +283,7 @@ export default function ModeratePage() {
                       <button onClick={() => patchPost({ id: post.id, status: "approved" })} className="btn-primary" style={{ fontSize: 11, padding: "6px 13px" }}><Check size={13} /> 通过</button>
                       <button onClick={() => patchPost({ id: post.id, status: "rejected" })} className="btn-outline" style={{ fontSize: 11, padding: "6px 13px", color: "#D94841", borderColor: "#3a1a1a" }}><X size={13} /> 拒绝</button>
                       <button onClick={() => patchPost({ id: post.id, status: "approved", featured: true })} className="btn-outline" style={{ fontSize: 11, padding: "6px 13px" }}><Star size={13} /> 设精华</button>
+                      <button onClick={() => patchPost({ id: post.id, status: "approved", featured: true, verified_case: true })} className="btn-outline" style={{ fontSize: 11, padding: "6px 13px", color: "#8fd6a0", borderColor: "rgba(61,165,99,0.55)" }}><Check size={13} /> 验证可行</button>
                       <button onClick={() => patchPost({ id: post.id, status: "approved", pinned: true })} className="btn-outline" style={{ fontSize: 11, padding: "6px 13px" }}>置顶</button>
                       <button onClick={() => setPreview(polishPreview(post))} className="btn-outline" style={{ fontSize: 11, padding: "6px 13px" }}><Sparkles size={13} /> 审核建议</button>
                     </div>

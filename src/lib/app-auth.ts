@@ -13,6 +13,7 @@ export type AppAuthStored = {
     email: string
     name: string
     xp?: number
+    contributionPoints?: number
     coCreatorApproved?: boolean
     coCreatorTrack?: "personal" | "team"
   }
