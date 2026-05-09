@@ -137,6 +137,88 @@ pre[style*="font-size:12px"] {
   font-weight: 850;
 }
 
+/* 首页之外的操作页：跟 /start 保持一致的深墨绿工作台风格 */
+.xb-workbench {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(93,135,111,0.16), transparent 34%),
+    radial-gradient(circle at 84% 12%, rgba(216,191,118,0.1), transparent 30%),
+    linear-gradient(180deg,#07100f 0%,#0b0d0c 48%,#070707 100%) !important;
+}
+
+.xb-workbench .math-rain,
+.xb-workbench canvas {
+  opacity: 0.42 !important;
+}
+
+.xb-workbench-main {
+  background: linear-gradient(180deg,rgba(22,27,24,0.91),rgba(10,12,12,0.94)) !important;
+  border: 1px solid rgba(233,215,165,0.13) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 26px 80px rgba(0,0,0,0.34) !important;
+}
+
+.xb-workbench :is(section, article, details, form, a)[style*="border"] {
+  border-color: rgba(233,215,165,0.14) !important;
+}
+
+.xb-workbench :is(section, article, details)[style*="rgba(201,168,76"],
+.xb-workbench :is(section, article, details)[style*="#2a1f10"] {
+  background: rgba(244,240,226,0.052) !important;
+}
+
+.xb-workbench :is(a, div)[style*="rgba(0,0,0,0.24"],
+.xb-workbench :is(a, div)[style*="rgba(0,0,0,0.25"],
+.xb-workbench :is(a, div)[style*="rgba(0,0,0,0.26"] {
+  background: rgba(244,240,226,0.04) !important;
+}
+
+.xb-workbench :is(h1, h2, h3)[style*="color: #fff"],
+.xb-workbench :is(h1, h2, h3)[style*="color:#fff"] {
+  color: #f8f3e6 !important;
+}
+
+.xb-workbench :is(p, span)[style*="color: #ccc"],
+.xb-workbench :is(p, span)[style*="color:#ccc"],
+.xb-workbench :is(p, span)[style*="color: #bbb"],
+.xb-workbench :is(p, span)[style*="color:#bbb"],
+.xb-workbench :is(p, span)[style*="color: #aaa"],
+.xb-workbench :is(p, span)[style*="color:#aaa"] {
+  color: #c8c8bd !important;
+}
+
+.xb-workbench :is(p, span, a, summary)[style*="#e8c96a"],
+.xb-workbench :is(p, span, a, summary)[style*="#c9a84c"] {
+  color: #d8bf76 !important;
+}
+
+.xb-workbench .btn-primary {
+  border-color: rgba(216,191,118,0.42) !important;
+  background: linear-gradient(180deg,rgba(216,191,118,0.22),rgba(151,126,58,0.16)) !important;
+  color: #fff4c9 !important;
+  border-radius: 12px !important;
+}
+
+.xb-workbench .btn-outline {
+  border-color: rgba(255,255,255,0.13) !important;
+  background: rgba(255,255,255,0.045) !important;
+  color: #e6e2d8 !important;
+  border-radius: 12px !important;
+}
+
+.xb-workbench input,
+.xb-workbench textarea {
+  background: rgba(255,255,255,0.055) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+}
+
+@media (max-width: 768px) {
+  .xb-workbench-main {
+    border-radius: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+  }
+}
+
 /* 分隔线 */
 .divider { height: 1px; background: #1a1a1a; border: none; margin: 24px 0; }
 

@@ -122,11 +122,11 @@ const tutorialJsonLd = {
 
 export default function TutorialsPage() {
   return (
-    <div style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
+    <div className="xb-workbench" style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(tutorialJsonLd) }} />
       <MathRain />
       <NavBar />
-      <main style={{ maxWidth: 1120, margin: "0 auto", padding: "64px 60px 104px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.9)" }} className="max-sm:px-4">
+      <main style={{ maxWidth: 1120, margin: "0 auto", padding: "64px 60px 104px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.9)" }} className="xb-workbench-main max-sm:px-4">
         <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.35em", color: "#7a6230", textTransform: "uppercase", marginBottom: 12, fontWeight: 900 }}>AI Tutorials</p>
         <h1 style={{ fontSize: 42, color: "#fff", fontWeight: 900, lineHeight: 1.22, marginBottom: 16 }}>AI教程大全：零基础学AI、AI工具教程和实战指南</h1>
         <p style={{ fontSize: 16, color: "#ccc", lineHeight: 1.9, maxWidth: 840, marginBottom: 28 }}>

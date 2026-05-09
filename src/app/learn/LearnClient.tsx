@@ -227,11 +227,11 @@ export default function LearnPage() {
   const nextMainText = missionDoneCount > 0 ? "继续下一个实战任务" : "我不知道，从第一个任务开始"
 
   return (
-    <div style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
+    <div className="xb-workbench" style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
       <MathRain />
       <NavBar />
 
-      <main style={{maxWidth:980,margin:'0 auto',padding:'50px 28px 72px',position:'relative',zIndex:10}} className="learn-shell">
+      <main style={{maxWidth:980,margin:'0 auto',padding:'50px 28px 72px',position:'relative',zIndex:10}} className="xb-workbench-main learn-shell">
         <section style={{border:'1px solid #2a1f10',background:'rgba(0,0,0,0.9)',borderRadius:12,padding:'30px 30px 26px',marginBottom:14}}>
           <div style={{display:'flex',justifyContent:'space-between',gap:18,alignItems:'flex-start',flexWrap:'wrap',marginBottom:18}}>
             <div style={{maxWidth:680}}>
