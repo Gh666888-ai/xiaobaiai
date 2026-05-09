@@ -209,12 +209,15 @@ function LevelTitlePlate({
             drop-shadow(0 7px 16px rgba(0,0,0,0.34));
         }
         .levelTitlePlate.isCompact {
-          min-width: 154px;
-          width: 154px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 172px;
+          width: 172px;
           min-height: 36px;
           max-height: 38px;
-          gap: 7px;
-          padding: 4px 12px 4px 8px;
+          gap: 0;
+          padding: 4px 20px 4px 42px;
           overflow: hidden;
           border-radius: 999px;
         }
@@ -253,20 +256,20 @@ function LevelTitlePlate({
             contrast(1.03);
         }
         .levelTitlePlate.isCompact .autoPlateImage {
-          left: 49%;
-          width: 200px;
+          left: 50%;
+          width: 218px;
           max-height: none;
         }
         .levelTitlePlate.isCompact.levelBeast-lushu .autoPlateImage {
-          width: 186px;
+          width: 214px;
           filter: saturate(0.78) brightness(0.82) contrast(1.02);
         }
         .levelTitlePlate.isCompact.levelBeast-bifang .autoPlateImage {
-          width: 194px;
+          width: 222px;
           filter: saturate(0.84) brightness(0.76) contrast(1.04);
         }
         .levelTitlePlate.isCompact.levelBeast-yingzhao .autoPlateImage {
-          width: 202px;
+          width: 228px;
           filter: saturate(0.78) brightness(0.74) contrast(1.03);
         }
         .levelBackPlate {
@@ -603,15 +606,15 @@ function LevelTitlePlate({
           clip-path: polygon(0 50%, 20% 16%, 44% 30%, 62% 6%, 100% 50%, 62% 94%, 44% 70%, 20% 84%);
         }
         .levelTitlePlate.isCompact.levelTier-starter {
-          min-width: 154px;
+          min-width: 172px;
         }
         .levelTitlePlate.isCompact.levelTier-adept {
-          min-width: 154px;
+          min-width: 172px;
         }
         .levelTitlePlate.isCompact.levelTier-master {
-          min-width: 154px;
+          min-width: 172px;
           min-height: 36px;
-          padding: 4px 12px 4px 8px;
+          padding: 4px 20px 4px 42px;
         }
         .levelTitlePlate.isCompact.levelTier-master .levelPlateCore {
           inset: 4px 8px;
@@ -628,8 +631,7 @@ function LevelTitlePlate({
           margin-left: 0;
         }
         .isCompact .levelGemWrap {
-          width: 27px;
-          height: 27px;
+          display: none;
         }
         .levelGem {
           width: 32px;
@@ -709,12 +711,19 @@ function LevelTitlePlate({
         .isCompact .levelPlateText {
           padding-right: 0;
           padding-left: 0;
+          width: 100%;
+          align-items: center;
         }
         .levelTopline {
           display: flex;
           align-items: center;
           gap: 6px;
           min-width: 0;
+        }
+        .isCompact .levelTopline {
+          width: 100%;
+          justify-content: center;
+          gap: 6px;
         }
         .levelUserName {
           max-width: 112px;
@@ -727,7 +736,7 @@ function LevelTitlePlate({
           text-shadow: 0 1px 0 rgba(0,0,0,0.78), 0 0 10px rgba(0,0,0,0.82), 0 0 12px var(--plate-glow);
         }
         .isCompact .levelUserName {
-          max-width: 58px;
+          max-width: 84px;
           font-size: 12px;
           text-shadow: 0 1px 0 rgba(0,0,0,0.95), 0 0 7px rgba(0,0,0,0.88);
         }
@@ -798,10 +807,10 @@ function LevelTitlePlate({
         }
         @media (max-width: 860px) {
           .levelTitlePlate.isCompact {
-            min-width: 142px;
-            width: 142px;
+            min-width: 152px;
+            width: 152px;
             min-height: 34px;
-            padding: 4px 10px 4px 7px;
+            padding: 4px 14px 4px 34px;
           }
           .levelTitlePlate.isCompact .levelWing {
             width: 28px;
@@ -811,7 +820,7 @@ function LevelTitlePlate({
           .levelTitlePlate.isCompact .levelWing.left { left: -15px; }
           .levelTitlePlate.isCompact .levelWing.right { right: -15px; }
           .levelTitlePlate.isCompact .levelUserName {
-            max-width: 50px;
+            max-width: 68px;
             font-size: 10px;
           }
           .levelTitlePlate.isCompact .levelNumber {
