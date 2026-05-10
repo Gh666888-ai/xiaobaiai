@@ -562,14 +562,14 @@ export default function GrowthClient() {
                 {isCoCreatorMode ? "共创可见全部" : `已解锁 LV.${currentLevel.level}`}
               </span>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "12px 10px" }} className="max-sm:grid-cols-1">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "14px 12px" }} className="max-sm:grid-cols-1">
               {levelGallery.map(({ level, sampleXP, sampleContribution, unlocked }) => (
-                <div key={level.level} style={{ border: `1px solid ${unlocked ? `${level.color}66` : "#242424"}`, borderRadius: 10, background: unlocked ? `${level.color}10` : "rgba(255,255,255,0.02)", padding: "12px 10px", minHeight: 94, opacity: unlocked ? 1 : 0.48 }}>
+                <div key={level.level} style={{ border: `1px solid ${unlocked ? `${level.color}66` : "#242424"}`, borderRadius: 10, background: unlocked ? `${level.color}10` : "rgba(255,255,255,0.02)", padding: "12px 10px", minHeight: level.level >= 15 ? 116 : level.level >= 10 ? 132 : level.level >= 7 ? 120 : 106, opacity: unlocked ? 1 : 0.48 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 8 }}>
                     <p style={{ color: level.accent, fontSize: 12, fontWeight: 950 }}>LV.{level.level} {level.name}</p>
                     <span style={{ fontFamily: "'JetBrains Mono',monospace", color: unlocked ? "#e8c96a" : "#777", fontSize: 10, fontWeight: 900 }}>{level.level >= 15 ? "共创" : `${level.minXP}XP`}</span>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: level.level >= 19 ? 58 : 46, overflow: "visible" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: level.level >= 19 ? 72 : level.level >= 15 ? 62 : level.level >= 10 ? 86 : level.level >= 7 ? 78 : 62, overflow: "visible" }}>
                     <LevelBadge
                       compact
                       name={level.level >= 15 ? level.name.replace("小白AI", "") : "小白"}
