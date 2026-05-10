@@ -124,11 +124,14 @@ export function NavBar() {
               {profileOpen && (
                 <div className="site-profile-popover">
                   <div className="profile-head">
-                <LevelBadge compact name={user.name} xp={userXP} track={levelTrack} contributionPoints={contributionPoints} coCreatorApproved={user.coCreatorApproved} />
+                    <LevelIcon level={level.level} name={level.name} compact />
                     <div className="profile-title">
                       <p>{user.name}</p>
                       <span>{user.email}</span>
                     </div>
+                  </div>
+                  <div className="profile-current-plate">
+                    <LevelBadge compact name={user.name} xp={userXP} track={levelTrack} contributionPoints={contributionPoints} coCreatorApproved={user.coCreatorApproved} />
                   </div>
                   <div className="profile-xp-row">
                     <span>LV.{level.level} {level.name}</span>
@@ -159,12 +162,20 @@ export function NavBar() {
                   ) : (
                     <div className="profile-level-snapshot" aria-label="当前等级和下一级">
                       <div className="profile-level-card is-current">
+                        <div className="profile-level-card-visual">
+                          <LevelIcon level={level.level} name={level.name} compact />
+                          <LevelBadge compact name={user.name} xp={userXP} track={levelTrack} contributionPoints={contributionPoints} coCreatorApproved={user.coCreatorApproved} />
+                        </div>
                         <span>当前等级</span>
                         <strong>LV.{level.level} {level.name}</strong>
                         <p>{level.reward.title}</p>
                       </div>
                       {next ? (
                         <div className="profile-level-card">
+                          <div className="profile-level-card-visual">
+                            <LevelIcon level={next.level.level} name={next.level.name} compact locked={next.requiresReview} />
+                            <LevelBadge compact name={user.name} xp={next.level.minXP} track={levelTrack} contributionPoints={coCreatorPreviewContribution[next.level.level] || contributionPoints} coCreatorApproved={next.level.level >= 15} previewLevel={next.level.level} />
+                          </div>
                           <span>{next.requiresReview ? "共创审核" : "下一级预览"}</span>
                           <strong>LV.{next.level.level} {next.level.name}</strong>
                           <p>{next.requiresReview ? "需要人工审核真实案例、复盘质量和共建贡献" : next.level.reward.title}</p>
@@ -287,6 +298,20 @@ export function NavBar() {
           gap: 12px;
           margin-bottom: 14px;
         }
+        .profile-head .levelIconBadge {
+          flex: 0 0 auto;
+          width: 78px;
+          height: 92px;
+          margin: -10px 0 -8px;
+        }
+        .profile-current-plate {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 56px;
+          margin: -2px 0 12px;
+          overflow: visible;
+        }
         .profile-title {
           min-width: 0;
         }
@@ -386,6 +411,26 @@ export function NavBar() {
           border-radius: 10px;
           background: rgba(255,255,255,0.025);
           padding: 10px;
+        }
+        .profile-level-card-visual {
+          display: grid;
+          grid-template-columns: 68px minmax(0,1fr);
+          align-items: center;
+          gap: 8px;
+          min-height: 82px;
+          margin: -4px 0 6px;
+          overflow: visible;
+        }
+        .profile-level-card-visual .levelIconBadge {
+          width: 68px;
+          height: 80px;
+        }
+        .profile-level-card-visual .levelTitlePlate,
+        .profile-level-card-visual .coCreatorImageBadge {
+          justify-self: center;
+          max-width: 100%;
+          transform: scale(0.88);
+          transform-origin: center;
         }
         .profile-level-card.is-current {
           border-color: rgba(122,98,48,0.72);

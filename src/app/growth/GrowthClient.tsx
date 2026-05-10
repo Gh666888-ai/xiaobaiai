@@ -272,6 +272,13 @@ export default function GrowthClient() {
             <p style={{ fontSize: 15, color: "#cfcfcf", lineHeight: 1.9, maxWidth: 680 }}>每天给自己一个小任务，积累经验值、连续学习和下一步路线。登录后领取的经验会同步到账号等级和右上角徽章。</p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "72px minmax(0, 180px)", alignItems: "center", gap: 10, border: `1px solid ${currentLevel.color}66`, borderRadius: 14, background: `${currentLevel.color}10`, padding: "8px 12px", minHeight: 92, overflow: "visible" }}>
+              <LevelIcon level={currentLevel.level} name={currentLevel.name} compact />
+              <div style={{ minWidth: 0, display: "grid", gap: 4, justifyItems: "start" }}>
+                <span style={{ color: currentLevel.accent, fontSize: 11, fontWeight: 950 }}>{currentLevel.level >= 19 ? currentLevel.name : `LV.${currentLevel.level} ${currentLevel.name}`}</span>
+                <LevelBadge compact name={user?.name || "个人"} xp={state.xp} contributionPoints={contributionPoints} coCreatorApproved={user?.coCreatorApproved} />
+              </div>
+            </div>
             <div style={{ display: "flex", alignItems: "center", gap: 12, border: "1px solid #2a1f10", borderRadius: 14, background: "rgba(201,168,76,0.055)", padding: "10px 13px" }}>
               <XiaobaiMascot size={46} mood={badge.mood} />
               <div>

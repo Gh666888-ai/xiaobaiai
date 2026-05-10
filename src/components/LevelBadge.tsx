@@ -37,21 +37,21 @@ type CoCreatorStage = {
 }
 
 const autoPlates: Record<number, AutoPlate> = {
-  0: { image: "/level-plates/title-level-01.png", name: "AI???", shortName: "???", group: "starter" },
-  1: { image: "/level-plates/title-level-01.png", name: "AI???", shortName: "???", group: "starter" },
-  2: { image: "/level-plates/title-level-02.png", name: "????", shortName: "??", group: "starter" },
-  3: { image: "/level-plates/title-level-03.png", name: "????", shortName: "??", group: "starter" },
-  4: { image: "/level-plates/title-level-04.png", name: "????", shortName: "??", group: "starter" },
-  5: { image: "/level-plates/title-level-05.png", name: "????", shortName: "??", group: "adept" },
-  6: { image: "/level-plates/title-level-06.png", name: "????", shortName: "??", group: "adept" },
-  7: { image: "/level-plates/title-level-07.png", name: "????", shortName: "??", group: "adept" },
-  8: { image: "/level-plates/title-level-08.png", name: "????", shortName: "??", group: "adept" },
-  9: { image: "/level-plates/title-level-09.png", name: "????", shortName: "??", group: "adept" },
-  10: { image: "/level-plates/title-level-10.png", name: "????", shortName: "??", group: "master" },
-  11: { image: "/level-plates/title-level-11.png", name: "????", shortName: "??", group: "master" },
-  12: { image: "/level-plates/title-level-12.png", name: "????", shortName: "??", group: "master" },
-  13: { image: "/level-plates/title-level-13.png", name: "????", shortName: "??", group: "master" },
-  14: { image: "/level-plates/title-level-14.png", name: "????", shortName: "??", group: "master" },
+  0: { image: "/level-plates/title-level-01.png", name: "AI起步者", shortName: "起步", group: "starter" },
+  1: { image: "/level-plates/title-level-01.png", name: "AI起步者", shortName: "起步", group: "starter" },
+  2: { image: "/level-plates/title-level-02.png", name: "灵光初启", shortName: "灵光", group: "starter" },
+  3: { image: "/level-plates/title-level-03.png", name: "玄甲见习", shortName: "见习", group: "starter" },
+  4: { image: "/level-plates/title-level-04.png", name: "文鳐入海", shortName: "入海", group: "starter" },
+  5: { image: "/level-plates/title-level-05.png", name: "风翼试炼", shortName: "试炼", group: "adept" },
+  6: { image: "/level-plates/title-level-06.png", name: "毕方燃翼", shortName: "燃翼", group: "adept" },
+  7: { image: "/level-plates/title-level-07.png", name: "乘黄逐光", shortName: "逐光", group: "adept" },
+  8: { image: "/level-plates/title-level-08.png", name: "鸾鸟衔辉", shortName: "衔辉", group: "adept" },
+  9: { image: "/level-plates/title-level-09.png", name: "当康聚业", shortName: "聚业", group: "adept" },
+  10: { image: "/level-plates/title-level-10.png", name: "天狗破夜", shortName: "破夜", group: "master" },
+  11: { image: "/level-plates/title-level-11.png", name: "英招镇山", shortName: "镇山", group: "master" },
+  12: { image: "/level-plates/title-level-12.png", name: "陆吾守境", shortName: "守境", group: "master" },
+  13: { image: "/level-plates/title-level-13.png", name: "白泽知命", shortName: "白泽", group: "master" },
+  14: { image: "/level-plates/title-level-14.png", name: "麒麟开运", shortName: "麒麟", group: "master" },
 }
 const coCreatorStages: Record<number, CoCreatorStage> = {
   15: {
@@ -155,8 +155,8 @@ function LevelTitlePlate({
         }
         .levelTitlePlate.isCompact {
           width: 172px;
-          height: 38px;
-          overflow: hidden;
+          height: 52px;
+          overflow: visible;
         }
         .levelPlate-starter {
           filter:
@@ -182,7 +182,7 @@ function LevelTitlePlate({
           position: absolute;
           left: 50%;
           top: 50%;
-          z-index: -1;
+          z-index: 0;
           width: 118%;
           height: auto;
           max-height: 184%;
@@ -214,7 +214,7 @@ function LevelTitlePlate({
           }
           .levelTitlePlate.isCompact {
             width: 152px;
-            height: 34px;
+            height: 48px;
           }
           .levelTitlePlate.isCompact .levelTitlePlateImage {
             width: 196px;
@@ -430,8 +430,8 @@ export function LevelIcon({ level, name, compact = false, locked = false }: Leve
           filter: drop-shadow(0 10px 20px rgba(0,0,0,0.46));
         }
         .levelIconBadge.isCompact {
-          width: 86px;
-          height: 102px;
+          width: 72px;
+          height: 86px;
         }
         .levelIconBadge.isLocked {
           opacity: 0.42;
@@ -451,8 +451,8 @@ export function LevelIcon({ level, name, compact = false, locked = false }: Leve
             height: 156px;
           }
           .levelIconBadge.isCompact {
-            width: 76px;
-            height: 90px;
+            width: 62px;
+            height: 74px;
           }
         }
       `}</style>
