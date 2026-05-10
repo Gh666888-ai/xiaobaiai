@@ -25,7 +25,7 @@ const quickStart = [
   { href: "/learn", title: "先看完整学习主线", desc: "从认识 AI、会用工具、完成任务，到 Agent、API、AI 编程和自动化实战。" },
   { href: "/learn/0", title: "完全零基础，从这里开始", desc: "适合第一次接触 AI 的用户，先搞清楚 AI 能做什么、不能做什么。" },
   { href: "/learn/1", title: "AI工具入门", desc: "从 ChatGPT、DeepSeek、Kimi、豆包、Gemini、元宝开始，学会提问、上传资料和验证结果。" },
-  { href: "/start", title: "从0到1做成一个环节", desc: "不先选工具，先说你想做成什么事，再拆出今天能完成的第一个环节。" },
+  { href: "/learn#learn-start", title: "从0到1做成一个环节", desc: "不先选工具，先说你想做成什么事，再拆出今天能完成的第一个环节。" },
   { href: "/cases", title: "直接看实战案例", desc: "从办公、Dify、AI编程和内容创作案例里，找一个能照着做的场景。" },
 ]
 
@@ -214,7 +214,7 @@ export default function TutorialsPage() {
           </p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <Link href="/learn" className="btn-primary" style={{ textDecoration: "none" }}>进入学习路径</Link>
-            <Link href="/start" className="btn-outline" style={{ textDecoration: "none" }}>从0到1开始</Link>
+            <Link href="/learn#learn-start" className="btn-outline" style={{ textDecoration: "none" }}>从0到1开始</Link>
             <Link href="/cases" className="btn-outline" style={{ textDecoration: "none" }}>看实战案例库</Link>
             <Link href="/ai-tools" className="btn-outline" style={{ textDecoration: "none" }}>查看AI工具大全</Link>
           </div>

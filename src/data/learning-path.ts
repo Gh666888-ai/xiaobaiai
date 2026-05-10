@@ -10,6 +10,14 @@ export interface Section {
   title: string; content: string; tools: string[]; tips?: string
 }
 
+export const learningDepthStandard = [
+  "先做出一个看得见的小结果，而不是先看完一长篇解释。",
+  "每个结果都要有 3-5 条验收标准，知道哪里能用、哪里要改。",
+  "每个任务都要准备一条补救提示词，专门处理空话、乱编、格式不对和跑不通。",
+  "做完后必须留下复盘：工具、提示词、失败点、下一次怎么少踩坑。",
+  "下一步永远接到任务、案例或社区复盘，不让用户学完就断掉。",
+]
+
 export const stages: Stage[] = [
   // ===== 板块1：了解AI和Agent =====
   {id:0,title:"了解 AI 和 Agent",subtitle:"零基础认识人工智能，搞懂Agent到底是什么",
@@ -18,8 +26,8 @@ export const stages: Stage[] = [
       content:"AI = 一个读过很多书、可以跟你聊天、帮你干活的电脑程序。\n\n现在的 AI 能做：写文案、翻译、做PPT、画图、写代码、分析数据、搜索信息...几乎什么都能帮。\n\n你只需要学会怎么跟它「说话」——后面会教。\n\nAI 不是万能的，它会犯错（叫「幻觉」），所以当成一个很能干但需要你检查的实习生就行。",
       tools:[],tips:"最好的理解方式：打开 Kimi（kimi.moonshot.cn），输入「你好」，感受一下。"},
     {title:"Agent 是什么？跟普通AI聊天有什么区别？",
-      content:"普通AI：你问它答，像打电话咨询。\nAgent：你有事交代它，它自己去办完，像请了个助理。\n\n举个实际的例子：\n普通AI → 你问「今天天气怎么样」，它回复你。\nAgent → 你设好规则，它每天早上自动查天气，根据天气告诉你穿什么，下雨提醒你带伞——你什么都不用做。\n\nAgent = AI大脑 + 能操作电脑/网络 + 能定时自动执行。\n\n2026年 Agent 生态全景：\n\n🦞 OpenClaw（龙虾）—— 开源Agent之王，GitHub 29万星，2026最火。完全自由，13000+技能市场，12+通讯平台。\n\n🔮 Hermes —— 自我进化最强。能从任务中自动学习生成技能，越用越聪明。16+平台消息网关。\n\n💻 Claude Code —— 功能最强的编程Agent（但需付费$20/月，国内网络不太友好）。\n\n🏢 QClaw（腾讯）—— OpenClaw的套壳版。优点是安装简单（下载安装包→微信扫码→搞定），缺点是做了一些限制（不能自由接入模型、部分功能被阉割）。\n\n其他国内套壳：ArkClaw、AutoClaw、QClaw等，底层都是OpenClaw但各自加了限制。\n\n🎯 核心观点：套壳Agent方便但有限制，真正的开源Agent（OpenClaw/Hermes）装上技能后能力无限——能做任何事。这个学习路径会从QClaw入门，再引导你使用真正的开源Agent。",
-      tools:[],tips:"套壳 = 别人帮你配好了但限制了你的自由度。开源 = 完全自由但需要你自己配置。先套壳入门，再开源进阶。"},
+      content:"普通AI：你问它答，像打电话咨询。\nAgent：你交代一个目标，它可以读文件、调用工具、执行步骤，再把结果交给你验收，像一个需要边界和检查的助理。\n\n举个实际的例子：\n普通AI → 你问「今天天气怎么样」，它回复你。\nAgent → 你设好规则，它每天早上自动查天气，根据天气告诉你穿什么，下雨提醒你带伞。\n\nAgent = AI大脑 + 工具权限 + 执行步骤 + 人工验收。\n\n常见类型要分清：\n\n💻 Codex / Claude Code / Cursor Agent：工程或编程 Agent，能读项目、改文件、跑命令。\n\n🦞 OpenClaw / Hermes / QClaw：本地或平台型 Agent，可以接技能、接通讯工具、做自动化。\n\n🧠 DeepSeek / Kimi / GPT / Claude / Gemini / Qwen：模型或模型 API 后端，不是 Agent 本身。\n\n🧩 Dify / Coze / FastGPT：应用搭建、知识库和 Bot 平台。\n\n⚙️ n8n / Zapier / Make：工作流自动化，负责把多个系统串起来。\n\n🎯 核心观点：Agent 不是万能，也不是装越多越强。真正有用的是：先给它一个小任务，限定权限，跑出结果，再按标准验收。",
+      tools:[],tips:"最容易混的点：DeepSeek/Kimi 是模型；Codex/Claude Code 是能执行工程任务的 Agent；Dify/Coze 是搭应用的平台；n8n 是串流程的自动化工具。"},
     {title:"AI 工具生态全景：一张图看懂",
       content:"现在市面上的AI工具分这几大类：\n\n💬 对话AI：ChatGPT / Kimi / DeepSeek / 豆包 / 通义千问\n   → 聊天、问答、写作、翻译、代码，最基础的入门工具\n\n🤖 Agent平台：QClaw / Dify / Coze / OpenClaw / Hermes\n   → 搭建自动化的智能助手，能做客服、日报、监控\n\n🧠 模型平台：HuggingFace / Ollama / 硅基流动\n   → 下载和运行开源模型，本地免费使用\n\n🎨 创作工具：Midjourney / 即梦 / Suno / Sora\n   → AI绘图、视频、音乐\n\n这个学习路径会从对话AI开始，一步步带你到Agent和本地部署。",
       tools:[],tips:"不要被术语吓到。你不需要学所有的，跟着路径一步步走就够了。"},

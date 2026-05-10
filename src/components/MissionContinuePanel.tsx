@@ -88,7 +88,7 @@ export function MissionContinuePanel({ compact = false, title = "小白记得你
             <Link href={`/missions/${activeMission.id}`} className="btn-primary" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
               {primaryAction} <ArrowRight size={14} />
             </Link>
-            <Link href="/start" className="btn-outline" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
+            <Link href="/learn#learn-start" className="btn-outline" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
               重新选目标 <Compass size={14} />
             </Link>
             <Link href="/community/new" className="btn-outline" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>

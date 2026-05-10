@@ -29,7 +29,7 @@ export default function MissionsPage() {
           每个任务都不是“下载工具 + 复制提示词”。小白会带你跑通结果、验收好坏、二次修改、沉淀复盘。你做过的进度会被记住，下次回来继续。
         </p>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 38 }}>
-          <Link href="/start" className="btn-primary" style={{ textDecoration: "none" }}>让小白推荐今天任务</Link>
+          <Link href="/learn#learn-start" className="btn-primary" style={{ textDecoration: "none" }}>让小白推荐今天任务</Link>
           <Link href="/community/new" className="btn-outline" style={{ textDecoration: "none" }}>发任务复盘</Link>
           <Link href="/learn" className="btn-outline" style={{ textDecoration: "none" }}>学习主线</Link>
         </div>
@@ -43,7 +43,7 @@ export default function MissionsPage() {
               <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>今天只选一个任务</h2>
               <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.85 }}>不用先看完整任务库。先做一个能交付的小结果，再学会验收、改稿和复盘。</p>
             </div>
-            <Link href="/start" className="btn-primary" style={{ textDecoration: "none" }}>让小白带我选</Link>
+            <Link href="/learn#learn-start" className="btn-primary" style={{ textDecoration: "none" }}>让小白带我选</Link>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,240px),1fr))", gap: 10 }}>
             {firstMissions.map((mission) => (
@@ -72,7 +72,7 @@ export default function MissionsPage() {
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,260px),1fr))", gap: 10 }}>
             {industrySeries.map((series) => (
-              <Link key={series.id} href={`/start?goal=${encodeURIComponent(series.keywords[0])}`} style={{ textDecoration: "none", border: "1px solid #2b2618", background: "rgba(0,0,0,0.24)", borderRadius: 10, padding: "15px 16px", minHeight: 176, display: "flex", flexDirection: "column" }}>
+              <Link key={series.id} href="/learn#learn-start" style={{ textDecoration: "none", border: "1px solid #2b2618", background: "rgba(0,0,0,0.24)", borderRadius: 10, padding: "15px 16px", minHeight: 176, display: "flex", flexDirection: "column" }}>
                 <h3 style={{ color: "#fff", fontSize: 16, fontWeight: 950, lineHeight: 1.4, marginBottom: 7 }}>{series.shortTitle}</h3>
                 <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7, marginBottom: 12 }}>{series.promise}</p>
                 <div style={{ marginTop: "auto", display: "grid", gap: 6 }}>

@@ -89,10 +89,10 @@ export default function HomePage() {
           <h1 style={{ fontSize: "clamp(56px, 10vw, 118px)", fontWeight: 950, lineHeight: 1, letterSpacing: 0, color: "#fff", textShadow: "0 0 80px rgba(201,168,76,0.16), 0 0 160px rgba(201,168,76,0.06)", marginBottom: 24, opacity: 0, animation: "fadeUp 0.8s ease forwards 0.36s" }}>小白AI</h1>
           <div style={{ width: 0, height: 1, background: "linear-gradient(90deg, transparent, #c9a84c, transparent)", margin: "0 auto 26px", animation: "expandWidth 1s ease forwards 0.62s" }} />
           <p style={{ fontSize: "clamp(22px, 3.2vw, 38px)", fontWeight: 950, lineHeight: 1.45, color: "#fff", maxWidth: 820, margin: "0 auto 22px", opacity: 0, animation: "fadeUp 0.8s ease forwards 0.82s" }}>
-            我们立志让所有不懂 AI 的人，1 小时内成熟利用 AI 完成工作
+            让不懂 AI 的人，1 小时内做出第一份可检查成果
           </p>
           <p style={{ fontSize: 13, fontWeight: 850, lineHeight: 1.8, color: "#b9a463", maxWidth: 620, margin: "0 auto 20px", opacity: 0, animation: "fadeUp 0.8s ease forwards 0.96s" }}>
-            AI时代来了，学会利用AI能让你领先百分之九十的人
+            不是先背工具榜单，而是先选一个任务：PPT、资料摘要、内容草稿、知识库、自动化或代码小改。
           </p>
 
           {user ? (

@@ -8,13 +8,14 @@ import { NavBar } from "@/components/NavBar"
 import Link from "next/link"
 import { progressId, readLearningProgress, LearningProgress } from "@/lib/learning-progress"
 import { readMissionProgress } from "@/lib/mission-progress"
+import { diagnosisQuestions, goalOptions, recommendByDiagnosis, type GoalOption } from "@/data/start-goals"
 
 const beginnerChoices = [
   {
     label: "我完全不知道从哪开始",
     title: "先做一份 6 页 PPT 初稿",
     desc: "先做出能看的初稿，再按标准判断哪里能用、哪里要改。",
-    href: "/start?goal=做PPT",
+    href: "/missions/ai-ppt-first-deck",
     cta: "从这里开始",
     highlight: true,
   },
@@ -22,21 +23,21 @@ const beginnerChoices = [
     label: "我手里有资料",
     title: "让 AI 读资料并列行动清单",
     desc: "上传或粘贴一份文档，得到摘要、风险点和下一步。",
-    href: "/start?goal=办公",
+    href: "/missions/kimi-k26-long-doc",
     cta: "处理资料",
   },
   {
     label: "我想做内容",
     title: "做一条小红书内容草稿",
     desc: "从选题、正文、配图提示词到发布前检查，一次跑通。",
-    href: "/start?goal=写文章",
+    href: "/missions/xiaohongshu-ai-content-loop",
     cta: "做内容",
   },
   {
     label: "我想做动漫/故事",
     title: "先做 60 秒漫剧或一章样章",
     desc: "不追求一键大片，先把分镜、角色、台词或样章审稿跑通。",
-    href: "/start?goal=动漫漫剧",
+    href: "/missions/ai-comic-video-first-episode",
     cta: "做创作",
   },
 ]
@@ -149,7 +150,7 @@ const agentJourney = [
     title: "做出第一个结果",
     plain: "做 PPT、读资料、写文案、做网页，先交付一个小成果。",
     result: "你不再只是聊天，而是真的做出东西。",
-    href: "/start",
+    href: "/missions/ai-ppt-first-deck",
     cta: "从任务开始",
   },
   {
@@ -187,9 +188,9 @@ const agentJourney = [
 ]
 
 const nextAfterFirstTask = [
-  { title: "第 1 个结果", desc: "先完成一个 PPT、资料摘要或内容草稿。", href: "/start", cta: "继续做第一步" },
+  { title: "第 1 个结果", desc: "先完成一个 PPT、资料摘要或内容草稿。", href: "/missions/ai-ppt-first-deck", cta: "继续做第一步" },
   { title: "第 2 个结果", desc: "换一种场景再做一次，确认不是只会复制模板。", href: "/missions", cta: "看任务库" },
-  { title: "教程变任务", desc: "动漫、网文、本地模型、行业 Skill 都有可交付任务，不想做可以换。", href: "/start?goal=动漫漫剧", cta: "换个方向" },
+  { title: "教程变任务", desc: "动漫、网文、本地模型、行业 Skill 都有可交付任务，不想做可以换。", href: "/missions/ai-comic-video-first-episode", cta: "换个方向" },
   { title: "给 AI 加能力", desc: "找到一个 Skill，先做安全检查，再用小样例验证。", href: "/missions/agent-skill-first-install", cta: "找第一个 Skill" },
   { title: "第 3 个结果", desc: "把提示词、失败点和修改方法发成复盘。", href: "/community/new", cta: "写复盘" },
 ]
@@ -247,7 +248,7 @@ const curriculumFlow = [
     desc: "从 AI 漫剧和网文教程里抽出真实交付物：分镜、角色提示词、配音清单或样章审稿。",
     output: "一集 60 秒漫剧样片方案，或一章故事样章。",
     proof: "保存剧情、分镜/大纲、初稿、审稿和复盘。",
-    href: "/start?goal=动漫漫剧",
+    href: "/missions/ai-comic-video-first-episode",
   },
   {
     level: "进阶 2",
@@ -302,7 +303,7 @@ const deepTrack = [
     title: "只跑通一个最小交付",
     goal: "打开工具，完成一个步骤，知道成功长什么样。",
     unlock: "完成任意任务第 1 步",
-    href: "/start",
+    href: "/missions/ai-ppt-first-deck",
   },
   {
     phase: "第 2-3 天",
@@ -349,7 +350,7 @@ const depthRules = [
   { title: "不是做完就忘", desc: "要留下复盘，下一次能少踩坑。" },
 ]
 const todayActions = [
-  { title: "选一个目标", desc: "不是选工具，而是说清楚你想做成什么事。", href: "/start" },
+  { title: "选一个目标", desc: "不是选工具，而是说清楚你想做成什么事。", href: "/learn" },
   { title: "做一个环节", desc: "只交付表格、脚本、提示词、流程图或一个小 diff。", href: "/missions" },
   { title: "发一条复盘", desc: "写下你做到了什么、卡在哪里、下一步是什么。", href: "/community/new" },
 ]
@@ -357,6 +358,8 @@ const todayActions = [
 export default function LearnPage() {
   const [progress, setProgress] = useState<LearningProgress>({})
   const [missionDoneCount, setMissionDoneCount] = useState(0)
+  const [pickedOption, setPickedOption] = useState<GoalOption | null>(null)
+  const [diagnosisAnswers, setDiagnosisAnswers] = useState<string[]>([])
 
   useEffect(() => {
     setProgress(readLearningProgress())
@@ -368,8 +371,18 @@ export default function LearnPage() {
 
   const totalSections = stages.reduce((sum, stage) => sum + stage.sections.length, 0)
   const doneSections = stages.reduce((sum, stage) => sum + stage.sections.filter((_, index) => progress[progressId(stage.id, index)]).length, 0)
-  const nextMainAction = missionDoneCount > 0 ? "/missions" : "/start?goal=做PPT"
+  const nextMainAction = missionDoneCount > 0 ? "/missions" : "/missions/ai-ppt-first-deck"
   const nextMainText = missionDoneCount > 0 ? "继续下一个实战任务" : "我不知道，从第一个任务开始"
+  const diagnosisResult = diagnosisAnswers.length === diagnosisQuestions.length ? recommendByDiagnosis(diagnosisAnswers) : null
+  const personalOptions = goalOptions.filter((option) => option.group === "个人在家")
+  const enterpriseOptions = goalOptions.filter((option) => option.group === "企业团队")
+
+  function openGoalOption(option: GoalOption) {
+    setPickedOption(option)
+    window.dispatchEvent(new CustomEvent("xiaobai:open-goal-router", {
+      detail: { goal: option.prompt, missionId: option.missionId, audience: option.group, label: option.label },
+    }))
+  }
 
   return (
     <div className="xb-workbench" style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
@@ -381,8 +394,8 @@ export default function LearnPage() {
           <div style={{display:'flex',justifyContent:'space-between',gap:18,alignItems:'flex-start',flexWrap:'wrap',marginBottom:18}}>
             <div style={{maxWidth:680}}>
               <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.22em',color:'#7a6230',textTransform:'uppercase',fontWeight:950,marginBottom:10}}>XIAOBAI LEARNING</p>
-              <h1 style={{fontSize:'clamp(31px,5vw,54px)',fontWeight:950,color:'#fff',letterSpacing:0,lineHeight:1.12,marginBottom:12}}>从第一次用 AI，到训练自己的 Agent</h1>
-              <p style={{fontSize:18,color:'#f0f0f0',lineHeight:1.85,maxWidth:700,fontWeight:900}}>你不用先懂一堆术语。小白会带你从打开第一个 AI 工具开始，一步一步做到：安装 Agent、装技能、训练它，最后把固定工作交给它。</p>
+              <h1 style={{fontSize:'clamp(31px,5vw,54px)',fontWeight:950,color:'#fff',letterSpacing:0,lineHeight:1.12,marginBottom:12}}>先做成一件事，再沿着学习主线变强</h1>
+              <p style={{fontSize:18,color:'#f0f0f0',lineHeight:1.85,maxWidth:700,fontWeight:900}}>这里就是小白AI的学习首页，也是起步台。你可以先选今天想交付什么，小白会把它接到任务、教程、验收和复盘里。</p>
             </div>
             <div style={{minWidth:150,border:'1px solid #242424',background:'rgba(255,255,255,0.025)',borderRadius:10,padding:'14px 15px'}}>
               <p style={{fontSize:12,fontWeight:950,color:'#fff',marginBottom:8}}>我的进度</p>
@@ -396,8 +409,96 @@ export default function LearnPage() {
 
           <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
             <Link href={nextMainAction} className="btn-primary" style={{textDecoration:'none'}}>{nextMainText}</Link>
+            <a href="#learn-start" className="btn-outline" style={{textDecoration:'none'}}>先让小白分流</a>
             <Link href="/agent-install" className="btn-outline" style={{textDecoration:'none'}}>先装 Agent 工具</Link>
             <Link href="/missions" className="btn-outline" style={{textDecoration:'none'}}>查看任务库</Link>
+          </div>
+        </section>
+
+        <section id="learn-start" style={{border:'1px solid rgba(159,214,174,0.22)',background:'linear-gradient(135deg,rgba(159,214,174,0.065),rgba(255,255,255,0.024))',borderRadius:12,padding:'20px 20px',marginBottom:14}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'end',gap:14,flexWrap:'wrap',marginBottom:14}}>
+            <div>
+              <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950,color:'#7a6230',letterSpacing:'0.16em',marginBottom:8}}>START HERE</p>
+              <h2 style={{fontSize:24,fontWeight:950,color:'#fff',lineHeight:1.35}}>不知道从哪学？先答 3 个问题，直接开做</h2>
+            </div>
+            <span style={{color:'#9fd6ae',fontSize:13,fontWeight:950}}>选目标，不选工具榜单</span>
+          </div>
+
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,220px),1fr))',gap:10,marginBottom:12}}>
+            {diagnosisQuestions.map((question, index) => (
+              <div key={question.label} style={{minHeight:118,border:'1px solid rgba(159,214,174,0.16)',background:'rgba(0,0,0,0.22)',borderRadius:10,padding:'14px 14px'}}>
+                <p style={{color:'#f8f3e6',fontSize:15,fontWeight:950,lineHeight:1.45,margin:'0 0 10px'}}>{index + 1}. {question.label}</p>
+                <div style={{display:'flex',gap:7,flexWrap:'wrap'}}>
+                  {question.options.map((answer) => {
+                    const selected = diagnosisAnswers[index] === answer
+                    return (
+                      <button
+                        key={answer}
+                        type="button"
+                        onClick={() => setDiagnosisAnswers((current) => {
+                          const next = [...current]
+                          next[index] = answer
+                          return next.filter(Boolean)
+                        })}
+                        style={{
+                          border: selected ? '1px solid rgba(159,214,174,0.5)' : '1px solid rgba(216,191,118,0.18)',
+                          background: selected ? 'rgba(159,214,174,0.12)' : 'rgba(255,255,255,0.035)',
+                          color: selected ? '#dcffe4' : '#c8c8bd',
+                          borderRadius:999,
+                          padding:'6px 9px',
+                          fontSize:12,
+                          fontWeight:900,
+                          cursor:'pointer',
+                          fontFamily:"'Noto Sans SC', sans-serif",
+                        }}
+                      >
+                        {answer}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {diagnosisResult ? (
+            <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:12,alignItems:'center',border:'1px solid rgba(159,214,174,0.22)',background:'rgba(159,214,174,0.07)',borderRadius:10,padding:'14px 14px',marginBottom:14}} className="learn-result-row">
+              <span style={{minWidth:0}}>
+                <span style={{display:'block',color:'#9fd6ae',fontSize:12,fontWeight:950,marginBottom:4}}>诊断推荐</span>
+                <span style={{display:'block',color:'#fff',fontSize:17,fontWeight:950,lineHeight:1.4}}>{diagnosisResult.label}：{diagnosisResult.desc}</span>
+              </span>
+              <Link href={`/missions/${diagnosisResult.missionId}`} className="btn-primary" style={{textDecoration:'none'}}>开始这个任务</Link>
+            </div>
+          ) : null}
+
+          {pickedOption ? (
+            <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:12,alignItems:'center',border:'1px solid rgba(201,168,76,0.2)',background:'rgba(201,168,76,0.055)',borderRadius:10,padding:'14px 14px',marginBottom:14}} className="learn-result-row">
+              <span style={{minWidth:0}}>
+                <span style={{display:'block',color:'#e8c96a',fontSize:12,fontWeight:950,marginBottom:4}}>小白已收到你的目标</span>
+                <span style={{display:'block',color:'#fff',fontSize:17,fontWeight:950,lineHeight:1.4}}>{pickedOption.label}：{pickedOption.desc}</span>
+              </span>
+              <Link href={`/missions/${pickedOption.missionId}`} className="btn-primary" style={{textDecoration:'none'}}>直接开始任务</Link>
+            </div>
+          ) : null}
+
+          <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:10}} className="learn-choice-grid">
+            {[
+              {title:'个人在家', note:'适合自己先做作品、练接单、做内容。', options:personalOptions},
+              {title:'企业团队', note:'适合团队先做流程提效和知识沉淀。', options:enterpriseOptions},
+            ].map((group) => (
+              <div key={group.title} style={{border:'1px solid rgba(255,255,255,0.08)',background:'rgba(0,0,0,0.2)',borderRadius:10,padding:'14px 14px'}}>
+                <h3 style={{color:'#fff4c9',fontSize:18,fontWeight:950,lineHeight:1.35,margin:'0 0 5px'}}>{group.title}</h3>
+                <p style={{color:'#aaa59a',fontSize:13,fontWeight:850,lineHeight:1.6,margin:'0 0 10px'}}>{group.note}</p>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:8}}>
+                  {group.options.map((option) => (
+                    <button key={option.label} type="button" onClick={() => openGoalOption(option)} style={{border:'1px solid rgba(216,191,118,0.15)',background:'rgba(255,255,255,0.032)',borderRadius:10,padding:'12px 12px',textAlign:'left',cursor:'pointer',fontFamily:"'Noto Sans SC', sans-serif"}}>
+                      <span style={{display:'block',color:'#fff',fontSize:14,fontWeight:950,lineHeight:1.35,marginBottom:5}}>{option.label}</span>
+                      <span style={{display:'block',color:'#aaa',fontSize:12,fontWeight:800,lineHeight:1.55}}>{option.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -466,7 +567,7 @@ export default function LearnPage() {
               <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950,color:'#7a6230',letterSpacing:'0.16em',marginBottom:8}}>DIAGNOSIS</p>
               <h2 style={{fontSize:22,fontWeight:950,color:'#fff',lineHeight:1.35}}>不知道学什么，先看你卡在哪</h2>
             </div>
-            <Link href="/start" style={{fontSize:13,fontWeight:950,color:'#e8c96a',textDecoration:'none'}}>让小白重新分流</Link>
+            <a href="#learn-start" style={{fontSize:13,fontWeight:950,color:'#e8c96a',textDecoration:'none'}}>让小白重新分流</a>
           </div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(250px,1fr))',gap:10}}>
             {diagnosisRoutes.map((item)=>(
@@ -483,8 +584,8 @@ export default function LearnPage() {
           <div style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.045)',borderRadius:12,padding:'20px 20px'}}>
             <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950,color:'#7a6230',letterSpacing:'0.12em',marginBottom:8}}>START</p>
             <h2 style={{fontSize:22,fontWeight:950,color:'#fff',lineHeight:1.35,marginBottom:10}}>第一次来，只做这一个动作</h2>
-            <p style={{fontSize:14,color:'#bbb',lineHeight:1.85,marginBottom:16}}>点击开始，把你的行业和目标告诉右下角小白。页面不要你自己选一堆课，小白会给你一个固定任务模板入口。</p>
-            <Link href="/start" className="btn-primary" style={{textDecoration:'none'}}>让小白给我定计划</Link>
+            <p style={{fontSize:14,color:'#bbb',lineHeight:1.85,marginBottom:16}}>在本页上方先答 3 个问题，或选择个人/企业方向。页面不会让你自己选一堆课，而是给你一个固定任务模板入口。</p>
+            <a href="#learn-start" className="btn-primary" style={{textDecoration:'none'}}>让小白给我定计划</a>
           </div>
 
           <div style={{border:'1px solid #1f1f1f',background:'rgba(255,255,255,0.024)',borderRadius:12,padding:'20px'}}>
@@ -593,6 +694,9 @@ export default function LearnPage() {
             .stage-row > span:last-child {
               grid-column: 1 / -1;
               width: 100% !important;
+            }
+            .learn-result-row {
+              grid-template-columns: 1fr !important;
             }
           }
         `}</style>

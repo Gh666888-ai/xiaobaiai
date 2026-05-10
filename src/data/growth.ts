@@ -32,12 +32,12 @@ export const GROWTH_MISSIONS: GrowthMission[] = [
   {
     id: "welcome",
     title: "完成新手入门动作",
-    desc: "不是登录就领。先进入开始页，选一个你今天真的想完成的小任务。",
+    desc: "不是登录就领。先进入学习首页，选一个你今天真的想完成的小任务。",
     xp: 20,
-    href: "/start",
+    href: "/learn#learn-start",
     cadence: "once",
     claimMode: "external",
-    proofHint: "进入 /start 选定任务后，后续在任务页完成步骤领取经验。",
+    proofHint: "进入学习首页选定任务后，后续在任务页完成步骤领取经验。",
   },
   {
     id: "ask-ai",

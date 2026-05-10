@@ -355,7 +355,7 @@ export default function StageDetailPage() {
             ))}
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 20 }}>
-            <Link href="/start" className="btn-primary" style={{ textDecoration: "none" }}>从 0 到 1 开始做事</Link>
+            <Link href="/learn#learn-start" className="btn-primary" style={{ textDecoration: "none" }}>从 0 到 1 开始做事</Link>
             <Link href="/cases" className="btn-outline" style={{ textDecoration: "none" }}>看真实案例</Link>
           </div>
         </section>

@@ -31,6 +31,14 @@ export const categories:{key:ToolCategory;label:string;icon:string}[]=[
   {key:"AI效率",label:"AI 效率",icon:"⚡"},
 ]
 
+export const toolTaxonomyRules = [
+  { label: "工程 Agent / 编程 Agent", examples: ["Codex", "Claude Code", "Cursor Agent", "Cline", "OpenClaw/ClawX"], rule: "能读项目、改文件、跑命令、提交 diff，归 Agent 或 AI 编程。" },
+  { label: "模型 / 模型 API", examples: ["DeepSeek V4", "Kimi K2.6", "GPT", "Claude", "Gemini", "Qwen"], rule: "提供推理和生成能力，被工具调用；不要写成 Agent。" },
+  { label: "应用搭建 / 知识库平台", examples: ["Dify", "Coze", "FastGPT", "Langflow"], rule: "用于搭 Bot、知识库、RAG、可视化应用，归 Agent 平台或企业应用。" },
+  { label: "工作流自动化", examples: ["n8n", "Zapier", "Make", "Pipedream"], rule: "负责触发、连接系统、定时任务和通知，不能和模型混为一类。" },
+  { label: "普通 AI 应用", examples: ["Gamma", "即梦", "Canva AI", "ChatPDF"], rule: "面向具体任务的工具，按办公、绘图、视频、写作、数据等任务分类。" },
+]
+
 export const stageLabels:Record<number,string>={0:"纯小白",1:"初体验",2:"日常提效",3:"Prompt进阶",4:"工具达人",5:"Agent入门",6:"Agent进阶",7:"Agent实战"}
 
 // ====== 工具数据 ======
