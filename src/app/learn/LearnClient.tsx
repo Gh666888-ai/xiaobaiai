@@ -48,6 +48,54 @@ const firstRunSteps = [
   { title: "留复盘", desc: "记住工具、提示词、失败点和下次改法。" },
 ]
 
+const roleTracks = [
+  {
+    role: "办公提效",
+    time: "30 分钟",
+    title: "先做一份能汇报的 PPT 初稿",
+    deliverable: "6 页 PPT 大纲 / 初稿",
+    check: "页数、听众、待补数据、演讲备注都能看见",
+    repair: "空话太多时，要求 AI 删除口号并补具体行动项",
+    href: "/missions/ai-ppt-first-deck",
+  },
+  {
+    role: "内容创作",
+    time: "45 分钟",
+    title: "跑通一条小红书内容流水线",
+    deliverable: "选题、正文、配图 Prompt、发布前检查",
+    check: "标题具体，正文不空，配图提示词能复用",
+    repair: "像广告腔时，要求改成真实经历和具体场景",
+    href: "/missions/xiaohongshu-ai-content-loop",
+  },
+  {
+    role: "编程 Agent",
+    time: "60 分钟",
+    title: "让 Codex 改一个真实网页小功能",
+    deliverable: "一个小 diff 和验证命令结果",
+    check: "改动范围清楚，build/test 结果能复述",
+    repair: "范围变大时，压回最多 2 个文件的小任务",
+    href: "/missions/codex-small-feature",
+  },
+  {
+    role: "企业知识库",
+    time: "90 分钟",
+    title: "搭一个能测试的 FAQ 知识库 Bot",
+    deliverable: "资料、测试问题、边界提示词",
+    check: "Bot 按资料答，不知道时会承认不知道",
+    repair: "乱编时，收窄资料范围并加人工转接边界",
+    href: "/missions/dify-knowledge-base-bot",
+  },
+  {
+    role: "自动化流程",
+    time: "90 分钟",
+    title: "跑通一个 AI 日报或资讯通知流程",
+    deliverable: "触发器、摘要、人工确认、发送记录",
+    check: "每个节点有输入输出，失败时知道卡在哪",
+    repair: "节点太多时，只保留抓取、摘要、通知三步",
+    href: "/missions/n8n-ai-news-automation",
+  },
+]
+
 const agentJourney = [
   {
     step: "01",
@@ -345,6 +393,30 @@ export default function LearnPage() {
                 <h3 style={{fontSize:16,fontWeight:950,color:'#fff',lineHeight:1.35,marginBottom:6}}>{item.title}</h3>
                 <p style={{fontSize:13,color:'#aaa',lineHeight:1.7}}>{item.desc}</p>
               </div>
+            ))}
+          </div>
+        </section>
+
+        <section style={{border:'1px solid rgba(159,214,174,0.18)',background:'rgba(255,255,255,0.022)',borderRadius:12,padding:'20px 20px',marginBottom:14}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'end',gap:14,flexWrap:'wrap',marginBottom:14}}>
+            <div>
+              <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950,color:'#7a6230',letterSpacing:'0.16em',marginBottom:8}}>ROLE TRACKS</p>
+              <h2 style={{fontSize:22,fontWeight:950,color:'#fff',lineHeight:1.35}}>先选一条路线，今天就交付一个结果</h2>
+            </div>
+            <span style={{color:'#9fd6ae',fontSize:13,fontWeight:950}}>每条都带验收和修错</span>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:10}}>
+            {roleTracks.map((item)=>(
+              <Link key={item.role} href={item.href} style={{textDecoration:'none',border:'1px solid #242424',background:'rgba(0,0,0,0.24)',borderRadius:10,padding:'16px 15px',minHeight:218,display:'flex',flexDirection:'column'}}>
+                <div style={{display:'flex',justifyContent:'space-between',gap:10,alignItems:'center',marginBottom:10}}>
+                  <span style={{fontSize:13,fontWeight:950,color:'#e8c96a'}}>{item.role}</span>
+                  <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:950,color:'#9fd6ae'}}>{item.time}</span>
+                </div>
+                <h3 style={{fontSize:18,fontWeight:950,color:'#fff',lineHeight:1.38,marginBottom:10}}>{item.title}</h3>
+                <p style={{fontSize:13,color:'#d6d6d6',lineHeight:1.7,fontWeight:800,marginBottom:8}}>交付：{item.deliverable}</p>
+                <p style={{fontSize:12,color:'#9fd6ae',lineHeight:1.65,marginBottom:8}}>验收：{item.check}</p>
+                <p style={{fontSize:12,color:'#aaa',lineHeight:1.65,marginTop:'auto'}}>修错：{item.repair}</p>
+              </Link>
             ))}
           </div>
         </section>

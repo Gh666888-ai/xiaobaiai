@@ -1,6 +1,8 @@
 "use client"
 
+import { useState } from "react"
 import type { CSSProperties } from "react"
+import Link from "next/link"
 import { NavBar } from "@/components/NavBar"
 
 const goalOptions = [
@@ -63,10 +65,12 @@ const goalOptions = [
 ]
 
 export function StartClient() {
+  const [pickedOption, setPickedOption] = useState<(typeof goalOptions)[number] | null>(null)
   const personalOptions = goalOptions.filter((option) => option.group === "个人在家")
   const enterpriseOptions = goalOptions.filter((option) => option.group === "企业团队")
 
   function openGoalOption(option: (typeof goalOptions)[number]) {
+    setPickedOption(option)
     window.dispatchEvent(new CustomEvent("xiaobai:open-goal-router", {
       detail: { goal: option.prompt, missionId: option.missionId, audience: option.group, label: option.label },
     }))
@@ -80,8 +84,18 @@ export function StartClient() {
           <p style={eyebrowStyle}>开始</p>
           <h1 style={goalTitleStyle}>你想用 AI 做什么？</h1>
           <p style={goalDescStyle}>
-            个人和企业不要混在一起。先选你是哪一种，小白会在右下角给你对应任务入口，你自己点进去开始。
+            个人和企业不要混在一起。先选你是哪一种，小白会给你一条能直接开始的任务路线；不想聊天，也可以直接点任务入口。
           </p>
+          {pickedOption ? (
+            <section style={pickedMissionStyle}>
+              <div style={{minWidth:0}}>
+                <p style={pickedEyebrowStyle}>推荐起步任务</p>
+                <h2 style={pickedTitleStyle}>{pickedOption.label}</h2>
+                <p style={pickedDescStyle}>{pickedOption.desc} 先用 30-90 分钟做出一个可检查结果，再让小白帮你复盘下一步。</p>
+              </div>
+              <Link href={`/missions/${pickedOption.missionId}`} style={pickedButtonStyle}>直接开始任务</Link>
+            </section>
+          ) : null}
           <GoalGroup title="个人在家" note="适合自己一个人在家先做作品、练接单、做内容。" options={personalOptions} onPick={openGoalOption} />
           <GoalGroup title="企业团队" note="适合公司、门店、团队先做流程提效和知识沉淀。" options={enterpriseOptions} onPick={openGoalOption} />
         </section>
@@ -148,6 +162,57 @@ const goalDescStyle: CSSProperties = {
   fontWeight: 850,
   lineHeight: 1.8,
   margin: "12px 0 20px",
+}
+
+const pickedMissionStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "1fr auto",
+  alignItems: "center",
+  gap: 14,
+  border: "1px solid rgba(159,214,174,0.24)",
+  background: "rgba(159,214,174,0.075)",
+  borderRadius: 14,
+  padding: "16px 16px",
+  margin: "0 0 20px",
+}
+
+const pickedEyebrowStyle: CSSProperties = {
+  color: "#9fd6ae",
+  fontSize: 12,
+  fontWeight: 950,
+  margin: "0 0 6px",
+}
+
+const pickedTitleStyle: CSSProperties = {
+  color: "#fff",
+  fontSize: 20,
+  fontWeight: 950,
+  lineHeight: 1.32,
+  margin: 0,
+}
+
+const pickedDescStyle: CSSProperties = {
+  color: "#c8c8bd",
+  fontSize: 14,
+  fontWeight: 850,
+  lineHeight: 1.7,
+  margin: "7px 0 0",
+}
+
+const pickedButtonStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: 42,
+  padding: "0 16px",
+  borderRadius: 10,
+  border: "1px solid rgba(159,214,174,0.42)",
+  background: "rgba(159,214,174,0.12)",
+  color: "#dcffe4",
+  fontSize: 14,
+  fontWeight: 950,
+  textDecoration: "none",
+  whiteSpace: "nowrap",
 }
 
 const goalGridStyle: CSSProperties = {
