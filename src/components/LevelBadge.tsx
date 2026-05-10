@@ -134,16 +134,7 @@ function LevelTitlePlate({
     >
       <img className="levelTitlePlateImage" src={plate.image} alt="" aria-hidden="true" />
       <span className="levelPlateText">
-        <span className="levelTopline">
-          <span className="levelUserName">{name}</span>
-          {level.level < 15 && <span className="levelNumber">LV.{level.level}</span>}
-        </span>
-        {!compact && (
-          <span className="levelRankLine">
-            <span className="levelRankName">{level.name}</span>
-            <span className="levelBeastName">{plate.shortName}</span>
-          </span>
-        )}
+        <span className="levelTitleOnly">{level.name}</span>
       </span>
       <style>{`
         .levelTitlePlate {
@@ -229,65 +220,28 @@ function LevelTitlePlate({
         .isCompact .levelPlateText {
           padding: 0 16px;
         }
-        .levelTopline {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          min-width: 0;
-          width: 100%;
-        }
-        .levelUserName {
-          max-width: 112px;
+        .levelTitleOnly {
+          max-width: 158px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
-          color: #fff;
-          font-size: 14px;
+          color: #fff4c9;
+          font-size: 18px;
           font-weight: 950;
-          text-shadow: 0 1px 0 rgba(0,0,0,0.78), 0 0 10px rgba(0,0,0,0.82);
+          letter-spacing: 0;
+          text-align: center;
+          text-shadow:
+            0 1px 0 rgba(0,0,0,0.92),
+            0 0 10px rgba(232,201,106,0.48),
+            0 0 18px rgba(0,0,0,0.72);
         }
-        .isCompact .levelUserName {
-          max-width: 84px;
-          font-size: 12px;
-          text-shadow: 0 1px 0 rgba(0,0,0,0.95), 0 0 7px rgba(0,0,0,0.88);
-        }
-        .levelNumber {
-          color: #120b00;
-          background: linear-gradient(180deg, #fff, #e8c96a 50%, #b87a2d);
-          border: 1px solid rgba(255,255,255,0.58);
-          border-radius: 7px;
-          padding: 2px 7px;
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 10px;
-          font-weight: 950;
-          box-shadow: 0 0 10px rgba(232,201,106,0.42), inset 0 -4px 8px rgba(0,0,0,0.14);
-          white-space: nowrap;
-        }
-        .levelRankLine {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 7px;
-          margin-top: 5px;
-          max-width: 170px;
-        }
-        .levelRankName {
-          color: #e8c96a;
-          font-size: 11px;
-          font-weight: 950;
-          white-space: nowrap;
-          text-shadow: 0 0 9px rgba(232,201,106,0.34);
-        }
-        .levelBeastName {
-          color: rgba(255,245,210,0.86);
-          border: 1px solid rgba(232,201,106,0.28);
-          border-radius: 999px;
-          background: rgba(0,0,0,0.22);
-          padding: 1px 5px;
-          font-size: 9px;
-          font-weight: 950;
-          white-space: nowrap;
+        .isCompact .levelTitleOnly {
+          max-width: 118px;
+          font-size: 13px;
+          text-shadow:
+            0 1px 0 rgba(0,0,0,0.96),
+            0 0 8px rgba(232,201,106,0.38),
+            0 0 12px rgba(0,0,0,0.84);
         }
         @media (max-width: 860px) {
           .levelTitlePlate {
@@ -301,13 +255,9 @@ function LevelTitlePlate({
           .levelTitlePlate.isCompact .levelTitlePlateImage {
             width: 196px;
           }
-          .levelTitlePlate.isCompact .levelUserName {
-            max-width: 68px;
-            font-size: 10px;
-          }
-          .levelTitlePlate.isCompact .levelNumber {
-            font-size: 8px;
-            padding: 1px 4px;
+          .levelTitlePlate.isCompact .levelTitleOnly {
+            max-width: 102px;
+            font-size: 12px;
           }
         }
       `}</style>

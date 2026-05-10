@@ -397,7 +397,7 @@ export default function GrowthClient() {
                 {(dailyLeaders.length ? dailyLeaders.slice(0, 6) : [{ rank: 1, name: "今天等你上榜", xp: 0, totalXP: state.xp }]).map((item) => (
                   <div key={`${item.rank}-${item.name}`} style={{ display: "grid", gridTemplateColumns: "34px 1fr auto", gap: 10, alignItems: "center", minHeight: 40 }}>
                     <span style={{ fontFamily: "'JetBrains Mono',monospace", color: rankColor(item.rank), fontSize: 13, fontWeight: 950 }}>#{item.rank}</span>
-                    <LevelBadge compact name={item.name} xp={Number(item.totalXP || item.xp || 0)} />
+                    <span style={{ color: "#fff", fontSize: 14, fontWeight: 950, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</span>
                     <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 11, fontWeight: 900 }}>{item.xp} 分钟</span>
                   </div>
                 ))}
@@ -412,7 +412,7 @@ export default function GrowthClient() {
                 {(weeklyLeaders.length ? weeklyLeaders.slice(0, 6) : [{ rank: 1, name: "今天第一个冲榜的人", xp: 0, totalXP: 0 }]).map((item) => (
                   <div key={`${item.rank}-${item.name}`} style={{ display: "grid", gridTemplateColumns: "34px 1fr auto", gap: 10, alignItems: "center", minHeight: 40 }}>
                     <span style={{ fontFamily: "'JetBrains Mono',monospace", color: rankColor(item.rank), fontSize: 13, fontWeight: 950 }}>#{item.rank}</span>
-                    <LevelBadge compact name={item.name} xp={Number(item.totalXP || item.xp || 0)} />
+                    <span style={{ color: "#fff", fontSize: 14, fontWeight: 950, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</span>
                     <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#3DA563", fontSize: 11, fontWeight: 900 }}>{item.xp} 个任务</span>
                   </div>
                 ))}
