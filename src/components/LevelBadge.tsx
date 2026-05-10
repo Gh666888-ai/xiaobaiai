@@ -135,7 +135,6 @@ function LevelTitlePlate({
       <img className="levelTitlePlateImage" src={plate.image} alt={plate.title} />
       <span className="levelNamePanel" aria-hidden="true">
         <span className="levelNameText">{name}</span>
-        <span className="levelNameMeta">LV.{level.level}</span>
       </span>
       <style>{`
         .levelTitlePlate {
@@ -200,94 +199,102 @@ function LevelTitlePlate({
         .levelNamePanel {
           position: absolute;
           left: 61%;
-          top: 48%;
+          top: 49%;
           z-index: 2;
-          width: 43%;
-          height: 34%;
+          width: 45%;
+          height: 35%;
           transform: translate(-50%, -50%);
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 7px;
           border-radius: 999px;
           background:
-            linear-gradient(180deg, rgba(255,255,255,0.13), transparent 38%),
-            radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.08), transparent 54%),
-            linear-gradient(180deg, rgba(20,21,18,0.98), rgba(5,6,7,0.98));
-          border: 1px solid rgba(255,236,171,0.38);
+            radial-gradient(ellipse at 50% 14%, rgba(255,255,255,0.11), transparent 42%),
+            radial-gradient(ellipse at 50% 86%, rgba(0,0,0,0.58), transparent 58%),
+            repeating-linear-gradient(116deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 8px),
+            linear-gradient(180deg, rgba(30,30,26,0.97), rgba(9,10,10,0.985) 56%, rgba(2,3,4,0.99));
+          border: 0;
           box-shadow:
-            inset 0 1px 0 rgba(255,255,255,0.18),
-            inset 0 -8px 14px rgba(0,0,0,0.44),
-            0 0 13px rgba(0,0,0,0.72);
-          padding: 0 10px;
+            inset 0 1px 0 rgba(255,255,255,0.12),
+            inset 0 -9px 13px rgba(0,0,0,0.48),
+            inset 0 0 0 1px rgba(255,236,171,0.08);
+          padding: 0 13px;
+          pointer-events: none;
+          overflow: hidden;
+        }
+        .levelNamePanel::before {
+          content: "";
+          position: absolute;
+          inset: 4px 10px;
+          border-radius: inherit;
+          border-top: 1px solid rgba(255,255,255,0.07);
+          border-bottom: 1px solid rgba(0,0,0,0.52);
+          opacity: 0.9;
+          pointer-events: none;
+        }
+        .levelNamePanel::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          background: linear-gradient(90deg, rgba(0,0,0,0.24), transparent 18%, transparent 82%, rgba(0,0,0,0.28));
           pointer-events: none;
         }
         .levelPlate-master .levelNamePanel {
-          border-color: rgba(126,231,255,0.54);
           box-shadow:
-            inset 0 1px 0 rgba(255,255,255,0.22),
-            inset 0 -8px 14px rgba(0,0,0,0.44),
-            0 0 15px rgba(126,231,255,0.3);
+            inset 0 1px 0 rgba(255,255,255,0.16),
+            inset 0 -9px 13px rgba(0,0,0,0.48),
+            inset 0 0 0 1px rgba(126,231,255,0.12),
+            0 0 10px rgba(126,231,255,0.08);
         }
         .levelPlate-legendary .levelNamePanel {
-          border-color: rgba(255,246,199,0.72);
           box-shadow:
-            inset 0 1px 0 rgba(255,255,255,0.3),
+            inset 0 1px 0 rgba(255,255,255,0.2),
             inset 0 -9px 15px rgba(0,0,0,0.5),
-            0 0 20px rgba(255,216,107,0.42);
+            inset 0 0 0 1px rgba(255,246,199,0.14),
+            0 0 12px rgba(255,216,107,0.1);
         }
         .levelNameText {
           min-width: 0;
-          max-width: 86px;
+          max-width: 100%;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
-          color: #fff9df;
-          font-size: 15px;
+          color: #f8edd1;
+          font-size: 16px;
           font-weight: 950;
           line-height: 1;
           text-align: center;
+          letter-spacing: 0;
+          position: relative;
+          z-index: 2;
           text-shadow:
-            0 2px 0 rgba(0,0,0,0.9),
-            0 0 10px rgba(0,0,0,0.88),
-            0 0 12px rgba(255,216,107,0.22);
+            0 1px 0 rgba(255,255,255,0.16),
+            0 -1px 0 rgba(0,0,0,0.92),
+            1px 1px 0 rgba(0,0,0,0.78),
+            -1px 1px 0 rgba(0,0,0,0.64),
+            0 0 8px rgba(0,0,0,0.72);
         }
-        .levelSize-3 .levelNameText { max-width: 104px; font-size: 16px; }
-        .levelSize-4 .levelNameText { max-width: 118px; font-size: 18px; }
-        .levelSize-5 .levelNameText { max-width: 138px; font-size: 21px; }
-        .levelNameMeta {
-          flex: 0 0 auto;
-          color: #191103;
-          border-radius: 6px;
-          background: linear-gradient(180deg, #fff8d6, #e5bf5d 72%, #a97419);
-          border: 1px solid rgba(255,255,255,0.56);
-          box-shadow: 0 0 10px rgba(232,201,106,0.35), inset 0 -3px 6px rgba(0,0,0,0.16);
-          padding: 2px 5px;
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 9px;
-          font-weight: 950;
-          line-height: 1;
-        }
+        .levelPlate-riser .levelNameText { color: #ffe4bd; }
+        .levelPlate-adept .levelNameText { color: #fff0c1; }
+        .levelPlate-master .levelNameText { color: #dffcff; text-shadow: 0 1px 0 rgba(255,255,255,0.18), 0 -1px 0 rgba(0,0,0,0.92), 1px 1px 0 rgba(0,0,0,0.78), 0 0 10px rgba(126,231,255,0.2); }
+        .levelPlate-legendary .levelNameText { color: #fff7d8; text-shadow: 0 1px 0 rgba(255,255,255,0.22), 0 -1px 0 rgba(0,0,0,0.96), 1px 1px 0 rgba(0,0,0,0.8), 0 0 12px rgba(255,216,107,0.26); }
+        .levelSize-3 .levelNameText { font-size: 17px; }
+        .levelSize-4 .levelNameText { font-size: 19px; }
+        .levelSize-5 .levelNameText { font-size: 22px; }
         .levelTitlePlate.isCompact .levelNamePanel {
-          left: 61%;
+          left: 61.5%;
           top: 49%;
-          width: 45%;
-          height: 38%;
-          gap: 4px;
-          padding: 0 6px;
+          width: 46%;
+          height: 39%;
+          padding: 0 8px;
         }
         .levelTitlePlate.isCompact .levelNameText {
-          max-width: 48px;
-          font-size: 10px;
+          font-size: 11px;
         }
-        .levelSize-3.isCompact .levelNameText { max-width: 52px; font-size: 10px; }
-        .levelSize-4.isCompact .levelNameText { max-width: 56px; font-size: 11px; }
-        .levelSize-5.isCompact .levelNameText { max-width: 64px; font-size: 12px; }
-        .levelTitlePlate.isCompact .levelNameMeta {
-          padding: 1px 3px;
-          font-size: 7px;
-          border-radius: 4px;
-        }
+        .levelSize-3.isCompact .levelNameText { font-size: 11px; }
+        .levelSize-4.isCompact .levelNameText { font-size: 12px; }
+        .levelSize-5.isCompact .levelNameText { font-size: 13px; }
         @media (max-width: 860px) {
           .levelTitlePlate {
             width: 212px;
@@ -306,12 +313,10 @@ function LevelTitlePlate({
           .levelSize-4.isCompact { width: 154px; height: 47px; }
           .levelSize-5.isCompact { width: 160px; height: 49px; }
           .levelNameText {
-            max-width: 74px;
             font-size: 13px;
           }
           .levelSize-4 .levelNameText,
           .levelSize-5 .levelNameText {
-            max-width: 96px;
             font-size: 15px;
           }
         }
@@ -345,9 +350,7 @@ function CoCreatorBadge({
         aria-label={titleText}
       >
         <img src={stage.plateImage} alt={stage.shortName} />
-        <span className="coCreatorCompactName" aria-hidden="true">
-          <span>{name}</span>
-        </span>
+        <span className="coCreatorCompactName" aria-hidden="true">{name}</span>
         <style>{`
           .coCreatorImageBadge {
             --stage-glow: rgba(255,216,107,0.42);
@@ -384,57 +387,60 @@ function CoCreatorBadge({
           }
           .coCreatorCompactName {
             position: absolute;
-            left: 52%;
-            top: 50%;
+            left: 50.5%;
+            top: 51%;
             z-index: 2;
-            width: 39%;
-            height: 48%;
+            width: 45%;
+            height: 44%;
             transform: translate(-50%, -50%);
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 999px;
             background:
-              linear-gradient(180deg, rgba(255,255,255,0.14), transparent 42%),
-              linear-gradient(180deg, rgba(12,18,20,0.98), rgba(3,6,8,0.98));
-            border: 1px solid color-mix(in srgb, var(--stage-glow) 55%, rgba(255,255,255,0.22));
+              radial-gradient(ellipse at 50% 10%, rgba(255,255,255,0.12), transparent 42%),
+              repeating-linear-gradient(116deg, rgba(255,255,255,0.024) 0 1px, transparent 1px 8px),
+              linear-gradient(180deg, rgba(18,21,22,0.97), rgba(4,7,9,0.99));
+            border: 0;
             box-shadow:
-              inset 0 1px 0 rgba(255,255,255,0.2),
-              inset 0 -6px 11px rgba(0,0,0,0.46),
-              0 0 12px rgba(0,0,0,0.72);
-            padding: 0 6px;
+              inset 0 1px 0 rgba(255,255,255,0.12),
+              inset 0 -6px 11px rgba(0,0,0,0.48),
+              inset 0 0 0 1px color-mix(in srgb, var(--stage-glow) 18%, transparent);
+            padding: 0 8px;
             pointer-events: none;
-          }
-          .coCreatorCompactName span {
             max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            color: #fff;
-            font-size: 11px;
+            color: #f8f3df;
+            font-size: 12px;
             font-weight: 950;
             line-height: 1;
             text-shadow:
-              0 2px 0 rgba(0,0,0,0.92),
-              0 0 10px rgba(0,0,0,0.86),
-              0 0 12px var(--stage-glow);
+              0 1px 0 rgba(255,255,255,0.16),
+              0 -1px 0 rgba(0,0,0,0.92),
+              1px 1px 0 rgba(0,0,0,0.78),
+              0 0 9px rgba(0,0,0,0.74);
           }
           .coCreatorImageBadge-legend img {
             filter: saturate(0.38) brightness(1.24) contrast(1.18);
           }
           .coCreatorImageBadge-legend .coCreatorCompactName {
-            left: 50%;
-            width: 42%;
-            height: 45%;
-            border-color: rgba(245,252,255,0.82);
+            left: 50.5%;
+            width: 46%;
+            height: 42%;
             box-shadow:
-              inset 0 1px 0 rgba(255,255,255,0.32),
+              inset 0 1px 0 rgba(255,255,255,0.18),
               inset 0 -7px 12px rgba(0,0,0,0.5),
-              0 0 16px rgba(126,215,255,0.48);
-          }
-          .coCreatorImageBadge-legend .coCreatorCompactName span {
-            font-size: 12px;
+              inset 0 0 0 1px rgba(245,252,255,0.16),
+              0 0 10px rgba(126,215,255,0.14);
+            font-size: 13px;
             color: #f7fcff;
+            text-shadow:
+              0 1px 0 rgba(255,255,255,0.2),
+              0 -1px 0 rgba(0,0,0,0.94),
+              1px 1px 0 rgba(0,0,0,0.8),
+              0 0 11px rgba(126,215,255,0.2);
           }
           @media (max-width: 860px) {
             .coCreatorImageBadge {
@@ -445,7 +451,7 @@ function CoCreatorBadge({
               width: 170px;
               height: 40px;
             }
-            .coCreatorCompactName span {
+            .coCreatorCompactName {
               font-size: 10px;
             }
           }
@@ -458,7 +464,7 @@ function CoCreatorBadge({
               width: 150px;
               height: 36px;
             }
-            .coCreatorCompactName span {
+            .coCreatorCompactName {
               font-size: 9px;
             }
           }
