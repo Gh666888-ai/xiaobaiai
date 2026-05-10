@@ -163,7 +163,6 @@ export function NavBar() {
                     <div className="profile-level-snapshot" aria-label="当前等级和下一级">
                       <div className="profile-level-card is-current">
                         <div className="profile-level-card-visual">
-                          <LevelIcon level={level.level} name={level.name} compact />
                           <LevelBadge compact name={user.name} xp={userXP} track={levelTrack} contributionPoints={contributionPoints} coCreatorApproved={user.coCreatorApproved} />
                         </div>
                         <span>当前等级</span>
@@ -173,7 +172,6 @@ export function NavBar() {
                       {next ? (
                         <div className="profile-level-card">
                           <div className="profile-level-card-visual">
-                            <LevelIcon level={next.level.level} name={next.level.name} compact locked={next.requiresReview} />
                             <LevelBadge compact name={user.name} xp={next.level.minXP} track={levelTrack} contributionPoints={coCreatorPreviewContribution[next.level.level] || contributionPoints} coCreatorApproved={next.level.level >= 15} previewLevel={next.level.level} />
                           </div>
                           <span>{next.requiresReview ? "共创审核" : "下一级预览"}</span>
@@ -278,6 +276,8 @@ export function NavBar() {
           padding: 0;
           cursor: pointer;
           font-family: inherit;
+          max-width: 236px;
+          overflow: visible;
         }
         .site-profile-popover {
           position: absolute;
@@ -413,23 +413,15 @@ export function NavBar() {
           padding: 10px;
         }
         .profile-level-card-visual {
-          display: grid;
-          grid-template-columns: 68px minmax(0,1fr);
+          display: flex;
           align-items: center;
-          gap: 8px;
-          min-height: 82px;
-          margin: -4px 0 6px;
+          justify-content: center;
+          min-height: 58px;
+          margin: -2px 0 6px;
           overflow: visible;
         }
-        .profile-level-card-visual .levelIconBadge {
-          width: 68px;
-          height: 80px;
-        }
-        .profile-level-card-visual .levelTitlePlate,
-        .profile-level-card-visual .coCreatorImageBadge {
-          justify-self: center;
-          max-width: 100%;
-          transform: scale(0.88);
+        .profile-level-card-visual .xiaobaiLevelNameplate {
+          transform: scale(0.82);
           transform-origin: center;
         }
         .profile-level-card.is-current {
@@ -792,6 +784,9 @@ export function NavBar() {
           }
           .mobile-level {
             display: inline-flex;
+          }
+          .site-profile-button {
+            max-width: 196px;
           }
           .site-login-link {
             min-height: 38px;
