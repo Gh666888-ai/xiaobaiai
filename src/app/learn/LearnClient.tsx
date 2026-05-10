@@ -96,6 +96,45 @@ const roleTracks = [
   },
 ]
 
+const diagnosisRoutes = [
+  {
+    pain: "我打开 AI 只会闲聊",
+    diagnosis: "缺第一个可见成果",
+    action: "先做 PPT 或资料摘要，不学术语",
+    href: "/missions/ai-ppt-first-deck",
+  },
+  {
+    pain: "AI 写出来全是空话",
+    diagnosis: "缺验收标准和补救提示词",
+    action: "练一条内容流水线，先问细节再生成",
+    href: "/missions/xiaohongshu-ai-content-loop",
+  },
+  {
+    pain: "资料很多，不知道怎么整理",
+    diagnosis: "缺结构化阅读流程",
+    action: "让 Kimi 先抽事实、风险和行动清单",
+    href: "/missions/kimi-k26-long-doc",
+  },
+  {
+    pain: "想让 AI 干活，但不会装技能",
+    diagnosis: "缺 Skill 安全和小样例验证",
+    action: "先装一个 Skill，跑 10 分钟测试",
+    href: "/missions/agent-skill-first-install",
+  },
+  {
+    pain: "想做企业客服或知识库",
+    diagnosis: "缺资料切分和边界测试",
+    action: "先做 FAQ Bot，再准备刁钻问题",
+    href: "/missions/dify-knowledge-base-bot",
+  },
+  {
+    pain: "想让 Agent 改项目，又怕乱改",
+    diagnosis: "缺改动边界和验证习惯",
+    action: "用 Codex 只改一个小功能",
+    href: "/missions/codex-small-feature",
+  },
+]
+
 const agentJourney = [
   {
     step: "01",
@@ -416,6 +455,25 @@ export default function LearnPage() {
                 <p style={{fontSize:13,color:'#d6d6d6',lineHeight:1.7,fontWeight:800,marginBottom:8}}>交付：{item.deliverable}</p>
                 <p style={{fontSize:12,color:'#9fd6ae',lineHeight:1.65,marginBottom:8}}>验收：{item.check}</p>
                 <p style={{fontSize:12,color:'#aaa',lineHeight:1.65,marginTop:'auto'}}>修错：{item.repair}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section style={{border:'1px solid rgba(255,255,255,0.08)',background:'rgba(0,0,0,0.72)',borderRadius:12,padding:'20px 20px',marginBottom:14}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'end',gap:14,flexWrap:'wrap',marginBottom:14}}>
+            <div>
+              <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,fontWeight:950,color:'#7a6230',letterSpacing:'0.16em',marginBottom:8}}>DIAGNOSIS</p>
+              <h2 style={{fontSize:22,fontWeight:950,color:'#fff',lineHeight:1.35}}>不知道学什么，先看你卡在哪</h2>
+            </div>
+            <Link href="/start" style={{fontSize:13,fontWeight:950,color:'#e8c96a',textDecoration:'none'}}>让小白重新分流</Link>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(250px,1fr))',gap:10}}>
+            {diagnosisRoutes.map((item)=>(
+              <Link key={item.pain} href={item.href} style={{textDecoration:'none',border:'1px solid #242424',background:'rgba(255,255,255,0.024)',borderRadius:10,padding:'15px 14px',minHeight:152,display:'flex',flexDirection:'column'}}>
+                <p style={{fontSize:14,fontWeight:950,color:'#fff',lineHeight:1.45,marginBottom:8}}>{item.pain}</p>
+                <p style={{fontSize:12,color:'#9fd6ae',fontWeight:900,lineHeight:1.6,marginBottom:8}}>判断：{item.diagnosis}</p>
+                <p style={{fontSize:12,color:'#aaa',lineHeight:1.65,marginTop:'auto'}}>下一步：{item.action}</p>
               </Link>
             ))}
           </div>

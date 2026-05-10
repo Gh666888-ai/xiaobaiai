@@ -9,6 +9,25 @@ import { Search, Download, Sparkles } from "lucide-react"
 
 const PAGE_SIZE = 48
 
+const skillLabSteps = [
+  {
+    title: "先看来源",
+    desc: "官方、GitHub、社区候选要分开。没有源码、没有说明、没有更新时间的 Skill 不进新手首装。",
+  },
+  {
+    title: "再看权限",
+    desc: "会读文件、发消息、操作网页、调用 API 的能力，都要先写清楚它能碰什么、不能碰什么。",
+  },
+  {
+    title: "只用小样例",
+    desc: "第一次不要放客户资料、公司代码、真实订单。先用公开样例跑通输入、处理和输出。",
+  },
+  {
+    title: "验收后再留用",
+    desc: "能完成 1 个明确动作，再写复盘。跑不通就删掉，不要把一堆没验证的 Skill 堆进 Agent。",
+  },
+]
+
 type FetchedSkillItem = {
   id: string
   name: string
@@ -76,6 +95,25 @@ export default function SkillsPage() {
         <h1 style={{fontSize:36,fontWeight:900,color:'#fff',letterSpacing:'0.02em',marginBottom:8}}>Agent Skill 推荐</h1>
         <p style={{fontSize:17,fontWeight:700,color:'#ddd',marginBottom:24,lineHeight:1.7}}>先说你的行业和想交给 AI 的工作，小白会按工作流给 Skill 打分，不让新手自己乱翻。</p>
 
+        <section style={{background:'rgba(159,214,174,0.055)',border:'1px solid rgba(159,214,174,0.22)',borderRadius:12,padding:20,marginBottom:16}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',gap:14,flexWrap:'wrap',marginBottom:14}}>
+            <div>
+              <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.16em',color:'#9fd6ae',fontWeight:900,marginBottom:7}}>SKILL FIRST LAB</p>
+              <h2 style={{fontSize:23,fontWeight:950,color:'#fff',lineHeight:1.35,margin:0}}>装 Skill 前，先跑一个 10 分钟小实验</h2>
+            </div>
+            <span style={{fontSize:13,fontWeight:950,color:'#9fd6ae'}}>先验证，再长期使用</span>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:10}}>
+            {skillLabSteps.map((item,index)=>(
+              <div key={item.title} style={{border:'1px solid rgba(255,255,255,0.08)',background:'rgba(0,0,0,0.22)',borderRadius:10,padding:'14px 14px',minHeight:128}}>
+                <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:950,color:'#9fd6ae',marginBottom:8}}>0{index+1}</p>
+                <h3 style={{fontSize:16,fontWeight:950,color:'#fff',lineHeight:1.35,marginBottom:7}}>{item.title}</h3>
+                <p style={{fontSize:13,color:'#c9c9c9',lineHeight:1.7,margin:0}}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <section style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(232,201,106,0.22)',borderRadius:12,padding:20,marginBottom:28}}>
           <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
             <Sparkles size={18} color="#e8c96a" />
@@ -122,7 +160,8 @@ export default function SkillsPage() {
                       </div>
                       <p style={{fontSize:13,fontWeight:700,color:'#cfcfcf',lineHeight:1.6,marginBottom:8}}>{item.reason}</p>
                       <p style={{fontSize:12,fontWeight:800,color:'#999',lineHeight:1.6,margin:0}}>{item.safetyNote}</p>
-                      <p style={{fontSize:11,fontWeight:800,color:'#777',lineHeight:1.5,margin:'8px 0 0'}}>{item.source}{typeof item.stars === "number" && item.stars > 0 ? ` · ${item.stars} stars` : ""}</p>
+                      <p style={{fontSize:11,fontWeight:800,color:'#777',lineHeight:1.5,margin:'8px 0 0'}}>{item.source}{typeof item.stars === "number" && item.stars > 0 ? ` · ${item.stars} stars` : ""}{item.updatedAt ? ` · 更新 ${item.updatedAt.slice(0,10)}` : ""}</p>
+                      <p style={{fontSize:11,fontWeight:900,color:'#9fd6ae',lineHeight:1.5,margin:'6px 0 0'}}>状态：候选能力，人工复核后再放进强推荐。</p>
                     </div>
                   </a>
                 ))}
