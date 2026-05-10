@@ -1,6 +1,6 @@
 "use client"
 
-import { getNextLevel, getUserLevel, LevelTrack } from "@/data/user"
+import { getNextLevel, getUserLevel, LEVEL_TRACKS, LevelTrack } from "@/data/user"
 
 type LevelBadgeProps = {
   name: string
@@ -9,6 +9,7 @@ type LevelBadgeProps = {
   compact?: boolean
   track?: LevelTrack
   coCreatorApproved?: boolean
+  previewLevel?: number
 }
 
 type AutoPlate = {
@@ -525,9 +526,11 @@ function CoCreatorBadge({
   )
 }
 
-export function LevelBadge({ name, xp, contributionPoints = 0, compact = false, track = "personal", coCreatorApproved = false }: LevelBadgeProps) {
+export function LevelBadge({ name, xp, contributionPoints = 0, compact = false, track = "personal", coCreatorApproved = false, previewLevel }: LevelBadgeProps) {
   const levelAccess = { coCreatorApproved, contributionPoints }
-  const level = getUserLevel(xp, track, levelAccess)
+  const level = typeof previewLevel === "number"
+    ? (LEVEL_TRACKS[track] || LEVEL_TRACKS.personal)[previewLevel] || getUserLevel(xp, track, levelAccess)
+    : getUserLevel(xp, track, levelAccess)
   const next = getNextLevel(xp, track, levelAccess)
   const isCoCreator = coCreatorApproved && level.level >= 15
 

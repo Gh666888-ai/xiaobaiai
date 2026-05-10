@@ -12,7 +12,7 @@ import { stages } from "@/data/learning-path"
 import { progressId, readLearningProgress } from "@/lib/learning-progress"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
-import { getNextLevel, getUserLevel, LEVELS } from "@/data/user"
+import { getNextLevel, getUserLevel, LEVELS, LEVEL_TRACKS } from "@/data/user"
 import { CHECK_IN_XP, GROWTH_MISSIONS } from "@/data/growth"
 
 type GrowthState = {
@@ -127,6 +127,15 @@ export default function GrowthClient() {
   const teamNextLevelInfo = getNextLevel(state.xp, "team", levelAccess)
   const teamNextLevel = teamNextLevelInfo?.level || null
   const teamNeedsReview = Boolean(teamNextLevelInfo?.requiresReview)
+  const levelGallery = useMemo(() => {
+    const track = user?.coCreatorTrack === "team" ? "team" : "personal"
+    return (LEVEL_TRACKS[track] || LEVEL_TRACKS.personal).map((level) => ({
+      level,
+      sampleXP: level.minXP,
+      sampleContribution: level.level >= 19 ? 360 : level.level >= 18 ? 160 : level.level >= 17 ? 60 : level.level >= 16 ? 20 : 0,
+      unlocked: isCoCreatorMode || currentLevel.level >= level.level,
+    }))
+  }, [currentLevel.level, isCoCreatorMode, user?.coCreatorTrack])
   const displayXP = nextLevel ? state.xp : LEVELS[LEVELS.length - 1]?.minXP || state.xp
   const badge = levelBadge(state.xp)
   const levelBaseXP = currentLevel.minXP
@@ -540,6 +549,40 @@ export default function GrowthClient() {
                 <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10 }}>已达最高档</p>
               </div>
             )}
+          </div>
+          <div style={{ marginTop: 14, border: "1px solid #2a1f10", borderRadius: 12, background: "rgba(0,0,0,0.25)", padding: "16px 14px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12, flexWrap: "wrap", marginBottom: 12 }}>
+              <div>
+                <p style={{ color: "#fff", fontSize: 15, fontWeight: 950, marginBottom: 4 }}>全等级名牌陈列</p>
+                <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7 }}>
+                  {isCoCreatorMode ? "共创身份已开启，可以预览所有等级名牌和共创神龙凤牌。" : "普通用户先看已解锁名牌；共创审核通过后开放全等级预览。"}
+                </p>
+              </div>
+              <span style={{ color: isCoCreatorMode ? "#7ee7ff" : "#d6c28a", border: `1px solid ${isCoCreatorMode ? "rgba(126,231,255,0.45)" : "rgba(201,168,76,0.35)"}`, borderRadius: 999, padding: "5px 10px", fontSize: 11, fontWeight: 950, background: "rgba(255,255,255,0.035)" }}>
+                {isCoCreatorMode ? "共创可见全部" : `已解锁 LV.${currentLevel.level}`}
+              </span>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "12px 10px" }} className="max-sm:grid-cols-1">
+              {levelGallery.map(({ level, sampleXP, sampleContribution, unlocked }) => (
+                <div key={level.level} style={{ border: `1px solid ${unlocked ? `${level.color}66` : "#242424"}`, borderRadius: 10, background: unlocked ? `${level.color}10` : "rgba(255,255,255,0.02)", padding: "12px 10px", minHeight: 94, opacity: unlocked ? 1 : 0.48 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 8 }}>
+                    <p style={{ color: level.accent, fontSize: 12, fontWeight: 950 }}>LV.{level.level} {level.name}</p>
+                    <span style={{ fontFamily: "'JetBrains Mono',monospace", color: unlocked ? "#e8c96a" : "#777", fontSize: 10, fontWeight: 900 }}>{level.level >= 15 ? "共创" : `${level.minXP}XP`}</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: level.level >= 19 ? 58 : 46, overflow: "visible" }}>
+                    <LevelBadge
+                      compact
+                      name={level.level >= 15 ? level.name.replace("小白AI", "") : "小白"}
+                      xp={sampleXP}
+                      contributionPoints={sampleContribution}
+                      coCreatorApproved={level.level >= 15}
+                      track={level.track}
+                      previewLevel={level.level}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       </main>
