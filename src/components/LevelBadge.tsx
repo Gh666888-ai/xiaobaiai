@@ -164,6 +164,7 @@ export function LevelBadge({
           isolation: isolate;
           overflow: visible;
           vertical-align: middle;
+          line-height: 0;
           color: #fff;
           filter:
             drop-shadow(0 12px 20px rgba(0,0,0,0.5))

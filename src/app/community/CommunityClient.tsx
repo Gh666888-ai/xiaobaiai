@@ -137,7 +137,7 @@ export default function CommunityPage() {
                     <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10,flexWrap:'wrap'}}>
                       {p.pinned && <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#e8c96a',border:'1px solid #7a6230',padding:'2px 8px',borderRadius:4,display:'flex',alignItems:'center',gap:4}}><Pin size={10} />置顶</span>}
                       <span className="tag tag-gold" style={{fontWeight:700,fontSize:11}}>{p.category}</span>
-                      <LevelBadge compact name={authorName(p)} xp={authorXP(p)} />
+                      <span className="community-level-inline"><LevelBadge compact name={authorName(p)} xp={authorXP(p)} /></span>
                       {levelPerkLabel(authorXP(p)) && <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:getUserLevel(authorXP(p)).level>=7?'#7ee7ff':'#e8c96a',border:`1px solid ${getUserLevel(authorXP(p)).level>=7?'rgba(126,231,255,0.55)':'rgba(201,168,76,0.45)'}`,background:getUserLevel(authorXP(p)).level>=7?'rgba(126,231,255,0.08)':'rgba(201,168,76,0.08)',padding:'2px 8px',borderRadius:999,fontWeight:900}}>{levelPerkLabel(authorXP(p))}</span>}
                       <span style={{color:'#444'}}>·</span>
                       <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#666'}}>{p.publishedAt}</span>
@@ -171,6 +171,30 @@ export default function CommunityPage() {
           </div>
         )}
       </div>
+      <style jsx>{`
+        .community-level-inline {
+          width: 214px;
+          height: 42px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          overflow: visible;
+          flex: 0 0 auto;
+        }
+        .community-level-inline :global(.xiaobaiLevelNameplate) {
+          transform: translateY(1px) scale(0.84);
+          transform-origin: center;
+        }
+        @media (max-width: 520px) {
+          .community-level-inline {
+            width: 188px;
+            height: 42px;
+          }
+          .community-level-inline :global(.xiaobaiLevelNameplate) {
+            transform: translateY(1px) scale(0.92);
+          }
+        }
+      `}</style>
     </div>
   )
 }
