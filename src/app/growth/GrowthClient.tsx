@@ -271,15 +271,23 @@ export default function GrowthClient() {
             <h1 style={{ fontSize: 38, fontWeight: 950, color: "#fff", letterSpacing: "0.02em", marginBottom: 10 }}>AI 成长舱</h1>
             <p style={{ fontSize: 15, color: "#cfcfcf", lineHeight: 1.9, maxWidth: 680 }}>每天给自己一个小任务，积累经验值、连续学习和下一步路线。登录后领取的经验会同步到账号等级和右上角徽章。</p>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", justifyContent: "flex-end" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "72px minmax(0, 180px)", alignItems: "center", gap: 10, border: `1px solid ${currentLevel.color}66`, borderRadius: 14, background: `${currentLevel.color}10`, padding: "8px 12px", minHeight: 92, overflow: "visible" }}>
-              <LevelIcon level={currentLevel.level} name={currentLevel.name} compact />
-              <div style={{ minWidth: 0, display: "grid", gap: 4, justifyItems: "start" }}>
-                <span style={{ color: currentLevel.accent, fontSize: 11, fontWeight: 950 }}>{currentLevel.level >= 19 ? currentLevel.name : `LV.${currentLevel.level} ${currentLevel.name}`}</span>
-                <LevelBadge compact name={user?.name || "个人"} xp={state.xp} contributionPoints={contributionPoints} coCreatorApproved={user?.coCreatorApproved} />
+          <div style={{ display: "flex", alignItems: "stretch", gap: 12, flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "54px minmax(0, 150px)", alignItems: "center", gap: 10, border: `1px solid ${currentLevel.color}66`, borderRadius: 14, background: `${currentLevel.color}10`, padding: "9px 12px", minHeight: 84, width: 252, overflow: "visible" }}>
+              <div style={{ width: 54, height: 64, display: "flex", alignItems: "center", justifyContent: "center", overflow: "visible" }}>
+                <div style={{ transform: "scale(0.72)", transformOrigin: "center" }}>
+                  <LevelIcon level={currentLevel.level} name={currentLevel.name} compact />
+                </div>
+              </div>
+              <div style={{ minWidth: 0, display: "grid", gap: 2, justifyItems: "start" }}>
+                <span style={{ color: currentLevel.accent, fontSize: 14, fontWeight: 950, lineHeight: 1.2 }}>{currentLevel.level >= 19 ? currentLevel.name : `LV.${currentLevel.level} ${currentLevel.name}`}</span>
+                <div style={{ width: 116, height: 36, display: "flex", alignItems: "center", justifyContent: "center", overflow: "visible", marginTop: 1 }}>
+                  <div style={{ transform: "scale(0.66)", transformOrigin: "center" }}>
+                    <LevelBadge compact name={user?.name || "个人"} xp={state.xp} contributionPoints={contributionPoints} coCreatorApproved={user?.coCreatorApproved} />
+                  </div>
+                </div>
               </div>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, border: "1px solid #2a1f10", borderRadius: 14, background: "rgba(201,168,76,0.055)", padding: "10px 13px" }}>
+            <div style={{ minHeight: 84, display: "flex", alignItems: "center", gap: 12, border: "1px solid #2a1f10", borderRadius: 14, background: "rgba(201,168,76,0.055)", padding: "10px 13px" }}>
               <XiaobaiMascot size={46} mood={badge.mood} />
               <div>
                 <p style={{ color: badge.color, fontSize: 13, fontWeight: 950 }}>{badge.title}</p>
@@ -399,13 +407,21 @@ export default function GrowthClient() {
                 </p>
               )}
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {(dailyLeaders.length ? dailyLeaders.slice(0, 6) : [{ rank: 1, name: "今天等你上榜", xp: 0, totalXP: state.xp }]).map((item) => (
-                  <div key={`${item.rank}-${item.name}`} style={{ display: "grid", gridTemplateColumns: "34px 1fr auto", gap: 10, alignItems: "center", minHeight: 40 }}>
+                {(dailyLeaders.length ? dailyLeaders.slice(0, 6) : [{ rank: 1, name: "今天等你上榜", xp: 0, totalXP: state.xp }]).map((item) => {
+                  const itemLevel = getUserLevel(Number(item.totalXP || 0), "personal")
+                  return (
+                  <div key={`${item.rank}-${item.name}`} style={{ display: "grid", gridTemplateColumns: "34px 38px 1fr auto", gap: 10, alignItems: "center", minHeight: 44 }}>
                     <span style={{ fontFamily: "'JetBrains Mono',monospace", color: rankColor(item.rank), fontSize: 13, fontWeight: 950 }}>#{item.rank}</span>
+                    <div style={{ width: 34, height: 40, display: "flex", alignItems: "center", justifyContent: "center", overflow: "visible" }} title={`LV.${itemLevel.level} ${itemLevel.name}`}>
+                      <div style={{ transform: "scale(0.42)", transformOrigin: "center" }}>
+                        <LevelIcon level={itemLevel.level} name={itemLevel.name} compact />
+                      </div>
+                    </div>
                     <span style={{ color: "#fff", fontSize: 14, fontWeight: 950, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</span>
                     <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 11, fontWeight: 900 }}>{item.xp} 分钟</span>
                   </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
             <div style={{ border: "1px solid #2a1f10", borderRadius: 10, background: "rgba(201,168,76,0.045)", padding: 14 }}>
@@ -414,13 +430,21 @@ export default function GrowthClient() {
                 <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>近 7 天任务个数榜</p>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {(weeklyLeaders.length ? weeklyLeaders.slice(0, 6) : [{ rank: 1, name: "今天第一个冲榜的人", xp: 0, totalXP: 0 }]).map((item) => (
-                  <div key={`${item.rank}-${item.name}`} style={{ display: "grid", gridTemplateColumns: "34px 1fr auto", gap: 10, alignItems: "center", minHeight: 40 }}>
+                {(weeklyLeaders.length ? weeklyLeaders.slice(0, 6) : [{ rank: 1, name: "今天第一个冲榜的人", xp: 0, totalXP: 0 }]).map((item) => {
+                  const itemLevel = getUserLevel(Number(item.totalXP || 0), "personal")
+                  return (
+                  <div key={`${item.rank}-${item.name}`} style={{ display: "grid", gridTemplateColumns: "34px 38px 1fr auto", gap: 10, alignItems: "center", minHeight: 44 }}>
                     <span style={{ fontFamily: "'JetBrains Mono',monospace", color: rankColor(item.rank), fontSize: 13, fontWeight: 950 }}>#{item.rank}</span>
+                    <div style={{ width: 34, height: 40, display: "flex", alignItems: "center", justifyContent: "center", overflow: "visible" }} title={`LV.${itemLevel.level} ${itemLevel.name}`}>
+                      <div style={{ transform: "scale(0.42)", transformOrigin: "center" }}>
+                        <LevelIcon level={itemLevel.level} name={itemLevel.name} compact />
+                      </div>
+                    </div>
                     <span style={{ color: "#fff", fontSize: 14, fontWeight: 950, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</span>
                     <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#3DA563", fontSize: 11, fontWeight: 900 }}>{item.xp} 个任务</span>
                   </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           </div>
