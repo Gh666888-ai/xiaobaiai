@@ -19,6 +19,13 @@ type AutoPlate = {
   group: "starter" | "adept" | "master"
 }
 
+type LevelIconProps = {
+  level: number
+  name: string
+  compact?: boolean
+  locked?: boolean
+}
+
 type CoCreatorStage = {
   shortName: string
   fullName: string
@@ -30,23 +37,22 @@ type CoCreatorStage = {
 }
 
 const autoPlates: Record<number, AutoPlate> = {
-  0: { image: "/level-plates/auto-lushu.png", name: "鹿蜀启灵纹", shortName: "鹿蜀纹", group: "starter" },
-  1: { image: "/level-plates/auto-lushu.png", name: "鹿蜀启灵纹", shortName: "鹿蜀纹", group: "starter" },
-  2: { image: "/level-plates/auto-lushu.png", name: "鹿蜀启灵纹", shortName: "鹿蜀纹", group: "starter" },
-  3: { image: "/level-plates/auto-lushu.png", name: "鹿蜀启灵纹", shortName: "鹿蜀纹", group: "starter" },
-  4: { image: "/level-plates/auto-lushu.png", name: "鹿蜀启灵纹", shortName: "鹿蜀纹", group: "starter" },
-  5: { image: "/level-plates/auto-bifang.png", name: "毕方炎羽纹", shortName: "毕方纹", group: "adept" },
-  6: { image: "/level-plates/auto-bifang.png", name: "毕方炎羽纹", shortName: "毕方纹", group: "adept" },
-  7: { image: "/level-plates/auto-bifang.png", name: "毕方炎羽纹", shortName: "毕方纹", group: "adept" },
-  8: { image: "/level-plates/auto-bifang.png", name: "毕方炎羽纹", shortName: "毕方纹", group: "adept" },
-  9: { image: "/level-plates/auto-bifang.png", name: "毕方炎羽纹", shortName: "毕方纹", group: "adept" },
-  10: { image: "/level-plates/auto-yingzhao.png", name: "英招镇山纹", shortName: "英招纹", group: "master" },
-  11: { image: "/level-plates/auto-yingzhao.png", name: "英招镇山纹", shortName: "英招纹", group: "master" },
-  12: { image: "/level-plates/auto-yingzhao.png", name: "英招镇山纹", shortName: "英招纹", group: "master" },
-  13: { image: "/level-plates/auto-yingzhao.png", name: "英招镇山纹", shortName: "英招纹", group: "master" },
-  14: { image: "/level-plates/auto-yingzhao.png", name: "英招镇山纹", shortName: "英招纹", group: "master" },
+  0: { image: "/level-plates/title-level-01.png", name: "AI???", shortName: "???", group: "starter" },
+  1: { image: "/level-plates/title-level-01.png", name: "AI???", shortName: "???", group: "starter" },
+  2: { image: "/level-plates/title-level-02.png", name: "????", shortName: "??", group: "starter" },
+  3: { image: "/level-plates/title-level-03.png", name: "????", shortName: "??", group: "starter" },
+  4: { image: "/level-plates/title-level-04.png", name: "????", shortName: "??", group: "starter" },
+  5: { image: "/level-plates/title-level-05.png", name: "????", shortName: "??", group: "adept" },
+  6: { image: "/level-plates/title-level-06.png", name: "????", shortName: "??", group: "adept" },
+  7: { image: "/level-plates/title-level-07.png", name: "????", shortName: "??", group: "adept" },
+  8: { image: "/level-plates/title-level-08.png", name: "????", shortName: "??", group: "adept" },
+  9: { image: "/level-plates/title-level-09.png", name: "????", shortName: "??", group: "adept" },
+  10: { image: "/level-plates/title-level-10.png", name: "????", shortName: "??", group: "master" },
+  11: { image: "/level-plates/title-level-11.png", name: "????", shortName: "??", group: "master" },
+  12: { image: "/level-plates/title-level-12.png", name: "????", shortName: "??", group: "master" },
+  13: { image: "/level-plates/title-level-13.png", name: "????", shortName: "??", group: "master" },
+  14: { image: "/level-plates/title-level-14.png", name: "????", shortName: "??", group: "master" },
 }
-
 const coCreatorStages: Record<number, CoCreatorStage> = {
   15: {
     shortName: "玄武共创使",
@@ -105,9 +111,8 @@ function getCoCreatorStage(level: number) {
 
 function getAutoPlate(level: number) {
   if (level <= 0) return autoPlates[0]
-  if (level >= 10) return autoPlates[10]
-  if (level >= 5) return autoPlates[5]
-  return autoPlates[1]
+  if (level >= 14) return autoPlates[14]
+  return autoPlates[level] || autoPlates[1]
 }
 
 function LevelTitlePlate({
@@ -133,9 +138,6 @@ function LevelTitlePlate({
       aria-label={`${name} · ${titleText}`}
     >
       <img className="levelTitlePlateImage" src={plate.image} alt="" aria-hidden="true" />
-      <span className="levelPlateText">
-        <span className="levelTitleOnly">{level.name}</span>
-      </span>
       <style>{`
         .levelTitlePlate {
           display: inline-flex;
@@ -205,44 +207,6 @@ function LevelTitlePlate({
           width: 218px;
           max-height: none;
         }
-        .levelPlateText {
-          min-width: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          line-height: 1.08;
-          position: relative;
-          z-index: 2;
-          width: 100%;
-          padding: 0 26px;
-        }
-        .isCompact .levelPlateText {
-          padding: 0 16px;
-        }
-        .levelTitleOnly {
-          max-width: 158px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          color: #fff4c9;
-          font-size: 18px;
-          font-weight: 950;
-          letter-spacing: 0;
-          text-align: center;
-          text-shadow:
-            0 1px 0 rgba(0,0,0,0.92),
-            0 0 10px rgba(232,201,106,0.48),
-            0 0 18px rgba(0,0,0,0.72);
-        }
-        .isCompact .levelTitleOnly {
-          max-width: 118px;
-          font-size: 13px;
-          text-shadow:
-            0 1px 0 rgba(0,0,0,0.96),
-            0 0 8px rgba(232,201,106,0.38),
-            0 0 12px rgba(0,0,0,0.84);
-        }
         @media (max-width: 860px) {
           .levelTitlePlate {
             width: 218px;
@@ -254,10 +218,6 @@ function LevelTitlePlate({
           }
           .levelTitlePlate.isCompact .levelTitlePlateImage {
             width: 196px;
-          }
-          .levelTitlePlate.isCompact .levelTitleOnly {
-            max-width: 102px;
-            font-size: 12px;
           }
         }
       `}</style>
@@ -443,6 +403,56 @@ function CoCreatorBadge({
             width: 256px;
             height: 58px;
             padding: 7px 52px;
+          }
+        }
+      `}</style>
+    </span>
+  )
+}
+
+export function LevelIcon({ level, name, compact = false, locked = false }: LevelIconProps) {
+  const clampedLevel = Math.max(1, Math.min(19, level))
+  const src = `/level-icons/level-${String(clampedLevel).padStart(2, "0")}.png`
+
+  return (
+    <span className={`levelIconBadge ${compact ? "isCompact" : ""} ${locked ? "isLocked" : ""}`} title={name} aria-label={name}>
+      <img src={src} alt={name} />
+      <style>{`
+        .levelIconBadge {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 156px;
+          height: 184px;
+          position: relative;
+          overflow: visible;
+          vertical-align: middle;
+          filter: drop-shadow(0 10px 20px rgba(0,0,0,0.46));
+        }
+        .levelIconBadge.isCompact {
+          width: 86px;
+          height: 102px;
+        }
+        .levelIconBadge.isLocked {
+          opacity: 0.42;
+          filter: grayscale(0.85) drop-shadow(0 6px 12px rgba(0,0,0,0.38));
+        }
+        .levelIconBadge img {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          pointer-events: none;
+          user-select: none;
+        }
+        @media (max-width: 860px) {
+          .levelIconBadge {
+            width: 132px;
+            height: 156px;
+          }
+          .levelIconBadge.isCompact {
+            width: 76px;
+            height: 90px;
           }
         }
       `}</style>

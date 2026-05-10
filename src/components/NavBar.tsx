@@ -5,7 +5,7 @@ import Link from "next/link"
 import { BookOpen, Bot, Building2, ChevronDown, Compass, Crown, Flag, GraduationCap, LogOut, Menu, Newspaper, Search, TerminalSquare, Trophy, Users, Workflow, X } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/AuthContext"
-import { LevelBadge } from "@/components/LevelBadge"
+import { LevelBadge, LevelIcon } from "@/components/LevelBadge"
 import { XiaobaiLogo } from "@/components/XiaobaiLogo"
 import { LEVEL_TRACKS, getNextLevel, getUserLevel } from "@/data/user"
 
@@ -150,15 +150,8 @@ export function NavBar() {
                       <div className="profile-levels is-god-view" aria-label="共创神完整等级图鉴">
                         {levelCatalog.map((item) => (
                           <div key={item.level} className="profile-level-item is-unlocked" title={`${item.name} · ${item.minXP} XP`}>
-                            <LevelBadge
-                              compact
-                              name={item.name}
-                              xp={item.minXP}
-                              track={levelTrack}
-                              coCreatorApproved={item.level >= 15}
-                              contributionPoints={coCreatorPreviewContribution[item.level] || 0}
-                            />
-                            <span className="profile-level-caption">{item.level < 19 ? `LV.${item.level} ${item.name}` : item.name}</span>
+                            <LevelIcon level={item.level} name={item.name} compact />
+                            <span className="profile-level-caption">{item.name}</span>
                           </div>
                         ))}
                       </div>
@@ -442,10 +435,10 @@ export function NavBar() {
         }
         .profile-levels.is-god-view .profile-level-item {
           display: grid;
-          grid-template-columns: minmax(172px, 250px) minmax(0,1fr);
+          grid-template-columns: 92px minmax(0,1fr);
           align-items: center;
           gap: 12px;
-          min-height: 60px;
+          min-height: 104px;
           text-align: left;
           padding: 8px 10px;
         }
