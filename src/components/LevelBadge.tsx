@@ -1,5 +1,6 @@
 "use client"
 
+import type { CSSProperties } from "react"
 import { getNextLevel, getUserLevel, LEVEL_TRACKS, LevelTrack } from "@/data/user"
 
 type LevelBadgeProps = {
@@ -10,13 +11,7 @@ type LevelBadgeProps = {
   track?: LevelTrack
   coCreatorApproved?: boolean
   previewLevel?: number
-}
-
-type AutoPlate = {
-  image: string
-  name: string
-  shortName: string
-  group: "starter" | "adept" | "master"
+  locked?: boolean
 }
 
 type LevelIconProps = {
@@ -26,397 +21,44 @@ type LevelIconProps = {
   locked?: boolean
 }
 
-type CoCreatorStage = {
-  shortName: string
-  fullName: string
-  className: string
-  beast: string
-  beastLine: string
-  nextLabel: string
-  plateImage: string
+function clampLevel(level: number) {
+  return Math.max(1, Math.min(19, level))
 }
 
-const autoPlates: Record<number, AutoPlate> = {
-  0: { image: "/level-plates/title-level-01.png", name: "AI起步者", shortName: "起步", group: "starter" },
-  1: { image: "/level-plates/title-level-01.png", name: "AI起步者", shortName: "起步", group: "starter" },
-  2: { image: "/level-plates/title-level-02.png", name: "灵光初启", shortName: "灵光", group: "starter" },
-  3: { image: "/level-plates/title-level-03.png", name: "玄甲见习", shortName: "见习", group: "starter" },
-  4: { image: "/level-plates/title-level-04.png", name: "文鳐入海", shortName: "入海", group: "starter" },
-  5: { image: "/level-plates/title-level-05.png", name: "风翼试炼", shortName: "试炼", group: "adept" },
-  6: { image: "/level-plates/title-level-06.png", name: "毕方燃翼", shortName: "燃翼", group: "adept" },
-  7: { image: "/level-plates/title-level-07.png", name: "乘黄逐光", shortName: "逐光", group: "adept" },
-  8: { image: "/level-plates/title-level-08.png", name: "鸾鸟衔辉", shortName: "衔辉", group: "adept" },
-  9: { image: "/level-plates/title-level-09.png", name: "当康聚业", shortName: "聚业", group: "adept" },
-  10: { image: "/level-plates/title-level-10.png", name: "天狗破夜", shortName: "破夜", group: "master" },
-  11: { image: "/level-plates/title-level-11.png", name: "英招镇山", shortName: "镇山", group: "master" },
-  12: { image: "/level-plates/title-level-12.png", name: "陆吾守境", shortName: "守境", group: "master" },
-  13: { image: "/level-plates/title-level-13.png", name: "白泽知命", shortName: "白泽", group: "master" },
-  14: { image: "/level-plates/title-level-14.png", name: "麒麟开运", shortName: "麒麟", group: "master" },
-}
-const coCreatorStages: Record<number, CoCreatorStage> = {
-  15: {
-    shortName: "玄武共创使",
-    fullName: "小白AI玄武共创使",
-    className: "partner",
-    beast: "玄武",
-    beastLine: "镇守方法库",
-    nextLabel: "升级看贡献",
-    plateImage: "/level-plates/co-creator-partner.png",
-  },
-  16: {
-    shortName: "朱雀策源官",
-    fullName: "小白AI朱雀策源官",
-    className: "advisor",
-    beast: "朱雀",
-    beastLine: "点燃案例场",
-    nextLabel: "解锁策源名牌",
-    plateImage: "/level-plates/co-creator-advisor.png",
-  },
-  17: {
-    shortName: "白虎实战导师",
-    fullName: "小白AI白虎实战导师",
-    className: "mentor",
-    beast: "白虎",
-    beastLine: "破局带新人",
-    nextLabel: "解锁导师名牌",
-    plateImage: "/level-plates/co-creator-mentor.png",
-  },
-  18: {
-    shortName: "青龙共创合伙人",
-    fullName: "小白AI青龙共创合伙人",
-    className: "partnerPlus",
-    beast: "青龙",
-    beastLine: "共建工作流",
-    nextLabel: "解锁合伙名牌",
-    plateImage: "/level-plates/co-creator-partner-plus.png",
-  },
-  19: {
-    shortName: "龙凤共创神",
-    fullName: "小白AI龙凤共创神",
-    className: "legend",
-    beast: "龙凤",
-    beastLine: "最高共创身份",
-    nextLabel: "最高共创名牌",
-    plateImage: "/level-plates/co-creator-god.png",
-  },
+function iconSrc(level: number) {
+  return `/level-icons/level-${String(clampLevel(level)).padStart(2, "0")}.png`
 }
 
-function getCoCreatorStage(level: number) {
-  if (level >= 19) return coCreatorStages[19]
-  if (level >= 18) return coCreatorStages[18]
-  if (level >= 17) return coCreatorStages[17]
-  if (level >= 16) return coCreatorStages[16]
-  return coCreatorStages[15]
+function normalizeName(name: string) {
+  return (name || "个人").replace(/\s+/g, " ").trim() || "个人"
 }
 
-function getAutoPlate(level: number) {
-  if (level <= 0) return autoPlates[0]
-  if (level >= 14) return autoPlates[14]
-  return autoPlates[level] || autoPlates[1]
-}
-
-function LevelTitlePlate({
-  name,
-  level,
-  next,
-  xpLabel,
-  compact,
-}: {
-  name: string
-  level: ReturnType<typeof getUserLevel>
-  next: ReturnType<typeof getNextLevel>
-  xpLabel: string
-  compact: boolean
-}) {
-  const plate = getAutoPlate(level.level)
-  const titleText = `${level.name} · ${plate.name} · ${xpLabel} · ${level.desc}${next ? next.requiresReview ? ` · 达到共创门槛，需要人工审核后解锁 ${next.level.name}` : ` · 距离 ${next.level.name} 还差 ${next.need} XP` : " · 已达当前最高普通档。"}`
-
-  return (
-    <span
-      className={`levelTitlePlate levelPlate-${plate.group} ${compact ? "isCompact" : ""}`}
-      title={`${name} · ${titleText}`}
-      aria-label={`${name} · ${titleText}`}
-    >
-      <img className="levelTitlePlateImage" src={plate.image} alt="" aria-hidden="true" />
-      <style>{`
-        .levelTitlePlate {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 248px;
-          height: 72px;
-          position: relative;
-          isolation: isolate;
-          overflow: visible;
-          vertical-align: middle;
-          filter:
-            drop-shadow(0 5px 9px rgba(0,0,0,0.38))
-            drop-shadow(0 0 7px rgba(210,174,96,0.22));
-        }
-        .levelTitlePlate.isCompact {
-          width: 172px;
-          height: 52px;
-          overflow: visible;
-        }
-        .levelPlate-starter {
-          filter:
-            drop-shadow(0 4px 8px rgba(0,0,0,0.36))
-            drop-shadow(0 0 5px rgba(198,176,118,0.18));
-        }
-        .levelPlate-riser {
-          filter:
-            drop-shadow(0 5px 9px rgba(0,0,0,0.38))
-            drop-shadow(0 0 8px rgba(231,152,72,0.25));
-        }
-        .levelPlate-adept {
-          filter:
-            drop-shadow(0 6px 10px rgba(0,0,0,0.4))
-            drop-shadow(0 0 10px rgba(236,178,74,0.3));
-        }
-        .levelPlate-master {
-          filter:
-            drop-shadow(0 6px 12px rgba(0,0,0,0.44))
-            drop-shadow(0 0 13px rgba(98,224,194,0.34));
-        }
-        .levelTitlePlateImage {
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          z-index: 0;
-          width: 118%;
-          height: auto;
-          max-height: 184%;
-          transform: translate(-50%, -50%);
-          object-fit: contain;
-          pointer-events: none;
-          user-select: none;
-        }
-        .levelPlate-starter .levelTitlePlateImage {
-          width: 116%;
-          filter: saturate(0.88) brightness(0.9) contrast(1.02);
-        }
-        .levelPlate-adept .levelTitlePlateImage {
-          width: 120%;
-          filter: saturate(0.96) brightness(0.92) contrast(1.04);
-        }
-        .levelPlate-master .levelTitlePlateImage {
-          width: 124%;
-          filter: saturate(0.92) brightness(0.88) contrast(1.03);
-        }
-        .levelTitlePlate.isCompact .levelTitlePlateImage {
-          width: 218px;
-          max-height: none;
-        }
-        @media (max-width: 860px) {
-          .levelTitlePlate {
-            width: 218px;
-            height: 64px;
-          }
-          .levelTitlePlate.isCompact {
-            width: 152px;
-            height: 48px;
-          }
-          .levelTitlePlate.isCompact .levelTitlePlateImage {
-            width: 196px;
-          }
-        }
-      `}</style>
-    </span>
-  )
-}
-
-function CoCreatorBadge({
-  name,
-  level,
-  next,
-  contributionPoints,
-  compact,
-}: {
-  name: string
-  level: ReturnType<typeof getUserLevel>
-  next: ReturnType<typeof getNextLevel>
-  contributionPoints: number
-  compact: boolean
-}) {
-  const stage = getCoCreatorStage(level.level)
-  const titleText = `${level.level < 19 ? `LV.${level.level} ` : ""}${stage.fullName}${level.level < 19 ? ` · ${contributionPoints} 贡献值` : ""} · ${stage.beastLine} · ${level.desc}`
-
+function nameSize(name: string, compact: boolean) {
+  const length = Array.from(name).length
   if (compact) {
-    return (
-      <span
-        className={`coCreatorImageBadge coCreatorImageBadge-${stage.className}`}
-        title={titleText}
-        aria-label={titleText}
-      >
-        <img src={stage.plateImage} alt={stage.shortName} />
-        <style>{`
-          .coCreatorImageBadge {
-            --stage-glow: rgba(255,216,107,0.42);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 178px;
-            height: 42px;
-            position: relative;
-            overflow: visible;
-            vertical-align: middle;
-            filter: drop-shadow(0 0 12px var(--stage-glow));
-          }
-          .coCreatorImageBadge-partner { --stage-glow: rgba(115,214,199,0.42); }
-          .coCreatorImageBadge-advisor { --stage-glow: rgba(255,122,69,0.48); }
-          .coCreatorImageBadge-mentor { --stage-glow: rgba(243,233,208,0.45); }
-          .coCreatorImageBadge-partnerPlus { --stage-glow: rgba(55,219,199,0.54); }
-          .coCreatorImageBadge-legend {
-            --stage-glow: rgba(235,248,255,0.9);
-            width: 204px;
-            height: 48px;
-            filter:
-              drop-shadow(0 0 10px rgba(245,252,255,0.72))
-              drop-shadow(0 0 22px rgba(126,215,255,0.62));
-          }
-          .coCreatorImageBadge img {
-            display: block;
-            width: 100%;
-            height: auto;
-            max-height: 100%;
-            object-fit: contain;
-            pointer-events: none;
-            user-select: none;
-          }
-          .coCreatorImageBadge-legend img {
-            filter: saturate(0.38) brightness(1.24) contrast(1.18);
-          }
-          @media (max-width: 860px) {
-            .coCreatorImageBadge {
-              width: 148px;
-              height: 36px;
-            }
-            .coCreatorImageBadge-legend {
-              width: 170px;
-              height: 40px;
-            }
-          }
-          @media (max-width: 420px) {
-            .coCreatorImageBadge {
-              width: 132px;
-              height: 32px;
-            }
-            .coCreatorImageBadge-legend {
-              width: 150px;
-              height: 36px;
-            }
-          }
-        `}</style>
-      </span>
-    )
+    if (length <= 4) return 16
+    if (length <= 8) return 14
+    if (length <= 12) return 12
+    return 10
   }
+  if (length <= 4) return 22
+  if (length <= 8) return 19
+  if (length <= 12) return 16
+  return 13
+}
 
-  return (
-    <span
-      className={`coCreatorBadge coCreatorBadge-${stage.className}`}
-      title={titleText}
-      aria-label={`${name} · ${titleText}`}
-    >
-      <img className="coCreatorPlateImage" src={stage.plateImage} alt="" aria-hidden="true" />
-      <style>{`
-        .coCreatorBadge {
-          --stage-main: #ffd86b;
-          --stage-soft: rgba(255,216,107,0.2);
-          --stage-deep: #251805;
-          --stage-glow: rgba(255,216,107,0.42);
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 270px;
-          height: 56px;
-          padding: 7px 58px;
-          color: #fff;
-          position: relative;
-          isolation: isolate;
-          overflow: visible;
-          border: 0;
-          border-radius: 0;
-          background: transparent;
-          box-shadow: none;
-          text-decoration: none;
-          vertical-align: middle;
-          filter: drop-shadow(0 0 14px var(--stage-glow));
-        }
-        .coCreatorBadge-partner {
-          --stage-main: #73d6c7;
-          --stage-soft: rgba(115,214,199,0.22);
-          --stage-deep: #071b18;
-          --stage-glow: rgba(115,214,199,0.42);
-        }
-        .coCreatorBadge-advisor {
-          --stage-main: #ff7a45;
-          --stage-soft: rgba(255,122,69,0.26);
-          --stage-deep: #260904;
-          --stage-glow: rgba(255,122,69,0.5);
-        }
-        .coCreatorBadge-mentor {
-          --stage-main: #f3e9d0;
-          --stage-soft: rgba(243,233,208,0.22);
-          --stage-deep: #10141b;
-          --stage-glow: rgba(243,233,208,0.46);
-        }
-        .coCreatorBadge-partnerPlus {
-          --stage-main: #37dbc7;
-          --stage-soft: rgba(55,219,199,0.26);
-          --stage-deep: #051f1d;
-          --stage-glow: rgba(55,219,199,0.54);
-        }
-        .coCreatorBadge-legend {
-          --stage-main: #edf8ff;
-          --stage-soft: rgba(235,248,255,0.3);
-          --stage-deep: #061521;
-          --stage-glow: rgba(235,248,255,0.9);
-          width: 330px;
-          height: 74px;
-          padding: 10px 74px;
-          filter:
-            drop-shadow(0 0 12px rgba(245,252,255,0.7))
-            drop-shadow(0 0 28px rgba(126,215,255,0.6));
-        }
-        .coCreatorPlateImage {
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          z-index: -2;
-          width: 122%;
-          height: auto;
-          transform: translate(-50%, -50%);
-          pointer-events: none;
-          user-select: none;
-        }
-        .coCreatorBadge-legend .coCreatorPlateImage {
-          width: 128%;
-          filter: saturate(0.38) brightness(1.24) contrast(1.18);
-        }
-        @media (max-width: 860px) {
-          .coCreatorBadge {
-            width: 234px;
-            height: 52px;
-            padding: 7px 50px;
-          }
-          .coCreatorBadge-legend {
-            width: 256px;
-            height: 58px;
-            padding: 7px 52px;
-          }
-        }
-      `}</style>
-    </span>
-  )
+function toneForLevel(level: number) {
+  if (level >= 15) return "aurora"
+  if (level >= 12) return "jade"
+  if (level >= 8) return "gold"
+  if (level >= 4) return "steel"
+  return "ember"
 }
 
 export function LevelIcon({ level, name, compact = false, locked = false }: LevelIconProps) {
-  const clampedLevel = Math.max(1, Math.min(19, level))
-  const src = `/level-icons/level-${String(clampedLevel).padStart(2, "0")}.png`
-
   return (
     <span className={`levelIconBadge ${compact ? "isCompact" : ""} ${locked ? "isLocked" : ""}`} title={name} aria-label={name}>
-      <img src={src} alt={name} />
+      <img src={iconSrc(level)} alt={name} />
       <style>{`
         .levelIconBadge {
           display: inline-flex;
@@ -460,39 +102,300 @@ export function LevelIcon({ level, name, compact = false, locked = false }: Leve
   )
 }
 
-export function LevelBadge({ name, xp, contributionPoints = 0, compact = false, track = "personal", coCreatorApproved = false, previewLevel }: LevelBadgeProps) {
+export function LevelBadge({
+  name,
+  xp,
+  contributionPoints = 0,
+  compact = false,
+  track = "personal",
+  coCreatorApproved = false,
+  previewLevel,
+  locked = false,
+}: LevelBadgeProps) {
   const levelAccess = { coCreatorApproved, contributionPoints }
+  const trackLevels = LEVEL_TRACKS[track] || LEVEL_TRACKS.personal
   const level = typeof previewLevel === "number"
-    ? (LEVEL_TRACKS[track] || LEVEL_TRACKS.personal)[previewLevel] || getUserLevel(xp, track, levelAccess)
+    ? trackLevels[previewLevel] || getUserLevel(xp, track, levelAccess)
     : getUserLevel(xp, track, levelAccess)
   const next = getNextLevel(xp, track, levelAccess)
-  const isCoCreator = coCreatorApproved && level.level >= 15
-
-  if (isCoCreator) {
-    return (
-      <CoCreatorBadge
-        name={name}
-        level={level}
-        next={next}
-        contributionPoints={contributionPoints}
-        compact={compact}
-      />
-    )
-  }
-
-  const xpLabel = next?.requiresReview
-    ? `${xp} XP · 共创待审核`
-    : next
-      ? `${xp} XP`
-      : "已达最高普通档"
+  const displayName = normalizeName(name)
+  const tone = toneForLevel(level.level)
+  const titleText = `${displayName} · LV.${level.level} ${level.name} · ${level.desc}${next ? next.requiresReview ? ` · 达到共创门槛，审核后解锁 ${next.level.name}` : next.requiresContribution ? ` · 距离 ${next.level.name} 还差 ${next.need} 贡献值` : ` · 距离 ${next.level.name} 还差 ${next.need} XP` : " · 已达当前最高档"}`
+  const style = {
+    "--plate-accent": level.accent,
+    "--plate-main": level.color,
+    "--plate-name-size": `${nameSize(displayName, compact)}px`,
+  } as CSSProperties
 
   return (
-    <LevelTitlePlate
-      name={name}
-      level={level}
-      next={next}
-      xpLabel={xpLabel}
-      compact={compact}
-    />
+    <span
+      className={`xiaobaiLevelNameplate tone-${tone} ${compact ? "isCompact" : "isFull"} ${locked ? "isLocked" : ""}`}
+      style={style}
+      title={titleText}
+      aria-label={titleText}
+    >
+      <span className="levelPlateFrame" aria-hidden="true" />
+      <span className="levelPlateSeal" aria-hidden="true">
+        <img src={iconSrc(level.level)} alt="" />
+      </span>
+      <span className="levelPlateText">
+        <span className="levelPlateName">{displayName}</span>
+        <span className="levelPlateRank">
+          <span>LV.{level.level}</span>
+          <strong>{level.name}</strong>
+        </span>
+      </span>
+      <span className="levelPlateEdge" aria-hidden="true">
+        <span />
+      </span>
+      <style>{`
+        .xiaobaiLevelNameplate {
+          --plate-main: #c9a84c;
+          --plate-accent: #fff0a8;
+          --plate-deep: #090909;
+          --plate-mid: rgba(201,168,76,0.24);
+          --plate-line: rgba(255,240,168,0.64);
+          display: inline-grid;
+          grid-template-columns: 78px minmax(0, 1fr) 48px;
+          align-items: center;
+          width: 336px;
+          height: 92px;
+          position: relative;
+          isolation: isolate;
+          overflow: visible;
+          vertical-align: middle;
+          color: #fff;
+          filter:
+            drop-shadow(0 12px 20px rgba(0,0,0,0.5))
+            drop-shadow(0 0 14px color-mix(in srgb, var(--plate-main) 32%, transparent));
+        }
+        .xiaobaiLevelNameplate.isCompact {
+          grid-template-columns: 54px minmax(0, 1fr) 34px;
+          width: 226px;
+          height: 58px;
+          filter:
+            drop-shadow(0 7px 12px rgba(0,0,0,0.42))
+            drop-shadow(0 0 10px color-mix(in srgb, var(--plate-main) 26%, transparent));
+        }
+        .xiaobaiLevelNameplate.isLocked {
+          opacity: 0.46;
+          filter: grayscale(0.9) drop-shadow(0 7px 12px rgba(0,0,0,0.42));
+        }
+        .xiaobaiLevelNameplate.tone-ember {
+          --plate-deep: #180f08;
+          --plate-mid: rgba(208,138,66,0.28);
+          --plate-line: rgba(255,209,154,0.7);
+        }
+        .xiaobaiLevelNameplate.tone-steel {
+          --plate-deep: #0b1119;
+          --plate-mid: rgba(159,178,200,0.24);
+          --plate-line: rgba(230,242,255,0.66);
+        }
+        .xiaobaiLevelNameplate.tone-gold {
+          --plate-deep: #171104;
+          --plate-mid: rgba(232,201,106,0.27);
+          --plate-line: rgba(255,240,168,0.78);
+        }
+        .xiaobaiLevelNameplate.tone-jade {
+          --plate-deep: #061815;
+          --plate-mid: rgba(38,215,198,0.22);
+          --plate-line: rgba(216,255,247,0.72);
+        }
+        .xiaobaiLevelNameplate.tone-aurora {
+          --plate-deep: #0b0820;
+          --plate-mid: rgba(182,146,255,0.23);
+          --plate-line: rgba(235,248,255,0.82);
+        }
+        .levelPlateFrame {
+          position: absolute;
+          inset: 8px 4px 9px 18px;
+          z-index: -3;
+          clip-path: polygon(7% 0, 93% 0, 100% 50%, 93% 100%, 7% 100%, 0 50%);
+          border: 1px solid var(--plate-line);
+          background:
+            radial-gradient(circle at 20% 18%, rgba(255,255,255,0.26), transparent 26%),
+            linear-gradient(135deg, rgba(255,255,255,0.18), transparent 24% 72%, rgba(255,255,255,0.1)),
+            linear-gradient(90deg, color-mix(in srgb, var(--plate-main) 18%, #050505), var(--plate-deep) 34%, rgba(5,5,5,0.92) 66%, color-mix(in srgb, var(--plate-main) 20%, #050505));
+          box-shadow:
+            inset 0 0 0 1px rgba(255,255,255,0.08),
+            inset 0 8px 18px rgba(255,255,255,0.08),
+            inset 0 -16px 24px rgba(0,0,0,0.46),
+            0 0 0 1px rgba(0,0,0,0.72),
+            0 0 22px color-mix(in srgb, var(--plate-main) 20%, transparent);
+        }
+        .xiaobaiLevelNameplate.isCompact .levelPlateFrame {
+          inset: 6px 3px 7px 13px;
+        }
+        .levelPlateFrame::before,
+        .levelPlateFrame::after {
+          content: "";
+          position: absolute;
+          left: 18%;
+          right: 12%;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, var(--plate-line), transparent);
+          opacity: 0.72;
+        }
+        .levelPlateFrame::before { top: 8px; }
+        .levelPlateFrame::after { bottom: 8px; opacity: 0.45; }
+        .levelPlateSeal {
+          width: 82px;
+          height: 82px;
+          margin-left: -2px;
+          display: inline-flex;
+          align-items: flex-start;
+          justify-content: center;
+          position: relative;
+          overflow: hidden;
+          border-radius: 999px;
+          border: 1px solid color-mix(in srgb, var(--plate-accent) 62%, rgba(255,255,255,0.24));
+          background:
+            radial-gradient(circle at 50% 34%, rgba(255,255,255,0.18), transparent 58%),
+            rgba(0,0,0,0.6);
+          box-shadow:
+            inset 0 0 16px rgba(255,255,255,0.11),
+            0 0 18px color-mix(in srgb, var(--plate-main) 26%, transparent);
+        }
+        .xiaobaiLevelNameplate.isCompact .levelPlateSeal {
+          width: 56px;
+          height: 56px;
+          margin-left: -1px;
+        }
+        .levelPlateSeal img {
+          display: block;
+          width: 104%;
+          height: 124%;
+          object-fit: cover;
+          object-position: 50% 0%;
+          transform: translateY(-2px) scale(1.02);
+          pointer-events: none;
+          user-select: none;
+          filter: saturate(1.04) contrast(1.04);
+        }
+        .xiaobaiLevelNameplate.isCompact .levelPlateSeal img {
+          width: 108%;
+          height: 128%;
+          transform: translateY(-1px) scale(1.02);
+        }
+        .levelPlateText {
+          min-width: 0;
+          display: grid;
+          gap: 4px;
+          padding: 0 7px 0 3px;
+          position: relative;
+          z-index: 1;
+        }
+        .xiaobaiLevelNameplate.isCompact .levelPlateText {
+          gap: 2px;
+          padding: 0 5px 0 2px;
+        }
+        .levelPlateName {
+          min-width: 0;
+          min-height: 24px;
+          display: flex;
+          align-items: center;
+          color: #fff;
+          font-size: var(--plate-name-size);
+          font-weight: 950;
+          line-height: 1.05;
+          letter-spacing: 0;
+          overflow-wrap: anywhere;
+          text-shadow:
+            0 1px 0 rgba(0,0,0,0.92),
+            0 0 10px color-mix(in srgb, var(--plate-accent) 30%, transparent),
+            0 0 2px rgba(255,255,255,0.5);
+        }
+        .xiaobaiLevelNameplate.isCompact .levelPlateName {
+          min-height: 18px;
+          max-height: 31px;
+        }
+        .levelPlateRank {
+          min-width: 0;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          color: color-mix(in srgb, var(--plate-accent) 86%, #fff);
+          font-size: 12px;
+          font-weight: 950;
+          line-height: 1.05;
+        }
+        .xiaobaiLevelNameplate.isCompact .levelPlateRank {
+          gap: 4px;
+          font-size: 9px;
+        }
+        .levelPlateRank span {
+          flex: 0 0 auto;
+          font-family: "JetBrains Mono", monospace;
+          padding: 3px 6px;
+          border-radius: 999px;
+          border: 1px solid color-mix(in srgb, var(--plate-line) 70%, transparent);
+          background: rgba(0,0,0,0.34);
+          box-shadow: inset 0 1px 7px rgba(255,255,255,0.12);
+        }
+        .xiaobaiLevelNameplate.isCompact .levelPlateRank span {
+          padding: 2px 4px;
+        }
+        .levelPlateRank strong {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-weight: 950;
+        }
+        .levelPlateEdge {
+          display: inline-flex;
+          justify-content: center;
+          align-items: center;
+          position: relative;
+          z-index: 1;
+        }
+        .levelPlateEdge span {
+          width: 16px;
+          height: 38px;
+          border-radius: 999px;
+          border: 1px solid color-mix(in srgb, var(--plate-line) 72%, transparent);
+          background:
+            radial-gradient(circle at 50% 28%, #fff, var(--plate-accent) 18%, transparent 36%),
+            linear-gradient(180deg, rgba(255,255,255,0.18), rgba(0,0,0,0.4));
+          box-shadow:
+            0 0 15px color-mix(in srgb, var(--plate-main) 34%, transparent),
+            inset 0 0 10px rgba(255,255,255,0.14);
+        }
+        .xiaobaiLevelNameplate.isCompact .levelPlateEdge span {
+          width: 11px;
+          height: 27px;
+        }
+        @media (max-width: 860px) {
+          .xiaobaiLevelNameplate {
+            width: 300px;
+            height: 84px;
+            grid-template-columns: 70px minmax(0,1fr) 42px;
+          }
+          .xiaobaiLevelNameplate:not(.isCompact) .levelPlateSeal {
+            width: 74px;
+            height: 74px;
+          }
+          .xiaobaiLevelNameplate.isCompact {
+            width: 204px;
+            height: 54px;
+            grid-template-columns: 50px minmax(0,1fr) 30px;
+          }
+          .xiaobaiLevelNameplate.isCompact .levelPlateSeal {
+            width: 52px;
+            height: 52px;
+          }
+        }
+        @media (max-width: 420px) {
+          .xiaobaiLevelNameplate.isCompact {
+            width: 188px;
+            grid-template-columns: 46px minmax(0,1fr) 26px;
+          }
+          .xiaobaiLevelNameplate.isCompact .levelPlateSeal {
+            width: 48px;
+            height: 48px;
+          }
+        }
+      `}</style>
+    </span>
   )
 }
