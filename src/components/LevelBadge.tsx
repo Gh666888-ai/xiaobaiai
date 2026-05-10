@@ -36,15 +36,15 @@ function normalizeName(name: string) {
 function nameSize(name: string, compact: boolean) {
   const length = Array.from(name).length
   if (compact) {
-    if (length <= 4) return 16
-    if (length <= 8) return 14
-    if (length <= 12) return 12
-    return 10
+    if (length <= 4) return 18
+    if (length <= 8) return 16
+    if (length <= 12) return 13
+    return 11
   }
-  if (length <= 4) return 22
-  if (length <= 8) return 19
-  if (length <= 12) return 16
-  return 13
+  if (length <= 4) return 25
+  if (length <= 8) return 21
+  if (length <= 12) return 17
+  return 14
 }
 
 function toneForLevel(level: number) {
@@ -120,7 +120,7 @@ export function LevelBadge({
   const next = getNextLevel(xp, track, levelAccess)
   const displayName = normalizeName(name)
   const tone = toneForLevel(level.level)
-  const titleText = `${displayName} · LV.${level.level} ${level.name} · ${level.desc}${next ? next.requiresReview ? ` · 达到共创门槛，审核后解锁 ${next.level.name}` : next.requiresContribution ? ` · 距离 ${next.level.name} 还差 ${next.need} 贡献值` : ` · 距离 ${next.level.name} 还差 ${next.need} XP` : " · 已达当前最高档"}`
+  const titleText = `${displayName} · ${level.name} · ${level.desc}${next ? next.requiresReview ? ` · 达到共创门槛，审核后解锁 ${next.level.name}` : next.requiresContribution ? ` · 距离 ${next.level.name} 还差 ${next.need} 贡献值` : ` · 距离 ${next.level.name} 还差 ${next.need} XP` : " · 已达当前最高档"}`
   const style = {
     "--plate-accent": level.accent,
     "--plate-main": level.color,
@@ -140,10 +140,6 @@ export function LevelBadge({
       </span>
       <span className="levelPlateText">
         <span className="levelPlateName">{displayName}</span>
-        <span className="levelPlateRank">
-          <span>LV.{level.level}</span>
-          <strong>{level.name}</strong>
-        </span>
       </span>
       <span className="levelPlateEdge" aria-hidden="true">
         <span />
@@ -280,68 +276,50 @@ export function LevelBadge({
         }
         .levelPlateText {
           min-width: 0;
-          display: grid;
-          gap: 4px;
-          padding: 0 7px 0 3px;
+          min-height: 42px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 12px 0 0;
           position: relative;
           z-index: 1;
         }
         .xiaobaiLevelNameplate.isCompact .levelPlateText {
-          gap: 2px;
-          padding: 0 5px 0 2px;
+          min-height: 30px;
+          padding: 0 8px 0 0;
         }
         .levelPlateName {
           min-width: 0;
-          min-height: 24px;
+          width: 100%;
+          min-height: 30px;
           display: flex;
           align-items: center;
-          color: #fff;
+          justify-content: center;
+          text-align: center;
+          color: #f9d86a;
+          background: linear-gradient(180deg, #fff8c6 0%, #ffe37c 32%, #c88b25 68%, #fff0a3 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
           font-size: var(--plate-name-size);
           font-weight: 950;
           line-height: 1.05;
           letter-spacing: 0;
           overflow-wrap: anywhere;
+          font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
           text-shadow:
-            0 1px 0 rgba(0,0,0,0.92),
+            0 1px 0 rgba(71,38,4,0.95),
+            0 2px 0 rgba(20,8,0,0.9),
+            0 -1px 0 rgba(255,255,255,0.72),
             0 0 10px color-mix(in srgb, var(--plate-accent) 30%, transparent),
-            0 0 2px rgba(255,255,255,0.5);
+            0 0 2px rgba(255,255,255,0.42);
+          filter:
+            drop-shadow(0 1px 0 rgba(45,22,0,0.98))
+            drop-shadow(0 0 8px color-mix(in srgb, var(--plate-main) 26%, transparent));
         }
         .xiaobaiLevelNameplate.isCompact .levelPlateName {
-          min-height: 18px;
-          max-height: 31px;
-        }
-        .levelPlateRank {
-          min-width: 0;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          color: color-mix(in srgb, var(--plate-accent) 86%, #fff);
-          font-size: 12px;
-          font-weight: 950;
-          line-height: 1.05;
-        }
-        .xiaobaiLevelNameplate.isCompact .levelPlateRank {
-          gap: 4px;
-          font-size: 9px;
-        }
-        .levelPlateRank span {
-          flex: 0 0 auto;
-          font-family: "JetBrains Mono", monospace;
-          padding: 3px 6px;
-          border-radius: 999px;
-          border: 1px solid color-mix(in srgb, var(--plate-line) 70%, transparent);
-          background: rgba(0,0,0,0.34);
-          box-shadow: inset 0 1px 7px rgba(255,255,255,0.12);
-        }
-        .xiaobaiLevelNameplate.isCompact .levelPlateRank span {
-          padding: 2px 4px;
-        }
-        .levelPlateRank strong {
-          min-width: 0;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          font-weight: 950;
+          min-height: 24px;
+          max-height: 34px;
         }
         .levelPlateEdge {
           display: inline-flex;

@@ -135,8 +135,8 @@ function rewardForLevel(level: number, track: LevelTrack = "personal"): LevelRew
   if (level >= 4) return { title: "双体验加成", vanity: "钻石头像框体验延长 2 天，再加评论区高亮 2 天体验" }
   if (level >= 3) return { title: isTeam ? "团队协作标识" : "任务执行标识", vanity: "发放钻石头像框 2 天体验，先让你在社区里亮起来" }
   if (level >= 2) return { title: isTeam ? "岗位提效标识" : "提示词练习标识", vanity: "基础身份牌 3 天体验，下一关解锁钻石头像框体验" }
-  if (level >= 1) return { title: isTeam ? "流程记录牌" : "见习创业牌", vanity: "点火徽章、任务完成动效、成长页基础展示；再做一件事就能冲 LV3" }
-  return { title: isTeam ? "团队起步目标" : "个人起步目标", vanity: "完成第一个任务后点亮成长记录，第一天目标是冲到 LV3 拿钻石头像框体验" }
+  if (level >= 1) return { title: isTeam ? "流程记录牌" : "见习创业牌", vanity: "点火徽章、任务完成动效、成长页基础展示；再做一件事就能拿到更高阶铭牌" }
+  return { title: isTeam ? "团队起步目标" : "个人起步目标", vanity: "完成第一个任务后点亮成长记录，第一天目标是拿到钻石头像框体验" }
 }
 
 function buildLevels(track: LevelTrack) {
@@ -290,7 +290,7 @@ export async function addXP(amount: number) {
   await supabase.from("profiles").update({ xp: newXP }).eq("id", data.session.user.id)
   const oldLevel = getUserLevel(profile.xp)
   const newLevel = getUserLevel(newXP)
-  if (newLevel.level > oldLevel.level) alert(`升级：LV.${oldLevel.level} -> LV.${newLevel.level} ${newLevel.name}`)
+  if (newLevel.level > oldLevel.level) alert(`升级：${newLevel.name}`)
 }
 
 export const XP_RULES = {

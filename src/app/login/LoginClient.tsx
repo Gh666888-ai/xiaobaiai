@@ -117,7 +117,7 @@ export default function LoginPage() {
           <p style={{ color: "#e8c96a", fontWeight: 800, marginBottom: 8, fontSize: 13 }}>账号可以做什么</p>
           <p>领取新手礼包、每日任务和在线经验</p>
           <p>发帖 +10XP，评论 +3XP，进入今日经验榜</p>
-          <p>等级越高，社区身份越醒目，LV5 后优先展示</p>
+          <p>等级越高，社区身份越醒目，高阶用户优先展示</p>
         </div>
         <Link href={safeRedirect} className="btn-primary" style={{ width: "100%", justifyContent: "center", marginTop: 28, textDecoration: "none" }}>{safeRedirect === "/chat" ? "继续使用小白AI助手" : "继续访问"}</Link>
         <button onClick={logout} className="btn-outline" style={{ width: "100%", justifyContent: "center", marginTop: 10 }}>退出登录</button>
@@ -157,7 +157,7 @@ export default function LoginPage() {
             ))}
           </div>
           <p style={{ color: "#9f8f62", fontSize: 11, lineHeight: 1.7, marginTop: 9 }}>
-            LV5 后社区内容优先展示，等级徽章会出现在发帖和评论旁边。
+            高阶用户的社区内容会优先展示，身份铭牌会出现在发帖和评论旁边。
           </p>
         </div>
 

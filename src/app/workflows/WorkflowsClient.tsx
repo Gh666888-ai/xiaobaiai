@@ -248,7 +248,7 @@ export default function WorkflowsClient() {
               <button key={template.id} onClick={() => applyTemplate(template)} style={{ textAlign: "left", border: `1px solid ${active ? "#16c4d8" : isAdvanced ? "rgba(201,168,76,0.45)" : "#202020"}`, borderRadius: 10, background: active ? "rgba(22,196,216,0.08)" : isAdvanced ? "rgba(201,168,76,0.045)" : "rgba(255,255,255,0.03)", padding: 15, cursor: "pointer" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 7 }}>
                   <p style={{ color: active ? "#7ee7f0" : "#fff", fontSize: 15, fontWeight: 950 }}>{template.name}</p>
-                  {isAdvanced && <span style={{ color: unlocked ? "#7ee7f0" : "#e8c96a", border: `1px solid ${unlocked ? "rgba(126,231,255,0.5)" : "rgba(201,168,76,0.45)"}`, borderRadius: 999, padding: "2px 7px", fontSize: 10, fontWeight: 950, whiteSpace: "nowrap" }}>{unlocked ? "LV4 已解锁" : "LV4 高级"}</span>}
+                  {isAdvanced && <span style={{ color: unlocked ? "#7ee7f0" : "#e8c96a", border: `1px solid ${unlocked ? "rgba(126,231,255,0.5)" : "rgba(201,168,76,0.45)"}`, borderRadius: 999, padding: "2px 7px", fontSize: 10, fontWeight: 950, whiteSpace: "nowrap" }}>{unlocked ? "已解锁" : "高级模板"}</span>}
                 </div>
                 <p style={{ color: "#999", fontSize: 12, lineHeight: 1.65 }}>{template.scene} · {template.difficulty} · {template.time}</p>
               </button>
@@ -258,7 +258,7 @@ export default function WorkflowsClient() {
         {selectedIsAdvanced && (
           <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "center", border: `1px solid ${selectedUnlocked ? "rgba(126,231,255,0.4)" : "rgba(201,168,76,0.42)"}`, borderRadius: 12, background: selectedUnlocked ? "rgba(126,231,255,0.045)" : "rgba(201,168,76,0.055)", padding: "13px 15px", marginBottom: 18 }} className="max-sm:grid-cols-1">
             <p style={{ color: "#d8d8d8", fontSize: 13, lineHeight: 1.7 }}>
-              {selectedUnlocked ? `你已达到 LV${userLevel.level}，高级工作流模板已解锁，适合保存到云端反复改。` : `这是 LV4 高级模板。现在可以预览和学习，升到 LV4 后会显示已解锁状态，并优先推荐给高等级用户。`}
+              {selectedUnlocked ? `你的身份已满足要求，高级工作流模板已解锁，适合保存到云端反复改。` : "这是高级模板。现在可以预览和学习，点亮更高阶铭牌后会显示已解锁状态，并优先推荐给高等级用户。"}
             </p>
             {!selectedUnlocked && <Link href="/growth" className="btn-outline" style={{ textDecoration: "none", whiteSpace: "nowrap" }}>去升级</Link>}
           </div>

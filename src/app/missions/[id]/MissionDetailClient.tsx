@@ -152,7 +152,7 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
             <p style={{ color: "#999", fontSize: 13, fontWeight: 950, marginBottom: 7 }}>完整任务奖励</p>
             <p style={{ color: "#e8c96a", fontSize: 22, fontWeight: 950, marginBottom: 6 }}>+{mission.xp} XP</p>
             <p style={{ color: willLevelUp ? "#3DA563" : "#bbb", fontSize: 13, lineHeight: 1.65 }}>
-              {willLevelUp ? `完成后可升到 LV.${nextAfterMission?.level} ${nextAfterMission?.name}` : nextLevel ? `距离 LV.${nextLevel.level.level} 还差 ${nextLevel.need} XP` : "你已到达当前最高等级"}
+              {willLevelUp ? `完成后可升到 ${nextAfterMission?.name}` : nextLevel ? `距离下一档还差 ${nextLevel.need} XP` : "你已到达当前最高等级"}
             </p>
           </div>
         </section>

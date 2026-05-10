@@ -70,8 +70,8 @@ function levelBadge(xp: number) {
   if (xp >= 1200) return { title: "高阶身份已点亮", subtitle: "名牌、边框和主页装饰开始压场", color: "#e8c96a", mood: "complete" as const }
   if (xp >= 700) return { title: "装饰权益已开启", subtitle: "社区里会比普通用户更显眼", color: "#3DA563", mood: "recommend" as const }
   if (xp >= 360) return { title: "第一阶段奖励已到手", subtitle: "继续通关，下一档装饰会叠加", color: "#e8c96a", mood: "happy" as const }
-  if (xp >= 120) return { title: "快到第一个奖励", subtitle: "冲到 LV3 先拿钻石头像框体验", color: "#c9a84c", mood: "thinking" as const }
-  return { title: "新手开局", subtitle: "第一天目标：冲 LV3，拿钻石头像框体验", color: "#c9a84c", mood: "welcome" as const }
+  if (xp >= 120) return { title: "快到第一个奖励", subtitle: "继续做任务，先拿钻石头像框体验", color: "#c9a84c", mood: "thinking" as const }
+  return { title: "新手开局", subtitle: "第一天目标：点亮第一个奖励铭牌", color: "#c9a84c", mood: "welcome" as const }
 }
 
 function rankColor(rank: number) {
@@ -274,7 +274,7 @@ export default function GrowthClient() {
                   <Sparkles size={17} style={{ color: "#e8c96a" }} />
                   <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950 }}>当前身份</h2>
                 </div>
-                <p style={{ color: currentLevel.accent, fontSize: 13, fontWeight: 950 }}>LV.{currentLevel.level} {currentLevel.name}</p>
+                <p style={{ color: currentLevel.accent, fontSize: 13, fontWeight: 950 }}>{currentLevel.name}</p>
               </div>
               <span style={{ color: "#e8c96a", border: "1px solid rgba(201,168,76,0.36)", borderRadius: 999, padding: "6px 10px", fontSize: 11, fontWeight: 950, background: "rgba(0,0,0,0.2)" }}>
                 {state.streak} 天连击
@@ -293,7 +293,7 @@ export default function GrowthClient() {
               <div style={{ height: "100%", width: `${levelPercent}%`, background: "linear-gradient(90deg,#7a6230,#e8c96a)", transition: "width 0.3s" }} />
             </div>
             <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7, marginTop: 10 }}>
-              {nextLevel ? nextLevelInfo?.requiresContribution ? `再拿 ${nextLevelInfo.need} 贡献值，解锁 LV.${nextLevel.level} ${nextLevel.name}。` : `再拿 ${nextLevel.minXP - state.xp} XP，解锁 LV.${nextLevel.level} ${nextLevel.name}。` : "你已经点亮最高身份。"}
+              {nextLevel ? nextLevelInfo?.requiresContribution ? `再拿 ${nextLevelInfo.need} 贡献值，解锁 ${nextLevel.name}。` : `再拿 ${nextLevel.minXP - state.xp} XP，解锁 ${nextLevel.name}。` : "你已经点亮最高身份。"}
             </p>
           </div>
 
@@ -391,17 +391,17 @@ export default function GrowthClient() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: 10 }} className="max-sm:grid-cols-1">
             <div style={{ border: `1px solid ${currentLevel.color}66`, borderRadius: 10, background: `${currentLevel.color}10`, padding: "13px 14px" }}>
-              <p style={{ color: currentLevel.accent, fontSize: 13, fontWeight: 950, marginBottom: 5 }}>个人线 · LV.{currentLevel.level} {currentLevel.name}</p>
+              <p style={{ color: currentLevel.accent, fontSize: 13, fontWeight: 950, marginBottom: 5 }}>个人线 · {currentLevel.name}</p>
               <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7 }}>{currentLevel.reward.vanity}</p>
               <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10, marginTop: 7 }}>
-                {nextLevel ? personalNeedsReview ? `下一档需审核：LV.${nextLevel.level} ${nextLevel.name}` : nextLevelInfo?.requiresContribution ? `下一档还差 ${nextLevelInfo.need} 贡献值` : `下一档还差 ${nextLevel.minXP - state.xp} XP` : "已达最高档"}
+                {nextLevel ? personalNeedsReview ? `下一档需审核：${nextLevel.name}` : nextLevelInfo?.requiresContribution ? `下一档还差 ${nextLevelInfo.need} 贡献值` : `下一档还差 ${nextLevel.minXP - state.xp} XP` : "已达最高档"}
               </p>
             </div>
             <div style={{ border: `1px solid ${teamLevel.color}66`, borderRadius: 10, background: `${teamLevel.color}10`, padding: "13px 14px" }}>
-              <p style={{ color: teamLevel.accent, fontSize: 13, fontWeight: 950, marginBottom: 5 }}>团队线 · LV.{teamLevel.level} {teamLevel.name}</p>
+              <p style={{ color: teamLevel.accent, fontSize: 13, fontWeight: 950, marginBottom: 5 }}>团队线 · {teamLevel.name}</p>
               <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7 }}>{teamLevel.reward.vanity}</p>
               <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10, marginTop: 7 }}>
-                {teamNextLevel ? teamNeedsReview ? `下一档需审核：LV.${teamNextLevel.level} ${teamNextLevel.name}` : teamNextLevelInfo?.requiresContribution ? `下一档还差 ${teamNextLevelInfo.need} 贡献值` : `下一档还差 ${teamNextLevel.minXP - state.xp} XP` : "已达最高档"}
+                {teamNextLevel ? teamNeedsReview ? `下一档需审核：${teamNextLevel.name}` : teamNextLevelInfo?.requiresContribution ? `下一档还差 ${teamNextLevelInfo.need} 贡献值` : `下一档还差 ${teamNextLevel.minXP - state.xp} XP` : "已达最高档"}
               </p>
             </div>
           </div>

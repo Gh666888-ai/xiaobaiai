@@ -134,13 +134,13 @@ export function NavBar() {
                     <LevelBadge compact name={user.name} xp={userXP} track={levelTrack} contributionPoints={contributionPoints} coCreatorApproved={user.coCreatorApproved} />
                   </div>
                   <div className="profile-xp-row">
-                    <span>LV.{level.level} {level.name}</span>
+                    <span>{level.name}</span>
                     <strong>{xpLabel}</strong>
                   </div>
                   <div className="profile-progress">
                     <span style={{ width: `${progress}%` }} />
                   </div>
-                  <p className="profile-next">{next ? next.requiresReview ? `已达到共创门槛，提交真实案例和复盘后，由小白AI人工审核解锁 LV.${next.level.level} ${next.level.name}。` : next.requiresContribution ? `距离 LV.${next.level.level} ${next.level.name} 还差 ${next.need} 贡献值，实战案例被验证后涨得最快。` : `距离 LV.${next.level.level} ${next.level.name} 还差 ${next.need} XP` : "已达最高档，继续完成任务和复盘，保持共创身份。"}</p>
+                  <p className="profile-next">{next ? next.requiresReview ? `已达到共创门槛，提交真实案例和复盘后，由小白AI人工审核解锁 ${next.level.name}。` : next.requiresContribution ? `距离 ${next.level.name} 还差 ${next.need} 贡献值，实战案例被验证后涨得最快。` : `距离 ${next.level.name} 还差 ${next.need} XP` : "已达最高档，继续完成任务和复盘，保持共创身份。"}</p>
                   {next && !next.requiresReview && !next.requiresContribution && (
                     <div className="profile-upgrade-hint">
                       <span>约挂机 {idleMinutesNeed} 分钟</span>
@@ -166,7 +166,7 @@ export function NavBar() {
                           <LevelBadge compact name={user.name} xp={userXP} track={levelTrack} contributionPoints={contributionPoints} coCreatorApproved={user.coCreatorApproved} />
                         </div>
                         <span>当前等级</span>
-                        <strong>LV.{level.level} {level.name}</strong>
+                        <strong>{level.name}</strong>
                         <p>{level.reward.title}</p>
                       </div>
                       {next ? (
@@ -175,7 +175,7 @@ export function NavBar() {
                             <LevelBadge compact name={user.name} xp={next.level.minXP} track={levelTrack} contributionPoints={coCreatorPreviewContribution[next.level.level] || contributionPoints} coCreatorApproved={next.level.level >= 15} previewLevel={next.level.level} />
                           </div>
                           <span>{next.requiresReview ? "共创审核" : "下一级预览"}</span>
-                          <strong>LV.{next.level.level} {next.level.name}</strong>
+                          <strong>{next.level.name}</strong>
                           <p>{next.requiresReview ? "需要人工审核真实案例、复盘质量和共建贡献" : next.level.reward.title}</p>
                         </div>
                       ) : (

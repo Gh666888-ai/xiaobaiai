@@ -168,7 +168,7 @@ export default function NewPostPage() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "center", border: "1px solid rgba(201,168,76,0.35)", borderRadius: 12, background: "rgba(201,168,76,0.055)", padding: "14px 16px", marginBottom: 18 }} className="max-sm:grid-cols-1">
           <p style={{ color: "#ddd", fontSize: 13, lineHeight: 1.75 }}>
-            当前等级：<b style={{ color: "#e8c96a" }}>LV{userLevel.level} {userLevel.name}</b>。升到 LV3 后帖子会带高阶身份高亮，LV5 评论和帖子优先展示，LV7 显示共创者身份。
+            当前身份：<b style={{ color: "#e8c96a" }}>{userLevel.name}</b>。继续完成任务后，帖子会逐步带上高阶身份高亮；更高阶用户的评论和帖子会优先展示，共创身份会单独露出。
           </p>
           <button type="button" onClick={() => router.push("/growth")} className="btn-outline" style={{ whiteSpace: "nowrap" }}>去升级</button>
         </div>
