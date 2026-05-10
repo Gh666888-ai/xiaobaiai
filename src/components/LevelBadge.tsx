@@ -14,9 +14,9 @@ type LevelBadgeProps = {
 
 type AutoPlate = {
   image: string
-  title: string
-  beast: string
-  group: "starter" | "riser" | "adept" | "master" | "legendary"
+  name: string
+  shortName: string
+  group: "starter" | "adept" | "master"
 }
 
 type CoCreatorStage = {
@@ -30,21 +30,21 @@ type CoCreatorStage = {
 }
 
 const autoPlates: Record<number, AutoPlate> = {
-  0: { image: "/level-plates/title-level-01.png", title: "灵光初启", beast: "鹿蜀", group: "starter" },
-  1: { image: "/level-plates/title-level-01.png", title: "灵光初启", beast: "鹿蜀", group: "starter" },
-  2: { image: "/level-plates/title-level-02.png", title: "玄甲见习", beast: "玄龟", group: "starter" },
-  3: { image: "/level-plates/title-level-03.png", title: "文鳐入海", beast: "文鳐", group: "starter" },
-  4: { image: "/level-plates/title-level-04.png", title: "风翼试炼", beast: "耳鼠", group: "riser" },
-  5: { image: "/level-plates/title-level-05.png", title: "毕方燃羽", beast: "毕方", group: "riser" },
-  6: { image: "/level-plates/title-level-06.png", title: "乘黄逐光", beast: "乘黄", group: "riser" },
-  7: { image: "/level-plates/title-level-07.png", title: "鸾鸟衔辉", beast: "鸾鸟", group: "adept" },
-  8: { image: "/level-plates/title-level-08.png", title: "当康聚业", beast: "当康", group: "adept" },
-  9: { image: "/level-plates/title-level-09.png", title: "天狗破夜", beast: "天狗", group: "adept" },
-  10: { image: "/level-plates/title-level-10.png", title: "英招镇山", beast: "英招", group: "master" },
-  11: { image: "/level-plates/title-level-11.png", title: "陆吾守境", beast: "陆吾", group: "master" },
-  12: { image: "/level-plates/title-level-12.png", title: "白泽知命", beast: "白泽", group: "master" },
-  13: { image: "/level-plates/title-level-13.png", title: "麒麟开运", beast: "麒麟", group: "legendary" },
-  14: { image: "/level-plates/title-level-14.png", title: "鲲鹏凌霄", beast: "鲲鹏", group: "legendary" },
+  0: { image: "/level-plates/auto-lushu.png", name: "鹿蜀启灵纹", shortName: "鹿蜀纹", group: "starter" },
+  1: { image: "/level-plates/auto-lushu.png", name: "鹿蜀启灵纹", shortName: "鹿蜀纹", group: "starter" },
+  2: { image: "/level-plates/auto-lushu.png", name: "鹿蜀启灵纹", shortName: "鹿蜀纹", group: "starter" },
+  3: { image: "/level-plates/auto-lushu.png", name: "鹿蜀启灵纹", shortName: "鹿蜀纹", group: "starter" },
+  4: { image: "/level-plates/auto-lushu.png", name: "鹿蜀启灵纹", shortName: "鹿蜀纹", group: "starter" },
+  5: { image: "/level-plates/auto-bifang.png", name: "毕方炎羽纹", shortName: "毕方纹", group: "adept" },
+  6: { image: "/level-plates/auto-bifang.png", name: "毕方炎羽纹", shortName: "毕方纹", group: "adept" },
+  7: { image: "/level-plates/auto-bifang.png", name: "毕方炎羽纹", shortName: "毕方纹", group: "adept" },
+  8: { image: "/level-plates/auto-bifang.png", name: "毕方炎羽纹", shortName: "毕方纹", group: "adept" },
+  9: { image: "/level-plates/auto-bifang.png", name: "毕方炎羽纹", shortName: "毕方纹", group: "adept" },
+  10: { image: "/level-plates/auto-yingzhao.png", name: "英招镇山纹", shortName: "英招纹", group: "master" },
+  11: { image: "/level-plates/auto-yingzhao.png", name: "英招镇山纹", shortName: "英招纹", group: "master" },
+  12: { image: "/level-plates/auto-yingzhao.png", name: "英招镇山纹", shortName: "英招纹", group: "master" },
+  13: { image: "/level-plates/auto-yingzhao.png", name: "英招镇山纹", shortName: "英招纹", group: "master" },
+  14: { image: "/level-plates/auto-yingzhao.png", name: "英招镇山纹", shortName: "英招纹", group: "master" },
 }
 
 const coCreatorStages: Record<number, CoCreatorStage> = {
@@ -104,9 +104,10 @@ function getCoCreatorStage(level: number) {
 }
 
 function getAutoPlate(level: number) {
-  if (level >= 14) return autoPlates[14]
   if (level <= 0) return autoPlates[0]
-  return autoPlates[level] || autoPlates[1]
+  if (level >= 10) return autoPlates[10]
+  if (level >= 5) return autoPlates[5]
+  return autoPlates[1]
 }
 
 function LevelTitlePlate({
@@ -123,23 +124,34 @@ function LevelTitlePlate({
   compact: boolean
 }) {
   const plate = getAutoPlate(level.level)
-  const power = Math.min(5, Math.max(1, Math.ceil(Math.max(1, level.level) / 3)))
-  const titleText = `${plate.title} · ${plate.beast}铭牌 · ${xpLabel} · ${level.desc}${next ? next.requiresReview ? ` · 达到共创门槛，需要人工审核后解锁 ${next.level.name}` : ` · 距离 ${next.level.name} 还差 ${next.need} XP` : " · 已达当前最高普通档。"}`
+  const titleText = `${level.name} · ${plate.name} · ${xpLabel} · ${level.desc}${next ? next.requiresReview ? ` · 达到共创门槛，需要人工审核后解锁 ${next.level.name}` : ` · 距离 ${next.level.name} 还差 ${next.need} XP` : " · 已达当前最高普通档。"}`
 
   return (
     <span
-      className={`levelTitlePlate levelPlate-${plate.group} levelSize-${power} ${compact ? "isCompact" : ""}`}
+      className={`levelTitlePlate levelPlate-${plate.group} ${compact ? "isCompact" : ""}`}
       title={`${name} · ${titleText}`}
       aria-label={`${name} · ${titleText}`}
     >
-      <img className="levelTitlePlateImage" src={plate.image} alt={plate.title} />
+      <img className="levelTitlePlateImage" src={plate.image} alt="" aria-hidden="true" />
+      <span className="levelPlateText">
+        <span className="levelTopline">
+          <span className="levelUserName">{name}</span>
+          {level.level < 15 && <span className="levelNumber">LV.{level.level}</span>}
+        </span>
+        {!compact && (
+          <span className="levelRankLine">
+            <span className="levelRankName">{level.name}</span>
+            <span className="levelBeastName">{plate.shortName}</span>
+          </span>
+        )}
+      </span>
       <style>{`
         .levelTitlePlate {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 316px;
-          height: 112px;
+          width: 248px;
+          height: 72px;
           position: relative;
           isolation: isolate;
           overflow: visible;
@@ -149,17 +161,10 @@ function LevelTitlePlate({
             drop-shadow(0 0 7px rgba(210,174,96,0.22));
         }
         .levelTitlePlate.isCompact {
-          width: 188px;
-          height: 58px;
+          width: 172px;
+          height: 38px;
+          overflow: hidden;
         }
-        .levelSize-2 { width: 326px; height: 116px; }
-        .levelSize-3 { width: 336px; height: 120px; }
-        .levelSize-4 { width: 346px; height: 124px; }
-        .levelSize-5 { width: 356px; height: 128px; }
-        .levelSize-2.isCompact { width: 196px; height: 60px; }
-        .levelSize-3.isCompact { width: 204px; height: 62px; }
-        .levelSize-4.isCompact { width: 212px; height: 64px; }
-        .levelSize-5.isCompact { width: 220px; height: 66px; }
         .levelPlate-starter {
           filter:
             drop-shadow(0 4px 8px rgba(0,0,0,0.36))
@@ -173,43 +178,137 @@ function LevelTitlePlate({
         .levelPlate-adept {
           filter:
             drop-shadow(0 6px 10px rgba(0,0,0,0.4))
-            drop-shadow(0 0 14px rgba(236,178,74,0.38));
+            drop-shadow(0 0 10px rgba(236,178,74,0.3));
         }
         .levelPlate-master {
           filter:
             drop-shadow(0 6px 12px rgba(0,0,0,0.44))
-            drop-shadow(0 0 19px rgba(98,224,194,0.48));
-        }
-        .levelPlate-legendary {
-          filter:
-            drop-shadow(0 7px 13px rgba(0,0,0,0.46))
-            drop-shadow(0 0 28px rgba(255,215,116,0.62));
+            drop-shadow(0 0 13px rgba(98,224,194,0.34));
         }
         .levelTitlePlateImage {
-          display: block;
-          width: 100%;
-          height: 100%;
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          z-index: -1;
+          width: 118%;
+          height: auto;
+          max-height: 184%;
+          transform: translate(-50%, -50%);
           object-fit: contain;
           pointer-events: none;
           user-select: none;
         }
+        .levelPlate-starter .levelTitlePlateImage {
+          width: 116%;
+          filter: saturate(0.88) brightness(0.9) contrast(1.02);
+        }
+        .levelPlate-adept .levelTitlePlateImage {
+          width: 120%;
+          filter: saturate(0.96) brightness(0.92) contrast(1.04);
+        }
+        .levelPlate-master .levelTitlePlateImage {
+          width: 124%;
+          filter: saturate(0.92) brightness(0.88) contrast(1.03);
+        }
+        .levelTitlePlate.isCompact .levelTitlePlateImage {
+          width: 218px;
+          max-height: none;
+        }
+        .levelPlateText {
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          line-height: 1.08;
+          position: relative;
+          z-index: 2;
+          width: 100%;
+          padding: 0 26px;
+        }
+        .isCompact .levelPlateText {
+          padding: 0 16px;
+        }
+        .levelTopline {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          min-width: 0;
+          width: 100%;
+        }
+        .levelUserName {
+          max-width: 112px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          color: #fff;
+          font-size: 14px;
+          font-weight: 950;
+          text-shadow: 0 1px 0 rgba(0,0,0,0.78), 0 0 10px rgba(0,0,0,0.82);
+        }
+        .isCompact .levelUserName {
+          max-width: 84px;
+          font-size: 12px;
+          text-shadow: 0 1px 0 rgba(0,0,0,0.95), 0 0 7px rgba(0,0,0,0.88);
+        }
+        .levelNumber {
+          color: #120b00;
+          background: linear-gradient(180deg, #fff, #e8c96a 50%, #b87a2d);
+          border: 1px solid rgba(255,255,255,0.58);
+          border-radius: 7px;
+          padding: 2px 7px;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          font-weight: 950;
+          box-shadow: 0 0 10px rgba(232,201,106,0.42), inset 0 -4px 8px rgba(0,0,0,0.14);
+          white-space: nowrap;
+        }
+        .levelRankLine {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 7px;
+          margin-top: 5px;
+          max-width: 170px;
+        }
+        .levelRankName {
+          color: #e8c96a;
+          font-size: 11px;
+          font-weight: 950;
+          white-space: nowrap;
+          text-shadow: 0 0 9px rgba(232,201,106,0.34);
+        }
+        .levelBeastName {
+          color: rgba(255,245,210,0.86);
+          border: 1px solid rgba(232,201,106,0.28);
+          border-radius: 999px;
+          background: rgba(0,0,0,0.22);
+          padding: 1px 5px;
+          font-size: 9px;
+          font-weight: 950;
+          white-space: nowrap;
+        }
         @media (max-width: 860px) {
           .levelTitlePlate {
-            width: 258px;
-            height: 92px;
+            width: 218px;
+            height: 64px;
           }
-          .levelSize-2 { width: 266px; height: 95px; }
-          .levelSize-3 { width: 274px; height: 98px; }
-          .levelSize-4 { width: 282px; height: 101px; }
-          .levelSize-5 { width: 290px; height: 104px; }
           .levelTitlePlate.isCompact {
-            width: 148px;
-            height: 46px;
+            width: 152px;
+            height: 34px;
           }
-          .levelSize-2.isCompact { width: 154px; height: 47px; }
-          .levelSize-3.isCompact { width: 160px; height: 49px; }
-          .levelSize-4.isCompact { width: 166px; height: 51px; }
-          .levelSize-5.isCompact { width: 172px; height: 53px; }
+          .levelTitlePlate.isCompact .levelTitlePlateImage {
+            width: 196px;
+          }
+          .levelTitlePlate.isCompact .levelUserName {
+            max-width: 68px;
+            font-size: 10px;
+          }
+          .levelTitlePlate.isCompact .levelNumber {
+            font-size: 8px;
+            padding: 1px 4px;
+          }
         }
       `}</style>
     </span>
