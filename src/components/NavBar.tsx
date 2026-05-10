@@ -10,8 +10,7 @@ import { XiaobaiLogo } from "@/components/XiaobaiLogo"
 import { LEVEL_TRACKS, getNextLevel, getUserLevel } from "@/data/user"
 
 const links = [
-  { label: "开始", href: "/start", icon: Compass },
-  { label: "学习", href: "/learn", icon: GraduationCap },
+  { label: "开始学习", href: "/learn", icon: GraduationCap },
   { label: "任务", href: "/missions", icon: Flag },
   { label: "Agent安装", href: "/agent-install", icon: TerminalSquare },
   { label: "工具", href: "/tools", icon: Compass },

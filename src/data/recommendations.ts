@@ -28,7 +28,7 @@ export const recommendationPages: RecommendationPage[] = [
       { id: "canva-ai", role: "视觉润色", reason: "适合用模板补齐封面、图表和配色。" },
     ],
     checklist: ["材料是否已经去掉无关信息", "每页是否只有一个结论", "AI 生成的数字和案例是否人工核对", "是否导出后检查字体和版式"],
-    missionHref: "/start?goal=做PPT",
+    missionHref: "/missions/ai-ppt-first-deck",
     casePrompt: "我用 AI 做了一份 PPT：材料类型、工具组合、页数结构、人工修改点、最终效果。",
   },
   {
@@ -44,7 +44,7 @@ export const recommendationPages: RecommendationPage[] = [
       { id: "xiezuocat", role: "错别字检查", reason: "适合润色、纠错和改语气。" },
     ],
     checklist: ["内容里是否有真实细节", "标题是否夸大", "是否保留人工观点", "发布前是否检查事实和敏感表述"],
-    missionHref: "/start?goal=写文章",
+    missionHref: "/missions/xiaohongshu-ai-content-loop",
     casePrompt: "我用 AI 写了一篇内容：主题、目标读者、提示词、修改前后对比、发布效果。",
   },
   {
@@ -92,7 +92,7 @@ export const recommendationPages: RecommendationPage[] = [
       { id: "deepseek", role: "代码模型", reason: "适合推理、代码解释和低成本 API 方案。" },
     ],
     checklist: ["是否先提交 Git", "是否限制改动文件范围", "是否要求先列计划", "是否跑了 build/test 并记录结果"],
-    missionHref: "/start?goal=学编程",
+    missionHref: "/missions/codex-small-feature",
     casePrompt: "我用 AI Agent 改了一个项目：需求、工具、涉及文件、验证命令、踩坑和下次提示词。",
   },
 ]

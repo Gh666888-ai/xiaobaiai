@@ -316,7 +316,7 @@ export function FloatingChat() {
   }, [pathname, open])
 
   useEffect(() => {
-    if (loading || !user || pathname !== "/start") return
+    if (loading || !user || (pathname !== "/learn" && pathname !== "/start")) return
     if (window.sessionStorage.getItem(START_INDUSTRY_PROMPT_KEY)) return
 
     window.sessionStorage.setItem(START_INDUSTRY_PROMPT_KEY, "1")

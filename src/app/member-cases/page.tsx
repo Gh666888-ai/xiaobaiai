@@ -72,6 +72,13 @@ const caseReports = [
   },
 ]
 
+const successStandards = [
+  { label: "真实结果", text: "有上线地址、体验版、截图、导出文件、Bot 测试记录或流程运行记录。" },
+  { label: "过程可复现", text: "写清工具、输入材料、关键步骤和人工验收点，别人能照着做一次。" },
+  { label: "失败有修法", text: "不只晒结果，也写卡住的地方、报错、返工原因和下一次怎么避免。" },
+  { label: "不夸收益", text: "接单、涨粉、省时、省钱必须有上下文，不能用单个案例包装成保证收益。" },
+]
+
 const tutorialGroups = [
   {
     title: "Agent 安装和模型接入",
@@ -131,6 +138,16 @@ export default function MemberCasesPage() {
           <div className="sectionHead">
             <p>会员实战案例</p>
             <h1>看别人怎么把项目做完、跑通、上线</h1>
+            <span>这里展示的是已经有结果的复盘，不是灵感清单，也不是接单承诺。先看别人交付了什么，再看自己能照着做哪一步。</span>
+          </div>
+          <div className="standardGrid">
+            {successStandards.map((item, index) => (
+              <div key={item.label} className="standardCard">
+                <p>0{index + 1}</p>
+                <h2>{item.label}</h2>
+                <span>{item.text}</span>
+              </div>
+            ))}
           </div>
           <div className="featuredGrid">
             {caseReports.map((item) => {
@@ -273,6 +290,39 @@ export default function MemberCasesPage() {
           display: grid;
           grid-template-columns: repeat(2,minmax(0,1fr));
           gap: 14px;
+        }
+        .standardGrid {
+          display: grid;
+          grid-template-columns: repeat(4,minmax(0,1fr));
+          gap: 10px;
+          margin-bottom: 16px;
+        }
+        .standardCard {
+          min-height: 126px;
+          border: 1px solid rgba(118,216,156,0.18);
+          background: rgba(118,216,156,0.055);
+          border-radius: 13px;
+          padding: 14px;
+        }
+        .standardCard p {
+          color: #76d89c;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11px;
+          font-weight: 950;
+          margin: 0 0 8px;
+        }
+        .standardCard h2 {
+          color: #fff;
+          font-size: 16px;
+          font-weight: 950;
+          line-height: 1.35;
+          margin: 0 0 7px;
+        }
+        .standardCard span {
+          color: #c8c8bd;
+          font-size: 13px;
+          font-weight: 850;
+          line-height: 1.65;
         }
         .featuredCase {
           --tone: #d8bf76;
@@ -490,6 +540,9 @@ export default function MemberCasesPage() {
           .featuredGrid {
             grid-template-columns: repeat(2,minmax(0,1fr));
           }
+          .standardGrid {
+            grid-template-columns: repeat(2,minmax(0,1fr));
+          }
         }
         @media (max-width: 560px) {
           .caseMain {
@@ -501,6 +554,9 @@ export default function MemberCasesPage() {
             min-height: 0;
           }
           .featuredGrid {
+            grid-template-columns: 1fr;
+          }
+          .standardGrid {
             grid-template-columns: 1fr;
           }
           .featuredCase {

@@ -30,7 +30,7 @@ const templates: Record<TemplateKey, { title: string; tags: string; content: str
   任务成果: {
     title: "我完成了小白 AI 的一个 0-1 任务：",
     tags: "任务成果,0-1,成长任务",
-    hint: "适合把 /start 或 /missions 里的任务结果发出来，形成可复制案例。",
+    hint: "适合把学习首页或 /missions 里的任务结果发出来，形成可复制案例。",
     content:
       "选择的任务：例如：用 AI 做一页工作汇报 / 做一张海报 / 整理一份客户资料\n\n为什么选它：例如：这是我今天工作里真的需要完成的一件事\n\n准备材料：例如：原始文档、截图、产品介绍、客户问题\n\n我做到的环节：例如：已经生成初稿，并人工改完第一版\n\n用到的工具：例如：Kimi / DeepSeek / Claude Code / Dify\n\n最终交付物：例如：一份文档、一张图、一段可复制话术、一个网页\n\n完成后获得的收获：例如：知道了怎么给 AI 提供材料和检查结果\n\n下一步想挑战：例如：把这个流程做成模板，下次更快复用\n",
   },

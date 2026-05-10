@@ -61,7 +61,7 @@ export default function RecommendationDetailPage({ params }: { params: { slug: s
       <main style={{ maxWidth: 1060, margin: "0 auto", padding: "62px clamp(16px,5vw,60px) 104px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.9)" }}>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 24 }}>
           <Link href="/choose-tool" style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: "#c9a84c", textDecoration: "none" }}>← AI 工具选择器</Link>
-          <Link href="/start" style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: "#aaa", textDecoration: "none" }}>← 从 0 到 1 起步</Link>
+          <Link href="/learn#learn-start" style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: "#aaa", textDecoration: "none" }}>← 从 0 到 1 起步</Link>
         </div>
 
         <section style={{ marginBottom: 34 }}>

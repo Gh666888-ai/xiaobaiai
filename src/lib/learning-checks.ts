@@ -25,7 +25,7 @@ const stageDefaults: Record<number, Omit<LearningSectionCheck, "simpleGoal">> = 
     minLength: 0,
     requiredChecks: 1,
     screenshotRequired: false,
-    nextHref: "/start",
+    nextHref: "/learn#learn-start",
     nextText: "去做第一个小任务",
   },
   1: {
@@ -37,7 +37,7 @@ const stageDefaults: Record<number, Omit<LearningSectionCheck, "simpleGoal">> = 
     minLength: 16,
     requiredChecks: 1,
     screenshotRequired: false,
-    nextHref: "/start",
+    nextHref: "/learn#learn-start",
     nextText: "用它完成一个任务",
   },
   2: {
