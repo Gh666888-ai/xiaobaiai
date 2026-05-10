@@ -138,8 +138,8 @@ function LevelTitlePlate({
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 236px;
-          height: 82px;
+          width: 316px;
+          height: 112px;
           position: relative;
           isolation: isolate;
           overflow: visible;
@@ -149,17 +149,17 @@ function LevelTitlePlate({
             drop-shadow(0 0 7px rgba(210,174,96,0.22));
         }
         .levelTitlePlate.isCompact {
-          width: 152px;
-          height: 46px;
+          width: 188px;
+          height: 58px;
         }
-        .levelSize-2 { width: 256px; height: 88px; }
-        .levelSize-3 { width: 282px; height: 98px; }
-        .levelSize-4 { width: 310px; height: 108px; }
-        .levelSize-5 { width: 346px; height: 120px; }
-        .levelSize-2.isCompact { width: 158px; height: 48px; }
-        .levelSize-3.isCompact { width: 168px; height: 51px; }
-        .levelSize-4.isCompact { width: 178px; height: 54px; }
-        .levelSize-5.isCompact { width: 192px; height: 58px; }
+        .levelSize-2 { width: 326px; height: 116px; }
+        .levelSize-3 { width: 336px; height: 120px; }
+        .levelSize-4 { width: 346px; height: 124px; }
+        .levelSize-5 { width: 356px; height: 128px; }
+        .levelSize-2.isCompact { width: 196px; height: 60px; }
+        .levelSize-3.isCompact { width: 204px; height: 62px; }
+        .levelSize-4.isCompact { width: 212px; height: 64px; }
+        .levelSize-5.isCompact { width: 220px; height: 66px; }
         .levelPlate-starter {
           filter:
             drop-shadow(0 4px 8px rgba(0,0,0,0.36))
@@ -195,21 +195,21 @@ function LevelTitlePlate({
         }
         @media (max-width: 860px) {
           .levelTitlePlate {
-            width: 212px;
-            height: 74px;
+            width: 258px;
+            height: 92px;
           }
-          .levelSize-2 { width: 224px; height: 78px; }
-          .levelSize-3 { width: 238px; height: 82px; }
-          .levelSize-4 { width: 252px; height: 88px; }
-          .levelSize-5 { width: 268px; height: 94px; }
+          .levelSize-2 { width: 266px; height: 95px; }
+          .levelSize-3 { width: 274px; height: 98px; }
+          .levelSize-4 { width: 282px; height: 101px; }
+          .levelSize-5 { width: 290px; height: 104px; }
           .levelTitlePlate.isCompact {
-            width: 136px;
-            height: 42px;
+            width: 148px;
+            height: 46px;
           }
-          .levelSize-2.isCompact { width: 142px; height: 43px; }
-          .levelSize-3.isCompact { width: 148px; height: 45px; }
-          .levelSize-4.isCompact { width: 154px; height: 47px; }
-          .levelSize-5.isCompact { width: 160px; height: 49px; }
+          .levelSize-2.isCompact { width: 154px; height: 47px; }
+          .levelSize-3.isCompact { width: 160px; height: 49px; }
+          .levelSize-4.isCompact { width: 166px; height: 51px; }
+          .levelSize-5.isCompact { width: 172px; height: 53px; }
         }
       `}</style>
     </span>
