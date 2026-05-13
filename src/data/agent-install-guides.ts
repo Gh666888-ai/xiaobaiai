@@ -405,12 +405,12 @@ export const agentInstallGuides: AgentInstallGuide[] = [
   {
     slug: "claude-code",
     name: "Claude Code",
-    title: "Claude Code 终端环境变量接 API 一分钟跑通",
+    title: "Claude Code 从安装到项目 MVP 终极路线",
     category: "工程 Agent",
     minutes: "8-15 分钟",
     difficulty: "新手可跟",
-    tagline: "先装 Node.js，再装 Claude Code，最后用环境变量接 DeepSeek V4、MiniMax 或官方 Claude。",
-    summary: "这是终端工程 Agent 教程，重点是用环境变量给 Claude Code 配模型大脑，让它能读项目、改代码、跑命令、解释报错。官网桌面端开发者模式放在 Claude Desktop 教程里，不混在这里讲。",
+    tagline: "先装 Node.js 和 Claude Code，再接 DeepSeek V4、MiniMax 或官方 Claude，最后用 hooks、skills、插件和子智能体做一个可验收项目。",
+    summary: "这是 Claude Code 的完整学习路线：先跑通安装和模型，再学会只读项目、限定权限、看 diff、跑验证，最后再进入 hooks、skills、插件、子智能体和自动化。官网桌面端开发者模式放在 Claude Desktop 教程里，不混在这里讲。",
     bestFor: ["真实代码项目", "修复报错", "改网页功能", "理解陌生项目"],
     requirements: ["Node.js 18+", "Windows 建议 PowerShell 或 WSL", "一个可用模型账号或 API Key", "最好在 Git 项目里使用"],
     officialUrl: "https://docs.anthropic.com/en/docs/claude-code/getting-started",
@@ -484,6 +484,119 @@ claude`,
         title: "打开 Claude Desktop 开发者模式后还是不能填 DeepSeek Key",
         solution: "这是正常情况。Claude Desktop 和 Claude Code 是两个教程。桌面端开发者模式主要配置 MCP 工具和扩展；要让工程 Agent 接 DeepSeek，就用本页的 Anthropic Compatible 环境变量命令。",
       },
+    ],
+    postInstallSetup: [
+      {
+        title: "1. 先做只读体检：别一上来让它改项目",
+        why: "Claude Code 装好以后，第一件事不是写 App，而是确认它能看懂你的项目，又不会乱动文件。新手先把读项目、列计划、等确认这三件事练熟。",
+        steps: [
+          "进入一个 Git 项目目录后再启动 claude，不要在桌面空文件夹里乱试。",
+          "第一句话要求它只读项目，不要修改文件。",
+          "让它输出技术栈、启动命令、主要目录、风险点和最小可改任务。",
+          "如果它要执行命令，先让它解释命令作用，再决定是否允许。",
+        ],
+        template: `请先只读这个项目，不要修改任何文件，也不要执行会改变文件的命令。
+
+请按下面格式回答：
+1. 这个项目是什么技术栈
+2. 主要目录分别做什么
+3. 本地启动命令可能是什么
+4. 现在最适合新手修改的一个小功能
+5. 修改前需要我确认什么`,
+        checks: ["它没有改文件。", "它能说清项目结构。", "它给出的下一步很小，可以回滚。"],
+      },
+      {
+        title: "2. 接第三方模型：先跑通，再谈强不强",
+        why: "很多国内用户不是不会用 Claude Code，而是卡在官方服务、API Key、模型名和 base_url。模型接入要先用最小测试跑通，再逐步换更强模型。",
+        steps: [
+          "先选一种路线：官方 Claude、DeepSeek Anthropic Compatible、MiniMax，或 CC Switch / Claude Code Router。",
+          "Windows PowerShell 用 $env:，Mac / Linux / WSL 用 export，不要混着复制。",
+          "先用便宜或快速模型问一句中文测试，能回复再换长上下文或强推理模型。",
+          "出现 401、model not found、timeout 时，先检查 Key、模型名、base_url 和余额，不要反复重装 Claude Code。",
+        ],
+        template: `我现在要给 Claude Code 接第三方模型。
+
+我的系统：Windows / Mac / WSL
+我用的模型服务商：DeepSeek / MiniMax / Kimi / 其他
+我的 Base URL：这里填
+我的模型名：这里填
+
+请你只帮我检查配置项，不要让我把 API Key 发给你。`,
+        checks: ["API Key 没发给别人。", "测试问题能正常回复。", "知道当前窗口环境变量关闭后会失效。"],
+      },
+      {
+        title: "3. 学会权限和 diff：让 Agent 真改，但别失控",
+        why: "Claude Code 真正有价值，是能读文件、改文件、跑命令。风险也在这里。新手必须先学会限定范围、看 diff、跑验证。",
+        steps: [
+          "每次只给一个小任务，例如改一个按钮文案、修一个报错、补一个表单校验。",
+          "任务开始前要求它列计划和涉及文件。",
+          "修改后先看 diff，再允许继续做下一步。",
+          "让它运行项目已有检查命令，并明确哪些没验证。",
+        ],
+        template: `我要让你改一个小功能。
+
+目标：这里写清楚
+允许修改的文件：这里写文件或目录
+不要修改：这里写不能动的页面、配置、数据库或样式
+
+请先列计划和会涉及的文件，等我确认后再改。
+改完后请总结 diff、验证命令和剩余风险。`,
+        checks: ["修改范围没有扩大。", "能看到 diff 摘要。", "有验证命令和结果。"],
+      },
+      {
+        title: "4. 再学 hooks、skills、插件和子智能体",
+        why: "这些不是炫技功能，而是把 Claude Code 从一次性聊天变成可复用工作系统。顺序很重要：先会小改动，再加规则和能力。",
+        steps: [
+          "CLAUDE.md / AGENTS.md：写项目说明、运行命令、禁止事项和交付标准。",
+          "Hooks：把硬性检查放进去，例如完成前提醒跑 typecheck、测试或安全检查。",
+          "Skills：把常用工作方法沉淀成可复用步骤，例如 UI 审计、教程改写、接口排错。",
+          "Plugins / MCP：连接浏览器、GitHub、Figma、数据库、飞书等外部工具，但先从只读权限开始。",
+          "Subagents：把研究、测试、UI、文案等任务拆给不同角色，避免一个 Agent 什么都做。",
+        ],
+        template: `请帮我为这个项目设计 Claude Code 协作规则。
+
+需要包含：
+1. CLAUDE.md 应该写哪些项目规则
+2. 哪些检查适合做成 hook
+3. 哪些重复任务适合做成 skill
+4. 哪些工具可以通过 MCP 或插件接入
+5. 哪些任务适合拆给 subagent
+
+要求：先给方案，不要直接创建文件。`,
+        checks: ["规则能解释为什么要加。", "工具权限默认保守。", "每个子智能体有清楚边界。"],
+      },
+      {
+        title: "5. 最后做项目 MVP：从需求到上线检查",
+        why: "看完教程不等于会用。真正合格的 Claude Code 教程，最后要让新手做出一个小项目，并知道怎么验收。",
+        steps: [
+          "先选小项目：AI 文案生成器、资料摘要页、报价计算器、客服 FAQ Bot 或个人作品页。",
+          "让 Claude Code 先写需求、页面结构、数据结构和验收标准。",
+          "分两到三轮实现，不要一次让它做完所有功能。",
+          "每轮都看 diff、跑检查、用浏览器打开看页面。",
+          "最后整理 README、环境变量说明、常见错误和下一步优化。",
+        ],
+        template: `我们做一个最小可用 AI 网页 App。
+
+项目名称：
+目标用户：
+核心功能：
+必须有的页面：
+不做的功能：
+验收标准：
+
+请先输出 MVP 计划、文件改动范围和分阶段任务。不要马上写代码。`,
+        checks: ["MVP 功能很小但完整。", "页面能打开。", "有 README、环境变量和验证记录。"],
+      },
+    ],
+    ecosystemApps: [
+      { name: "CC Switch", type: "模型切换", description: "适合用图形界面管理第三方模型和 Claude Code 模型切换。先确认来源可靠，再填 API Key。" },
+      { name: "Claude Code Router", type: "模型路由", description: "适合需要多模型路由、预算控制或团队统一配置的人。新手先理解 base_url、model、key 三件事。" },
+      { name: "MCP 工具连接", type: "工具扩展", description: "把浏览器、数据库、GitHub、飞书等能力接给 Agent。先用只读权限，确认日志和边界。" },
+    ],
+    skillPacks: [
+      { name: "Frontend Design / UI 审计", when: "做网页页面、视觉系统、组件整理时使用。", install: "在 Claude Code 插件/skills 管理里搜索前端设计相关 skill，先项目级安装。" },
+      { name: "Superpowers / 需求拆解", when: "做完整项目 MVP 前，用来脑暴、拆计划、复盘和 review。", install: "从可用插件列表安装到当前项目或个人目录，先看它会创建哪些文件。" },
+      { name: "项目专属 Skill", when: "当你反复做同一类任务，例如资讯更新、教程改写、UI QA。", install: "让 Claude Code 先写 skill 草案和使用边界，确认后再放进项目规则。" },
     ],
     apiConnections: [minimaxOpenAiConnection, anthropicDeepseekConnection, openAiConnection],
   },

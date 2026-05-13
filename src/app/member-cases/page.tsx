@@ -221,7 +221,7 @@ export default function MemberCasesPage() {
           <Link href="/community/new" className="bottomButton">提交你的实战案例 <Sparkles size={16} /></Link>
         </section>
       </main>
-      <style>{`
+      <style suppressHydrationWarning>{`
         .casePage {
           min-height: 100vh;
           background: linear-gradient(180deg,#07100f 0%,#0b0d0c 46%,#070707 100%);
@@ -572,6 +572,85 @@ export default function MemberCasesPage() {
           .bottomButton {
             width: 100%;
           }
+        }
+        .casePage {
+          background: radial-gradient(circle at top left, rgba(37,109,133,0.08), transparent 34%), linear-gradient(180deg,#f6f9fc 0%,#eef4f8 100%);
+          color: #17202a;
+        }
+        .caseMain {
+          padding: 54px 0 92px;
+        }
+        .caseHero,
+        .sectionBlock,
+        .caseBottom {
+          border: 1px solid #dfe7ee;
+          border-radius: 22px;
+          background: rgba(255,255,255,0.92);
+          box-shadow: 0 16px 46px rgba(15,23,42,0.06);
+        }
+        .caseHero {
+          padding: clamp(24px,4vw,36px);
+        }
+        .sectionBlock {
+          padding: 24px;
+        }
+        .caseEyebrow,
+        .sectionHead p {
+          color: #256d85;
+        }
+        .caseHero h1,
+        .sectionHead h1,
+        .sectionHead h2,
+        .standardCard h2,
+        .featuredCase h3,
+        .tutorialGroup h3,
+        .caseBottom h2 {
+          color: #17202a;
+        }
+        .sectionHead span,
+        .standardCard span,
+        .featuredCase p,
+        .featuredCase ol,
+        .tutorialGroup p,
+        .caseBottom p:not(.caseEyebrow) {
+          color: #667586;
+        }
+        .standardCard,
+        .featuredCase,
+        .tutorialGroup,
+        .caseBottom {
+          border-color: #dfe7ee;
+          background: #fff;
+        }
+        .standardCard p,
+        .caseOutcome,
+        .caseResult strong,
+        .caseLink,
+        .tutorialLink svg {
+          color: #256d85;
+        }
+        .caseIcon {
+          color: #fff;
+          background: #256d85;
+          box-shadow: none;
+        }
+        .caseResult,
+        .tutorialLink {
+          border-color: #dfe7ee;
+          background: #f7fbfd;
+        }
+        .caseResult span,
+        .tutorialLink,
+        .caseLesson {
+          color: #536170;
+        }
+        .caseLesson {
+          border-left-color: #256d85;
+          background: #f1f7f9;
+        }
+        .bottomButton {
+          color: #fff;
+          background: #17202a;
         }
       `}</style>
     </div>

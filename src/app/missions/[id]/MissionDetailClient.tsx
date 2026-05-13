@@ -15,7 +15,6 @@ import {
   Sparkles,
   Trophy,
 } from "lucide-react"
-import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { missions, type Mission, type MissionStep } from "@/data/missions"
 import { posts } from "@/data/community"
@@ -48,6 +47,74 @@ function praiseFor(index: number) {
   return stepPraise[index % stepPraise.length]
 }
 
+function buildMissionPlaybook(mission: Mission) {
+  const firstStep = mission.steps[0]
+  const finalStep = mission.steps[mission.steps.length - 1]
+  const missionText = `${mission.id} ${mission.title} ${mission.tagline} ${mission.tags.join(" ")}`.toLowerCase()
+
+  let scenario = "把这关当成一次真实交付，不是看完教程。先用自己的材料跑一遍，再决定要不要换工具或升级自动化。"
+  let mvp = mission.outcome
+  let validation = [
+    "能看到一个明确交付物",
+    "知道结果哪里能用、哪里要人工修改",
+    "遇到失败时能用修复提示词再跑一版",
+    "最后能写出复盘，下一次可以复用",
+  ]
+  let next = "做完以后先复盘，再进入下一关，不要只收藏工具。"
+
+  if (mission.id === "industry-skill-stack-plan") {
+    scenario = "把行业 Skill 配置当成一个业务能力方案。先选一个行业、一个岗位、一个重复流程，再配 3 个最小可用 Skill。"
+    validation = ["行业和岗位明确", "3 个 Skill 各有职责", "权限和禁区写清楚", "能用脱敏样例完成一次验证"]
+    next = "下一步用真实但脱敏的业务样例跑一次，再决定是否扩展更多 Skill。"
+  } else if (mission.id === "agent-skill-first-install") {
+    scenario = "把 Skill 安装当成一次最小能力验证。先装一个、测一个、记一个边界，不追求一次装满。"
+    validation = ["知道 Skill 负责什么", "知道它需要什么权限", "能跑通一个测试动作", "知道哪些数据不能交给它"]
+    next = "下一步把能用的 Skill 写进自己的 Agent 使用规则，再进入行业或项目任务。"
+  } else if (/ppt|汇报|deck/.test(missionText)) {
+    scenario = "把 AI PPT 当成一次真实汇报训练。先生成 6 页初稿，再检查事实、结构和演讲备注。"
+    validation = ["6 页结构完整", "每页标题能看懂", "没有乱编关键数据", "演讲备注能帮助你讲出来"]
+    next = "下一步把这套验收标准迁移到工作汇报、课程展示或客户方案。"
+  } else if (/website|网页|建站|game|游戏/.test(missionText)) {
+    scenario = "把 AI 建站或小游戏当成一个可预览 MVP。先让页面能打开、按钮能点、核心动作能完成。"
+    validation = ["页面能预览打开", "核心按钮或互动能用", "手机和电脑都能看", "知道下一版改内容还是改视觉"]
+    next = "下一步再补行业文案、视觉细节或真实业务入口。"
+  } else if (/doc|文档|kimi|资料/.test(missionText)) {
+    scenario = "把长文档任务当成一次资料整理训练。重点不是摘要变短，而是事实、风险、待确认问题和行动清单分开。"
+    validation = ["事实有来源", "风险单独列出", "待确认问题清楚", "下一步行动能执行"]
+    next = "下一步把这套结构放进知识库、汇报或团队 SOP。"
+  } else if (/content|小红书|内容|novel|webnovel|小说|comic|video|视频/.test(missionText)) {
+    scenario = "把内容任务当成一条可发布样稿。第一版要有受众、主题、正文或分镜、素材提示和发布前检查。"
+    validation = ["目标用户明确", "内容有真实细节", "素材或画面提示能复用", "发布前检查事实和版权"]
+    next = "下一步发布或模拟发布，记录数据，再做第二版。"
+  } else if (/dify|knowledge|bot|客服|知识库/.test(missionText)) {
+    scenario = "把知识库任务当成一个客服 Bot MVP。先用 10 条资料和 5 个测试问题验证召回与转人工边界。"
+    validation = ["资料有来源", "能答基础问题", "不知道时不会乱编", "转人工边界写清楚"]
+    next = "下一步接更多真实问答，做一轮错误记录和知识库修订。"
+  } else if (/n8n|automation|自动化|workflow/.test(missionText)) {
+    scenario = "把自动化任务当成一个半自动流程。先跑通样例，不直接接真实客户或自动发送。"
+    validation = ["触发、处理、输出完整", "有人工确认", "失败有提醒", "日志能追踪"]
+    next = "下一步用真实但脱敏的数据跑一周，再决定是否全自动。"
+  } else if (/agent|skill|codex|claude|mcp|code|模型|api/.test(missionText)) {
+    scenario = "把 Agent/模型任务当成一个小范围能力验证。先读、先计划、再执行，最后用 diff、日志或测试结果验收。"
+    validation = ["权限边界清楚", "没有泄露密钥", "改动或调用范围可控", "有验证命令或测试记录"]
+    next = "下一步把这次配置和边界写成自己的 Agent 使用规则。"
+  } else if (/industry|行业|门店|电商|销售|服务/.test(missionText)) {
+    scenario = "把行业任务当成一个业务流程 MVP。只选一个岗位、一个流程、一个交付物先测。"
+    validation = ["能说明省时或增收点", "有真实业务材料", "有人工验收边界", "本周能执行一次"]
+    next = "下一步把结果写成案例，再决定是否做成团队流程。"
+  }
+
+  return {
+    scenario,
+    mvp,
+    materials: mission.materials.length ? mission.materials : ["一个真实场景", "一份真实材料", "一个验收标准"],
+    validation,
+    repair: firstStep?.fixPrompt || firstStep?.troubleTips?.[0]?.fix || "结果不稳定时，不要换工具。先补真实背景、输出格式和验收标准，再让 AI 重做一版。",
+    recap: finalStep?.deliverable || mission.recapTemplate.split("\n")[0] || "一份任务复盘",
+    next,
+  }
+}
+
 export function MissionDetailClient({ mission }: { mission: Mission }) {
   const { user, refresh } = useAuth()
   const [progress, setProgress] = useState<MissionProgressState>(() => ({ activeMissionId: mission.id, missions: {} }))
@@ -73,6 +140,7 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
   const willLevelUp = !!user && !!nextAfterMission && nextAfterMission.level > userLevel.level
   const missionIndex = missions.findIndex((item) => item.id === mission.id)
   const nextMission = missionIndex >= 0 ? missions[(missionIndex + 1) % missions.length] : missions.find((item) => item.id !== mission.id)
+  const missionPlaybook = useMemo(() => buildMissionPlaybook(mission), [mission])
 
   function persist(next: MissionProgressState) {
     setProgress(next)
@@ -138,10 +206,9 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
   }
 
   return (
-    <div className="xb-workbench" style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
-      <MathRain />
+    <div className="xb-workbench" style={{ background: "linear-gradient(180deg,#f6f9fc 0%,#eef4f8 100%)", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "visible" }}>
       <NavBar />
-      <main className="xb-workbench-main" style={{ maxWidth: 1180, margin: "0 auto", padding: "58px clamp(16px,5vw,60px) 104px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.91)" }}>
+      <main className="xb-workbench-main" style={{ maxWidth: 1180, margin: "0 auto", padding: "58px clamp(16px,5vw,60px) 104px", position: "relative", zIndex: 10, background: "transparent" }}>
         <section style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 20, alignItems: "end", marginBottom: 24 }} className="mission-head">
           <div>
             <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.28em", color: "#7a6230", textTransform: "uppercase", marginBottom: 12, fontWeight: 900 }}>Guided Mission</p>
@@ -171,6 +238,44 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
             {["跑通", "验收", "迭代", "复盘"].map((item) => (
               <span key={item} style={depthRailItemStyle}>{item}</span>
             ))}
+          </div>
+        </section>
+
+        <section className="mission-mvp-playbook" style={missionPlaybookStyle}>
+          <div>
+            <p style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950, letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 9 }}>MISSION MVP PLAYBOOK</p>
+            <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, lineHeight: 1.3, marginBottom: 8 }}>这一关最终要做到什么程度</h2>
+            <p style={{ color: "#cfcfcf", fontSize: 14, lineHeight: 1.85 }}>{missionPlaybook.scenario}</p>
+          </div>
+          <div className="mission-mvp-grid" style={missionPlaybookGridStyle}>
+            <div style={missionPlaybookCardStyle}>
+              <strong style={missionPlaybookCardTitleStyle}>先做出的 MVP</strong>
+              <p style={missionPlaybookTextStyle}>{missionPlaybook.mvp}</p>
+            </div>
+            <div style={missionPlaybookCardStyle}>
+              <strong style={missionPlaybookCardTitleStyle}>需要准备</strong>
+              <ul style={missionPlaybookListStyle}>
+                {missionPlaybook.materials.slice(0, 4).map((item) => <li key={item}>{item}</li>)}
+              </ul>
+            </div>
+            <div style={missionPlaybookCardStyle}>
+              <strong style={missionPlaybookCardTitleStyle}>怎么验收</strong>
+              <ul style={missionPlaybookListStyle}>
+                {missionPlaybook.validation.map((item) => <li key={item}>{item}</li>)}
+              </ul>
+            </div>
+            <div style={missionPlaybookCardStyle}>
+              <strong style={missionPlaybookCardTitleStyle}>失败时先修什么</strong>
+              <p style={missionPlaybookTextStyle}>{missionPlaybook.repair}</p>
+            </div>
+            <div style={missionPlaybookCardStyle}>
+              <strong style={missionPlaybookCardTitleStyle}>最后沉淀什么</strong>
+              <p style={missionPlaybookTextStyle}>{missionPlaybook.recap}</p>
+            </div>
+            <div style={missionPlaybookCardStyle}>
+              <strong style={missionPlaybookCardTitleStyle}>下一步</strong>
+              <p style={missionPlaybookTextStyle}>{missionPlaybook.next}</p>
+            </div>
           </div>
         </section>
 
@@ -255,6 +360,82 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
         </section>
 
         <style>{`
+          .xb-workbench {
+            background: radial-gradient(circle at top left, rgba(37,109,133,0.08), transparent 34%), linear-gradient(180deg,#f6f9fc 0%,#eef4f8 100%) !important;
+            color: #17202a !important;
+          }
+          .xb-workbench-main {
+            background: transparent !important;
+          }
+          .xb-workbench-main > section,
+          .xb-workbench-main > section > aside,
+          .xb-workbench-main article,
+          .xb-workbench-main details,
+          .xb-workbench-main .mission-mvp-playbook,
+          .xb-workbench-main .mission-depth-intro {
+            border-color: #dfe7ee !important;
+            background: rgba(255,255,255,0.94) !important;
+            box-shadow: 0 16px 46px rgba(15,23,42,0.06) !important;
+          }
+          .xb-workbench-main .mission-shell > aside,
+          .xb-workbench-main .mission-shell > section > section,
+          .xb-workbench-main .mission-shell > section > div,
+          .xb-workbench-main .mission-step-top + section,
+          .xb-workbench-main .mission-step-top + section + section {
+            border-color: #dfe7ee !important;
+            background: #fff !important;
+          }
+          .xb-workbench-main h1,
+          .xb-workbench-main h2,
+          .xb-workbench-main h3,
+          .xb-workbench-main p,
+          .xb-workbench-main span,
+          .xb-workbench-main strong,
+          .xb-workbench-main li,
+          .xb-workbench-main summary {
+            color: #17202a !important;
+          }
+          .xb-workbench-main p[style*="#cfcfcf"],
+          .xb-workbench-main p[style*="#aaa"],
+          .xb-workbench-main p[style*="#999"],
+          .xb-workbench-main span[style*="#999"],
+          .xb-workbench-main span[style*="#aaa"] {
+            color: #667586 !important;
+          }
+          .xb-workbench-main p[style*="#e8c96a"],
+          .xb-workbench-main span[style*="#e8c96a"],
+          .xb-workbench-main strong[style*="#e8c96a"] {
+            color: #256d85 !important;
+          }
+          .xb-workbench-main a {
+            color: #256d85 !important;
+          }
+          .xb-workbench-main button,
+          .xb-workbench-main a[style*="border"] {
+            border-color: #cfd9e3 !important;
+            background: #fff !important;
+            color: #17202a !important;
+          }
+          .xb-workbench-main button[style*="#17202a"],
+          .xb-workbench-main button[style*="#c9a84c"] {
+            background: #17202a !important;
+            color: #fff !important;
+            border-color: #17202a !important;
+          }
+          .xb-workbench-main div[style*="height: 8"] {
+            background: #dfe7ee !important;
+          }
+          .xb-workbench-main div[style*="height: 100%"] {
+            background: #256d85 !important;
+          }
+          .xb-workbench-main .case-grid a {
+            border-color: #dfe7ee !important;
+            background: #f7fbfd !important;
+          }
+          .xb-workbench-main .mission-mvp-grid > div {
+            border-color: #dfe7ee !important;
+            background: #f7fbfd !important;
+          }
           @media (max-width: 1060px) {
             .mission-shell { grid-template-columns: 1fr !important; }
             .mission-shell aside { position: static !important; }
@@ -262,7 +443,7 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
             .mission-depth-intro { grid-template-columns: 1fr !important; }
           }
           @media (max-width: 720px) {
-            .step-action-row, .case-grid { grid-template-columns: 1fr !important; }
+            .step-action-row, .case-grid, .mission-mvp-grid { grid-template-columns: 1fr !important; }
             .mission-step-top { grid-template-columns: 1fr !important; }
           }
         `}</style>
@@ -666,6 +847,57 @@ const depthRailItemStyle: CSSProperties = {
   padding: "9px 12px",
   fontSize: 13,
   fontWeight: 950,
+}
+
+const missionPlaybookStyle: CSSProperties = {
+  display: "grid",
+  gap: 18,
+  border: "1px solid rgba(61,165,99,0.3)",
+  background: "linear-gradient(135deg,rgba(61,165,99,0.1),rgba(255,255,255,0.026))",
+  borderRadius: 14,
+  padding: "20px",
+  marginBottom: 18,
+}
+
+const missionPlaybookGridStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+  gap: 10,
+}
+
+const missionPlaybookCardStyle: CSSProperties = {
+  display: "grid",
+  alignContent: "start",
+  gap: 8,
+  minHeight: 144,
+  border: "1px solid rgba(255,255,255,0.09)",
+  background: "rgba(0,0,0,0.2)",
+  borderRadius: 12,
+  padding: "15px 16px",
+}
+
+const missionPlaybookCardTitleStyle: CSSProperties = {
+  color: "#fff",
+  fontSize: 15,
+  fontWeight: 950,
+  lineHeight: 1.4,
+}
+
+const missionPlaybookTextStyle: CSSProperties = {
+  color: "#cfcfcf",
+  fontSize: 14,
+  lineHeight: 1.75,
+  margin: 0,
+}
+
+const missionPlaybookListStyle: CSSProperties = {
+  display: "grid",
+  gap: 7,
+  color: "#cfcfcf",
+  fontSize: 14,
+  lineHeight: 1.75,
+  margin: 0,
+  paddingLeft: 18,
 }
 
 const learningBlockStyle: CSSProperties = {

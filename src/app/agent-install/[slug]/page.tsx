@@ -1,11 +1,11 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { AlertTriangle, ArrowLeft, BrainCircuit, CheckCircle2, ExternalLink, Play, TerminalSquare } from "lucide-react"
-import { MathRain } from "@/components/MathRain"
+import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle2, ExternalLink, Play, TerminalSquare } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
 import { agentGuideBySlug, agentInstallGuides, defaultAgentPostInstallSetup } from "@/data/agent-install-guides"
 import { ApiTabs } from "./ApiTabs"
+import styles from "@/components/learning/SupportPage.module.css"
 
 type PageProps = {
   params: { slug: string }
@@ -17,19 +17,15 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }: PageProps): Metadata {
   const guide = agentGuideBySlug.get(params.slug)
-  if (!guide) {
-    return {
-      title: "Agent安装教程不存在 - 小白AI",
-    }
-  }
+  if (!guide) return { title: "Agent 安装教程不存在 - 小白AI" }
 
   return {
-    title: `${guide.title} - 小白AI主流Agent安装教程`,
-    description: `${guide.name} 小白安装教程：${guide.tagline}，包含启动方式、常见报错和 DeepSeek V4、Kimi、OpenAI API 接入方式。`,
-    keywords: [guide.name, `${guide.name}安装`, `${guide.name}教程`, "Agent安装", "DeepSeek V4 API", "Kimi API"],
+    title: `${guide.title} - 小白AI Agent 安装教程`,
+    description: `${guide.name} 小白安装教程：${guide.tagline}，包含启动方式、常见报错和模型 API 接入方式。`,
+    keywords: [guide.name, `${guide.name}安装`, `${guide.name}教程`, "Agent安装", "DeepSeek API", "Kimi API"],
     alternates: { canonical: `/agent-install/${guide.slug}` },
     openGraph: {
-      title: `${guide.name}安装教程 | 小白AI`,
+      title: `${guide.name} 安装教程 | 小白AI`,
       description: guide.tagline,
       url: `/agent-install/${guide.slug}`,
       images: [{ url: "/xiaobai-mascot-cutout.png", alt: `${guide.name}安装教程` }],
@@ -39,9 +35,59 @@ export function generateMetadata({ params }: PageProps): Metadata {
 
 function CodeBlock({ code }: { code: string }) {
   return (
-    <pre style={{ margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word", border: "1px solid #2a2a2a", background: "rgba(0,0,0,0.68)", borderRadius: 10, padding: 16, color: "#f4f4f4", fontSize: 13, lineHeight: 1.85, fontFamily: "'JetBrains Mono', monospace" }}>
+    <pre style={{ margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word", border: "1px solid #dfe7ee", background: "#f7fbfd", borderRadius: 12, padding: 16, color: "#17202a", fontSize: 13, lineHeight: 1.85, fontFamily: "'JetBrains Mono', monospace" }}>
       {code}
     </pre>
+  )
+}
+
+function ClaudeCodeRoadmapVisual() {
+  const stages = [
+    { title: "安装底座", text: "Node.js、Git、VS Code、Claude Code。先看到版本号。" },
+    { title: "接模型", text: "官方 Claude、DeepSeek、MiniMax、CC Switch 或 Router。先用一句中文测通。" },
+    { title: "只读项目", text: "让它读目录、列计划、说明风险，不改文件。" },
+    { title: "小改动", text: "限定范围、看 diff、跑 typecheck / test / build。" },
+    { title: "加能力", text: "CLAUDE.md、hooks、skills、插件、MCP、子智能体。" },
+    { title: "做 MVP", text: "需求、页面、API、验收、README、复盘。" },
+  ]
+
+  return (
+    <section className={styles.panel}>
+      <div className={styles.panelHead}>
+        <div>
+          <h2 className={styles.panelTitle}>Claude Code 可视学习路线</h2>
+          <p className={styles.panelDesc}>从上往下走。不要跳到最后直接做大 App，先把每一层跑通，再进入下一层。</p>
+        </div>
+      </div>
+      <div className={styles.agentRoadmap}>
+        <div className={styles.agentRoadmapCanvas}>
+          <svg viewBox="0 0 980 520" className={styles.agentRoadmapLines} aria-label="Claude Code 从安装到 MVP 的路线图">
+            <defs>
+              <marker id="agent-roadmap-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#256d85" />
+              </marker>
+            </defs>
+            <path d="M490 66 V454" stroke="#256d85" strokeWidth="4" strokeLinecap="round" markerEnd="url(#agent-roadmap-arrow)" />
+            <path d="M490 136 H292 M490 214 H688 M490 292 H292 M490 370 H688" stroke="#91c0ce" strokeWidth="2" strokeDasharray="8 8" />
+          </svg>
+          {stages.map((stage, index) => {
+            const left = index % 2 === 0 ? 90 : 590
+            const top = 28 + index * 76
+            return (
+              <div key={stage.title} className={styles.agentRoadmapNode} style={{ left, top }}>
+                <span>{index + 1}</span>
+                <strong>{stage.title}</strong>
+                <p>{stage.text}</p>
+              </div>
+            )
+          })}
+          <div className={styles.agentRoadmapCore}>
+            <strong>新手主线</strong>
+            <span>能启动 {"->"} 能接模型 {"->"} 能读项目 {"->"} 能小改 {"->"} 能验收 {"->"} 能复用</span>
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -49,8 +95,8 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
   const guide = agentGuideBySlug.get(params.slug)
   if (!guide) notFound()
   const postInstallSetup = guide.postInstallSetup || defaultAgentPostInstallSetup
-
   const otherGuides = agentInstallGuides.filter((item) => item.slug !== guide.slug).slice(0, 4)
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "HowTo",
@@ -66,86 +112,60 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
+    <div className={styles.page}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <MathRain />
       <NavBar />
-      <main style={{ maxWidth: 1120, margin: "0 auto", padding: "56px clamp(16px,5vw,60px) 104px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.92)" }}>
-        <Link href="/agent-install" style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#aaa", textDecoration: "none", fontSize: 13, fontWeight: 900, marginBottom: 22 }}>
-          <ArrowLeft size={14} /> 返回主流Agent安装
+      <main className={styles.main}>
+        <Link href="/agent-install" className={styles.ghostButton} style={{ marginBottom: 16 }}>
+          <ArrowLeft size={14} /> 返回 Agent 安装
         </Link>
 
-        <section style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 280px", gap: 18, alignItems: "stretch", marginBottom: 34 }} className="agent-hero-grid">
+        <section className={styles.hero}>
           <div>
-            <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.32em", color: "#7a6230", textTransform: "uppercase", marginBottom: 12, fontWeight: 950 }}>{guide.category}</p>
-            <h1 style={{ color: "#fff", fontSize: 42, fontWeight: 950, lineHeight: 1.18, marginBottom: 14 }}>{guide.title}</h1>
-            <p style={{ color: "#ccc", fontSize: 16, lineHeight: 1.9, maxWidth: 800, marginBottom: 18 }}>{guide.summary}</p>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
-              <span className="tag tag-gold" style={{ fontSize: 12, color: "#e8c96a", fontWeight: 950 }}>{guide.minutes}</span>
-              <span className="tag tag-gold" style={{ fontSize: 12, color: "#e8c96a", fontWeight: 950 }}>{guide.difficulty}</span>
-              {guide.bestFor.map((item) => (
-                <span key={item} className="tag tag-gray" style={{ fontSize: 12, color: "#aaa", fontWeight: 900 }}>{item}</span>
-              ))}
+            <p className={styles.eyebrow}>{guide.category}</p>
+            <h1 className={styles.title}>{guide.title}</h1>
+            <p className={styles.subtitle}>{guide.summary}</p>
+            <div className={styles.pillRow} style={{ marginTop: 18 }}>
+              <span className={styles.tag}>{guide.minutes}</span>
+              <span className={styles.tag}>{guide.difficulty}</span>
+              {guide.bestFor.map((item) => <span key={item} className={styles.tag}>{item}</span>)}
             </div>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <a href="#model-choice" className="btn-primary" style={{ textDecoration: "none" }}>先选模型</a>
-              <a href="#install" className="btn-outline" style={{ textDecoration: "none" }}>再安装启动</a>
+            <div className={styles.actions}>
+              <a href="#api" className={styles.primaryButton}>先选模型</a>
+              <a href="#install" className={styles.secondaryButton}>安装启动</a>
               {guide.officialUrl && (
-                <a href={guide.officialUrl} target="_blank" rel="noreferrer" className="btn-outline" style={{ textDecoration: "none" }}>
+                <a href={guide.officialUrl} target="_blank" rel="noreferrer" className={styles.secondaryButton}>
                   官方文档 <ExternalLink size={13} />
                 </a>
               )}
             </div>
           </div>
-
-          <aside style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.05)", borderRadius: 12, padding: "20px 22px" }}>
-            <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, marginBottom: 12 }}>开始前准备</h2>
-            <div style={{ display: "grid", gap: 10 }}>
-              {guide.requirements.map((item) => (
-                <p key={item} style={{ color: "#cfcfcf", fontSize: 13, lineHeight: 1.65, display: "grid", gridTemplateColumns: "18px 1fr", gap: 8 }}>
-                  <CheckCircle2 size={14} style={{ color: "#3DA563", marginTop: 3 }} />
-                  <span>{item}</span>
-                </p>
+          <aside className={styles.heroAside}>
+            <h2 className={styles.asideTitle}>开始前准备</h2>
+            <ol className={styles.steps}>
+              {guide.requirements.map((item, index) => (
+                <li key={item}><b>{index + 1}</b><span>{item}</span></li>
               ))}
-            </div>
+            </ol>
           </aside>
         </section>
 
-        <section style={{ border: "1px solid rgba(201,168,76,0.24)", background: "linear-gradient(135deg,rgba(201,168,76,0.075),rgba(255,255,255,0.026))", borderRadius: 12, padding: "20px 22px", marginBottom: 30 }}>
-          <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.2em", color: "#7a6230", textTransform: "uppercase", fontWeight: 950, marginBottom: 8 }}>Xiaobai Quick Run</p>
-          <h2 style={{ color: "#fff", fontSize: 23, fontWeight: 950, lineHeight: 1.35, marginBottom: 14 }}>别一次看完整页，先按这 3 步跑通</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 10 }} className="agent-run-grid">
-            {[
-              { title: "1. 先选模型", desc: "云端 API 就准备 Key；本地模型就先启动 LM Studio / Ollama 服务。" },
-              { title: "2. 再安装", desc: "复制安装区命令。看到版本号或应用能打开，说明本体装好了。" },
-              { title: "3. 启动验证", desc: "带着模型配置启动，能问一句并正常回复，才算真的跑通。" },
-            ].map((item) => (
-              <div key={item.title} style={{ border: "1px solid rgba(255,255,255,0.09)", background: "rgba(0,0,0,0.22)", borderRadius: 10, padding: "15px 16px", minHeight: 118 }}>
-                <h3 style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>{item.title}</h3>
-                <p style={{ color: "#aaa", fontSize: 13, lineHeight: 1.75 }}>{item.desc}</p>
-              </div>
-            ))}
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <h2 className={styles.panelTitle}>先按 3 步跑通</h2>
+              <p className={styles.panelDesc}>不要一次看完整页。先确认模型、安装本体、启动验证，能回一句话就算第一阶段完成。</p>
+            </div>
           </div>
-        </section>
-
-        <section id="model-choice" style={{ border: "1px solid rgba(82,148,139,0.28)", background: "rgba(82,148,139,0.052)", borderRadius: 12, padding: "22px 24px", marginBottom: 30 }}>
-          <div style={{ display: "flex", alignItems: "start", justifyContent: "space-between", gap: 14, flexWrap: "wrap", marginBottom: 12 }}>
-            <h2 style={{ color: "#fff", fontSize: 23, fontWeight: 950, lineHeight: 1.35, margin: 0 }}>安装前先决定：用哪一个模型大脑</h2>
-            <span style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, border: "1px solid rgba(232,201,106,0.24)", borderRadius: 999, padding: "7px 10px", background: "rgba(201,168,76,0.06)" }}>模型是大脑，Agent 是手脚</span>
-          </div>
-          <p style={{ color: "#b9d8d2", fontSize: 14, lineHeight: 1.8, marginBottom: 14 }}>
-            刚开始别追最贵模型。先用便宜、稳定、能跑通的方案，等你真的开始做项目、跑 Agent、处理长文档，再换更强模型。
-          </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 10 }} className="agent-run-grid">
+          <div className={styles.grid}>
             {[
-              { title: "日常对话", desc: "可以先选 MiniMax，开会员成本低。先聊天、写文案、问问题，后期再按任务换模型。" },
-              { title: "Agent 干活", desc: "需要工具执行、写代码、跑流程时，再去 DeepSeek、Kimi 或 OpenAI 拿 API Key。" },
-              { title: "本地模型", desc: "适合隐私资料或想离线用。先用 LM Studio / Ollama 下载模型并开启本地服务。" },
-              { title: "官方账号", desc: "ChatGPT Desktop、Claude Desktop 这类应用用官方账号登录，不能直接填 DeepSeek Key。" },
-            ].map((item) => (
-              <div key={item.title} style={{ border: "1px solid rgba(255,255,255,0.09)", background: "rgba(0,0,0,0.24)", borderRadius: 10, padding: "16px 17px", minHeight: 132 }}>
-                <h3 style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>{item.title}</h3>
-                <p style={{ color: "#b9d8d2", fontSize: 13, lineHeight: 1.75 }}>{item.desc}</p>
+              ["1. 选模型", "云端 API 就准备 Key，本地模型就先启动 LM Studio / Ollama 服务。"],
+              ["2. 安装本体", "复制安装命令或打开官方安装包，看到版本号或应用能打开。"],
+              ["3. 启动验证", "发一句测试问题，能正常回复，再回到学习任务里实操。"],
+            ].map(([title, desc]) => (
+              <div key={title} className={styles.card}>
+                <h3 className={styles.cardTitle}>{title}</h3>
+                <p className={styles.cardText}>{desc}</p>
               </div>
             ))}
           </div>
@@ -153,146 +173,149 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
 
         <ApiTabs guide={guide} />
 
-        <section id="install" style={{ marginBottom: 42 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-            <TerminalSquare size={18} style={{ color: "#e8c96a" }} />
-            <h2 style={{ color: "#fff", fontSize: 25, fontWeight: 950 }}>安装教程</h2>
+        {guide.slug === "claude-code" && <ClaudeCodeRoadmapVisual />}
+
+        <section id="install" className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <h2 className={styles.panelTitle}>安装教程</h2>
+              <p className={styles.panelDesc}>按顺序做。遇到命令行报错，先看下方常见问题，不要反复重装。</p>
+            </div>
+            <TerminalSquare size={24} color="#256d85" />
           </div>
-          <div style={{ display: "grid", gap: 12 }}>
+          <div className={styles.sectionDivider}>
             {guide.installSteps.map((step, index) => (
-              <div key={step.title} style={{ border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: "20px 22px" }}>
-                <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: step.command ? 14 : 0 }}>
-                  <span style={{ display: "inline-flex", width: 28, height: 28, alignItems: "center", justifyContent: "center", borderRadius: 999, background: "rgba(201,168,76,0.1)", color: "#e8c96a", fontFamily: "'JetBrains Mono',monospace", fontSize: 12, fontWeight: 950, flexShrink: 0 }}>{index + 1}</span>
-                  <div>
-                    <h3 style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.4, marginBottom: 7 }}>{step.title}</h3>
-                    <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.8 }}>{step.body}</p>
-                  </div>
-                </div>
+              <div key={step.title} className={styles.details}>
+                <h3 className={styles.cardTitle} style={{ fontSize: 18 }}>{index + 1}. {step.title}</h3>
+                <p className={styles.panelDesc}>{step.body}</p>
                 {step.command && <CodeBlock code={step.command} />}
               </div>
             ))}
           </div>
         </section>
 
-        <section style={{ marginBottom: 42 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-            <Play size={18} style={{ color: "#e8c96a" }} />
-            <h2 style={{ color: "#fff", fontSize: 25, fontWeight: 950 }}>安装好以后怎么启动</h2>
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <h2 className={styles.panelTitle}>安装好以后怎么启动</h2>
+              <p className={styles.panelDesc}>启动命令和打开方式单独放，避免和安装步骤混在一起。</p>
+            </div>
+            <Play size={24} color="#256d85" />
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,300px),1fr))", gap: 12 }}>
+          <div className={styles.grid}>
             {guide.startCommands.map((step) => (
-              <div key={step.title} style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.045)", borderRadius: 12, padding: "20px 22px" }}>
-                <h3 style={{ color: "#fff", fontSize: 17, fontWeight: 950, marginBottom: 8 }}>{step.title}</h3>
-                <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.8, marginBottom: 12 }}>{step.body}</p>
+              <div key={step.title} className={styles.card}>
+                <h3 className={styles.cardTitle}>{step.title}</h3>
+                <p className={styles.cardText}>{step.body}</p>
                 {step.command && <CodeBlock code={step.command} />}
               </div>
             ))}
           </div>
         </section>
 
-        <section style={{ border: "1px solid rgba(61,165,99,0.28)", background: "rgba(61,165,99,0.06)", borderRadius: 12, padding: "20px 22px", marginBottom: 42 }}>
-          <h2 style={{ color: "#fff", fontSize: 22, fontWeight: 950, marginBottom: 12 }}>跑通验收标准</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 10 }} className="agent-run-grid">
+        <section className={styles.panel}>
+          <h2 className={styles.panelTitle}>跑通验收标准</h2>
+          <div className={styles.grid} style={{ marginTop: 16 }}>
             {[
-              "你能打开这个工具，或者在终端看到版本号。",
-              "你能输入一句测试问题，并得到一次正常回复。",
-              "你知道这个工具是 Agent / 桌面助理 / 模型客户端里的哪一种。",
+              "能打开工具，或在终端看到版本号。",
+              "能输入一句测试问题，并得到一次正常回复。",
+              "知道它是 Agent、桌面助手、模型客户端里的哪一种。",
             ].map((item) => (
-              <p key={item} style={{ color: "#d7f0df", fontSize: 14, lineHeight: 1.75, display: "grid", gridTemplateColumns: "20px 1fr", gap: 8 }}>
-                <CheckCircle2 size={15} style={{ color: "#3DA563", marginTop: 4 }} />
+              <p key={item} className={styles.cardText} style={{ display: "grid", gridTemplateColumns: "20px 1fr", gap: 8, margin: 0 }}>
+                <CheckCircle2 size={16} color="#2f7d4d" style={{ marginTop: 4 }} />
                 <span>{item}</span>
               </p>
             ))}
           </div>
         </section>
 
-        <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 12, padding: "22px 24px", marginBottom: 42 }}>
-          <h2 style={{ color: "#fff", fontSize: 22, fontWeight: 950, marginBottom: 14 }}>第一次让它说什么</h2>
-          <div style={{ display: "grid", gap: 10 }}>
-            {guide.firstPrompts.map((prompt) => (
-              <CodeBlock key={prompt} code={prompt} />
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <h2 className={styles.panelTitle}>装好以后做一个 MVP</h2>
+              <p className={styles.panelDesc}>安装不是终点。工具能启动以后，马上用一个小任务验证它能不能帮你交付结果。</p>
+            </div>
+          </div>
+          <div className={styles.pathGrid}>
+            {[
+              { title: "验证安装", text: "先完成一次正常回复、一次文件/项目读取或一次命令验证。", href: "/missions/agent-skill-first-install" },
+              { title: "改一个小功能", text: "工程 Agent 跑通后，用真实项目做一个很小的页面或逻辑修改。", href: "/missions/codex-small-feature" },
+              { title: "接知识库 Bot", text: "桌面助理或平台工具跑通后，做一个可演示的知识库问答。", href: "/missions/dify-knowledge-base-bot" },
+              { title: "回学习路线", text: "MVP 做完以后，继续进入 Agent、自动化或一人公司项目分支。", href: "/learn/subjects/agent-coding" },
+            ].map((item, index) => (
+              <Link key={item.title} href={item.href} className={styles.pathCard}>
+                <span className={styles.pathNumber}>{index + 1}</span>
+                <strong className={styles.pathTitle}>{item.title}</strong>
+                <p className={styles.pathText}>{item.text}</p>
+                <span className={styles.pathAction}>进入 <ArrowRight size={13} /></span>
+              </Link>
             ))}
           </div>
         </section>
 
-        <section style={{ marginBottom: 42 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-            <BrainCircuit size={18} style={{ color: "#e8c96a" }} />
-            <h2 style={{ color: "#fff", fontSize: 25, fontWeight: 950 }}>装好和接好模型后，怎么把它训练成你的 Agent</h2>
+        <section className={styles.panel}>
+          <h2 className={styles.panelTitle}>第一次让它说什么</h2>
+          <p className={styles.panelDesc}>这些不是装饰文案，是用来确认工具真的能工作的第一组测试。</p>
+          <div className={styles.sectionDivider} style={{ marginTop: 16 }}>
+            {guide.firstPrompts.map((prompt) => <CodeBlock key={prompt} code={prompt} />)}
           </div>
-          <p style={{ color: "#aaa", fontSize: 14, lineHeight: 1.85, marginBottom: 16 }}>
-            这一步很重要。模型接好只是“有大脑”，还要给它人设、记忆结构、权限边界、验收标准和复盘方式。下面每一段都可以直接复制给 Agent。
-          </p>
-          <div style={{ display: "grid", gap: 14 }}>
+        </section>
+
+        <section className={styles.panel}>
+          <h2 className={styles.panelTitle}>装好后，把它训练成你的 Agent</h2>
+          <p className={styles.panelDesc}>模型接好只是有大脑，还要给它岗位、人设、记忆结构、权限边界和验收标准。</p>
+          <div className={styles.sectionDivider} style={{ marginTop: 16 }}>
             {postInstallSetup.map((section) => (
-              <div key={section.title} style={{ border: "1px solid #1f1f1f", background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: "22px 24px" }}>
-                <h3 style={{ color: "#fff", fontSize: 20, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>{section.title}</h3>
-                <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.8, marginBottom: 14 }}>{section.why}</p>
-                <div style={{ display: "grid", gap: 7, marginBottom: section.template ? 14 : 0 }}>
+              <details key={section.title} className={styles.details}>
+                <summary>{section.title}</summary>
+                <p className={styles.panelDesc}>{section.why}</p>
+                <div className={styles.sectionDivider}>
                   {section.steps.map((step) => (
-                    <p key={step} style={{ color: "#d8d8d8", fontSize: 13, lineHeight: 1.75, display: "grid", gridTemplateColumns: "18px 1fr", gap: 8 }}>
-                      <CheckCircle2 size={14} style={{ color: "#3DA563", marginTop: 4 }} />
+                    <p key={step} className={styles.cardText} style={{ display: "grid", gridTemplateColumns: "20px 1fr", gap: 8, margin: 0 }}>
+                      <CheckCircle2 size={15} color="#2f7d4d" style={{ marginTop: 4 }} />
                       <span>{step}</span>
                     </p>
                   ))}
                 </div>
-                {section.template && (
-                  <div style={{ marginBottom: section.checks?.length ? 14 : 0 }}>
-                    <p style={{ color: "#e8c96a", fontSize: 13, fontWeight: 950, marginBottom: 8 }}>复制给 Agent</p>
-                    <CodeBlock code={section.template} />
-                  </div>
-                )}
+                {section.template && <CodeBlock code={section.template} />}
                 {section.checks && section.checks.length > 0 && (
-                  <div style={{ borderTop: "1px solid #202020", paddingTop: 12, display: "grid", gap: 6 }}>
-                    <p style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950 }}>这一步是否完成，看这几条</p>
-                    {section.checks.map((check) => (
-                      <p key={check} style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7 }}>- {check}</p>
-                    ))}
+                  <div className={styles.pillRow}>
+                    {section.checks.map((check) => <span key={check} className={styles.tag}>{check}</span>)}
                   </div>
                 )}
-              </div>
+              </details>
             ))}
           </div>
         </section>
 
         {guide.ecosystemApps && guide.ecosystemApps.length > 0 && (
-          <section style={{ marginBottom: 42 }}>
-            <h2 style={{ color: "#fff", fontSize: 25, fontWeight: 950, marginBottom: 14 }}>生态桌面端</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,270px),1fr))", gap: 12 }}>
+          <section className={styles.panel}>
+            <h2 className={styles.panelTitle}>生态桌面端</h2>
+            <div className={styles.grid} style={{ marginTop: 16 }}>
               {guide.ecosystemApps.map((app) => {
-                const inner = (
+                const content = (
                   <>
-                    <span className="tag" style={{ borderColor: "rgba(82,148,139,0.38)", color: "#9ee5d9", fontSize: 11, fontWeight: 950, marginBottom: 10 }}>{app.type}</span>
-                    <h3 style={{ color: "#fff", fontSize: 18, fontWeight: 950, lineHeight: 1.4, marginBottom: 8 }}>{app.name}</h3>
-                    <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.8 }}>{app.description}</p>
+                    <span className={styles.tag}>{app.type}</span>
+                    <h3 className={styles.cardTitle}>{app.name}</h3>
+                    <p className={styles.cardText}>{app.description}</p>
                   </>
                 )
-                return app.href ? (
-                  <Link key={app.name} href={app.href} style={{ textDecoration: "none", border: "1px solid rgba(82,148,139,0.28)", background: "rgba(82,148,139,0.045)", borderRadius: 12, padding: "18px 20px", display: "block" }}>
-                    {inner}
-                  </Link>
-                ) : (
-                  <div key={app.name} style={{ border: "1px solid rgba(82,148,139,0.28)", background: "rgba(82,148,139,0.045)", borderRadius: 12, padding: "18px 20px" }}>
-                    {inner}
-                  </div>
-                )
+                return app.href ? <Link key={app.name} href={app.href} className={styles.card}>{content}</Link> : <div key={app.name} className={styles.card}>{content}</div>
               })}
             </div>
           </section>
         )}
 
         {guide.skillPacks && guide.skillPacks.length > 0 && (
-          <section style={{ marginBottom: 42 }}>
-            <h2 style={{ color: "#fff", fontSize: 25, fontWeight: 950, marginBottom: 10 }}>必装 Skills</h2>
-            <p style={{ color: "#aaa", fontSize: 13, lineHeight: 1.85, marginBottom: 16 }}>
-              先把 Agent 本体跑通，再装 Skills。Skills 是能力插件，不是模型；涉及浏览器、文件、消息渠道的权限要一个一个打开。
-            </p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,270px),1fr))", gap: 12 }}>
+          <section className={styles.panel}>
+            <h2 className={styles.panelTitle}>可选 Skills</h2>
+            <p className={styles.panelDesc}>先把 Agent 本体跑通，再按真实场景加能力。</p>
+            <div className={styles.grid} style={{ marginTop: 16 }}>
               {guide.skillPacks.map((skill) => (
-                <div key={skill.name} style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 12, padding: "18px 20px" }}>
-                  <h3 style={{ color: "#fff", fontSize: 17, fontWeight: 950, lineHeight: 1.4, marginBottom: 8 }}>{skill.name}</h3>
-                  <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.75, marginBottom: 9 }}>{skill.when}</p>
-                  <p style={{ color: "#d6c28a", fontSize: 12, lineHeight: 1.75, marginBottom: skill.command ? 12 : 0 }}>{skill.install}</p>
+                <div key={skill.name} className={styles.card}>
+                  <h3 className={styles.cardTitle}>{skill.name}</h3>
+                  <p className={styles.cardText}>{skill.when}</p>
+                  <p className={styles.cardText}>{skill.install}</p>
                   {skill.command && <CodeBlock code={skill.command} />}
                 </div>
               ))}
@@ -300,41 +323,34 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
           </section>
         )}
 
-        <section style={{ marginBottom: 42 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-            <AlertTriangle size={18} style={{ color: "#e8c96a" }} />
-            <h2 style={{ color: "#fff", fontSize: 25, fontWeight: 950 }}>常见问题</h2>
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <h2 className={styles.panelTitle}>常见问题</h2>
+              <p className={styles.panelDesc}>先看症状，再对照解决，不要把模型问题、网络问题和本体安装问题混在一起。</p>
+            </div>
+            <AlertTriangle size={24} color="#b7791f" />
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,270px),1fr))", gap: 12 }}>
+          <div className={styles.grid}>
             {guide.commonIssues.map((issue) => (
-              <div key={issue.title} style={{ border: "1px solid #4a251f", background: "rgba(180,60,40,0.07)", borderRadius: 12, padding: "18px 20px" }}>
-                <h3 style={{ color: "#ffb199", fontSize: 16, fontWeight: 950, lineHeight: 1.4, marginBottom: 8 }}>{issue.title}</h3>
-                <p style={{ color: "#d8c8bd", fontSize: 13, lineHeight: 1.8, marginBottom: issue.command ? 12 : 0 }}>{issue.solution}</p>
+              <div key={issue.title} className={styles.card}>
+                <h3 className={styles.cardTitle}>{issue.title}</h3>
+                <p className={styles.cardText}>{issue.solution}</p>
                 {issue.command && <CodeBlock code={issue.command} />}
               </div>
             ))}
           </div>
         </section>
 
-        <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 12, padding: "22px 24px" }}>
-          <h2 style={{ color: "#fff", fontSize: 21, fontWeight: 950, marginBottom: 14 }}>其他 Agent 安装</h2>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        <section className={styles.panel}>
+          <h2 className={styles.panelTitle}>其他 Agent 安装</h2>
+          <div className={styles.actions}>
             {otherGuides.map((item) => (
-              <Link key={item.slug} href={`/agent-install/${item.slug}`} className="btn-outline" style={{ textDecoration: "none" }}>{item.name}</Link>
+              <Link key={item.slug} href={`/agent-install/${item.slug}`} className={styles.secondaryButton}>{item.name}</Link>
             ))}
           </div>
         </section>
       </main>
-      <style>{`
-        @media (max-width: 820px) {
-          .agent-hero-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .agent-run-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </div>
   )
 }

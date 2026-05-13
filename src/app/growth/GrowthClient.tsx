@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { CalendarCheck, Compass, Flame, Medal, Sparkles, Target, Trophy, TrendingUp } from "lucide-react"
-import { MathRain } from "@/components/MathRain"
+import { ArrowRight, CalendarCheck, Compass, Flame, Medal, Sparkles, Target, TrendingUp } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
 import { LevelBadge } from "@/components/LevelBadge"
 import { XiaobaiMascot } from "@/components/XiaobaiMascot"
@@ -14,6 +13,7 @@ import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
 import { getNextLevel, getUserLevel, LEVELS } from "@/data/user"
 import { CHECK_IN_XP, GROWTH_MISSIONS } from "@/data/growth"
+import styles from "@/components/learning/SupportPage.module.css"
 
 type GrowthState = {
   xp: number
@@ -22,22 +22,7 @@ type GrowthState = {
   doneMissions: Record<string, boolean>
 }
 
-type LeaderboardUser = {
-  rank: number
-  name: string
-  xp: number
-  totalXP?: number
-}
-
-type ViewerLeaderboardHint = {
-  dailyXP: number
-  onlineMinutes?: number
-  rank: number | null
-  needXP: number
-}
-
 const GROWTH_KEY = "xiaobaiai:growth:v1"
-
 const missions = GROWTH_MISSIONS
 
 function todayKey() {
@@ -67,18 +52,23 @@ function missionDoneKey(mission: { id: string; cadence?: string }, today: string
 }
 
 function levelBadge(xp: number) {
-  if (xp >= 1200) return { title: "高阶身份已点亮", subtitle: "名牌、边框和主页装饰开始压场", color: "#e8c96a", mood: "complete" as const }
-  if (xp >= 700) return { title: "装饰权益已开启", subtitle: "社区里会比普通用户更显眼", color: "#3DA563", mood: "recommend" as const }
-  if (xp >= 360) return { title: "第一阶段奖励已到手", subtitle: "继续通关，下一档装饰会叠加", color: "#e8c96a", mood: "happy" as const }
-  if (xp >= 120) return { title: "快到第一个奖励", subtitle: "继续做任务，先拿钻石头像框体验", color: "#c9a84c", mood: "thinking" as const }
-  return { title: "新手开局", subtitle: "第一天目标：点亮第一个奖励铭牌", color: "#c9a84c", mood: "welcome" as const }
+  if (xp >= 1200) return { title: "高阶身份已点亮", subtitle: "名牌、边框和主页装饰会更醒目", color: "#256d85", mood: "complete" as const }
+  if (xp >= 700) return { title: "装饰权益已开启", subtitle: "社区里会比普通用户更容易被看见", color: "#2f7d4d", mood: "recommend" as const }
+  if (xp >= 360) return { title: "第一阶段奖励已到手", subtitle: "继续通关，下一档装饰会叠加", color: "#256d85", mood: "happy" as const }
+  if (xp >= 120) return { title: "快到第一档奖励", subtitle: "继续做任务，先拿头像框体验", color: "#256d85", mood: "thinking" as const }
+  return { title: "新手开局", subtitle: "今天目标：完成一个真实小任务", color: "#256d85", mood: "welcome" as const }
 }
 
-function rankColor(rank: number) {
-  if (rank === 1) return "#ffd86b"
-  if (rank === 2) return "#dce7f5"
-  if (rank === 3) return "#d08a42"
-  return "#777"
+function CardStat({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
+  return (
+    <div className={styles.card} style={{ minHeight: 118, padding: 16 }}>
+      <div className={styles.cardTop}>
+        <span style={{ color: "#256d85" }}>{icon}</span>
+        <span className={styles.tag}>{label}</span>
+      </div>
+      <h3 className={styles.cardTitle}>{value}</h3>
+    </div>
+  )
 }
 
 export default function GrowthClient() {
@@ -88,9 +78,6 @@ export default function GrowthClient() {
   const [learnDone, setLearnDone] = useState(0)
   const [claiming, setClaiming] = useState("")
   const [notice, setNotice] = useState("")
-  const [dailyLeaders, setDailyLeaders] = useState<LeaderboardUser[]>([])
-  const [weeklyLeaders, setWeeklyLeaders] = useState<LeaderboardUser[]>([])
-  const [viewerHint, setViewerHint] = useState<ViewerLeaderboardHint | null>(null)
 
   useEffect(() => {
     const growth = readGrowth(user?.userId)
@@ -98,20 +85,6 @@ export default function GrowthClient() {
     const progress = readLearningProgress()
     setLearnDone(Object.values(progress).filter(Boolean).length)
   }, [user?.userId, user?.xp])
-
-  useEffect(() => {
-    const token = readAppAuth()?.session?.access_token
-    fetch("/api/growth/leaderboard", {
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data.daily)) setDailyLeaders(data.daily)
-        if (Array.isArray(data.weekly)) setWeeklyLeaders(data.weekly)
-        setViewerHint(data.viewer || null)
-      })
-      .catch(() => undefined)
-  }, [user?.xp])
 
   const today = todayKey()
   const checkedToday = state.lastCheckIn === today
@@ -131,9 +104,7 @@ export default function GrowthClient() {
   const levelBaseXP = currentLevel.minXP
   const levelNextXP = nextLevel?.minXP || Math.max(currentLevel.minXP + 1, state.xp)
   const levelPercent = Math.min(100, Math.round(((state.xp - levelBaseXP) / Math.max(1, levelNextXP - levelBaseXP)) * 100))
-  const visibleMissions = missions.slice(0, 2)
-  const dailyTop = dailyLeaders[0] || { rank: 1, name: "今天等你上榜", xp: 0, totalXP: state.xp }
-  const weeklyTop = weeklyLeaders[0] || { rank: 1, name: "今天第一个冲榜的人", xp: 0, totalXP: 0 }
+  const visibleMissions = missions.slice(0, 3)
 
   const suggestedStage = (() => {
     let best = stages[0]
@@ -183,11 +154,11 @@ export default function GrowthClient() {
       const current = readGrowth(user.userId)
       const awarded = Number(result.awarded || 0)
       const next = { ...current, xp: Number(result.xp || current.xp + awarded), streak: current.streak + (awarded > 0 ? 1 : 0), lastCheckIn: today }
-      setState({ ...next, xp: Number(result.xp || user.xp + awarded) })
+      setState({ ...next, xp: Number(result.xp || Number(user.xp || 0) + awarded) })
       writeGrowth(next, user.userId)
-      setNotice(awarded > 0 ? `今日打卡成功，${CHECK_IN_XP} XP 已进入你的账号等级。` : "今天已经打过卡，明天再来继续连击。")
-    } catch (error: any) {
-      setNotice(error?.message || "打卡失败，请稍后再试。")
+      setNotice(awarded > 0 ? `今日打卡成功，${CHECK_IN_XP} XP 已进入你的账号等级。` : "今天已经打过卡，明天再来继续。")
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "打卡失败，请稍后再试。")
     } finally {
       setClaiming("")
     }
@@ -211,201 +182,185 @@ export default function GrowthClient() {
       const current = readGrowth(user.userId)
       const awarded = Number(result.awarded || 0)
       const next = { ...current, xp: Number(result.xp || current.xp + awarded), doneMissions: { ...current.doneMissions, [key]: true } }
-      setState({ ...next, xp: Number(result.xp || user.xp + awarded) })
+      setState({ ...next, xp: Number(result.xp || Number(user.xp || 0) + awarded) })
       writeGrowth(next, user.userId)
-      setNotice(awarded > 0 ? `通关奖励到账：${awarded} XP。进度条推进了，下一档装饰更近了。` : "这个奖励已经领过啦，换个任务继续冲下一档。")
-    } catch (error: any) {
-      setNotice(error?.message || "领取失败，请稍后再试。")
+      setNotice(awarded > 0 ? `通关奖励到账：${awarded} XP。` : "这个奖励已经领过，换个任务继续。")
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "领取失败，请稍后再试。")
     } finally {
       setClaiming("")
     }
   }
 
   return (
-    <div style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
-      <MathRain />
+    <div className={styles.page}>
       <NavBar />
-
-      <main style={{ maxWidth: 1120, margin: "0 auto", padding: "58px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.86)" }} className="max-sm:px-4">
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 28, alignItems: "flex-end", marginBottom: 28, flexWrap: "wrap" }}>
+      <main className={styles.main}>
+        <section className={styles.hero}>
           <div>
-            <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.36em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 800 }}>Growth Deck</p>
-            <h1 style={{ fontSize: 38, fontWeight: 950, color: "#fff", letterSpacing: "0.02em", marginBottom: 10 }}>AI 成长舱</h1>
-            <p style={{ fontSize: 15, color: "#cfcfcf", lineHeight: 1.9, maxWidth: 680 }}>每天给自己一个小任务，积累经验值、连续学习和下一步路线。登录后领取的经验会同步到账号等级和右上角徽章。</p>
-          </div>
-          <div style={{ display: "flex", alignItems: "stretch", gap: 12, flexWrap: "wrap", justifyContent: "flex-end" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${currentLevel.color}66`, borderRadius: 14, background: `${currentLevel.color}10`, padding: "11px 13px", minHeight: 84, width: 262, overflow: "visible" }}>
-              <LevelBadge compact name={user?.name || "个人"} xp={state.xp} contributionPoints={contributionPoints} coCreatorApproved={user?.coCreatorApproved} />
+            <p className={styles.eyebrow}>Growth Deck</p>
+            <h1 className={styles.title}>每天只推进一个真实动作</h1>
+            <p className={styles.subtitle}>
+              成长舱负责记录学习、打卡、任务和等级。它不再单独堆任务，而是把你带回学习路线和项目实操里，完成后再回到这里看进度。
+            </p>
+            <div className={styles.actions}>
+              <button onClick={checkIn} disabled={!!user && (checkedToday || claiming === "check-in")} className={styles.primaryButton} style={{ cursor: user && checkedToday ? "default" : "pointer" }}>
+                <CalendarCheck size={16} /> {!user ? "登录后打卡" : claiming === "check-in" ? "写入中..." : checkedToday ? "今日已打卡" : `今日打卡 +${CHECK_IN_XP}XP`}
+              </button>
+              <Link href="/learn" className={styles.secondaryButton}>进入学习路线</Link>
+              <Link href="/community" className={styles.ghostButton}>看社区复盘</Link>
             </div>
-            <div style={{ minHeight: 84, display: "flex", alignItems: "center", gap: 12, border: "1px solid #2a1f10", borderRadius: 14, background: "rgba(201,168,76,0.055)", padding: "10px 13px" }}>
-              <XiaobaiMascot size={46} mood={badge.mood} />
+          </div>
+          <aside className={styles.heroAside}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <XiaobaiMascot size={54} mood={badge.mood} />
               <div>
-                <p style={{ color: badge.color, fontSize: 13, fontWeight: 950 }}>{badge.title}</p>
-                <p style={{ color: "#aaa", fontSize: 11, marginTop: 3 }}>{badge.subtitle}</p>
+                <h2 className={styles.asideTitle}>{badge.title}</h2>
+                <p className={styles.asideText}>{badge.subtitle}</p>
               </div>
             </div>
-            <button onClick={checkIn} disabled={!!user && (checkedToday || claiming === "check-in")} style={{ display: "inline-flex", alignItems: "center", gap: 8, color: user ? (checkedToday ? "#3DA563" : "#111") : "#e8c96a", background: user ? (checkedToday ? "rgba(61,165,99,0.1)" : "#e8c96a") : "rgba(201,168,76,0.08)", border: user ? (checkedToday ? "1px solid #2f7d4d" : "1px solid #e8c96a") : "1px solid #7a6230", borderRadius: 10, padding: "11px 16px", fontSize: 13, fontWeight: 950, cursor: user && checkedToday ? "default" : "pointer" }}>
-              <CalendarCheck size={16} /> {!user ? "登录后打卡" : claiming === "check-in" ? "写入中..." : checkedToday ? "今日已打卡" : "今日打卡 +15XP"}
-            </button>
-          </div>
-        </div>
+            <LevelBadge compact name={user?.name || "个人"} xp={state.xp} contributionPoints={contributionPoints} coCreatorApproved={user?.coCreatorApproved} />
+          </aside>
+        </section>
 
         {!loading && !user && (
-          <section style={{ border: "1px solid #7a6230", borderRadius: 12, background: "rgba(201,168,76,0.065)", padding: "16px 18px", marginBottom: 18, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, flexWrap: "wrap" }}>
-            <div>
-              <p style={{ color: "#fff", fontSize: 15, fontWeight: 950, marginBottom: 4 }}>登录后才能领取经验</p>
-              <p style={{ color: "#d6c28a", fontSize: 12, lineHeight: 1.7 }}>你可以先浏览任务和学习路线；领取 XP、连续打卡和等级徽章需要绑定到账号。</p>
+          <section className={styles.panel} style={{ borderColor: "#f0d7a4", background: "#fffaf0" }}>
+            <div className={styles.panelHead}>
+              <div>
+                <h2 className={styles.panelTitle}>登录后才能领取经验</h2>
+                <p className={styles.panelDesc}>你可以先浏览学习路线和任务；打卡、等级和个人进度需要绑定账号。</p>
+              </div>
+              <Link href="/login?redirect=/growth" className={styles.primaryButton}>去登录</Link>
             </div>
-            <Link href="/login?redirect=/growth" className="btn-primary" style={{ textDecoration: "none" }}>去登录</Link>
           </section>
         )}
 
         {notice && (
-          <section style={{ border: `1px solid ${notice.includes("失败") || notice.includes("没有找到") ? "#5a2222" : "#2a1f10"}`, borderRadius: 10, background: notice.includes("失败") || notice.includes("没有找到") ? "rgba(217,72,65,0.08)" : "rgba(201,168,76,0.045)", color: notice.includes("失败") || notice.includes("没有找到") ? "#ff9a8f" : "#e8c96a", padding: "10px 14px", marginBottom: 18, fontSize: 12, fontWeight: 800 }}>
+          <section className={styles.details} style={{ borderColor: notice.includes("失败") ? "#f0b4ad" : "#cde0e6", background: notice.includes("失败") ? "#fff5f3" : "#f7fbfd", color: notice.includes("失败") ? "#9f3028" : "#256d85", fontWeight: 900 }}>
             {notice}
           </section>
         )}
 
-        <section style={{ display: "grid", gridTemplateColumns: "1.05fr 0.95fr", gap: 14, marginBottom: 14 }} className="max-sm:grid-cols-1">
-          <div style={{ border: "1px solid #2a1f10", borderRadius: 12, background: "rgba(201,168,76,0.055)", padding: 18 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", flexWrap: "wrap", marginBottom: 14 }}>
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 7 }}>
-                  <Sparkles size={17} style={{ color: "#e8c96a" }} />
-                  <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950 }}>当前身份</h2>
-                </div>
-                <p style={{ color: currentLevel.accent, fontSize: 13, fontWeight: 950 }}>{currentLevel.name}</p>
-              </div>
-              <span style={{ color: "#e8c96a", border: "1px solid rgba(201,168,76,0.36)", borderRadius: 999, padding: "6px 10px", fontSize: 11, fontWeight: 950, background: "rgba(0,0,0,0.2)" }}>
-                {state.streak} 天连击
-              </span>
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <h2 className={styles.panelTitle}>当前状态</h2>
+              <p className={styles.panelDesc}>先看今天是否有推进，再看下一档奖励还差多少。</p>
             </div>
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: 14, overflow: "visible" }}>
-              <LevelBadge compact name={user?.name || "个人"} xp={state.xp} contributionPoints={contributionPoints} coCreatorApproved={user?.coCreatorApproved} />
+            <span className={styles.tag}><Sparkles size={14} /> {currentLevel.name}</span>
+          </div>
+          <div className={styles.grid}>
+            <CardStat label="经验" value={`${displayXP} XP`} icon={<Flame size={18} />} />
+            <CardStat label="连击" value={`${state.streak} 天`} icon={<CalendarCheck size={18} />} />
+            <CardStat label="今日任务" value={`${doneCount}/${missions.length}`} icon={<Target size={18} />} />
+            <CardStat label="学习章节" value={`${learnDone} 个`} icon={<Compass size={18} />} />
+          </div>
+          <div style={{ marginTop: 18 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 8, color: "#17202a", fontSize: 14, fontWeight: 900 }}>
+              <span>下一档进度</span>
+              <span>{nextLevel ? `${displayXP}/${nextLevel.minXP}` : "已到最高档"}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 9, alignItems: "center" }}>
-              <p style={{ color: "#fff", fontSize: 14, fontWeight: 950 }}>下一档</p>
-              <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 12, fontWeight: 900 }}>
-                {nextLevel ? `${displayXP}/${nextLevel.minXP}` : "最高档"}
-              </p>
+            <div style={{ height: 10, borderRadius: 999, background: "#e7eef4", overflow: "hidden" }}>
+              <div style={{ height: "100%", width: `${levelPercent}%`, borderRadius: 999, background: "linear-gradient(90deg,#256d85,#72b7c8)", transition: "width 0.3s" }} />
             </div>
-            <div style={{ height: 9, background: "#111", border: "1px solid #242424", borderRadius: 999, overflow: "hidden" }}>
-              <div style={{ height: "100%", width: `${levelPercent}%`, background: "linear-gradient(90deg,#7a6230,#e8c96a)", transition: "width 0.3s" }} />
-            </div>
-            <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7, marginTop: 10 }}>
-              {nextLevel ? nextLevelInfo?.requiresContribution ? `再拿 ${nextLevelInfo.need} 贡献值，解锁 ${nextLevel.name}。` : `再拿 ${nextLevel.minXP - state.xp} XP，解锁 ${nextLevel.name}。` : "你已经点亮最高身份。"}
+            <p className={styles.panelDesc} style={{ marginTop: 10 }}>
+              {nextLevel ? nextLevelInfo?.requiresContribution ? `还需要 ${nextLevelInfo.need} 贡献值解锁 ${nextLevel.name}。` : `还差 ${nextLevel.minXP - state.xp} XP 解锁 ${nextLevel.name}。` : "你已经点亮最高身份。"}
             </p>
           </div>
-
-          <div style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 18 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Target size={17} style={{ color: "#e8c96a" }} />
-                <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950 }}>今天只做这两件</h2>
-              </div>
-              <Link href="/missions" style={{ color: "#e8c96a", textDecoration: "none", fontSize: 12, fontWeight: 950 }}>全部任务</Link>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {visibleMissions.map((mission) => {
-                const done = !!state.doneMissions[missionDoneKey(mission, today)]
-                return (
-                  <div key={mission.id} style={{ border: `1px solid ${done ? "#2f7d4d" : "#242424"}`, borderRadius: 10, background: done ? "rgba(61,165,99,0.07)" : "rgba(0,0,0,0.22)", padding: 14 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", marginBottom: 10 }}>
-                      <div>
-                        <p style={{ color: "#fff", fontSize: 15, fontWeight: 950 }}>{mission.title}</p>
-                        <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.65, marginTop: 4 }}>{mission.desc}</p>
-                      </div>
-                      <span style={{ fontFamily: "'JetBrains Mono',monospace", color: "#e8c96a", fontSize: 11, fontWeight: 900, whiteSpace: "nowrap" }}>+{mission.xp}XP</span>
-                    </div>
-                    <Link href={mission.href} className={done ? "btn-outline" : "btn-primary"} style={{ fontSize: 11, padding: "7px 14px", textDecoration: "none", display: "inline-flex" }}>
-                      {done ? "已完成" : "去做"}
-                    </Link>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
         </section>
 
-        <section style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 12, marginBottom: 14 }} className="max-sm:grid-cols-1">
-          <div style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-              <Flame size={16} style={{ color: "#e8c96a" }} />
-              <p style={{ color: "#fff", fontSize: 15, fontWeight: 950 }}>成长数据</p>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              <div>
-                <p style={{ color: "#777", fontSize: 11, marginBottom: 4 }}>经验</p>
-                <p style={{ color: "#fff", fontSize: 17, fontWeight: 950 }}>{displayXP} XP</p>
-              </div>
-              <div>
-                <p style={{ color: "#777", fontSize: 11, marginBottom: 4 }}>今日任务</p>
-                <p style={{ color: "#fff", fontSize: 17, fontWeight: 950 }}>{doneCount}/{missions.length}</p>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Medal size={16} style={{ color: "#e8c96a" }} />
-                <p style={{ color: "#fff", fontSize: 15, fontWeight: 950 }}>榜单摘要</p>
-              </div>
-              <Link href="/missions" style={{ color: "#e8c96a", textDecoration: "none", fontSize: 11, fontWeight: 950 }}>冲榜</Link>
-            </div>
-            <div style={{ display: "grid", gap: 10 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "22px minmax(0,1fr) auto", gap: 8, alignItems: "center" }}>
-                <Trophy size={15} style={{ color: rankColor(dailyTop.rank) }} />
-                <LevelBadge compact name={dailyTop.name} xp={Number(dailyTop.totalXP || 0)} />
-                <span style={{ color: "#e8c96a", fontSize: 11, fontWeight: 950, whiteSpace: "nowrap" }}>{dailyTop.xp} 分钟</span>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "22px minmax(0,1fr) auto", gap: 8, alignItems: "center" }}>
-                <TrendingUp size={15} style={{ color: "#3DA563" }} />
-                <LevelBadge compact name={weeklyTop.name} xp={Number(weeklyTop.totalXP || 0)} />
-                <span style={{ color: "#3DA563", fontSize: 11, fontWeight: 950, whiteSpace: "nowrap" }}>{weeklyTop.xp} 个</span>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ border: "1px solid #2a1f10", borderRadius: 12, background: "rgba(201,168,76,0.045)", padding: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-              <Compass size={16} style={{ color: "#e8c96a" }} />
-              <p style={{ color: "#fff", fontSize: 15, fontWeight: 950 }}>下一步</p>
-            </div>
-            <p style={{ color: "#ddd", fontSize: 13, fontWeight: 900, lineHeight: 1.6 }}>{suggestedStage.title}</p>
-            <p style={{ color: "#888", fontSize: 12, lineHeight: 1.65, marginTop: 5 }}>{suggestedStage.subtitle}</p>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
-              <Link href={`/learn/${suggestedStage.id}`} className="btn-primary" style={{ textDecoration: "none", fontSize: 11, padding: "7px 13px" }}>继续学习</Link>
-              <Link href="/community/new" className="btn-outline" style={{ textDecoration: "none", fontSize: 11, padding: "7px 13px" }}>发复盘</Link>
-            </div>
-          </div>
-        </section>
-
-        <section style={{ border: "1px solid #1a1a1a", borderRadius: 12, background: "rgba(255,255,255,0.03)", padding: 18 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 13 }}>
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
             <div>
-              <h2 style={{ color: "#fff", fontSize: 18, fontWeight: 950, marginBottom: 5 }}>等级档案</h2>
-              <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.65 }}>只展示当前档和下一档，完整等级以后放到专门页面。</p>
+              <h2 className={styles.panelTitle}>今天只做这几件</h2>
+              <p className={styles.panelDesc}>任务不和教程混在一起。这里显示奖励入口，真正操作会回到对应学习页、聊天页或任务页。</p>
             </div>
-            <LevelBadge compact name={user?.name || "个人"} xp={state.xp} contributionPoints={contributionPoints} coCreatorApproved={user?.coCreatorApproved} />
+            <Link href="/learn" className={styles.ghostButton}>回到开始学习</Link>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: 10 }} className="max-sm:grid-cols-1">
-            <div style={{ border: `1px solid ${currentLevel.color}66`, borderRadius: 10, background: `${currentLevel.color}10`, padding: "13px 14px" }}>
-              <p style={{ color: currentLevel.accent, fontSize: 13, fontWeight: 950, marginBottom: 5 }}>个人线 · {currentLevel.name}</p>
-              <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7 }}>{currentLevel.reward.vanity}</p>
-              <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10, marginTop: 7 }}>
-                {nextLevel ? personalNeedsReview ? `下一档需审核：${nextLevel.name}` : nextLevelInfo?.requiresContribution ? `下一档还差 ${nextLevelInfo.need} 贡献值` : `下一档还差 ${nextLevel.minXP - state.xp} XP` : "已达最高档"}
+          <div className={styles.grid}>
+            {visibleMissions.map((mission) => {
+              const done = !!state.doneMissions[missionDoneKey(mission, today)]
+              return (
+                <div key={mission.id} className={styles.card}>
+                  <div className={styles.cardTop}>
+                    <span className={styles.tag}>{mission.cadence === "once" ? "一次性" : "每日"}</span>
+                    <span className={styles.tag}>+{mission.xp} XP</span>
+                  </div>
+                  <h3 className={styles.cardTitle}>{mission.title}</h3>
+                  <p className={styles.cardText}>{mission.desc}</p>
+                  {mission.claimMode === "action" ? (
+                    <button onClick={() => finishMission(mission.id)} disabled={done || claiming === mission.id} className={done ? styles.secondaryButton : styles.primaryButton} style={{ marginTop: 14, cursor: done ? "default" : "pointer" }}>
+                      {done ? "已完成" : claiming === mission.id ? "领取中..." : "领取任务奖励"}
+                    </button>
+                  ) : (
+                    <Link href={mission.href} className={done ? styles.secondaryButton : styles.primaryButton} style={{ marginTop: 14 }}>
+                      {done ? "已完成" : "去完成"} <ArrowRight size={14} />
+                    </Link>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+          <details className={styles.details} style={{ marginTop: 16, marginBottom: 0 }}>
+            <summary>展开全部成长任务</summary>
+            <div className={styles.grid} style={{ paddingTop: 16 }}>
+              {missions.slice(3).map((mission) => (
+                <Link key={mission.id} href={mission.href} className={styles.card} style={{ minHeight: 150 }}>
+                  <div className={styles.cardTop}>
+                    <span className={styles.tag}>{mission.cadence === "once" ? "项目任务" : "每日任务"}</span>
+                    <span className={styles.tag}>+{mission.xp} XP</span>
+                  </div>
+                  <h3 className={styles.cardTitle}>{mission.title}</h3>
+                  <p className={styles.cardText}>{mission.desc}</p>
+                </Link>
+              ))}
+            </div>
+          </details>
+        </section>
+
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <h2 className={styles.panelTitle}>下一步路线</h2>
+              <p className={styles.panelDesc}>成长舱只给你一个继续方向，完整树状路线仍在开始学习页。</p>
+            </div>
+            <Link href="/learn" className={styles.primaryButton}>查看路线图</Link>
+          </div>
+          <div className={styles.grid}>
+            <div className={styles.card}>
+              <div className={styles.cardTop}>
+                <Compass size={20} color="#256d85" />
+                <span className={styles.tag}>建议继续</span>
+              </div>
+              <h3 className={styles.cardTitle}>{suggestedStage.title}</h3>
+              <p className={styles.cardText}>{suggestedStage.subtitle}</p>
+              <Link href="/learn" className={styles.cardLink}>进入学习页 <ArrowRight size={13} /></Link>
+            </div>
+            <div className={styles.card}>
+              <div className={styles.cardTop}>
+                <Medal size={20} color="#256d85" />
+                <span className={styles.tag}>个人等级</span>
+              </div>
+              <h3 className={styles.cardTitle}>{currentLevel.name}</h3>
+              <p className={styles.cardText}>{currentLevel.reward.vanity}</p>
+              <p className={styles.muted} style={{ marginTop: 12, fontSize: 13, fontWeight: 800 }}>
+                {nextLevel ? personalNeedsReview ? `下一档 ${nextLevel.name} 需要审核。` : nextLevelInfo?.requiresContribution ? `下一档还差 ${nextLevelInfo.need} 贡献值。` : `下一档还差 ${nextLevel.minXP - state.xp} XP。` : "已达最高档。"}
               </p>
             </div>
-            <div style={{ border: `1px solid ${teamLevel.color}66`, borderRadius: 10, background: `${teamLevel.color}10`, padding: "13px 14px" }}>
-              <p style={{ color: teamLevel.accent, fontSize: 13, fontWeight: 950, marginBottom: 5 }}>团队线 · {teamLevel.name}</p>
-              <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.7 }}>{teamLevel.reward.vanity}</p>
-              <p style={{ fontFamily: "'JetBrains Mono',monospace", color: "#777", fontSize: 10, marginTop: 7 }}>
-                {teamNextLevel ? teamNeedsReview ? `下一档需审核：${teamNextLevel.name}` : teamNextLevelInfo?.requiresContribution ? `下一档还差 ${teamNextLevelInfo.need} 贡献值` : `下一档还差 ${teamNextLevel.minXP - state.xp} XP` : "已达最高档"}
+            <div className={styles.card}>
+              <div className={styles.cardTop}>
+                <TrendingUp size={20} color="#256d85" />
+                <span className={styles.tag}>团队等级</span>
+              </div>
+              <h3 className={styles.cardTitle}>{teamLevel.name}</h3>
+              <p className={styles.cardText}>{teamLevel.reward.vanity}</p>
+              <p className={styles.muted} style={{ marginTop: 12, fontSize: 13, fontWeight: 800 }}>
+                {teamNextLevel ? teamNeedsReview ? `下一档 ${teamNextLevel.name} 需要审核。` : teamNextLevelInfo?.requiresContribution ? `下一档还差 ${teamNextLevelInfo.need} 贡献值。` : `下一档还差 ${teamNextLevel.minXP - state.xp} XP。` : "已达最高档。"}
               </p>
             </div>
           </div>
         </section>
+
       </main>
     </div>
   )

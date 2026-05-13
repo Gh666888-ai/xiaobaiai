@@ -1,12 +1,14 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { ArrowLeft, ArrowRight } from "lucide-react"
 import { categories, tools } from "@/data/tools"
 import { getToolMeta, toolPath } from "@/data/tool-meta"
 import { ToolLogo } from "@/components/ToolLogo"
-import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { CategoryIcon } from "@/components/CategoryIcon"
+import { BottomActionPanel } from "@/components/BottomActionPanel"
+import styles from "@/components/learning/SupportPage.module.css"
 
 export async function generateStaticParams() {
   return categories.map((cat) => ({ category: cat.key }))
@@ -16,8 +18,8 @@ export function generateMetadata({ params }: { params: { category: string } }): 
   const category = decodeURIComponent(params.category)
   const cat = categories.find((item) => item.key === category)
   if (!cat) return {}
-  const title = `${cat.label}工具推荐 - ${cat.label}工具排行、免费工具和新手指南`
-  const description = `小白AI整理${cat.label}工具推荐，查看${cat.label}分类下的 AI 工具排行、免费情况、中文支持、难度、新手推荐指数和工具详情。`
+  const title = `${cat.label}工具推荐 - 小白AI`
+  const description = `小白AI整理${cat.label}分类下的 AI 工具、免费情况、中文支持、上手难度和新手推荐指数。`
   return {
     title,
     description,
@@ -42,11 +44,20 @@ export default function ToolCategoryPage({ params }: { params: { category: strin
   const items = tools
     .filter((tool) => tool.category === category)
     .sort((a, b) => Number(b.featured) - Number(a.featured) || b.rank - a.rank || a.stage - b.stage)
+
+  const featured = items.filter((tool) => tool.featured).slice(0, 3)
+  const firstFeatured = featured[0] || items[0]
+  const categoryFlow = [
+    { title: "先选一个工具", text: firstFeatured ? `从 ${firstFeatured.name} 或同类推荐开始，不要同时注册太多。` : "先从推荐工具里选一个最贴近当前任务的。", href: firstFeatured ? toolPath(firstFeatured) : "/tools" },
+    { title: "看详情判断", text: "确认价格、网络要求、中文支持、上手难度和替代方案。", href: firstFeatured ? toolPath(firstFeatured) : "/tools" },
+    { title: "回学习项目", text: "工具只是准备，真正成果在小科目、教程和任务里完成。", href: "/learn" },
+    { title: "做一个 MVP", text: "用选好的工具交付一个最小结果，再去社区复盘。", href: "/learn/tutorials" },
+  ]
   const itemListJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: `${cat.label}工具推荐`,
-    description: `小白AI整理的${cat.label}工具排行、免费情况、中文支持和新手推荐。`,
+    description: `小白AI整理的${cat.label}工具、免费情况、中文支持和新手推荐。`,
     itemListElement: items.slice(0, 50).map((tool, index) => ({
       "@type": "ListItem",
       position: index + 1,
@@ -55,64 +66,126 @@ export default function ToolCategoryPage({ params }: { params: { category: strin
       description: tool.description,
     })),
   }
-  const metaPillStyle = {
-    minHeight: 32,
-    justifyContent: "center",
-    border: "1px solid rgba(201,168,76,0.2)",
-    background: "rgba(255,255,255,0.055)",
-    color: "#d8d8d8",
-    fontSize: 13,
-    fontWeight: 900,
-    letterSpacing: 0,
-  }
-  const goldPillStyle = {
-    ...metaPillStyle,
-    border: "1px solid rgba(232,201,106,0.38)",
-    background: "rgba(201,168,76,0.12)",
-    color: "#f0d77a",
-  }
 
   return (
-    <div style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
-      />
-      <MathRain />
+    <div className={styles.page}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />
       <NavBar />
-      <main style={{ maxWidth: 1080, margin: "0 auto", padding: "60px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.86)" }} className="max-sm:px-4">
-        <Link href="/tools" style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: "#aaa", textDecoration: "none", marginBottom: 24, display: "inline-block" }}>← 返回分类</Link>
-        <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.35em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 700 }}>Category</p>
-        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 8 }}>
-          <CategoryIcon category={cat.key} size={24} />
-          <h1 style={{ fontSize: 34, color: "#fff", fontWeight: 900 }}>{cat.label}</h1>
-        </div>
-        <p style={{ fontSize: 14, color: "#ccc", marginBottom: 28 }}>{items.length} 个{cat.label}工具。点击任意工具进入站内详情页，查看免费情况、中文支持、上手难度和替代工具。</p>
+      <main className={styles.main}>
+        <Link href="/tools" className={styles.ghostButton} style={{ marginBottom: 16 }}>
+          <ArrowLeft size={14} /> 返回工具分类
+        </Link>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 10 }}>
-          {items.map((tool, index) => {
-            const meta = getToolMeta(tool)
-            return (
-              <Link key={tool.id} href={toolPath(tool)} style={{ display: "block", textDecoration: "none", border: "1px solid #1a1a1a", background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: "20px 22px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-                  <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, color: index < 3 ? "#e8c96a" : "#666", fontWeight: 900, width: 28 }}>#{index + 1}</span>
-                  <ToolLogo name={tool.name} url={tool.url} logo={tool.logo} size={34} radius={9} />
-                  <h2 style={{ fontSize: 17, color: "#fff", fontWeight: 900, flex: 1 }}>{tool.name}</h2>
-                  {tool.featured && <span className="tag tag-gold" style={{ fontSize: 12, fontWeight: 950, color: "#f0d77a" }}>推荐</span>}
-                </div>
-                <p style={{ fontSize: 13, color: "#bbb", lineHeight: 1.7, minHeight: 68 }}>{tool.description}</p>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8, marginTop: 14 }}>
-                  <span className="tag" style={metaPillStyle}>阶段 {tool.stage}</span>
-                  <span className="tag" style={metaPillStyle}>{tool.pricing}</span>
-                  <span className="tag" style={metaPillStyle}>网络：{meta.magicNetwork}</span>
-                  <span className="tag" style={metaPillStyle}>中文：{meta.chineseSupport}</span>
-                  <span className="tag" style={metaPillStyle}>难度：{meta.difficulty}</span>
-                  <span className="tag" style={goldPillStyle}>推荐 {meta.newbieScore}</span>
-                </div>
+        <section className={styles.hero}>
+          <div>
+            <p className={styles.eyebrow}>Tool Category</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 12 }}>
+              <CategoryIcon category={cat.key} size={30} />
+              <h1 className={styles.title}>{cat.label}</h1>
+            </div>
+            <p className={styles.subtitle}>
+              这一类共收录 {items.length} 个工具。先看推荐工具，再看完整清单；每个工具详情页都会说明适合谁、怎么开始、免费情况和替代方案。
+            </p>
+          </div>
+          <aside className={styles.heroAside}>
+            <h2 className={styles.asideTitle}>这一页怎么用</h2>
+            <ol className={styles.steps}>
+              <li><b>1</b><span>先选一个能完成当前任务的工具，不要同时试一堆。</span></li>
+              <li><b>2</b><span>点进详情页看免费情况、网络要求、中文体验和新手指数。</span></li>
+              <li><b>3</b><span>工具跑通后，回到学习路线或项目任务里产出结果。</span></li>
+            </ol>
+          </aside>
+        </section>
+
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <h2 className={styles.panelTitle}>这一类工具怎么用到项目里</h2>
+              <p className={styles.panelDesc}>分类页不只负责列工具，还要把用户带回能落地的学习项目。</p>
+            </div>
+          </div>
+          <div className={styles.pathGrid}>
+            {categoryFlow.map((item, index) => (
+              <Link key={item.title} href={item.href} className={styles.pathCard}>
+                <span className={styles.pathNumber}>{index + 1}</span>
+                <strong className={styles.pathTitle}>{item.title}</strong>
+                <p className={styles.pathText}>{item.text}</p>
+                <span className={styles.pathAction}>进入 <ArrowRight size={13} /></span>
               </Link>
-            )
-          })}
-        </div>
+            ))}
+          </div>
+        </section>
+
+        {featured.length > 0 && (
+          <section className={styles.panel}>
+            <div className={styles.panelHead}>
+              <div>
+                <h2 className={styles.panelTitle}>优先看这几个</h2>
+                <p className={styles.panelDesc}>推荐工具放在前面，降低新手选择成本。</p>
+              </div>
+              <Link href="/learn" className={styles.ghostButton}>回到学习路线</Link>
+            </div>
+            <div className={styles.grid}>
+              {featured.map((tool) => {
+                const meta = getToolMeta(tool)
+                return (
+                  <Link key={tool.id} href={toolPath(tool)} className={styles.card}>
+                    <div className={styles.cardTop}>
+                      <ToolLogo name={tool.name} url={tool.url} logo={tool.logo} size={36} radius={10} />
+                      <span className={styles.tag}>推荐 {meta.newbieScore}</span>
+                    </div>
+                    <h3 className={styles.cardTitle}>{tool.name}</h3>
+                    <p className={styles.cardText}>{tool.description}</p>
+                    <span className={styles.cardLink}>看详情 <ArrowRight size={13} /></span>
+                  </Link>
+                )
+              })}
+            </div>
+          </section>
+        )}
+
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <h2 className={styles.panelTitle}>完整清单</h2>
+              <p className={styles.panelDesc}>按推荐、排名和学习阶段排序。详情页保留更细的判断信息。</p>
+            </div>
+          </div>
+          <div className={styles.grid}>
+            {items.map((tool, index) => {
+              const meta = getToolMeta(tool)
+              return (
+                <Link key={tool.id} href={toolPath(tool)} className={styles.card}>
+                  <div className={styles.cardTop}>
+                    <span className={styles.tag}>#{index + 1}</span>
+                    {tool.featured && <span className={styles.tag}>推荐</span>}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+                    <ToolLogo name={tool.name} url={tool.url} logo={tool.logo} size={34} radius={9} />
+                    <h3 className={styles.cardTitle}>{tool.name}</h3>
+                  </div>
+                  <p className={styles.cardText}>{tool.description}</p>
+                  <div className={styles.pillRow} style={{ marginTop: 14 }}>
+                    <span className={styles.tag}>阶段 {tool.stage}</span>
+                    <span className={styles.tag}>{tool.pricing}</span>
+                    <span className={styles.tag}>{meta.difficulty}</span>
+                    <span className={styles.tag}>新手 {meta.newbieScore}</span>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </section>
+
+        <BottomActionPanel
+          title={`${cat.label}工具选完以后，继续做一个能验收的结果`}
+          text="工具分类页只负责帮你少走弯路，真正的进步发生在教程、任务和复盘里。先选一个工具，再做一个最小交付。"
+          actions={[
+            { href: firstFeatured ? toolPath(firstFeatured) : "/tools", label: "看推荐工具", tone: "primary" },
+            { href: "/learn/tutorials", label: "找对应教程" },
+            { href: "/community/new", label: "做完写复盘" },
+          ]}
+        />
       </main>
     </div>
   )

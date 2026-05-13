@@ -1,0 +1,1792 @@
+.page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 16% 0%, rgba(37, 109, 133, 0.08), transparent 34%),
+    linear-gradient(180deg, #f6f8fa 0%, #fbfcfd 46%, #f4f7f9 100%);
+  color: #17202a;
+  font-family: Inter, MiSans, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+.main {
+  width: min(1120px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 54px 0 118px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 28px;
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+.heroPanel,
+.sidePanel,
+.sectionPanel,
+.subjectPanel {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e5eaf0;
+  border-radius: 22px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.055);
+}
+
+.heroPanel {
+  padding: 34px 36px;
+}
+
+.sidePanel {
+  padding: 26px;
+}
+
+.eyebrow {
+  margin: 0 0 14px;
+  color: #256d85;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: #17202a;
+  font-size: clamp(32px, 4.2vw, 50px);
+  font-weight: 720;
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+
+.subtitle {
+  max-width: 740px;
+  margin: 18px 0 0;
+  color: #4f5f70;
+  font-size: 16px;
+  font-weight: 430;
+  line-height: 1.75;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.primaryButton,
+.secondaryButton,
+.ghostButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1;
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.primaryButton {
+  color: #fff;
+  background: #256d85;
+  border: 1px solid #256d85;
+  box-shadow: 0 10px 22px rgba(37, 109, 133, 0.18);
+}
+
+.secondaryButton {
+  color: #17202a;
+  background: #fff;
+  border: 1px solid #d9e2ea;
+}
+
+.ghostButton {
+  color: #256d85;
+  background: #e8f3fa;
+  border: 1px solid #cde4f0;
+}
+
+.primaryButton:hover,
+.secondaryButton:hover,
+.ghostButton:hover {
+  transform: translateY(-1px);
+}
+
+.sideTitle {
+  margin: 0;
+  color: #17202a;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.sideText {
+  margin: 10px 0 18px;
+  color: #667586;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.nextList {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nextList li {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 12px;
+  border: 1px solid #edf2f6;
+  border-radius: 14px;
+  background: #fbfcfd;
+}
+
+.stepNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  color: #256d85;
+  background: #e8f3fa;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.stepTitle {
+  display: block;
+  color: #17202a;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.stepText {
+  display: block;
+  margin-top: 3px;
+  color: #667586;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.sectionPanel {
+  padding: 26px;
+  margin-top: 22px;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.sectionTitle {
+  margin: 0;
+  color: #17202a;
+  font-size: 26px;
+  font-weight: 720;
+  line-height: 1.25;
+}
+
+.sectionDesc {
+  margin: 8px 0 0;
+  color: #667586;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.subjectGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.majorCard,
+.minorCard,
+.tutorialCard,
+.missionCard {
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid #e5eaf0;
+  background: #fff;
+  border-radius: 18px;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.majorCard:hover,
+.minorCard:hover,
+.tutorialCard:hover,
+.missionCard:hover {
+  transform: translateY(-2px);
+  border-color: #c8d8e4;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.075);
+}
+
+.majorCard {
+  display: flex;
+  flex-direction: column;
+  min-height: 258px;
+  padding: 20px;
+}
+
+.majorTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+}
+
+.majorIndex {
+  color: #8a96a3;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.majorTitle {
+  margin: 10px 0 8px;
+  color: #17202a;
+  font-size: 21px;
+  font-weight: 720;
+  line-height: 1.32;
+}
+
+.majorSubtitle,
+.majorAudience {
+  margin: 0;
+  color: #536170;
+  font-size: 14px;
+  line-height: 1.62;
+}
+
+.majorAudience {
+  margin-top: 12px;
+  color: #667586;
+}
+
+.majorMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid #dfe7ee;
+  background: #fbfcfd;
+  color: #536170;
+  font-size: 13px;
+  font-weight: 620;
+}
+
+.pillStrong {
+  border-color: #cfe5d8;
+  background: #eaf7f1;
+  color: #1f8a70;
+}
+
+.mapWrap {
+  overflow-x: auto;
+  padding: 8px 2px 4px;
+}
+
+.mapHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.mapLegend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 260px;
+}
+
+.mapLegend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid #dfe7ee;
+  border-radius: 999px;
+  background: #fff;
+  color: #667586;
+  font-size: 12px;
+  font-weight: 680;
+}
+
+.mapLegend i {
+  width: 18px;
+  height: 3px;
+  border-radius: 999px;
+ }
+
+.legendMain {
+  background: #256d85;
+}
+
+.legendBranch {
+  background: #f59e0b;
+}
+
+.legendNext {
+  background: #1f8a70;
+}
+
+.legendResource {
+  background: #64748b;
+}
+
+.roadmapCanvas {
+  min-width: 1040px;
+  padding: 12px 18px 10px;
+}
+
+.roadmapStage {
+  position: relative;
+  display: grid;
+  justify-content: center;
+}
+
+.roadmapBranchStage {
+  grid-template-columns: repeat(3, minmax(260px, 1fr));
+  gap: 22px;
+}
+
+.twoBranchStage {
+  grid-template-columns: repeat(2, minmax(280px, 360px));
+}
+
+.roadmapConnector {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  min-height: 86px;
+}
+
+.roadmapConnector::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: linear-gradient(180deg, #256d85, #1f8a70);
+  transform: translateX(-50%);
+}
+
+.roadmapConnector::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 12%;
+  right: 12%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(37, 109, 133, 0.82), rgba(31, 138, 112, 0.82), transparent);
+}
+
+.roadmapConnector span {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  min-height: 30px;
+  padding: 6px 12px;
+  border: 1px solid #dfe7ee;
+  background: #fff;
+  border-radius: 999px;
+  color: #256d85;
+  font-size: 12px;
+  font-weight: 760;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.roadmapBranchStage .roadmapMajor::before {
+  content: "";
+  position: absolute;
+  top: -42px;
+  left: 50%;
+  width: 2px;
+  height: 42px;
+  background: linear-gradient(180deg, #1f8a70, rgba(245, 158, 11, 0.9));
+  transform: translateX(-50%);
+}
+
+.roadmapMajor {
+  position: relative;
+  display: grid;
+  gap: 12px;
+  min-height: 100%;
+  padding: 18px;
+  border: 1px solid #dfe7ee;
+  border-top: 5px solid #256d85;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+}
+
+.roadmapPrimary {
+  width: 360px;
+  background:
+    linear-gradient(180deg, rgba(232, 243, 250, 0.7), #fff 52%),
+    #fff;
+}
+
+.roadmapMajorHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.roadmapLabel,
+.roadmapCount {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.roadmapLabel {
+  padding: 0 9px;
+  background: #e8f3fa;
+  color: #256d85;
+}
+
+.roadmapCount {
+  color: #7a8694;
+}
+
+.roadmapMajorTitle {
+  text-decoration: none;
+  color: #17202a;
+  font-size: 20px;
+  font-weight: 820;
+  line-height: 1.3;
+}
+
+.roadmapMajorTitle:hover {
+  color: #256d85;
+}
+
+.roadmapMajorGoal,
+.roadmapMajorNote {
+  margin: 0;
+  line-height: 1.58;
+}
+
+.roadmapMajorGoal {
+  color: #374151;
+  font-size: 14px;
+  font-weight: 640;
+}
+
+.roadmapMajorNote {
+  color: #667586;
+  font-size: 13px;
+}
+
+.roadmapMinorList {
+  display: grid;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.roadmapMinor,
+.roadmapMore {
+  text-decoration: none;
+}
+
+.roadmapMinor {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  padding: 10px;
+  border: 1px solid #e8edf2;
+  border-radius: 12px;
+  background: #f8fbfd;
+  color: inherit;
+}
+
+.roadmapMinorIndex {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: #17202a;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 820;
+}
+
+.roadmapMinorTitle,
+.roadmapMinorMeta {
+  display: block;
+}
+
+.roadmapMinorTitle {
+  color: #17202a;
+  font-size: 14px;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+.roadmapMinorMeta {
+  margin-top: 3px;
+  color: #667586;
+  font-size: 12px;
+}
+
+.roadmapMore {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  border: 1px dashed #cfd9e3;
+  border-radius: 12px;
+  color: #256d85;
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.visualMapWrap {
+  display: grid;
+  gap: 18px;
+}
+
+.visualMapCanvas {
+  position: relative;
+  min-width: 1240px;
+  height: 560px;
+  border: 1px solid #dfe7ee;
+  border-radius: 18px;
+  background:
+    linear-gradient(90deg, rgba(37, 109, 133, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(37, 109, 133, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, #fbfdff, #f6f9fc);
+  background-size: 48px 48px, 48px 48px, auto;
+  overflow: hidden;
+}
+
+.visualMapLines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.visualMapLines path {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.mainLine {
+  stroke: #256d85;
+  stroke-width: 4;
+}
+
+.branchLine {
+  stroke: #f59e0b;
+  stroke-width: 3;
+  stroke-dasharray: 10 8;
+}
+
+.branchLineSoft {
+  stroke: #1f8a70;
+  stroke-width: 3;
+  stroke-dasharray: 4 8;
+}
+
+.visualMapLines text {
+  fill: #536170;
+  font-size: 14px;
+  font-weight: 760;
+}
+
+.visualMapNode {
+  position: absolute;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid #dfe7ee;
+  border-top: 5px solid #256d85;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.94);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+}
+
+.visualMapNode strong,
+.visualMapNode span {
+  display: block;
+}
+
+.visualMapNode strong {
+  color: #17202a;
+  font-size: 17px;
+  font-weight: 820;
+  line-height: 1.3;
+}
+
+.visualMapNode > span:last-child {
+  color: #667586;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.visualMapLabel {
+  width: max-content;
+  min-height: 24px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #e8f3fa;
+  color: #256d85;
+  font-size: 12px;
+  font-weight: 780;
+}
+
+.visualMapBranchList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.visualMapBranch {
+  padding: 14px;
+  border: 1px solid #dfe7ee;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.visualMapBranch > a {
+  display: inline-flex;
+  margin-bottom: 10px;
+  color: #17202a;
+  font-size: 15px;
+  font-weight: 820;
+  text-decoration: none;
+}
+
+.visualMapBranch div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.visualMapBranch div a {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  padding: 0 10px;
+  border: 1px solid #e5eaf0;
+  border-radius: 999px;
+  background: #f8fbfd;
+  color: #536170;
+  font-size: 12px;
+  font-weight: 680;
+  text-decoration: none;
+}
+
+.tutorialLibrary {
+  display: grid;
+  gap: 18px;
+}
+
+.tutorialMajorBlock {
+  display: grid;
+  gap: 12px;
+}
+
+.tutorialMajorHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #dfe7ee;
+  border-left: 5px solid #256d85;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.tutorialMajorHead a {
+  color: #17202a;
+  font-size: 18px;
+  font-weight: 820;
+  text-decoration: none;
+}
+
+.tutorialMajorHead span {
+  color: #667586;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tutorialSubjectGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tutorialSubjectBlock {
+  padding: 14px;
+  border: 1px solid #e1e8ef;
+  border-radius: 14px;
+  background: #fbfdff;
+}
+
+.tutorialSubjectTitle {
+  display: inline-flex;
+  margin-bottom: 10px;
+  color: #256d85;
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.tutorialOnlyList {
+  display: grid;
+  gap: 8px;
+}
+
+.tutorialOnlyList a {
+  display: grid;
+  gap: 4px;
+  padding: 10px 11px;
+  border: 1px solid #e8edf2;
+  border-radius: 12px;
+  background: #fff;
+  text-decoration: none;
+}
+
+.tutorialOnlyList span {
+  color: #7a8694;
+  font-size: 12px;
+  font-weight: 720;
+}
+
+.tutorialOnlyList strong {
+  color: #17202a;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.tutorialOnlyList em {
+  color: #667586;
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.45;
+}
+
+.lessonFlow {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.lessonFlow div {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  column-gap: 12px;
+  padding: 14px;
+  border: 1px solid #e1e8ef;
+  border-radius: 14px;
+  background: #fbfdff;
+}
+
+.lessonFlow span {
+  grid-row: span 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: #256d85;
+  color: #fff;
+  font-weight: 820;
+}
+
+.lessonFlow strong {
+  color: #17202a;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.lessonFlow p {
+  margin: 4px 0 0;
+  color: #667586;
+  font-size: 14px;
+  line-height: 1.62;
+}
+
+.deepLesson {
+  display: grid;
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.visualLessonMap {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #dfe7ee;
+  border-radius: 18px;
+  background:
+    linear-gradient(90deg, rgba(37, 109, 133, 0.07) 1px, transparent 1px),
+    linear-gradient(180deg, #f8fbfd 0%, #ffffff 100%);
+  background-size: 24px 24px, auto;
+}
+
+.visualLessonStage {
+  position: relative;
+  min-height: 142px;
+  padding: 16px;
+  border: 1px solid #d9e5ed;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.visualLessonStage:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -13px;
+  width: 14px;
+  height: 2px;
+  background: #256d85;
+}
+
+.visualLessonStage span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 10px;
+  border-radius: 999px;
+  background: #256d85;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.visualLessonStage strong {
+  display: block;
+  color: #17202a;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.visualLessonStage p {
+  margin: 8px 0 0;
+  color: #667586;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.deepLessonGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.deepLessonBlock {
+  padding: 18px;
+  border: 1px solid #dfe7ee;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.deepLessonBlock h3,
+.lessonPromptBox h3 {
+  margin: 0 0 10px;
+  color: #17202a;
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.deepLessonBlock p,
+.deepLessonBlock li {
+  color: #536170;
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.deepLessonBlock p {
+  margin: 0;
+}
+
+.deepLessonBlock ul,
+.deepLessonBlock ol {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.failureList {
+  display: grid;
+  gap: 10px;
+}
+
+.failureList p {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid #e8eef4;
+  border-radius: 12px;
+  background: #f8fbfd;
+}
+
+.failureList strong {
+  color: #9a5b12;
+  font-size: 14px;
+}
+
+.failureList span {
+  color: #536170;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.lessonPromptBox {
+  padding: 18px;
+  border: 1px solid #d2e3eb;
+  border-radius: 18px;
+  background: #f4fafc;
+}
+
+.lessonPlaybook {
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+  border: 1px solid #d7e8d9;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(31, 138, 112, 0.08), rgba(255, 255, 255, 0.92)),
+    #f7fcf8;
+}
+
+.lessonPlaybook h3 {
+  margin: 4px 0 8px;
+  color: #17202a;
+  font-size: 21px;
+  font-weight: 950;
+  line-height: 1.3;
+}
+
+.lessonPlaybook p,
+.lessonPlaybook li {
+  margin: 0;
+  color: #4f6070;
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.lessonPlaybookGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.lessonPlaybookGrid > div {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 142px;
+  padding: 16px;
+  border: 1px solid #dce9df;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.lessonPlaybookGrid strong {
+  color: #17202a;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.lessonPlaybookGrid ul {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.lessonPromptBox pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border: 1px solid #dfe7ee;
+  border-radius: 14px;
+  background: #fff;
+  padding: 16px;
+  color: #17202a;
+  font-size: 13px;
+  line-height: 1.8;
+  font-family: 'JetBrains Mono', 'Noto Sans SC', monospace;
+}
+
+.verticalMapWrap {
+  overflow-x: auto;
+  padding: 8px 2px 4px;
+}
+
+.verticalMapCanvas {
+  position: relative;
+  min-width: 1020px;
+  height: 900px;
+  border: 1px solid #dfe7ee;
+  border-radius: 20px;
+  background:
+    linear-gradient(90deg, rgba(37, 109, 133, 0.04) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(37, 109, 133, 0.04) 1px, transparent 1px),
+    linear-gradient(180deg, #fbfdff, #f5f9fc);
+  background-size: 44px 44px, 44px 44px, auto;
+  overflow: hidden;
+}
+
+.verticalMapLines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.verticalMapLines path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.verticalMainLine {
+  stroke: #256d85;
+  stroke-width: 4;
+}
+
+.verticalBranchLine {
+  stroke: #f59e0b;
+  stroke-width: 3;
+}
+
+.verticalSupportLine {
+  stroke: #64748b;
+  stroke-width: 2.5;
+  stroke-dasharray: 8 8;
+}
+
+.verticalMapNode {
+  position: absolute;
+  display: grid;
+  gap: 8px;
+  min-height: 118px;
+  padding: 16px;
+  border: 1px solid #dfe7ee;
+  border-top: 5px solid #256d85;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.96);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+}
+
+.verticalMapNode strong,
+.verticalMapNode span {
+  display: block;
+}
+
+.verticalMapNode strong {
+  color: #17202a;
+  font-size: 18px;
+  font-weight: 840;
+  line-height: 1.3;
+}
+
+.verticalMapNode span {
+  color: #667586;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.verticalMapNode_main {
+  border-top-color: #256d85;
+  background: linear-gradient(180deg, rgba(232,243,250,0.9), rgba(255,255,255,0.96));
+}
+
+.verticalMapNode_branch {
+  border-top-color: #1f8a70;
+}
+
+.verticalMapNode_personal {
+  border-top-color: #8b5cf6;
+  background: linear-gradient(180deg, rgba(243,236,255,0.82), rgba(255,255,255,0.96));
+}
+
+.verticalMapNode_team {
+  border-top-color: #0f766e;
+  background: linear-gradient(180deg, rgba(234,247,241,0.82), rgba(255,255,255,0.96));
+}
+
+.verticalMapNode_leaf {
+  min-height: 126px;
+  border-top-color: #f59e0b;
+}
+
+.verticalMapNode_resource {
+  min-height: 118px;
+  border-top-color: #64748b;
+  background: linear-gradient(180deg, rgba(241,245,249,0.9), rgba(255,255,255,0.96));
+}
+
+.subjectRouteMap {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid #dfe7ee;
+  border-radius: 18px;
+  background: #fbfdff;
+}
+
+.subjectRouteHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.subjectRouteHead span {
+  color: #667586;
+  font-size: 13px;
+  font-weight: 720;
+}
+
+.subjectRouteHead strong {
+  color: #256d85;
+  font-size: 13px;
+}
+
+.subjectRouteTrack {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 18px;
+  overflow-x: auto;
+  padding: 8px 2px 12px;
+}
+
+.subjectRouteTrack::before {
+  content: "";
+  position: absolute;
+  top: 35px;
+  left: 18px;
+  right: 18px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #256d85, #1f8a70, #f59e0b);
+}
+
+.subjectRouteNode {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  min-height: 148px;
+  padding: 14px;
+  border: 1px solid #dfe7ee;
+  border-radius: 14px;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.055);
+}
+
+.subjectRouteIndex {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #256d85;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 820;
+}
+
+.subjectRouteNode strong {
+  color: #17202a;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.subjectRouteNode em {
+  color: #667586;
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.5;
+}
+
+.statusDot {
+  position: absolute;
+  top: -6px;
+  right: 14px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #f59e0b;
+}
+
+.minorGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.minorCard {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.minorTitle {
+  margin: 0;
+  color: #17202a;
+  font-size: 19px;
+  font-weight: 720;
+  line-height: 1.35;
+}
+
+.minorDesc,
+.minorGoal {
+  margin: 0;
+  color: #536170;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.minorGoal {
+  color: #667586;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 20px;
+  align-items: start;
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tutorialCard,
+.missionCard {
+  display: block;
+  padding: 16px;
+}
+
+.missionFeatureGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.missionFeatureCard,
+.missionLibraryCard {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid #e5eaf0;
+  background: #fff;
+  border-radius: 18px;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.missionFeatureCard:hover,
+.missionLibraryCard:hover {
+  transform: translateY(-2px);
+  border-color: #c8d8e4;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.075);
+}
+
+.missionFeatureCard {
+  min-height: 252px;
+  padding: 20px;
+}
+
+.missionFeatureCard h3 {
+  margin: 2px 0 0;
+  color: #17202a;
+  font-size: 19px;
+  font-weight: 760;
+  line-height: 1.34;
+}
+
+.missionFeatureCard p {
+  margin: 0;
+  color: #536170;
+  font-size: 14px;
+  line-height: 1.62;
+}
+
+.missionAction,
+.missionCheck {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #256d85;
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.missionAction {
+  margin-top: auto;
+}
+
+.missionRouteLabel {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 28px;
+  align-items: center;
+  border: 1px solid #cde4f0;
+  border-radius: 999px;
+  background: #e8f3fa;
+  color: #256d85;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 720;
+}
+
+.missionLibraryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.missionLibraryCard {
+  min-height: 238px;
+  padding: 18px;
+}
+
+.missionLibraryCard strong {
+  color: #17202a;
+  font-size: 17px;
+  font-weight: 760;
+  line-height: 1.42;
+}
+
+.missionLibraryCard em {
+  color: #667586;
+  font-size: 13px;
+  font-style: normal;
+  line-height: 1.62;
+}
+
+.tutorialMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.tutorialTitle,
+.missionTitle {
+  display: block;
+  color: #17202a;
+  font-size: 16px;
+  font-weight: 720;
+  line-height: 1.42;
+}
+
+.tutorialDeliverable,
+.missionText {
+  display: block;
+  margin-top: 6px;
+  color: #667586;
+  font-size: 14px;
+  line-height: 1.62;
+}
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+  color: #667586;
+  font-size: 13px;
+}
+
+.breadcrumb a {
+  color: #256d85;
+  text-decoration: none;
+}
+
+.backRow {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.backRow :global(.learning-back-button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid #d9e2ea;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #256d85;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.045);
+}
+
+.backRow :global(.learning-back-button)::before {
+  content: "<";
+  margin-right: 8px;
+  font-weight: 800;
+}
+
+.empty {
+  padding: 18px;
+  border: 1px dashed #d9e2ea;
+  border-radius: 16px;
+  color: #667586;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.diagram {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 36px minmax(0, 1fr) 36px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.diagramNode {
+  min-height: 132px;
+  padding: 16px;
+  border: 1px solid #dfe7ee;
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,251,253,0.96)),
+    radial-gradient(circle at 18% 12%, rgba(37, 109, 133, 0.1), transparent 42%);
+}
+
+.diagramLabel {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: #e8f3fa;
+  color: #256d85;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.diagramNode strong {
+  display: block;
+  margin-top: 12px;
+  color: #17202a;
+  font-size: 17px;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+.diagramNode p {
+  margin: 8px 0 0;
+  color: #667586;
+  font-size: 13px;
+  line-height: 1.58;
+}
+
+.diagramArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #256d85;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .main {
+    width: min(100% - 28px, 720px);
+    padding-top: 32px;
+  }
+
+  .hero,
+  .split {
+    grid-template-columns: 1fr;
+  }
+
+  .subjectGrid,
+  .minorGrid,
+  .missionFeatureGrid,
+  .missionLibraryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .heroPanel,
+  .sidePanel,
+  .sectionPanel,
+  .subjectPanel {
+    border-radius: 18px;
+  }
+
+  .heroPanel {
+    padding: 28px 22px;
+  }
+
+  .sectionPanel {
+    padding: 20px;
+  }
+
+  .sectionHead {
+    display: block;
+  }
+
+  .sectionHead .secondaryButton {
+    margin-top: 14px;
+  }
+
+  .diagram {
+    grid-template-columns: 1fr;
+  }
+
+  .visualLessonMap,
+  .deepLessonGrid,
+  .lessonPlaybookGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .visualLessonStage:not(:last-child)::after {
+    top: auto;
+    right: auto;
+    left: 28px;
+    bottom: -13px;
+    width: 2px;
+    height: 14px;
+  }
+
+  .diagramArrow {
+    min-height: 20px;
+    transform: rotate(90deg);
+  }
+
+  .mapHeader {
+    display: block;
+  }
+
+  .mapLegend {
+    justify-content: flex-start;
+    min-width: 0;
+    margin-top: 14px;
+  }
+
+  .roadmapCanvas {
+    min-width: 820px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .roadmapBranchStage {
+    grid-template-columns: repeat(3, minmax(230px, 1fr));
+    gap: 16px;
+  }
+
+  .twoBranchStage {
+    grid-template-columns: repeat(2, minmax(250px, 1fr));
+  }
+
+  .roadmapPrimary {
+    width: 320px;
+  }
+
+  .visualMapCanvas {
+    min-width: 980px;
+    height: 500px;
+  }
+
+  .visualMapLines {
+    transform: scale(0.79);
+    transform-origin: left top;
+  }
+
+  .visualMapNode {
+    transform: scale(0.82);
+    transform-origin: left top;
+  }
+
+  .visualMapBranchList,
+  .missionFeatureGrid,
+  .missionLibraryGrid,
+  .tutorialSubjectGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .verticalMapCanvas {
+    min-width: 860px;
+    height: 840px;
+  }
+
+  .verticalMapLines {
+    transform: scale(0.84);
+    transform-origin: left top;
+  }
+
+  .verticalMapNode {
+    transform: scale(0.84);
+    transform-origin: left top;
+  }
+
+  .subjectRouteTrack {
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .main {
+    width: 100%;
+    padding: 26px 14px 128px;
+  }
+
+  .title {
+    font-size: 34px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+  }
+
+  .heroActions {
+    display: grid;
+  }
+
+  .primaryButton,
+  .secondaryButton,
+  .ghostButton {
+    width: 100%;
+  }
+
+  .mapWrap {
+    margin-left: -14px;
+    margin-right: -14px;
+    padding-left: 14px;
+  }
+
+  .roadmapCanvas {
+    min-width: 780px;
+  }
+
+  .roadmapConnector::after {
+    left: 8%;
+    right: 8%;
+  }
+
+  .visualMapCanvas {
+    min-width: 900px;
+    height: 470px;
+  }
+
+  .visualMapLines {
+    transform: scale(0.73);
+  }
+
+  .visualMapNode {
+    transform: scale(0.76);
+  }
+
+  .tutorialMajorHead {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .lessonFlow div {
+    grid-template-columns: 30px minmax(0, 1fr);
+  }
+
+  .verticalMapWrap {
+    margin-left: -14px;
+    margin-right: -14px;
+    padding-left: 14px;
+  }
+
+  .verticalMapCanvas {
+    min-width: 820px;
+    height: 860px;
+  }
+
+  .verticalMapLines {
+    transform: scale(0.8);
+  }
+
+  .verticalMapNode {
+    transform: scale(0.8);
+  }
+
+  .subjectRouteMap {
+    margin-left: -2px;
+    margin-right: -2px;
+    padding: 14px;
+  }
+
+  .subjectRouteHead {
+    display: block;
+  }
+
+  .subjectRouteHead strong {
+    display: block;
+    margin-top: 4px;
+  }
+
+  .subjectRouteTrack {
+    grid-template-columns: repeat(2, minmax(170px, 1fr));
+  }
+}

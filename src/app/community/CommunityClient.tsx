@@ -1,35 +1,40 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase"
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { AlertCircle, ClipboardCheck, Heart, MessageCircle, Pin, Search, Trophy } from "lucide-react"
 import { posts as seedPosts } from "@/data/community"
-import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { ContentVisual, inferContentVisualKind } from "@/components/ContentVisual"
 import { SmartImage } from "@/components/SmartImage"
-import { LevelBadge } from "@/components/LevelBadge"
-import { getUserLevel } from "@/data/user"
 import { communityImage } from "@/lib/visual-assets"
-import Link from "next/link"
-import { Heart, MessageCircle, Pin, Search, Trophy } from "lucide-react"
+import styles from "@/components/learning/SupportPage.module.css"
 
-const cats = ["全部","经验分享","踩坑记录","全自动实战","AI分析","问题求助"] as const
+const cats = ["全部", "项目复盘", "问题求助", "踩坑修复", "案例沉淀", "工具流程"] as const
 const PAGE_SIZE = 8
 
-function levelPerkLabel(xp: number) {
-  const level = getUserLevel(xp).level
-  if (level >= 7) return "共创者"
-  if (level >= 5) return "优先展示"
-  if (level >= 3) return "高阶玩家"
-  return ""
-}
+const reviewTypes = [
+  { title: "项目复盘", icon: ClipboardCheck, text: "记录目标、工具、过程、交付物和验收结果，方便别人照着做。" },
+  { title: "问题求助", icon: AlertCircle, text: "说清报错、截图、环境、已经试过的修法，便于获得可执行答案。" },
+  { title: "案例沉淀", icon: Trophy, text: "把真实项目、行业做法、客户反馈和二次改进沉淀成可复用案例。" },
+]
 
-function levelSortPriority(xp: number) {
-  const level = getUserLevel(xp).level
-  if (level >= 7) return 3
-  if (level >= 5) return 2
-  if (level >= 3) return 1
-  return 0
+const communityStats = [
+  { value: "复盘", label: "优先展示做过、跑通、有结果的内容" },
+  { value: "问题", label: "保留具体问题和被认可的解决方案" },
+  { value: "案例", label: "沉淀个人、一人公司、团队公司落地经验" },
+  { value: "教程", label: "有价值内容会回流到学习路线和任务" },
+]
+
+function matchReviewCategory(selected: string, postCategory: string, text: string) {
+  if (selected === "全部") return true
+  if (selected === postCategory) return true
+  if (selected === "项目复盘") return /经验分享|全自动实战|项目|复盘|实战/.test(`${postCategory} ${text}`)
+  if (selected === "问题求助") return /问题求助|求助|报错|不会|失败|卡住/.test(`${postCategory} ${text}`)
+  if (selected === "踩坑修复") return /踩坑记录|踩坑|修复|解决|错误|失败/.test(`${postCategory} ${text}`)
+  if (selected === "案例沉淀") return /案例|结果|上线|客户|行业|展示/.test(`${postCategory} ${text}`)
+  if (selected === "工具流程") return /工具|流程|自动化|Agent|Dify|n8n|Codex|Claude/.test(`${postCategory} ${text}`)
+  return false
 }
 
 export default function CommunityPage() {
@@ -37,161 +42,203 @@ export default function CommunityPage() {
   const [search, setSearch] = useState("")
   const [posts, setPosts] = useState<any[]>(seedPosts)
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
-  useEffect(()=>{
+
+  useEffect(() => {
     const loadRemotePosts = () => Promise.all([
-      fetch("/api/posts?status=approved").then(r=>r.json()).catch(()=>[]),
-      fetch("/community-posts.json").then(r=>r.json()).catch(()=>[])
-    ]).then(([apiPosts,staticPosts])=>{
-      const api=Array.isArray(apiPosts)?apiPosts:[]
-      const st=Array.isArray(staticPosts)?staticPosts:[]
-      const ids=new Set(api.map((p:any)=>p.id))
-      const seeded=[...api,...st.filter((p:any)=>!ids.has(p.id))]
-      const seededIds=new Set(seeded.map((p:any)=>p.id))
-      setPosts([...seeded,...seedPosts.filter((p:any)=>!seededIds.has(p.id))])
-    }).catch(()=>{})
+      window.location.hostname === "localhost" ? Promise.resolve([]) : fetch("/api/posts?status=approved").then((r) => r.json()).catch(() => []),
+      fetch("/community-posts.json").then((r) => r.json()).catch(() => []),
+    ]).then(([apiPosts, staticPosts]) => {
+      const api = Array.isArray(apiPosts) ? apiPosts : []
+      const st = Array.isArray(staticPosts) ? staticPosts : []
+      const ids = new Set(api.map((p: any) => p.id))
+      const seeded = [...api, ...st.filter((p: any) => !ids.has(p.id))]
+      const seededIds = new Set(seeded.map((p: any) => p.id))
+      setPosts([...seeded, ...seedPosts.filter((p: any) => !seededIds.has(p.id))])
+    }).catch(() => {})
+
     if ("requestIdleCallback" in window) {
       ;(window as any).requestIdleCallback(loadRemotePosts, { timeout: 1800 })
     } else {
       setTimeout(loadRemotePosts, 500)
     }
-  },[])
+  }, [])
 
-  useEffect(()=>{setVisibleCount(PAGE_SIZE)},[cat,search])
+  useEffect(() => { setVisibleCount(PAGE_SIZE) }, [cat, search])
 
-  const authorName = (p:any) => p.author_name || p.author || "匿名用户"
-  const authorXP = (p:any) => Number(p.author_xp ?? p.authorXp ?? (authorName(p) === "小白站长" ? 100000 : 0))
+  const authorName = (p: any) => p.author_name || p.author || "匿名用户"
 
-  const filtered = posts.filter((p:any) => {
-    if (cat !== "全部" && p.category !== cat) return false
-    if (search.trim() && !p.title.includes(search) && !p.content.includes(search) && !(p.tags||[]).some((t:any)=>t.includes(search))) return false
+  const filtered = posts.filter((p: any) => {
+    const text = `${p.title} ${p.content} ${(p.tags || []).join(" ")}`
+    if (!matchReviewCategory(cat, p.category || "", text)) return false
+    if (search.trim() && !text.includes(search.trim())) return false
     return true
-  }).sort((a,b) => {
+  }).sort((a, b) => {
     if (a.pinned && !b.pinned) return -1
     if (!a.pinned && b.pinned) return 1
     if (a.featured && !b.featured) return -1
     if (!a.featured && b.featured) return 1
-    const levelDelta = levelSortPriority(authorXP(b)) - levelSortPriority(authorXP(a))
-    if (levelDelta) return levelDelta
     return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   })
 
   return (
-    <div style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
-      <MathRain />
+    <div className={styles.page}>
       <NavBar />
-
-      <div style={{maxWidth:1080,margin:'0 auto',padding:'60px 60px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.88)'}} className="max-sm:px-4">
-        <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.4em',color:'#7a6230',textTransform:'uppercase',marginBottom:10,fontWeight:700}}>Community</p>
-        <h1 style={{fontSize:36,fontWeight:900,color:'#fff',letterSpacing:'0.02em',marginBottom:8}}>社区</h1>
-        <p style={{fontSize:15,fontWeight:500,color:'#ccc',marginBottom:18}}>真实复盘、踩坑记录和可复用提示词，优先展示做过一件事的人。</p>
-
-        <section style={{display:'grid',gridTemplateColumns:'1fr auto',gap:14,alignItems:'center',border:'1px solid rgba(201,168,76,0.36)',background:'rgba(201,168,76,0.055)',borderRadius:12,padding:'15px 16px',marginBottom:18}} className="max-sm:grid-cols-1">
-          <div style={{display:'flex',alignItems:'flex-start',gap:11}}>
-            <Trophy size={18} style={{color:'#e8c96a',marginTop:2,flexShrink:0}} />
-            <div>
-              <p style={{color:'#fff',fontSize:14,fontWeight:950,marginBottom:4}}>做完任务后，把步骤和坑点发出来</p>
-              <p style={{color:'#d6c28a',fontSize:12,lineHeight:1.7}}>真实经验、提示词、失败记录和结果截图，比泛泛评价更有用。</p>
-            </div>
+      <main className={styles.main}>
+        <section className={styles.hero}>
+          <div>
+            <p className={styles.eyebrow}>Review Library</p>
+            <h1 className={styles.title}>社区改成复盘库：只沉淀问题、过程和案例</h1>
+            <p className={styles.subtitle}>这里不是普通聊天广场。它承接学习和项目后的结果：做过什么、卡在哪里、用了什么工具、最后怎么修、别人能不能复用。</p>
+            <form className={styles.searchForm} onSubmit={(event) => event.preventDefault()}>
+              <Search size={16} style={{ marginLeft: 14, color: "#256d85", flexShrink: 0 }} />
+              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="搜索帖子、工具、问题或行业" />
+              <button type="submit">搜索</button>
+            </form>
           </div>
-          <Link href="/community/new" style={{display:'inline-flex',alignItems:'center',justifyContent:'center',gap:7,minHeight:36,padding:'8px 13px',borderRadius:9,border:'1px solid #7a6230',color:'#e8c96a',textDecoration:'none',fontSize:12,fontWeight:950,whiteSpace:'nowrap'}}>
-            发我的复盘
-          </Link>
+          <aside className={styles.heroAside}>
+            <h2 className={styles.asideTitle}>沉淀标准</h2>
+            <ol className={styles.steps}>
+              <li><b>1</b><span>先说明任务、行业或项目背景。</span></li>
+              <li><b>2</b><span>必须写工具、过程、结果和失败点。</span></li>
+              <li><b>3</b><span>能复用的经验会进入案例和教程资料。</span></li>
+            </ol>
+            <Link href="/community/new" className={styles.primaryButton}>发我的复盘</Link>
+          </aside>
         </section>
 
-        {/* 搜索 */}
-        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:18,flexWrap:'wrap'}}>
-          <div style={{display:'flex',alignItems:'center',background:'rgba(255,255,255,0.04)',border:'1px solid #222',borderRadius:10,maxWidth:400,flex:'1 1 220px',minWidth:0}}>
-            <Search size={14} style={{marginLeft:14,color:'#777'}} />
-            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="搜索帖子..."
-              style={{flex:1,minWidth:0,background:'transparent',border:'none',outline:'none',padding:'11px 14px',fontSize:13,color:'#fff',fontFamily:"'Noto Sans SC', sans-serif"}} />
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <p className={styles.eyebrow}>What Belongs Here</p>
+              <h2 className={styles.panelTitle}>这里收什么内容</h2>
+              <p className={styles.panelDesc}>用户一眼要知道：这里不是发动态，而是把学习和实战留下来的东西整理成可搜索、可复用的资料。</p>
+            </div>
+            <Link href="/member-cases" className={styles.ghostButton}>看实战展示</Link>
           </div>
-          <Link href="/community/new" className="btn-primary" style={{whiteSpace:'nowrap',textDecoration:'none',flex:'0 0 auto'}}>+ 发帖子</Link>
-        </div>
-
-        {/* 分类 */}
-        <div style={{display:'flex',gap:6,marginBottom:24,flexWrap:'wrap'}}>
-          {cats.map(c=>{
-            const isSel = cat===c
-            return <button key={c} onClick={()=>setCat(c)}
-              style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:700,padding:'5px 14px',border:`1px solid ${isSel?'#7a6230':'#1a1a1a'}`,color:isSel?'#e8c96a':'#888',background:isSel?'rgba(201,168,76,0.08)':'transparent',cursor:'pointer',transition:'0.2s',borderRadius:6}}>{c}</button>
-          })}
-        </div>
-
-        <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,fontWeight:700,color:'#ccc',marginBottom:24}}>{filtered.length} 篇帖子</p>
-
-        {filtered.length===0?(
-          <div style={{textAlign:'center',padding:80,color:'#aaa'}}>没有找到相关帖子</div>
-        ):(
-          <div style={{display:'flex',flexDirection:'column',gap:12}}>
-            {filtered.slice(0, visibleCount).map(p=>(
-              <div key={p.id} style={{background:getUserLevel(authorXP(p)).level>=3?'rgba(201,168,76,0.045)':'rgba(255,255,255,0.03)',border:`1px solid ${getUserLevel(authorXP(p)).level>=3?'rgba(201,168,76,0.48)':'#1a1a1a'}`,borderRadius:12,padding:'22px',transition:'all 0.3s',boxShadow:getUserLevel(authorXP(p)).level>=5?'0 0 0 1px rgba(126,231,255,0.08), 0 12px 34px rgba(0,0,0,0.28)':'none'}}
-                onMouseEnter={e=>{e.currentTarget.style.background='rgba(201,168,76,0.07)';e.currentTarget.style.borderColor='#7a6230'}}
-                onMouseLeave={e=>{e.currentTarget.style.background=getUserLevel(authorXP(p)).level>=3?'rgba(201,168,76,0.045)':'rgba(255,255,255,0.03)';e.currentTarget.style.borderColor=getUserLevel(authorXP(p)).level>=3?'rgba(201,168,76,0.48)':'#1a1a1a'}}>
-                <div style={{display:'grid',gridTemplateColumns:'230px minmax(0,1fr)',gap:20,alignItems:'stretch'}} className="max-sm:grid-cols-1">
-                  {p.image || p.cover || communityImage(`${p.category} ${p.title} ${(p.tags||[]).join(" ")}`) ? (
-                    <SmartImage compact src={p.image || p.cover || communityImage(`${p.category} ${p.title} ${(p.tags||[]).join(" ")}`)} title={p.title} label={p.category} meta={`${p.likes||0} likes`} kind={inferContentVisualKind(`${p.category} ${p.title} ${(p.tags||[]).join(" ")}`,"community")} />
-                  ) : (
-                    <ContentVisual compact title={p.title} label={p.category} meta={`${p.likes||0} likes`} kind={inferContentVisualKind(`${p.category} ${p.title} ${(p.tags||[]).join(" ")}`,"community")} />
-                  )}
-                  <div style={{minWidth:0}}>
-                    <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10,flexWrap:'wrap'}}>
-                      {p.pinned && <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#e8c96a',border:'1px solid #7a6230',padding:'2px 8px',borderRadius:4,display:'flex',alignItems:'center',gap:4}}><Pin size={10} />置顶</span>}
-                      <span className="tag tag-gold" style={{fontWeight:700,fontSize:11}}>{p.category}</span>
-                      <span className="community-level-inline"><LevelBadge compact name={authorName(p)} xp={authorXP(p)} /></span>
-                      {levelPerkLabel(authorXP(p)) && <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:getUserLevel(authorXP(p)).level>=7?'#7ee7ff':'#e8c96a',border:`1px solid ${getUserLevel(authorXP(p)).level>=7?'rgba(126,231,255,0.55)':'rgba(201,168,76,0.45)'}`,background:getUserLevel(authorXP(p)).level>=7?'rgba(126,231,255,0.08)':'rgba(201,168,76,0.08)',padding:'2px 8px',borderRadius:999,fontWeight:900}}>{levelPerkLabel(authorXP(p))}</span>}
-                      <span style={{color:'#444'}}>·</span>
-                      <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#666'}}>{p.publishedAt}</span>
-                    </div>
-
-                    <Link href={`/community/${p.id}`} style={{textDecoration:'none'}}>
-                      <h2 style={{fontSize:20,fontWeight:800,color:'#fff',marginBottom:10,lineHeight:1.4,cursor:'pointer'}}>{p.title}</h2>
-                    </Link>
-                    <p style={{fontSize:14,color:'#ccc',lineHeight:1.8,display:'-webkit-box',WebkitLineClamp:3,WebkitBoxOrient:'vertical',overflow:'hidden',whiteSpace:'pre-line'}}>{p.content}</p>
-
-                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:16,flexWrap:'wrap',gap:10}}>
-                      <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-                        {(Array.isArray(p.tags)?p.tags:[]).map((t:any)=><span key={t} style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,color:'#888',border:'1px solid #222',padding:'2px 8px',borderRadius:4,fontWeight:500}}>{t}</span>)}
-                      </div>
-                      <div style={{display:'flex',gap:16,fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#aaa'}}>
-                        <span style={{display:'flex',alignItems:'center',gap:4}}><Heart size={13} /> {p.likes||0}</span>
-                        <span style={{display:'flex',alignItems:'center',gap:4}}><MessageCircle size={13} /> {p.comments_count||p.comments||0}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          <div className={styles.communityStats}>
+            {communityStats.map((item) => (
+              <div key={item.value} className={styles.statCard}>
+                <strong>{item.value}</strong>
+                <span>{item.label}</span>
               </div>
             ))}
-            {visibleCount < filtered.length && (
-              <div style={{display:'flex',justifyContent:'center',paddingTop:14}}>
-                <button onClick={()=>setVisibleCount(v=>Math.min(v+PAGE_SIZE, filtered.length))} className="btn-outline" style={{minWidth:180,justifyContent:'center'}}>
-                  加载更多帖子 · {Math.min(PAGE_SIZE, filtered.length - visibleCount)}
-                </button>
-              </div>
-            )}
           </div>
-        )}
-      </div>
+          <div className={styles.grid} style={{ marginTop: 14 }}>
+            {reviewTypes.map((item) => {
+              const Icon = item.icon
+              return (
+                <div key={item.title} className={styles.card} style={{ minHeight: 150 }}>
+                  <div className={styles.cardTop}>
+                    <Icon size={22} color="#256d85" />
+                    <span className={styles.tag}>沉淀类型</span>
+                  </div>
+                  <h3 className={styles.cardTitle}>{item.title}</h3>
+                  <p className={styles.cardText}>{item.text}</p>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <p className={styles.eyebrow}>Knowledge Base</p>
+              <h2 className={styles.panelTitle}>复盘、问题和案例</h2>
+              <p className={styles.panelDesc}>真实经验、提示词、失败记录、结果截图和解决方案会优先展示；泛泛闲聊不作为主内容。</p>
+            </div>
+            <Link href="/community/new" className={styles.secondaryButton}><Trophy size={15} /> 提交复盘</Link>
+          </div>
+
+          <div className={styles.pillRow} style={{ marginBottom: 18 }}>
+            {cats.map((item) => {
+              const selected = cat === item
+              return (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setCat(item)}
+                  className={styles.tag}
+                  style={{
+                    border: selected ? "1px solid #256d85" : "1px solid #dfe7ee",
+                    background: selected ? "#dff0f4" : "#fff",
+                    cursor: "pointer",
+                  }}
+                >
+                  {item}
+                </button>
+              )
+            })}
+          </div>
+
+          <p className={styles.panelDesc} style={{ marginBottom: 18 }}>{filtered.length} 条沉淀内容</p>
+
+          {filtered.length === 0 ? (
+            <div className={styles.panel} style={{ textAlign: "center", boxShadow: "none" }}>没有找到相关帖子</div>
+          ) : (
+            <div className={styles.sectionDivider}>
+              {filtered.slice(0, visibleCount).map((p: any) => {
+                const image = p.image || p.cover || communityImage(`${p.category} ${p.title} ${(p.tags || []).join(" ")}`)
+                return (
+                  <article key={p.id} className={styles.card} style={{ minHeight: 0 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "230px minmax(0,1fr)", gap: 20, alignItems: "stretch" }} className="max-sm:grid-cols-1">
+                      {image ? (
+                        <SmartImage compact src={image} title={p.title} label={p.category} meta={`${p.likes || 0} likes`} kind={inferContentVisualKind(`${p.category} ${p.title} ${(p.tags || []).join(" ")}`, "community")} />
+                      ) : (
+                        <ContentVisual compact title={p.title} label={p.category} meta={`${p.likes || 0} likes`} kind={inferContentVisualKind(`${p.category} ${p.title} ${(p.tags || []).join(" ")}`, "community")} />
+                      )}
+                      <div style={{ minWidth: 0 }}>
+                        <div className={styles.pillRow} style={{ marginBottom: 12 }}>
+                          {p.pinned ? <span className={styles.tag}><Pin size={11} /> 置顶</span> : null}
+                          <span className={styles.tag}>{p.category}</span>
+                          <span className={styles.tag}>作者：{authorName(p)}</span>
+                          <span className={styles.muted} style={{ fontSize: 12 }}>{p.publishedAt}</span>
+                        </div>
+
+                        <Link href={`/community/${p.id}`} style={{ textDecoration: "none" }}>
+                          <h2 className={styles.cardTitle}>{p.title}</h2>
+                        </Link>
+                        <p className={styles.cardText} style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", whiteSpace: "pre-line" }}>{p.content}</p>
+
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16, flexWrap: "wrap", gap: 10 }}>
+                          <div className={styles.pillRow}>
+                            {(Array.isArray(p.tags) ? p.tags : []).map((tag: any) => <span key={tag} className={styles.tag}>{tag}</span>)}
+                          </div>
+                          <div style={{ display: "flex", gap: 16, color: "#667586", fontSize: 13, fontWeight: 800 }}>
+                            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Heart size={13} /> {p.likes || 0}</span>
+                            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><MessageCircle size={13} /> {p.comments_count || p.comments || 0}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                )
+              })}
+              {visibleCount < filtered.length ? (
+                <div style={{ display: "flex", justifyContent: "center", paddingTop: 14 }}>
+                  <button onClick={() => setVisibleCount((v) => Math.min(v + PAGE_SIZE, filtered.length))} className={styles.secondaryButton} style={{ cursor: "pointer" }}>
+                    加载更多沉淀 · {Math.min(PAGE_SIZE, filtered.length - visibleCount)}
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          )}
+        </section>
+
+        <section className={styles.panel}>
+          <h2 className={styles.panelTitle}>做完以后内容去哪</h2>
+          <p className={styles.panelDesc}>问题解决后进入复盘库；有结果的进入实战展示；能复用的步骤会整理进学习教程和任务。</p>
+          <div className={styles.actions}>
+            <Link href="/learn" className={styles.primaryButton}>回到学习路线</Link>
+            <Link href="/member-cases" className={styles.secondaryButton}>看实战展示</Link>
+            <Link href="/tools" className={styles.secondaryButton}>补工具组合</Link>
+          </div>
+        </section>
+      </main>
       <style jsx>{`
-        .community-level-inline {
-          width: 214px;
-          height: 42px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          overflow: visible;
-          flex: 0 0 auto;
-        }
-        .community-level-inline :global(.xiaobaiLevelNameplate) {
-          transform: translateY(1px) scale(0.84);
-          transform-origin: center;
-        }
-        @media (max-width: 520px) {
-          .community-level-inline {
-            width: 188px;
-            height: 42px;
-          }
-          .community-level-inline :global(.xiaobaiLevelNameplate) {
-            transform: translateY(1px) scale(0.92);
+        @media (max-width: 760px) {
+          article :global(.max-sm\\:grid-cols-1) {
+            grid-template-columns: 1fr !important;
           }
         }
       `}</style>

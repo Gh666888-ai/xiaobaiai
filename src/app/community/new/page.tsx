@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { FileText, Lightbulb, Send, Sparkles } from "lucide-react"
 import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
-import { getUserLevel } from "@/data/user"
 import { COMMUNITY_REWARDS } from "@/data/growth"
 import { useAuth } from "@/lib/AuthContext"
 import { readAppAuth } from "@/lib/app-auth"
@@ -73,7 +72,6 @@ export default function NewPostPage() {
   const [awarded, setAwarded] = useState(0)
 
   const selectedTemplate = useMemo(() => templates[cat], [cat])
-  const userLevel = getUserLevel(Number(user?.xp || 0))
 
   useEffect(() => {
     const auth = readAppAuth()
@@ -146,7 +144,7 @@ export default function NewPostPage() {
             达到共创后不再靠 XP 升级，改为累计贡献值。
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }} className="max-sm:grid-cols-1">
-            <button onClick={() => router.push("/growth")} className="btn-primary">看今日排名</button>
+            <button onClick={() => router.push("/growth")} className="btn-primary">看个人进度</button>
             <button onClick={() => router.push("/community")} className="btn-outline">返回社区</button>
           </div>
         </div>
@@ -168,9 +166,9 @@ export default function NewPostPage() {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "center", border: "1px solid rgba(201,168,76,0.35)", borderRadius: 12, background: "rgba(201,168,76,0.055)", padding: "14px 16px", marginBottom: 18 }} className="max-sm:grid-cols-1">
           <p style={{ color: "#ddd", fontSize: 13, lineHeight: 1.75 }}>
-            当前身份：<b style={{ color: "#e8c96a" }}>{userLevel.name}</b>。继续完成任务后，帖子会逐步带上高阶身份高亮；更高阶用户的评论和帖子会优先展示，共创身份会单独露出。
+            社区现在只看内容是否能复盘、能解决问题、能沉淀案例。写清楚过程、结果和坑点，比展示身份更重要。
           </p>
-          <button type="button" onClick={() => router.push("/growth")} className="btn-outline" style={{ whiteSpace: "nowrap" }}>去升级</button>
+          <button type="button" onClick={() => router.push("/community")} className="btn-outline" style={{ whiteSpace: "nowrap" }}>看复盘库</button>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "0.85fr 1.15fr", gap: 16 }} className="max-sm:grid-cols-1">

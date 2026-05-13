@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { BookOpen, Bot, Building2, ChevronDown, Compass, Crown, Flag, GraduationCap, LogOut, Menu, Newspaper, Search, TerminalSquare, Trophy, Users, Workflow, X } from "lucide-react"
+import { Building2, Compass, Crown, GraduationCap, LogOut, Menu, Newspaper, Trophy, Users, X } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/AuthContext"
 import { LevelBadge, LevelIcon } from "@/components/LevelBadge"
@@ -11,19 +11,10 @@ import { LEVEL_TRACKS, getNextLevel, getUserLevel } from "@/data/user"
 
 const links = [
   { label: "开始学习", href: "/learn", icon: GraduationCap },
-  { label: "任务", href: "/missions", icon: Flag },
-  { label: "Agent安装", href: "/agent-install", icon: TerminalSquare },
-  { label: "工具", href: "/tools", icon: Compass },
+  { label: "工具资源", href: "/tools", icon: Compass },
   { label: "实战展示", href: "/member-cases", icon: Crown },
+  { label: "AI资讯", href: "/news", icon: Newspaper },
   { label: "社区", href: "/community", icon: Users },
-]
-
-const moreLinks = [
-  { label: "案例", href: "/cases", icon: BookOpen },
-  { label: "选择器", href: "/choose-tool", icon: Search },
-  { label: "工作流", href: "/workflows", icon: Workflow },
-  { label: "资讯", href: "/news", icon: Newspaper },
-  { label: "模型", href: "/models", icon: Bot },
   { label: "成长舱", href: "/growth", icon: Trophy },
   { label: "关于我们", href: "/about", icon: Building2 },
 ]
@@ -41,7 +32,6 @@ export function NavBar() {
   const pathname = usePathname()
   const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [moreOpen, setMoreOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const userXP = user?.xp || 0
   const levelTrack = user?.coCreatorTrack === "team" ? "team" : "personal"
@@ -68,7 +58,6 @@ export function NavBar() {
 
   useEffect(() => {
     setMenuOpen(false)
-    setMoreOpen(false)
     setProfileOpen(false)
   }, [pathname])
 
@@ -90,27 +79,6 @@ export function NavBar() {
               </Link>
             )
           })}
-          <div className="site-more-wrap">
-            <button type="button" className={`site-nav-link site-nav-button ${moreOpen ? "is-active" : ""}`} aria-expanded={moreOpen} onClick={() => setMoreOpen((open) => !open)}>
-              <Menu size={14} />
-              更多
-              <ChevronDown size={13} className={moreOpen ? "site-more-arrow is-open" : "site-more-arrow"} />
-            </button>
-            {moreOpen && (
-              <div className="site-more-popover">
-                {moreLinks.map((item) => {
-                  const Icon = item.icon
-                  const active = pathname === item.href || pathname?.startsWith(`${item.href}/`)
-                  return (
-                    <Link key={item.href} href={item.href} prefetch className={`site-more-link ${active ? "is-active" : ""}`} onMouseEnter={() => prefetchRoute(item.href)} onFocus={() => prefetchRoute(item.href)}>
-                      <Icon size={14} />
-                      <span>{item.label}</span>
-                    </Link>
-                  )
-                })}
-              </div>
-            )}
-          </div>
         </div>
 
         <div className="site-nav-auth">
@@ -220,25 +188,10 @@ export function NavBar() {
               </Link>
             )
           })}
-          <div className="site-mobile-more">
-            <p>更多入口</p>
-            <div>
-              {moreLinks.map((item) => {
-                const Icon = item.icon
-                const active = pathname === item.href || pathname?.startsWith(`${item.href}/`)
-                return (
-                  <Link key={item.href} href={item.href} prefetch className={`site-mobile-link site-mobile-link-secondary ${active ? "is-active" : ""}`} onTouchStart={() => prefetchRoute(item.href)} onMouseEnter={() => prefetchRoute(item.href)} onFocus={() => prefetchRoute(item.href)}>
-                    <Icon size={14} />
-                    <span>{item.label}</span>
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
         </div>
       )}
 
-      <style>{`
+      <style suppressHydrationWarning>{`
         .site-nav {
           position: sticky;
           top: 0;
@@ -598,7 +551,7 @@ export function NavBar() {
           display: flex;
           align-items: center;
           justify-content: flex-end;
-          gap: 12px;
+          gap: 10px;
           flex: 1;
           min-width: 0;
         }
@@ -608,7 +561,7 @@ export function NavBar() {
           align-items: center;
           gap: 5px;
           font-family: 'Noto Sans SC', sans-serif;
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 850;
           color: #ccc;
           text-decoration: none;
@@ -635,62 +588,6 @@ export function NavBar() {
           align-items: center;
           gap: 10px;
           flex-shrink: 0;
-        }
-        .site-more-wrap {
-          position: relative;
-          display: inline-flex;
-          align-items: center;
-        }
-        .site-more-arrow {
-          transition: transform 0.18s;
-        }
-        .site-more-arrow.is-open {
-          transform: rotate(180deg);
-        }
-        .site-more-popover {
-          position: absolute;
-          top: calc(100% + 14px);
-          right: 0;
-          width: 240px;
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 8px;
-          border: 1px solid #2a1f10;
-          border-radius: 12px;
-          background: rgba(5,5,5,0.98);
-          box-shadow: 0 22px 70px rgba(0,0,0,0.62), 0 0 28px rgba(201,168,76,0.12);
-          padding: 10px;
-          z-index: 110;
-        }
-        .site-more-link {
-          min-height: 38px;
-          display: inline-flex;
-          align-items: center;
-          gap: 7px;
-          border: 1px solid #202020;
-          border-radius: 9px;
-          background: rgba(255,255,255,0.03);
-          color: #ddd;
-          font-size: 12px;
-          font-weight: 900;
-          text-decoration: none;
-          padding: 8px 10px;
-          min-width: 0;
-        }
-        .site-more-link svg {
-          color: #7a6230;
-          flex-shrink: 0;
-        }
-        .site-more-link span {
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-        .site-more-link.is-active,
-        .site-more-link:hover {
-          color: #e8c96a;
-          border-color: #7a6230;
-          background: rgba(201,168,76,0.07);
         }
         .site-login-link {
           display: inline-flex;

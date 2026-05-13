@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import "./globals.css"
+import Script from "next/script"
 import { AuthProvider } from "@/lib/AuthContext"
 import { FloatingChat } from "@/components/FloatingChat"
 import { OnlineXpTracker } from "@/components/OnlineXpTracker"
@@ -156,12 +157,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              'var _hmt=_hmt||[];(function(){var hm=document.createElement("script");hm.src="https://hm.baidu.com/hm.js?25dc9f7854f8b827d57b6451814fae7a";var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(hm,s)})()',
-          }}
-        />
       </head>
       <body style={{ background: "#000", color: "#f0f0f0", fontFamily: "'Noto Sans SC', sans-serif" }}>
         <AuthProvider>
@@ -169,6 +164,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <FloatingChat />
         </AuthProvider>
+        <Script id="baidu-analytics" strategy="afterInteractive">
+          {`var _hmt=_hmt||[];(function(){var hm=document.createElement("script");hm.src="https://hm.baidu.com/hm.js?25dc9f7854f8b827d57b6451814fae7a";var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(hm,s)})()`}
+        </Script>
       </body>
     </html>
   )

@@ -1,12 +1,11 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { ArrowRight, Bot, Boxes, ListTree, Search, TerminalSquare } from "lucide-react"
 import { tools, categories } from "@/data/tools"
 import { categoryPath } from "@/data/tool-meta"
-import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { CategoryIcon } from "@/components/CategoryIcon"
-import { PersonalizedTools } from "./PersonalizedTools"
-import { Search } from "lucide-react"
+import styles from "@/components/learning/SupportPage.module.css"
 
 export const metadata: Metadata = {
   title: "AI工具导航大全 - ChatGPT、DeepSeek、AI绘图、AI编程工具分类推荐",
@@ -39,7 +38,134 @@ const categoryIntro: Record<string, string> = {
   AI效率: "任务管理、自动化、日程、邮件、个人知识库和效率插件。",
 }
 
-const focusCategoryKeys = ["对话AI", "AI编程", "AI办公", "AI绘图", "Agent平台", "模型平台"]
+const focusCategoryKeys = ["对话AI", "AI编程", "Agent平台", "模型平台", "AI办公", "AI搜索", "AI数据", "AI绘图", "AI视频", "AI效率", "AI营销", "AI学习"]
+
+const modelWorkflowKits = [
+  {
+    title: "DeepSeek 低成本工作流",
+    model: "DeepSeek V4 API",
+    goal: "适合一人公司、客服知识库、日常代码修改和批量内容处理。",
+    tools: ["Chatbox", "Dify", "n8n AI", "OpenAI Codex"],
+    steps: ["用 Chatbox 跑通模型", "接 Dify 做知识库 Bot", "用 n8n 串通知和表格", "用 Codex 或 Cline 做代码任务"],
+    href: "/models",
+  },
+  {
+    title: "Claude / Codex 工程工作流",
+    model: "Claude Code + Codex",
+    goal: "适合网站、小程序、脚本、自动化和团队工程协作。",
+    tools: ["Claude Code", "OpenAI Codex", "GitHub Copilot", "Composio"],
+    steps: ["先读项目不改文件", "拆一个小功能", "跑 typecheck / build", "把经验写成复盘"],
+    href: "/agent-install",
+  },
+  {
+    title: "Gemini / Google 研究工作流",
+    model: "Gemini + AI Search",
+    goal: "适合长资料、表格、视频、网页资料研究和带来源的信息判断。",
+    tools: ["Gemini", "NotebookLM", "Google AI", "Perplexity"],
+    steps: ["先搜来源", "把资料放进 NotebookLM", "让模型提炼行动清单", "回项目页做交付物"],
+    href: "/tools/AI搜索",
+  },
+  {
+    title: "Kimi / Qwen 中文长文工作流",
+    model: "Kimi K2.6 / Qwen",
+    goal: "适合中文资料、长文、合同、课程、行业方案和 Agent 接入。",
+    tools: ["Kimi K2.6 / 月之暗面", "通义千问", "Kimi Code / K2.6 Agent", "ModelScope"],
+    steps: ["上传长文或资料", "生成结构化大纲", "拆成教程或 SOP", "接入 Agent 做长期任务"],
+    href: "/models",
+  },
+  {
+    title: "内容生产工作流",
+    model: "多模态模型 + 设计工具",
+    goal: "适合短视频、海报、PPT、课程素材、产品图和账号内容。",
+    tools: ["ChatGPT Image", "即梦", "Veo", "Canva AI"],
+    steps: ["先写脚本和分镜", "生成图片或视频素材", "用设计/PPT工具排版", "发布后写复盘"],
+    href: "/learn/subjects/content-creation",
+  },
+  {
+    title: "本地隐私工作流",
+    model: "Ollama + 本地模型",
+    goal: "适合私有资料、离线学习、低成本试验和企业内网原型。",
+    tools: ["Ollama", "Open WebUI", "LocalAI", "RAGFlow"],
+    steps: ["先跑小模型验证电脑性能", "接 Open WebUI 对话", "接 RAGFlow 做文档问答", "再决定是否上云"],
+    href: "/models",
+  },
+]
+
+const trendingToolTopics = [
+  { title: "API 中转站", text: "多模型接入、成本控制、Key 安全和一人公司工作台。", href: "/learn/subjects/personal-growth/api-proxy-side-business" },
+  { title: "MCP 工具连接", text: "Agent 要做事，必须安全连接文件、浏览器、数据库和业务系统。", href: "/learn/subjects/agent-coding/mcp-agent-tools" },
+  { title: "AI 网关", text: "统一管理模型路由、工具调用、限额、日志和人工确认。", href: "/learn/subjects/automation/agent-gateway-routing" },
+  { title: "AI 视频工作流", text: "脚本、分镜、图像、视频、配音、字幕和发布复盘。", href: "/learn/subjects/content-creation/hot-ai-video-workflow" },
+  { title: "企业 Agent 试点", text: "客服、销售、财务、运营里选一个两周能验收的流程。", href: "/learn/subjects/business-ai/enterprise-agent-pilot" },
+]
+
+const resourceEntrances = [
+  {
+    title: "模型选择",
+    href: "/models",
+    icon: Bot,
+    tag: "选大脑",
+    text: "先判断用 GPT、Claude、DeepSeek、Kimi、Qwen 还是本地模型，再看价格、上下文、API 和适合任务。",
+  },
+  {
+    title: "Agent 安装",
+    href: "/agent-install",
+    icon: TerminalSquare,
+    tag: "装工具",
+    text: "装好 Codex、Claude Code、OpenClaw 或 Cline，接上模型后回到学习项目里做 MVP。",
+  },
+  {
+    title: "工具分类",
+    href: "#tool-categories",
+    icon: Boxes,
+    tag: "找工具",
+    text: "按写作、办公、绘图、视频、编程、自动化等场景找工具，不按名字乱逛。",
+  },
+  {
+    title: "学习路线",
+    href: "/learn",
+    icon: ListTree,
+    tag: "回项目",
+    text: "工具和模型选完以后，回到小科目、教程和任务里做出能落地的结果。",
+  },
+]
+
+function CategoryCard({ categoryKey }: { categoryKey: string }) {
+  const cat = categories.find((item) => item.key === categoryKey)
+  if (!cat) return null
+  const items = tools.filter((tool) => tool.category === cat.key)
+  const featured = items.filter((tool) => tool.featured).slice(0, 3)
+  return (
+    <Link href={categoryPath(cat.key)} className={styles.card}>
+      <div className={styles.cardTop}>
+        <CategoryIcon category={cat.key} size={24} />
+        <span className={styles.tag}>{items.length} 个工具</span>
+      </div>
+      <h3 className={styles.cardTitle}>{cat.label}</h3>
+      <p className={styles.cardText}>{categoryIntro[cat.key] || "精选 AI 工具分类，适合按场景逐步探索。"}</p>
+      <div className={styles.pillRow} style={{ marginTop: 14 }}>
+        {featured.length ? featured.map((tool) => <span key={tool.id} className={styles.tag}>{tool.name}</span>) : <span className={styles.tag}>进入查看</span>}
+      </div>
+    </Link>
+  )
+}
+
+function ResourceEntranceCard({ item }: { item: (typeof resourceEntrances)[number] }) {
+  const Icon = item.icon
+  return (
+    <Link href={item.href} className={styles.resourceCard}>
+      <div className={styles.resourceIcon}><Icon size={22} /></div>
+      <div>
+        <div className={styles.cardTop}>
+          <h3 className={styles.cardTitle}>{item.title}</h3>
+          <span className={styles.tag}>{item.tag}</span>
+        </div>
+        <p className={styles.cardText}>{item.text}</p>
+      </div>
+      <span className={styles.cardLink}>进入 <ArrowRight size={14} /></span>
+    </Link>
+  )
+}
 
 export default function ToolsPage() {
   const collectionJsonLd = {
@@ -61,87 +187,124 @@ export default function ToolsPage() {
   }
 
   return (
-    <div style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
-      />
-      <MathRain />
+    <div className={styles.page}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }} />
       <NavBar />
-      <main style={{ maxWidth: 1120, margin: "0 auto", padding: "60px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.86)" }} className="max-sm:px-4">
-        <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.4em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 700 }}>Directory</p>
-        <h1 style={{ fontSize: 36, fontWeight: 900, color: "#fff", letterSpacing: "0.02em", marginBottom: 8 }}>AI工具导航大全</h1>
-        <p style={{ fontSize: 16, color: "#d6d6d6", fontWeight: 750, marginBottom: 22, lineHeight: 1.8 }}>先看和你行业有关的工具组合。没找到，再搜索或展开全部分类。</p>
+      <main className={styles.main}>
+        <section className={styles.hero}>
+          <div>
+            <p className={styles.eyebrow}>Tool Library</p>
+            <h1 className={styles.title}>按任务找工具，不按名字逛目录</h1>
+            <p className={styles.subtitle}>工具页保留为独立入口，但它服务学习路线：你要写作、做 PPT、做图、写代码、搭 Agent，先从对应场景进入。</p>
+            <form action="/search" className={styles.searchForm}>
+              <Search size={16} style={{ marginLeft: 14, color: "#256d85", flexShrink: 0 }} />
+              <input name="q" type="search" placeholder="直接搜索工具：Claude Code、AI PPT、绘图、Dify" />
+              <button type="submit">搜索</button>
+            </form>
+          </div>
+          <aside className={styles.heroAside}>
+            <h2 className={styles.asideTitle}>怎么用这页</h2>
+            <ol className={styles.steps}>
+              <li><b>1</b><span>先选你正在做的任务场景。</span></li>
+              <li><b>2</b><span>只试 1 到 2 个工具，别同时切太多。</span></li>
+              <li><b>3</b><span>回到教程或项目，把工具用于具体交付。</span></li>
+            </ol>
+          </aside>
+        </section>
 
-        <PersonalizedTools />
-
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 24 }}>
-          <form action="/search" style={{ display: "flex", alignItems: "center", flex: "1 1 320px", maxWidth: 520, minWidth: 260, height: 44, border: "1px solid rgba(201,168,76,0.28)", background: "rgba(10,10,10,0.86)", borderRadius: 10, boxShadow: "0 14px 34px rgba(0,0,0,0.22)" }}>
-            <Search size={16} style={{ marginLeft: 14, color: "#c9a84c", flexShrink: 0 }} />
-            <input
-              name="q"
-              type="search"
-              placeholder="直接搜索工具：Claude Code、AI PPT、绘图、Dify"
-              style={{ flex: 1, minWidth: 0, border: "none", outline: "none", background: "transparent", color: "#fff", padding: "0 12px", fontSize: 14, fontWeight: 800, fontFamily: "'Noto Sans SC', sans-serif" }}
-            />
-            <button type="submit" style={{ height: 34, marginRight: 5, padding: "0 14px", border: "1px solid #7a6230", borderRadius: 8, background: "rgba(201,168,76,0.14)", color: "#e8c96a", fontSize: 12, fontWeight: 950, cursor: "pointer" }}>搜索</button>
-          </form>
-        </div>
-
-        <section style={{ border: "1px solid #222", background: "rgba(255,255,255,0.025)", borderRadius: 12, padding: "18px 20px", marginBottom: 18 }}>
-          <h2 style={{ fontSize: 21, color: "#fff", fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>常用入口</h2>
-          <p style={{ fontSize: 14, color: "#aaa", fontWeight: 700, lineHeight: 1.8, marginBottom: 14 }}>只保留高频方向，完整分类放到下面折叠里。</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,250px),1fr))", gap: 10 }}>
-          {categories.filter((cat) => focusCategoryKeys.includes(cat.key)).map((cat) => {
-            const items = tools.filter((tool) => tool.category === cat.key)
-            const featured = items.filter((tool) => tool.featured).slice(0, 2)
-            return (
-              <Link key={cat.key} href={categoryPath(cat.key)} className="card-cat" style={{ display: "block", textDecoration: "none", background: "rgba(0,0,0,0.25)", border: "1px solid #2b2618", borderRadius: 10, padding: "18px 19px", minHeight: 164 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-                  <CategoryIcon category={cat.key} size={22} />
-                  <div style={{ flex: 1 }}>
-                    <h2 style={{ fontSize: 18, color: "#fff", fontWeight: 900 }}>{cat.label}</h2>
-                    <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: "#999", marginTop: 2, fontWeight: 800 }}>{items.length} tools</p>
-                  </div>
-                </div>
-                <p style={{ fontSize: 13, color: "#bbb", lineHeight: 1.7, minHeight: 44, marginBottom: 14 }}>{categoryIntro[cat.key] || "精选 AI 工具分类，适合按场景逐步探索。"}</p>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", borderTop: "1px solid #1f1f1f", paddingTop: 12 }}>
-                  {featured.map((tool) => <span key={tool.id} className="tag tag-gray" style={{ fontSize: 12, color: "#999", fontWeight: 850 }}>{tool.name}</span>)}
-                  {featured.length === 0 && <span className="tag tag-gray" style={{ fontSize: 12, color: "#999", fontWeight: 850 }}>进入查看</span>}
-                </div>
-              </Link>
-            )
-          })}
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <h2 className={styles.panelTitle}>工具资源入口</h2>
+              <p className={styles.panelDesc}>模型、Agent 安装、工具分类都放在这里。它们是做项目之前的准备区，不再分散成导航里的多个平级页面。</p>
+            </div>
+            <Link className={styles.ghostButton} href="/learn">回到学习地图</Link>
+          </div>
+          <div className={styles.resourceGrid}>
+            {resourceEntrances.map((item) => <ResourceEntranceCard key={item.href} item={item} />)}
           </div>
         </section>
 
-        <details style={{ border: "1px solid #1f1f1f", background: "rgba(255,255,255,0.022)", borderRadius: 12, padding: "16px 18px" }}>
-          <summary style={{ color: "#e8c96a", fontSize: 14, fontWeight: 950, cursor: "pointer" }}>展开全部工具分类</summary>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 12, paddingTop: 18 }}>
-            {categories.map((cat) => {
-              const items = tools.filter((tool) => tool.category === cat.key)
-              const featured = items.filter((tool) => tool.featured).slice(0, 2)
-              return (
-                <Link key={cat.key} href={categoryPath(cat.key)} className="card-cat" style={{ display: "block", textDecoration: "none", background: "rgba(255,255,255,0.03)", border: "1px solid #1a1a1a", borderRadius: 10, padding: "18px 20px", minHeight: 164 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-                    <CategoryIcon category={cat.key} size={22} />
-                    <div style={{ flex: 1 }}>
-                      <h2 style={{ fontSize: 18, color: "#fff", fontWeight: 900 }}>{cat.label}</h2>
-                      <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, color: "#999", marginTop: 2, fontWeight: 800 }}>{items.length} tools</p>
-                    </div>
-                  </div>
-                  <p style={{ fontSize: 13, color: "#bbb", lineHeight: 1.7, minHeight: 44, marginBottom: 14 }}>{categoryIntro[cat.key] || "精选 AI 工具分类，适合按场景逐步探索。"}</p>
-                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", borderTop: "1px solid #1f1f1f", paddingTop: 12 }}>
-                    {featured.map((tool) => <span key={tool.id} className="tag tag-gray" style={{ fontSize: 12, color: "#999", fontWeight: 850 }}>{tool.name}</span>)}
-                    {featured.length === 0 && <span className="tag tag-gray" style={{ fontSize: 12, color: "#999", fontWeight: 850 }}>进入查看</span>}
-                  </div>
-                </Link>
-              )
-            })}
+        <section id="tool-categories" className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <h2 className={styles.panelTitle}>高频工具分类</h2>
+              <p className={styles.panelDesc}>先放最常用的任务方向，完整分类在下面展开。用户先选场景，再进入工具详情。</p>
+            </div>
+            <Link className={styles.ghostButton} href="/learn/tutorials">只看教程</Link>
+          </div>
+          <div className={styles.grid}>
+            {focusCategoryKeys.map((key) => <CategoryCard key={key} categoryKey={key} />)}
+          </div>
+        </section>
+
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <h2 className={styles.panelTitle}>按模型配一套能跑完整工作的工具</h2>
+              <p className={styles.panelDesc}>用户选了模型以后，还需要客户端、Agent、知识库、搜索、自动化和复盘入口。这里直接按完整工作流收集，不让用户只停在模型名。</p>
+            </div>
+            <Link className={styles.ghostButton} href="/models">看模型选择</Link>
+          </div>
+          <div className={styles.workflowGrid}>
+            {modelWorkflowKits.map((kit) => (
+              <Link key={kit.title} href={kit.href} className={`${styles.card} ${styles.workflowCard}`}>
+                <div className={styles.cardTop}>
+                  <span className={styles.tag}>{kit.model}</span>
+                  <ArrowRight size={15} color="#256d85" />
+                </div>
+                <h3 className={styles.cardTitle}>{kit.title}</h3>
+                <p className={styles.cardText}>{kit.goal}</p>
+                <div className={styles.pillRow} style={{ marginTop: 12 }}>
+                  {kit.tools.map((tool) => <span key={tool} className={styles.tag}>{tool}</span>)}
+                </div>
+                <div className={styles.workflowSteps}>
+                  {kit.steps.map((step, index) => (
+                    <span key={step} className={styles.workflowStep}><b>{index + 1}</b>{step}</span>
+                  ))}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <h2 className={styles.panelTitle}>最近热门 AI 话题应该去哪里学</h2>
+              <p className={styles.panelDesc}>热点不只放资讯页。能做成教程的，直接放进精确小科目，让用户知道看完以后该做什么。</p>
+            </div>
+            <Link className={styles.ghostButton} href="/news">看 AI 资讯</Link>
+          </div>
+          <div className={styles.pathGrid}>
+            {trendingToolTopics.map((topic, index) => (
+              <Link key={topic.title} href={topic.href} className={styles.pathCard}>
+                <span className={styles.pathNumber}>{index + 1}</span>
+                <strong className={styles.pathTitle}>{topic.title}</strong>
+                <p className={styles.pathText}>{topic.text}</p>
+                <span className={styles.pathAction}>去对应教程 <ArrowRight size={13} /></span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <details className={styles.details}>
+          <summary>展开全部工具分类</summary>
+          <div className={styles.grid} style={{ paddingTop: 18 }}>
+            {categories.map((cat) => <CategoryCard key={cat.key} categoryKey={cat.key} />)}
           </div>
         </details>
+
+        <section className={styles.panel}>
+          <h2 className={styles.panelTitle}>工具不是终点</h2>
+          <p className={styles.panelDesc}>工具选完以后，最好回到一个小科目或行业项目里继续。这样用户不是“收藏工具”，而是能做出 PPT、表格、知识库、海报、视频、客服 Bot 或自动化流程。</p>
+          <div className={styles.actions}>
+            <Link href="/learn" className={styles.primaryButton}>进入学习地图</Link>
+            <Link href="/learn/tutorials" className={styles.secondaryButton}>只看教程</Link>
+            <Link href="/member-cases" className={styles.secondaryButton}>看实战展示 <ArrowRight size={14} /></Link>
+          </div>
+        </section>
       </main>
-      <style>{`.card-cat:hover{background:rgba(201,168,76,0.06)!important;border-color:#7a6230!important}`}</style>
     </div>
   )
 }

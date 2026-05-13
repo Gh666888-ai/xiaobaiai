@@ -1,10 +1,10 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { ArrowRight, Search, ShieldCheck } from "lucide-react"
-import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { LiveEvaluationNotice } from "@/components/LiveEvaluationNotice"
 import { agentInstallGuides } from "@/data/agent-install-guides"
+import styles from "@/components/learning/SupportPage.module.css"
 
 const agentDesktopCategories = new Set(["Agent 桌面应用"])
 const desktopCategories = new Set(["桌面 AI 助理", "桌面知识库 Agent", "本地模型桌面应用"])
@@ -16,14 +16,14 @@ const firstChoiceGuides = firstChoiceSlugs
   .map((slug) => agentInstallGuides.find((guide) => guide.slug === slug))
   .filter((guide): guide is (typeof agentInstallGuides)[number] => Boolean(guide))
 
-function CompactGuideList({ guides, accent = "#e8c96a" }: { guides: typeof agentInstallGuides; accent?: string }) {
+function CompactGuideList({ guides, accent = "#256d85" }: { guides: typeof agentInstallGuides; accent?: string }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,220px),1fr))", gap: 8, paddingTop: 14 }}>
+    <div className={styles.grid} style={{ paddingTop: 14 }}>
       {guides.map((guide) => (
-        <Link key={guide.slug} href={`/agent-install/${guide.slug}`} style={{ minHeight: 54, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, textDecoration: "none", border: "1px solid #202020", background: "rgba(0,0,0,0.22)", borderRadius: 9, padding: "10px 12px" }}>
+        <Link key={guide.slug} href={`/agent-install/${guide.slug}`} className={styles.card} style={{ minHeight: 92, padding: 14 }}>
           <span style={{ minWidth: 0 }}>
-            <span style={{ display: "block", color: "#fff", fontSize: 13, fontWeight: 950, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{guide.name}</span>
-            <span style={{ display: "block", color: "#888", fontSize: 11, fontWeight: 850, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{guide.category} · {guide.minutes}</span>
+            <span style={{ display: "block", color: "#17202a", fontSize: 14, fontWeight: 900, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{guide.name}</span>
+            <span style={{ display: "block", color: "#667586", fontSize: 12, fontWeight: 750, marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{guide.category} · {guide.minutes}</span>
           </span>
           <ArrowRight size={14} style={{ color: accent, flexShrink: 0 }} />
         </Link>
@@ -65,81 +65,79 @@ const jsonLd = {
 
 export default function AgentInstallPage() {
   return (
-    <div className="xb-workbench" style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
+    <div className={styles.page}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <MathRain />
       <NavBar />
-      <main className="xb-workbench-main" style={{ maxWidth: 1120, margin: "0 auto", padding: "64px clamp(16px,5vw,60px) 104px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.91)" }}>
-        <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.34em", color: "#7a6230", textTransform: "uppercase", marginBottom: 12, fontWeight: 950 }}>Agent Install</p>
-        <h1 style={{ color: "#fff", fontSize: 42, fontWeight: 950, lineHeight: 1.2, marginBottom: 14 }}>主流Agent和桌面AI助理安装：先选模型，再启动 Agent</h1>
-        <p style={{ color: "#ccc", fontSize: 16, lineHeight: 1.9, maxWidth: 880, marginBottom: 22 }}>
-          这里不把模型当 Agent。Claude Code、Codex、OpenClaw、Hermes、Cursor、Cline 是能执行任务的 Agent；DeepSeek V4、Kimi、OpenAI 是它们下面要接的模型 API。日常对话可以先选 MiniMax 会员，便宜省事；真正让 Agent 干活时，再按任务换 API 或本地模型。
-        </p>
-        <p style={{ color: "#9ee5d9", fontSize: 14, lineHeight: 1.8, maxWidth: 880, marginBottom: 22, fontWeight: 850 }}>
-          小白AI会持续评测主流模型 API 的能力、价格、上下文、Agent 适配和新手上手成本，价格快照会定时更新。接入前先看 <Link href="/models" style={{ color: "#e8c96a", fontWeight: 950 }}>模型排行和价格快照</Link>。
-        </p>
-
-        <form action="/search" style={{ display: "flex", alignItems: "center", maxWidth: 720, minHeight: 46, border: "1px solid rgba(201,168,76,0.28)", background: "rgba(8,8,8,0.92)", borderRadius: 10, marginBottom: 28 }}>
-          <Search size={16} style={{ marginLeft: 14, color: "#c9a84c", flexShrink: 0 }} />
-          <input
-            name="q"
-            type="search"
-            placeholder="搜索：Claude Code、Cherry Studio、Chatbox、LM Studio"
-            style={{ flex: 1, minWidth: 0, border: 0, outline: 0, background: "transparent", color: "#fff", padding: "0 12px", fontSize: 14, fontWeight: 800, fontFamily: "'Noto Sans SC', sans-serif" }}
-          />
-          <button type="submit" style={{ marginRight: 6, height: 34, padding: "0 14px", border: "1px solid #7a6230", borderRadius: 8, background: "rgba(201,168,76,0.13)", color: "#e8c96a", fontSize: 12, fontWeight: 950, cursor: "pointer" }}>搜索</button>
-        </form>
+      <main className={styles.main}>
+        <section className={styles.hero}>
+          <div>
+            <p className={styles.eyebrow}>Agent Install</p>
+            <h1 className={styles.title}>先装好一个 Agent，再让它真正干活</h1>
+            <p className={styles.subtitle}>
+              这里把 Agent、桌面助理、模型 API 分清楚。先选一个最适合你电脑和任务的入口，跑通启动、模型接入和第一个可验证动作。
+            </p>
+            <form action="/search" className={styles.searchForm}>
+              <Search size={16} style={{ marginLeft: 14, color: "#256d85", flexShrink: 0 }} />
+              <input name="q" type="search" placeholder="搜索：Claude Code、OpenClaw、Cherry Studio、Cline" />
+              <button type="submit">搜索</button>
+            </form>
+          </div>
+          <aside className={styles.heroAside}>
+            <h2 className={styles.asideTitle}>新手安装顺序</h2>
+            <ol className={styles.steps}>
+              <li><b>1</b><span>先选一个入口，不要同时装一堆。</span></li>
+              <li><b>2</b><span>确认模型、Key、权限和本机路径都能跑通。</span></li>
+              <li><b>3</b><span>回到学习项目里，用 Agent 做一个真实小任务。</span></li>
+            </ol>
+          </aside>
+        </section>
 
         <LiveEvaluationNotice scope="agents" />
 
-        <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.045)", borderRadius: 12, padding: "22px 24px", marginBottom: 24 }}>
-          <div style={{ display: "flex", alignItems: "end", justifyContent: "space-between", gap: 14, flexWrap: "wrap", marginBottom: 16 }}>
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
             <div>
-              <h2 style={{ color: "#fff", fontSize: 24, fontWeight: 950, lineHeight: 1.35, marginBottom: 7 }}>不知道选哪个，先从这 4 个开始</h2>
-              <p style={{ color: "#aaa", fontSize: 13, lineHeight: 1.8 }}>一个工程 Agent、一个 OpenClaw 桌面壳、一个桌面 AI 客户端、一个 VS Code Agent 插件。先跑通其中一个，再看全部列表。</p>
+              <h2 className={styles.panelTitle}>不知道选哪个，先从这 4 个开始</h2>
+              <p className={styles.panelDesc}>一个工程 Agent、一个 OpenClaw 桌面壳、一个桌面 AI 客户端、一个 VS Code Agent 插件。先跑通其中一个，再看全部列表。</p>
             </div>
-            <span style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950, display: "inline-flex", alignItems: "center", gap: 7 }}>
-              <ShieldCheck size={14} /> Key 不写进仓库
-            </span>
+            <span className={styles.tag}><ShieldCheck size={14} /> Key 不写进仓库</span>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,230px),1fr))", gap: 10 }}>
+          <div className={styles.grid}>
             {firstChoiceGuides.map((guide) => (
-              <Link key={guide.slug} href={`/agent-install/${guide.slug}`} style={{ textDecoration: "none", border: "1px solid #2b2618", background: "rgba(0,0,0,0.26)", borderRadius: 10, padding: "16px 17px", minHeight: 172, display: "flex", flexDirection: "column" }}>
-                <span style={{ color: guide.category === "Agent 桌面应用" ? "#8fd8cc" : "#e8c96a", fontSize: 11, fontWeight: 950, marginBottom: 8 }}>{guide.category}</span>
-                <h3 style={{ color: "#fff", fontSize: 18, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>{guide.name}</h3>
-                <p style={{ color: "#aaa", fontSize: 12, lineHeight: 1.65, flex: 1 }}>{guide.tagline}</p>
-                <span style={{ color: "#e8c96a", fontSize: 12, fontWeight: 950, marginTop: 12, display: "inline-flex", alignItems: "center", gap: 7 }}>
-                  直接看教程 <ArrowRight size={13} />
-                </span>
+              <Link key={guide.slug} href={`/agent-install/${guide.slug}`} className={styles.card}>
+                <span className={styles.tag}>{guide.category}</span>
+                <h3 className={styles.cardTitle}>{guide.name}</h3>
+                <p className={styles.cardText}>{guide.tagline}</p>
+                <span className={styles.cardLink}>直接看教程 <ArrowRight size={13} /></span>
               </Link>
             ))}
           </div>
         </section>
 
-        <details style={{ border: "1px solid #1f1f1f", background: "rgba(255,255,255,0.025)", borderRadius: 12, padding: "16px 18px", marginBottom: 16 }}>
-          <summary style={{ color: "#e8c96a", fontSize: 14, fontWeight: 950, cursor: "pointer" }}>展开工程 Agent 本体</summary>
+        <details className={styles.details}>
+          <summary>展开工程 Agent 本体</summary>
           <CompactGuideList guides={engineeringGuides} />
         </details>
 
-        <details style={{ border: "1px solid rgba(82,148,139,0.24)", background: "rgba(82,148,139,0.028)", borderRadius: 12, padding: "16px 18px", marginBottom: 16 }}>
-          <summary style={{ color: "#8fd8cc", fontSize: 14, fontWeight: 950, cursor: "pointer" }}>展开 Agent 桌面端应用</summary>
-          <CompactGuideList guides={agentDesktopGuides} accent="#8fd8cc" />
+        <details className={styles.details}>
+          <summary>展开 Agent 桌面端应用</summary>
+          <CompactGuideList guides={agentDesktopGuides} />
         </details>
 
-        <details style={{ border: "1px solid rgba(82,148,139,0.24)", background: "rgba(82,148,139,0.028)", borderRadius: 12, padding: "16px 18px", marginBottom: 20 }}>
-          <summary style={{ color: "#8fd8cc", fontSize: 14, fontWeight: 950, cursor: "pointer" }}>展开桌面版 AI 助理应用</summary>
-          <CompactGuideList guides={desktopGuides} accent="#8fd8cc" />
+        <details className={styles.details}>
+          <summary>展开桌面版 AI 助理应用</summary>
+          <CompactGuideList guides={desktopGuides} />
         </details>
 
-        <section style={{ border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 12, padding: "24px 26px" }}>
-          <h2 style={{ color: "#fff", fontSize: 21, fontWeight: 950, marginBottom: 10 }}>小白怎么选第一款？</h2>
-          <p style={{ color: "#ccc", fontSize: 14, lineHeight: 1.9, marginBottom: 16 }}>
+        <section className={styles.panel}>
+          <h2 className={styles.panelTitle}>小白怎么选第一款？</h2>
+          <p className={styles.panelDesc}>
             只是日常对话和写东西，可以先用 MiniMax 会员；完全不会终端，先选 ChatGPT Desktop、Claude Desktop、Cherry Studio 或 Chatbox；想接 DeepSeek V4 做代码任务，先选 OpenClaw 或 Cline；已经能用终端和 Git，再选 Claude Code 或 Codex。
           </p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <Link href="/agent-install/openclaw" className="btn-primary" style={{ textDecoration: "none" }}>国内新手先跑 OpenClaw</Link>
-            <Link href="/agent-install/claude-code" className="btn-outline" style={{ textDecoration: "none" }}>Claude Code 教程</Link>
-            <Link href="/agent-install/cline" className="btn-outline" style={{ textDecoration: "none" }}>Cline 教程</Link>
+          <div className={styles.actions}>
+            <Link href="/agent-install/openclaw" className={styles.primaryButton}>国内新手先跑 OpenClaw</Link>
+            <Link href="/agent-install/claude-code" className={styles.secondaryButton}>Claude Code 教程</Link>
+            <Link href="/agent-install/cline" className={styles.secondaryButton}>Cline 教程</Link>
           </div>
         </section>
       </main>

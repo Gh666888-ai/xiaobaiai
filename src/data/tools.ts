@@ -827,7 +827,22 @@ const canonicalToolIds: Record<string, string> = {
   "julius-data": "julius",
 }
 
-const curatedBaseTools = dedupeTools(baseTools.map((tool) => ({ ...tool, id: canonicalToolIds[tool.id] ?? tool.id, ...hotToolOverrides[canonicalToolIds[tool.id] ?? tool.id] })))
+const workflowTools: Tool[] = [
+  { id: "cherry-studio", name: "Cherry Studio", url: "https://cherry-ai.com", description: "多模型桌面客户端，适合把 DeepSeek、Kimi、Qwen、OpenAI、Claude 等 API 放到一个界面里使用。小白可以先用它跑通模型，再决定是否接 Agent 或知识库。", logo: "", category: "对话AI", stage: 2, pricing: free, tags: ["多模型客户端", "API", "桌面", "小白友好"], featured: true, rank: 86, addedAt: "2026-05-13" },
+  { id: "anythingllm", name: "AnythingLLM", url: "https://anythingllm.com", description: "本地优先的知识库和聊天工作台，能连接云端 API 或本地模型，适合个人资料、团队文档、离线问答和轻量 RAG。", logo: "", category: "AI办公", stage: 3, pricing: fp, tags: ["知识库", "RAG", "本地优先", "团队"], featured: true, rank: 83, addedAt: "2026-05-13" },
+  { id: "roo-code", name: "Roo Code", url: "https://github.com/RooVetGit/Roo-Code", description: "VS Code 里的开源编程 Agent，能接 OpenAI 兼容模型、Claude、DeepSeek、Kimi 等后端。适合想在编辑器里完成读代码、改文件、跑命令的用户。", logo: "", category: "AI编程", stage: 4, pricing: free, tags: ["VS Code", "Agent", "开源", "多模型"], featured: true, rank: 89, addedAt: "2026-05-13" },
+  { id: "cline", name: "Cline", url: "https://cline.bot", description: "开源编程 Agent，强调工具调用和代码执行，可接多种模型。适合用国产 API 或本地模型做代码修改、文件生成和项目理解。", logo: "", category: "AI编程", stage: 4, pricing: free, tags: ["开源", "Agent", "多模型", "工具调用"], featured: true, rank: 87, addedAt: "2026-05-13" },
+  { id: "pipedream", name: "Pipedream", url: "https://pipedream.com", description: "开发者友好的自动化平台，连接 API、Webhook、数据库和 AI 模型。适合把模型输出接到飞书、邮箱、表格、CRM 和内部系统。", logo: "", category: "Agent平台", stage: 5, pricing: quota, tags: ["自动化", "Webhook", "API", "开发者"], featured: true, rank: 77, addedAt: "2026-05-13" },
+  { id: "zapier-interfaces", name: "Zapier Interfaces", url: "https://zapier.com/interfaces", description: "把自动化流程做成表单、页面和内部工具。适合不写代码搭建线索收集、客服入口、审批表和 AI 工作台。", logo: "", category: "AI效率", stage: 3, pricing: fp, tags: ["自动化", "表单", "内部工具", "零代码"], featured: true, rank: 86, addedAt: "2026-05-13" },
+  { id: "tavily", name: "Tavily", url: "https://www.tavily.com", description: "面向 AI Agent 的搜索 API，适合让 Agent 做带来源的网络研究、竞品分析、行业资料收集和报告生成。", logo: "", category: "AI搜索", stage: 5, pricing: quota, tags: ["Agent搜索", "API", "来源", "研究"], featured: true, rank: 86, addedAt: "2026-05-13" },
+  { id: "firecrawl", name: "Firecrawl", url: "https://www.firecrawl.dev", description: "网页抓取和结构化提取工具，把网站变成 Agent 可读的 Markdown 或数据。适合资料采集、竞品分析、知识库更新和 AI 资讯采集。", logo: "", category: "AI搜索", stage: 5, pricing: quota, tags: ["网页抓取", "Agent", "Markdown", "资料采集"], featured: true, rank: 85, addedAt: "2026-05-13" },
+  { id: "airtable-ai", name: "Airtable AI", url: "https://www.airtable.com/ai", description: "把表格、数据库和 AI 自动化结合起来，适合客户管理、内容排期、项目跟进、案例库和轻量 CRM。", logo: "", category: "AI数据", stage: 3, pricing: fp, tags: ["数据库", "自动化", "CRM", "团队"], featured: true, rank: 86, addedAt: "2026-05-13" },
+  { id: "notebooklm", name: "NotebookLM", url: "https://notebooklm.google.com", description: "Google 的资料型 AI 笔记工具，适合上传文档、网页、课程资料后做摘要、问答、学习提纲和音频概览。", logo: "", category: "AI学习", stage: 2, pricing: free, tags: ["资料问答", "学习", "Google", "长文"], featured: true, rank: 93, addedAt: "2026-05-13" },
+  { id: "napkin-ai", name: "Napkin AI", url: "https://www.napkin.ai", description: "把文字自动变成流程图、概念图和演示配图。适合小白把教程、行业方案、复盘内容做成更容易理解的示意图。", logo: "", category: "AI设计", stage: 1, pricing: fp, tags: ["示意图", "流程图", "演示", "教程配图"], featured: true, rank: 84, addedAt: "2026-05-13" },
+  { id: "gamma", name: "Gamma", url: "https://gamma.app", description: "AI 生成 PPT、网页和文档的高频工具。适合把行业方案、课程大纲、项目复盘快速做成可展示版本。", logo: "", category: "AI办公", stage: 1, pricing: fp, tags: ["PPT", "网页", "文档", "展示"], featured: true, rank: 96, addedAt: "2026-05-13" },
+]
+
+const curatedBaseTools = dedupeTools([...baseTools, ...workflowTools].map((tool) => ({ ...tool, id: canonicalToolIds[tool.id] ?? tool.id, ...hotToolOverrides[canonicalToolIds[tool.id] ?? tool.id] })))
 
 export const tools: Tool[] = curatedBaseTools
 

@@ -1,56 +1,105 @@
 "use client"
 
 import Link from "next/link"
-import { MathRain } from "@/components/MathRain"
+import { ArrowRight, Mail, MessageCircle, Route, Users } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
+import styles from "@/components/learning/SupportPage.module.css"
+
+const principles = [
+  { title: "普通人能看懂", text: "不把 AI 讲成技术炫耀，先让用户知道自己下一步该做什么。", icon: Route },
+  { title: "必须落到结果", text: "学习内容要能产出 PPT、表格、海报、视频、知识库、Agent 或行业流程。", icon: ArrowRight },
+  { title: "真实复盘优先", text: "社区和案例优先展示做过的过程、结果、截图、踩坑和修法。", icon: Users },
+]
 
 export default function AboutPage() {
   return (
-    <div style={{ background: "#000", minHeight: "100vh", fontFamily: "'Noto Sans SC', sans-serif", position: "relative", overflow: "hidden" }}>
-      <MathRain />
+    <div className={styles.page}>
       <NavBar />
-      <main style={{ maxWidth: 760, margin: "0 auto", padding: "80px 60px 100px", position: "relative", zIndex: 10, background: "rgba(0,0,0,0.86)" }} className="max-sm:px-4">
-        <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 10, letterSpacing: "0.4em", color: "#7a6230", textTransform: "uppercase", marginBottom: 10, fontWeight: 700 }}>About</p>
-        <h1 style={{ fontSize: 36, fontWeight: 950, color: "#fff", letterSpacing: "0.02em", marginBottom: 28 }}>关于小白AI</h1>
-
-        <div style={{ fontSize: 16, color: "#ccc", lineHeight: 2.1 }}>
-          <p style={{ marginBottom: 24 }}>
-            小白AI 是一个专门为 <strong style={{ color: "#e8c96a" }}>零基础 AI 新手</strong> 打造的一站式学习与导航平台。
-          </p>
-
-          <p style={{ marginBottom: 24 }}>
-            现在 AI 工具、模型、Agent 平台更新太快，很多普通用户不是不想学，而是不知道从哪里开始。小白AI 想做的事很简单：把复杂技术翻译成人话，把可用工具整理成路线，让每个人都能迈出第一步。
-          </p>
-
-          <p style={{ marginBottom: 24 }}>
-            你可以在这里完成一条完整路径：先用 <Link href="/chat" style={{ color: "#e8c96a" }}>小白AI助手</Link> 提问，再用 <Link href="/choose-tool" style={{ color: "#e8c96a" }}>AI工具选择器</Link> 找到适合自己的工具，然后按 <Link href="/learn" style={{ color: "#e8c96a" }}>学习路径</Link> 逐章练习，最后在 <Link href="/community" style={{ color: "#e8c96a" }}>社区</Link> 看真实案例、分享自己的经验。
-          </p>
-
-          <p style={{ marginBottom: 24 }}>
-            我们相信：<strong style={{ color: "#e8c96a" }}>AI 不是程序员的专利，它是每个普通人都能掌握的新技能。</strong> 小白AI 会继续围绕“更好懂、更好用、更能落地”来更新。
-          </p>
-
-          <div style={{ marginTop: 36, marginBottom: 24, padding: "24px", background: "linear-gradient(135deg, rgba(201,168,76,0.09), rgba(255,255,255,0.025))", border: "1px solid #2a1f10", borderRadius: 12 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 950, color: "#e8c96a", marginBottom: 14 }}>开放共创</h2>
-            <p style={{ marginBottom: 14 }}>
-              欢迎各路英雄豪杰联系我们，一起共创 AI 美好时代。
+      <main className={styles.main}>
+        <section className={styles.hero}>
+          <div>
+            <p className={styles.eyebrow}>About XiaobaiAI</p>
+            <h1 className={styles.title}>小白AI 做的是普通人的 AI 学习地图</h1>
+            <p className={styles.subtitle}>
+              AI 工具、模型、Agent 和自动化更新太快。小白AI 把它们整理成能执行的路线、教程、任务和案例，让个人、团队和行业用户知道从哪里开始，怎么做到结果。
             </p>
-            <p style={{ marginBottom: 0, color: "#bbb" }}>
-              如果你是关注 AI 赛道的投资人、愿意共建生态的合作方、行业内技术大牛，或拥有渠道、内容、产品、企业客户等资源的伙伴，小白AI 都期待与你连接。我们希望把工具导航、学习路径、智能问答和工作流能力真正落到普通人的日常使用里。
-            </p>
-            <p style={{ marginTop: 18, marginBottom: 0, color: "#fff", fontWeight: 900 }}>小白工作室</p>
+            <div className={styles.actions}>
+              <Link href="/learn" className={styles.primaryButton}>进入学习地图</Link>
+              <Link href="/member-cases" className={styles.secondaryButton}>看实战展示</Link>
+              <Link href="/community" className={styles.secondaryButton}>去社区复盘</Link>
+            </div>
           </div>
+          <aside className={styles.heroAside}>
+            <h2 className={styles.asideTitle}>我们坚持的顺序</h2>
+            <ol className={styles.steps}>
+              <li><b>1</b><span>先让用户看懂方向。</span></li>
+              <li><b>2</b><span>再给教程和可操作任务。</span></li>
+              <li><b>3</b><span>最后沉淀真实案例和复盘。</span></li>
+            </ol>
+          </aside>
+        </section>
 
-          <div style={{ marginTop: 44, padding: "24px", background: "rgba(255,255,255,0.03)", border: "1px solid #1a1a1a", borderRadius: 12 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 900, color: "#e8c96a", marginBottom: 16 }}>联系方式</h2>
-            <p style={{ marginBottom: 8 }}>邮箱：admin@xiaobaiai.cn</p>
-            <p style={{ marginBottom: 8 }}>微信：Ghnnnnnn</p>
-            <p style={{ marginBottom: 8 }}>网址：xiaobaiai.cn</p>
-            <p style={{ marginTop: 16, fontSize: 13, color: "#888", lineHeight: 1.8 }}>
-              如果你有好工具、好教程、真实 AI 案例或踩坑记录，欢迎通过社区投稿。
-            </p>
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <p className={styles.eyebrow}>Position</p>
+              <h2 className={styles.panelTitle}>不是工具目录，是学习和落地系统</h2>
+              <p className={styles.panelDesc}>用户不需要先背概念。用户需要知道：我现在适合学哪一块，学完能做什么，卡住了怎么修，做完后怎么复盘。</p>
+            </div>
           </div>
-        </div>
+          <div className={styles.grid}>
+            {principles.map((item) => {
+              const Icon = item.icon
+              return (
+                <article key={item.title} className={styles.card}>
+                  <div className={styles.cardTop}>
+                    <span className={styles.tag}><Icon size={14} /> 小白标准</span>
+                  </div>
+                  <h3 className={styles.cardTitle}>{item.title}</h3>
+                  <p className={styles.cardText}>{item.text}</p>
+                </article>
+              )
+            })}
+          </div>
+        </section>
+
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <p className={styles.eyebrow}>Co-create</p>
+              <h2 className={styles.panelTitle}>开放共创</h2>
+              <p className={styles.panelDesc}>如果你有工具、教程、真实 AI 案例、行业资源、企业客户、内容渠道或产品能力，可以一起把 AI 学习和落地做得更清楚。</p>
+            </div>
+            <Link href="/community/new" className={styles.primaryButton}>提交内容</Link>
+          </div>
+        </section>
+
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <p className={styles.eyebrow}>Contact</p>
+              <h2 className={styles.panelTitle}>联系方式</h2>
+              <p className={styles.panelDesc}>好工具、好教程、真实案例、合作资源，都可以从这里联系。</p>
+            </div>
+          </div>
+          <div className={styles.grid}>
+            <article className={styles.card}>
+              <span className={styles.tag}><Mail size={14} /> 邮箱</span>
+              <h3 className={styles.cardTitle}>admin@xiaobaiai.cn</h3>
+              <p className={styles.cardText}>适合合作、资料、授权、企业需求。</p>
+            </article>
+            <article className={styles.card}>
+              <span className={styles.tag}><MessageCircle size={14} /> 微信</span>
+              <h3 className={styles.cardTitle}>Ghnnnnnn</h3>
+              <p className={styles.cardText}>适合直接沟通合作和资源对接。</p>
+            </article>
+            <article className={styles.card}>
+              <span className={styles.tag}>网址</span>
+              <h3 className={styles.cardTitle}>xiaobaiai.cn</h3>
+              <p className={styles.cardText}>小白AI 会继续围绕更好懂、更好用、更能落地更新。</p>
+            </article>
+          </div>
+        </section>
       </main>
     </div>
   )

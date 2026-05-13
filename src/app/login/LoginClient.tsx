@@ -116,8 +116,8 @@ export default function LoginPage() {
         <div style={{ textAlign: "left", marginTop: 24, fontSize: 12, color: "#999", lineHeight: 2, background: "rgba(255,255,255,0.02)", border: "1px solid #1a1a1a", borderRadius: 10, padding: 18 }}>
           <p style={{ color: "#e8c96a", fontWeight: 800, marginBottom: 8, fontSize: 13 }}>账号可以做什么</p>
           <p>领取新手礼包、每日任务和在线经验</p>
-          <p>发帖 +10XP，评论 +3XP，进入今日经验榜</p>
-          <p>等级越高，社区身份越醒目，高阶用户优先展示</p>
+          <p>发帖 +10XP，评论 +3XP，记录到个人成长进度</p>
+          <p>等级只用于个人成长记录，不参与社区排序</p>
         </div>
         <Link href={safeRedirect} className="btn-primary" style={{ width: "100%", justifyContent: "center", marginTop: 28, textDecoration: "none" }}>{safeRedirect === "/chat" ? "继续使用小白AI助手" : "继续访问"}</Link>
         <button onClick={logout} className="btn-outline" style={{ width: "100%", justifyContent: "center", marginTop: 10 }}>退出登录</button>
@@ -133,7 +133,7 @@ export default function LoginPage() {
         <div style={{ textAlign: "center", marginBottom: 26 }}>
           <h2 style={{ fontSize: 24, fontWeight: 900, color: "#fff" }}>{mode === "login" ? "登录小白AI" : "注册小白AI"}</h2>
           <p style={{ fontSize: 13, color: "#aaa", marginTop: 8, lineHeight: 1.7 }}>
-            {mode === "login" ? "已有账号请登录。第一次使用请先切换到注册，领 50XP 新手礼包。" : "注册后立即领取 50XP，新用户也能靠今日任务、发帖和评论冲榜。"}
+            {mode === "login" ? "已有账号请登录。第一次使用请先切换到注册，领 50XP 新手礼包。" : "注册后立即领取 50XP，新用户可以靠今日任务、发帖和评论记录学习进度。"}
           </p>
           {safeRedirect === "/chat" && (
             <p style={{ fontSize: 12, color: "#d6c28a", lineHeight: 1.7, marginTop: 10, border: "1px solid #2a1f10", background: "rgba(201,168,76,0.04)", borderRadius: 10, padding: "10px 12px" }}>
@@ -149,7 +149,7 @@ export default function LoginPage() {
               { icon: <Gift size={13} />, text: "新手礼包 50XP" },
               { icon: <Timer size={13} />, text: "挂机每天 60XP" },
               { icon: <MessageCircle size={13} />, text: "发帖评论涨经验" },
-              { icon: <Trophy size={13} />, text: "今日榜每天清零" },
+              { icon: <Trophy size={13} />, text: "个人进度每日更新" },
             ].map((item) => (
               <span key={item.text} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#d6c28a", fontSize: 12, lineHeight: 1.5, border: "1px solid rgba(122,98,48,0.45)", borderRadius: 8, padding: "7px 9px", background: "rgba(0,0,0,0.22)" }}>
                 <span style={{ color: "#e8c96a", display: "inline-flex", flexShrink: 0 }}>{item.icon}</span>{item.text}
@@ -157,7 +157,7 @@ export default function LoginPage() {
             ))}
           </div>
           <p style={{ color: "#9f8f62", fontSize: 11, lineHeight: 1.7, marginTop: 9 }}>
-            高阶用户的社区内容会优先展示，身份铭牌会出现在发帖和评论旁边。
+            社区现在按内容是否能复盘、能解决问题、能沉淀案例来展示。
           </p>
         </div>
 
@@ -185,7 +185,7 @@ export default function LoginPage() {
           <div style={{ background: "rgba(201,168,76,0.04)", border: "1px solid #2a1f10", borderRadius: 10, padding: "12px 14px" }}>
             <p style={{ fontSize: 12, color: "#d6c28a", lineHeight: 1.7 }}>
               <Zap size={13} style={{ display: "inline", verticalAlign: "-2px", marginRight: 4 }} />
-              登录后会回到原页面。账号会记录礼包、任务、发帖评论和今日经验榜进度。
+              登录后会回到原页面。账号会记录礼包、任务、发帖评论和个人成长进度。
             </p>
           </div>
 

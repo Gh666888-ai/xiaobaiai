@@ -1,17 +1,19 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
+import Link from "next/link"
 import { useParams } from "next/navigation"
+import { ArrowLeft, ExternalLink } from "lucide-react"
 import { news } from "@/data/news"
 import { buildNewsArticle } from "@/lib/content"
-import { MathRain } from "@/components/MathRain"
 import { NavBar } from "@/components/NavBar"
 import { inferContentVisualKind } from "@/components/ContentVisual"
 import { SmartImage } from "@/components/SmartImage"
 import { SeoKeywordLinks } from "@/components/SeoKeywordLinks"
 import { SeoRelatedLinks } from "@/components/SeoRelatedLinks"
+import { BottomActionPanel } from "@/components/BottomActionPanel"
 import { screenshotImageSources, sourceLogoSources } from "@/lib/visual-assets"
-import Link from "next/link"
+import styles from "@/components/learning/SupportPage.module.css"
 
 type ArticleBlock =
   | { type: "heading"; text: string }
@@ -93,15 +95,11 @@ function ArticleBody({ text }: { text: string }) {
     <>
       {parseArticle(text).map((block, index) => {
         if (block.type === "heading") {
-          return (
-            <h2 key={index} style={{ color: "#fff", fontSize: 22, fontWeight: 950, lineHeight: 1.45, margin: "34px 0 12px" }}>
-              {cleanInlineMarkdown(block.text)}
-            </h2>
-          )
+          return <h2 key={index} className={styles.panelTitle} style={{ fontSize: 24, marginTop: 28 }}>{cleanInlineMarkdown(block.text)}</h2>
         }
         if (block.type === "code") {
           return (
-            <pre key={index} style={{ margin: "14px 0 22px", whiteSpace: "pre-wrap", wordBreak: "break-word", border: "1px solid #242424", background: "rgba(0,0,0,0.68)", borderRadius: 10, padding: 16, color: "#f4e9bf", fontSize: 13, lineHeight: 1.8, fontFamily: "'JetBrains Mono', monospace" }}>
+            <pre key={index} style={{ margin: "14px 0 22px", whiteSpace: "pre-wrap", wordBreak: "break-word", border: "1px solid #dfe7ee", background: "#f7fbfd", borderRadius: 12, padding: 16, color: "#17202a", fontSize: 13, lineHeight: 1.8, fontFamily: "'JetBrains Mono', monospace" }}>
               {block.text}
             </pre>
           )
@@ -110,8 +108,8 @@ function ArticleBody({ text }: { text: string }) {
           return (
             <div key={index} style={{ display: "grid", gap: 8, margin: "10px 0 20px" }}>
               {block.items.map((item, itemIndex) => (
-                <p key={itemIndex} style={{ display: "flex", gap: 10, color: "#ccc", fontSize: 16, lineHeight: 1.9, margin: 0 }}>
-                  <span style={{ color: "#e8c96a", fontWeight: 950, flexShrink: 0 }}>{itemIndex + 1}.</span>
+                <p key={itemIndex} style={{ display: "flex", gap: 10, color: "#536170", fontSize: 16, lineHeight: 1.9, margin: 0 }}>
+                  <span style={{ color: "#256d85", fontWeight: 950, flexShrink: 0 }}>{itemIndex + 1}.</span>
                   <span><SeoKeywordLinks text={cleanInlineMarkdown(item)} maxLinks={3} /></span>
                 </p>
               ))}
@@ -119,7 +117,7 @@ function ArticleBody({ text }: { text: string }) {
           )
         }
         return (
-          <p key={index} style={{ color: "#ccc", fontSize: 16, lineHeight: 2.05, margin: "0 0 16px" }}>
+          <p key={index} style={{ color: "#536170", fontSize: 16, lineHeight: 2.05, margin: "0 0 16px" }}>
             <SeoKeywordLinks text={cleanInlineMarkdown(block.text)} maxLinks={6} />
           </p>
         )
@@ -130,36 +128,84 @@ function ArticleBody({ text }: { text: string }) {
 
 export default function NewsDetailPage() {
   const params = useParams()
-  const [fetched,setFetched]=useState<any[]>([])
-  useEffect(()=>{fetch("/fetched-news.json").then(r=>r.json()).then(d=>{if(Array.isArray(d))setFetched(d)}).catch(()=>{})},[])
-  const item = [...news,...fetched].find((n:any)=>n.id===params.id)
+  const [fetched, setFetched] = useState<any[]>([])
 
-  if(!item)return <div style={{background:'#000',minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center'}}><div style={{textAlign:'center'}}><p style={{fontSize:48,color:'#555'}}>404</p><Link href="/news" style={{color:'#c9a84c'}}>返回资讯</Link></div></div>
+  useEffect(() => {
+    fetch("/fetched-news.json")
+      .then((res) => res.json())
+      .then((data) => { if (Array.isArray(data)) setFetched(data) })
+      .catch(() => undefined)
+  }, [])
+
+  const item = [...news, ...fetched].find((entry: any) => entry.id === params.id)
+
+  if (!item) {
+    return (
+      <div className={styles.page}>
+        <NavBar />
+        <main className={styles.main}>
+          <section className={styles.panel}>
+            <h1 className={styles.panelTitle}>这篇资讯不存在</h1>
+            <Link href="/news" className={styles.primaryButton}>返回资讯</Link>
+          </section>
+        </main>
+      </div>
+    )
+  }
 
   return (
-    <div style={{background:'#000',minHeight:'100vh',fontFamily:"'Noto Sans SC', sans-serif",position:'relative',overflow:'hidden'}}>
-      <MathRain /><NavBar />
-      <div style={{maxWidth:900,margin:'0 auto',padding:'60px 60px 100px',position:'relative',zIndex:10,background:'rgba(0,0,0,0.88)'}} className="max-sm:px-4">
-        <Link href="/news" style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#aaa',textDecoration:'none',marginBottom:24,display:'inline-block'}}>← 返回资讯</Link>
-        <SmartImage sources={newsImageSources(item)} title={item.title} label={item.category} meta={`${item.source} · ${item.publishedAt}`} kind={inferContentVisualKind(`${item.category} ${item.title}`)} style={{maxHeight:400,marginBottom:24}} imageStyle={{objectFit:'cover',background:'#111',padding:0}}/>
-        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12,flexWrap:'wrap'}}>
-          <span className="tag tag-gold" style={{fontWeight:700,fontSize:12}}>{item.category}</span>
-          <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#888'}}>{item.publishedAt}</span>
-          <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:11,color:'#666'}}>{item.source}</span>
-          {item.importance>=8&&<span style={{fontSize:11,color:'#e8c96a',fontWeight:700}}>🔥 重磅</span>}
-        </div>
-        <h1 style={{fontSize:30,fontWeight:900,color:'#fff',lineHeight:1.4,marginBottom:24}}>{item.title}</h1>
-        <div style={{fontSize:16,color:'#ccc',lineHeight:2.1}}>
-          <div style={{border:'1px solid #2a1f10',background:'rgba(201,168,76,0.045)',borderRadius:8,padding:'18px 20px',marginBottom:24}}>
-            <p style={{fontSize:13,fontWeight:900,color:'#e8c96a',marginBottom:8}}>小白先看这个</p>
-            <p style={{color:'#f2e4b8',lineHeight:1.9}}><SeoKeywordLinks text={item.summary} maxLinks={5} /></p>
+    <div className={styles.page}>
+      <NavBar />
+      <main className={styles.main} style={{ maxWidth: 920 }}>
+        <Link href="/news" className={styles.ghostButton} style={{ marginBottom: 16 }}>
+          <ArrowLeft size={14} /> 返回资讯
+        </Link>
+
+        <section className={styles.panel}>
+          <SmartImage
+            sources={newsImageSources(item)}
+            title={item.title}
+            label={item.category}
+            meta={`${item.source} · ${item.publishedAt}`}
+            kind={inferContentVisualKind(`${item.category} ${item.title}`)}
+            style={{ maxHeight: 400, marginBottom: 24 }}
+            imageStyle={{ objectFit: "cover", background: "#f7fbfd", padding: 0 }}
+          />
+          <div className={styles.pillRow} style={{ marginBottom: 12 }}>
+            <span className={styles.tag}>{item.category}</span>
+            <span className={styles.tag}>{item.publishedAt}</span>
+            <span className={styles.tag}>{item.source}</span>
+            {item.importance >= 8 && <span className={styles.tag}>重要</span>}
+          </div>
+          <h1 className={styles.title} style={{ fontSize: 38 }}>{item.title}</h1>
+        </section>
+
+        <section className={styles.panel}>
+          <div className={styles.details} style={{ background: "#f7fbfd" }}>
+            <h2 className={styles.asideTitle}>小白先看这个</h2>
+            <p className={styles.panelDesc}><SeoKeywordLinks text={item.summary} maxLinks={5} /></p>
           </div>
           <ArticleBody text={buildNewsArticle(item)} />
           <SeoRelatedLinks text={`${item.title}\n${item.summary}\n${buildNewsArticle(item)}`} title="相关教程" limit={6} />
-          {item.url && item.url !== "#" && <p style={{fontSize:13,color:'#777',marginTop:24}}>本文已整理为站内可读版本，外部来源仅用于继续核对背景信息。</p>}
-        </div>
-        {item.url&&item.url!=="#"&&<a href={item.url} target="_blank" rel="noopener noreferrer" className="btn-outline" style={{marginTop:32}}>参考来源 →</a>}
-      </div>
+          {item.url && item.url !== "#" && (
+            <div className={styles.actions}>
+              <a href={item.url} target="_blank" rel="noopener noreferrer" className={styles.secondaryButton}>
+                参考来源 <ExternalLink size={14} />
+              </a>
+            </div>
+          )}
+        </section>
+
+        <BottomActionPanel
+          title="看完这篇资讯，下一步不要停在收藏"
+          text="如果它是新工具或新趋势，先回到学习路线找对应小科目；如果已经有想法，就去工具页补齐工作流，再到实战展示看别人怎么落地。"
+          actions={[
+            { href: "/learn", label: "回学习路线", tone: "primary" },
+            { href: "/tools", label: "找工具组合" },
+            { href: "/member-cases", label: "看实战展示" },
+          ]}
+        />
+      </main>
     </div>
   )
 }
