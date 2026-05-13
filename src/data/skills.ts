@@ -5,7 +5,7 @@ export interface Skill {
   downloads: string; url: string; tags: string[]
 }
 
-export type SkillCategory = "自动化"|"内容创作"|"数据分析"|"开发工具"|"通讯社交"|"办公效率"|"学习教育"|"生活娱乐"|"企业应用"|"安全隐私"|"AI音频"|"AI视频"|"AI设计"
+export type SkillCategory = "自动化"|"内容创作"|"数据分析"|"开发工具"|"通讯社交"|"办公效率"|"学习教育"|"生活娱乐"|"企业应用"|"安全隐私"|"AI音频"|"AI视频"|"AI设计"|"MCP连接"|"浏览器操作"|"知识库RAG"|"电商运营"|"增长获客"|"财务法务"|"本地模型"|"客户服务"
 
 export const skillCategories:{key:SkillCategory;label:string;icon:string}[]=[
   {key:"自动化",label:"自动化",icon:"🤖"},{key:"内容创作",label:"内容创作",icon:"🎨"},
@@ -15,6 +15,10 @@ export const skillCategories:{key:SkillCategory;label:string;icon:string}[]=[
   {key:"企业应用",label:"企业应用",icon:"🏢"},{key:"安全隐私",label:"安全隐私",icon:"🔒"},
   {key:"AI音频",label:"AI音频",icon:"🎧"},{key:"AI视频",label:"AI视频",icon:"🎬"},
   {key:"AI设计",label:"AI设计",icon:"🧩"},
+  {key:"MCP连接",label:"MCP连接",icon:"🔌"},{key:"浏览器操作",label:"浏览器操作",icon:"🌐"},
+  {key:"知识库RAG",label:"知识库RAG",icon:"🗂️"},{key:"电商运营",label:"电商运营",icon:"🛒"},
+  {key:"增长获客",label:"增长获客",icon:"📈"},{key:"财务法务",label:"财务法务",icon:"⚖️"},
+  {key:"本地模型",label:"本地模型",icon:"🧠"},{key:"客户服务",label:"客户服务",icon:"🎧"},
 ]
 
 export const skills:Skill[]=[
@@ -257,4 +261,38 @@ export const skills:Skill[]=[
   {id:"s178",name:"短视频去重",description:"AI智能去重处理：镜像/变速/色调/抽帧/加转场，降低搬运视频查重率。二创必备。",category:"AI视频",platform:"通用",difficulty:"简单",downloads:"14.6K",url:"https://clawhub.ai/skills",tags:["去重","短视频","搬运","二创"]},
   {id:"s179",name:"直播切片助手",description:"AI自动识别直播回放高光片段，一键切出多个短视频。直播带货的二次内容生产工具。",category:"AI视频",platform:"通用",difficulty:"中等",downloads:"11.2K",url:"https://clawhub.ai/skills",tags:["直播","切片","高光","带货"]},
   {id:"s180",name:"AI图标生成器",description:"输入关键词AI生成简洁图标，支持多尺寸多格式导出。App开发/PPT/网站都需要的图标工具。",category:"AI设计",platform:"通用",difficulty:"简单",downloads:"9.8K",url:"https://clawhub.ai/skills",tags:["图标","生成","多尺寸","设计"]},
+  // 真实工作流 Skill 扩充（2026-05）
+  {id:"skill-mcp-filesystem",name:"文件系统 MCP 连接",description:"给 Agent 开放指定目录的读写能力，适合整理资料、生成文件、批量改名和处理本地项目。必须限制工作目录，不能直接给全盘权限。",category:"MCP连接",platform:"通用",difficulty:"中等",downloads:"18.4K",url:"https://github.com/modelcontextprotocol/servers",tags:["MCP","文件","权限","本地"]},
+  {id:"skill-mcp-postgres",name:"Postgres MCP 查询",description:"让 Agent 用只读方式查询 Postgres 数据库，适合经营看板、订单分析、用户反馈和内部问答。正式使用前必须配置只读账号。",category:"MCP连接",platform:"通用",difficulty:"进阶",downloads:"13.2K",url:"https://github.com/modelcontextprotocol/servers",tags:["MCP","Postgres","数据库","只读"]},
+  {id:"skill-mcp-browserbase",name:"Browserbase 网页操作",description:"给 Agent 云浏览器能力，能打开网页、登录测试环境、抓取资料、截图和执行表单动作。适合没有 API 的网站流程。",category:"浏览器操作",platform:"通用",difficulty:"中等",downloads:"11.6K",url:"https://www.browserbase.com/stagehand/",tags:["浏览器","Stagehand","网页操作","截图"]},
+  {id:"skill-mcp-playwright",name:"Playwright 自动验收",description:"让 Agent 用浏览器跑页面验收，检查按钮、表单、移动端和截图。适合网站、小程序后台、落地页和工具页面上线前自检。",category:"浏览器操作",platform:"通用",difficulty:"中等",downloads:"15.8K",url:"https://playwright.dev",tags:["Playwright","验收","截图","前端"]},
+  {id:"skill-mcp-github",name:"GitHub Issue/PR 管理",description:"让 Agent 读取 Issue、创建分支、总结 PR、生成变更说明和检查 CI。适合研发团队把代码协作交给 Agent 辅助。",category:"开发工具",platform:"通用",difficulty:"中等",downloads:"16.7K",url:"https://github.com/modelcontextprotocol/servers",tags:["GitHub","PR","Issue","CI"]},
+  {id:"skill-managed-agents-orchestrator",name:"Managed Agents 主控编排",description:"按 Anthropic Managed Agents 思路设计主 Agent：先拆任务、分派子 Agent、收集证据、合并结果、最后由主 Agent 统一验收。适合深度研究、代码库分析、竞品调研和企业流程。",category:"开发工具",platform:"通用",difficulty:"进阶",downloads:"9.9K",url:"https://platform.claude.com/docs/en/managed-agents/multi-agent",tags:["Managed Agents","主控Agent","编排","验收"]},
+  {id:"skill-sessionstore-agent-memory",name:"SessionStore 会话状态库",description:"把每个子 Agent 的目标、输入、输出、文件、失败原因和下一步保存成 SessionStore。长任务中断后能继续，团队复盘时也能追踪每个判断来自哪里。",category:"开发工具",platform:"通用",difficulty:"进阶",downloads:"8.7K",url:"https://platform.claude.com/docs/en/managed-agents/multi-agent",tags:["SessionStore","会话","状态","可恢复"]},
+  {id:"skill-agent-worker-contract",name:"子 Agent 工作契约",description:"给每个子 Agent 规定输入、禁止事项、交付物、验收标准和回报格式，避免多个 Agent 互相污染上下文或重复做同一件事。",category:"开发工具",platform:"通用",difficulty:"中等",downloads:"11.1K",url:"https://docs.anthropic.com",tags:["多Agent","任务契约","隔离上下文","交付物"]},
+  {id:"skill-agent-shared-filesystem",name:"多 Agent 共享文件区",description:"设计一个共享工作目录，让子 Agent 只写自己的分析、截图、数据表或补丁，主 Agent 统一读取和合并，避免同时改同一个文件。",category:"开发工具",platform:"通用",difficulty:"中等",downloads:"10.4K",url:"https://platform.claude.com/docs/en/managed-agents/multi-agent",tags:["共享文件","工作区","协作","合并"]},
+  {id:"skill-mcp-figma",name:"Figma 设计读取",description:"让 Agent 读取 Figma 设计稿、变量、组件和截图，再转成前端实现计划。适合设计还原、组件库和设计系统。",category:"开发工具",platform:"通用",difficulty:"进阶",downloads:"9.4K",url:"https://www.figma.com",tags:["Figma","设计稿","组件","前端"]},
+  {id:"skill-rag-dify-kb",name:"Dify 客服知识库",description:"把 FAQ、产品说明、售后政策和订单流程切分成知识库，生成可转人工的客服 Bot。适合电商、课程、SaaS 和本地服务。",category:"知识库RAG",platform:"Dify",difficulty:"中等",downloads:"20.5K",url:"https://dify.ai",tags:["Dify","RAG","客服","转人工"]},
+  {id:"skill-rag-fastgpt",name:"FastGPT 企业问答",description:"用 FastGPT 搭建企业内部问答、制度查询、产品手册和客服辅助，适合国内团队低成本落地知识库。",category:"知识库RAG",platform:"通用",difficulty:"中等",downloads:"17.3K",url:"https://fastgpt.in",tags:["FastGPT","知识库","国内","企业"]},
+  {id:"skill-rag-flowise",name:"Flowise RAG 流程",description:"用可视化节点搭建检索、改写、重排和回答流程，适合想理解 RAG 每一步怎么工作的进阶用户。",category:"知识库RAG",platform:"通用",difficulty:"进阶",downloads:"12.6K",url:"https://flowiseai.com",tags:["Flowise","RAG","节点","可视化"]},
+  {id:"skill-rag-anythingllm",name:"AnythingLLM 本地知识库",description:"把个人资料、公司手册或课程文档放到本地优先知识库里，适合隐私资料和小团队离线问答。",category:"知识库RAG",platform:"通用",difficulty:"简单",downloads:"14.1K",url:"https://anythingllm.com",tags:["本地","知识库","隐私","文档问答"]},
+  {id:"skill-ecom-product-sheet",name:"电商商品资料清洗",description:"批量读取商品标题、规格、卖点、价格和图片链接，生成标准商品表、平台标题和详情页文案。",category:"电商运营",platform:"通用",difficulty:"简单",downloads:"19.2K",url:"https://clawhub.ai/skills",tags:["电商","商品表","标题","详情页"]},
+  {id:"skill-ecom-main-image",name:"商品主图批量生成",description:"用商品白底图生成多套场景主图、广告图和社媒图，适合淘宝、抖店、独立站和小红书种草。",category:"电商运营",platform:"通用",difficulty:"简单",downloads:"18.8K",url:"https://clawhub.ai/skills",tags:["商品图","主图","广告图","批量"]},
+  {id:"skill-ecom-review-mining",name:"竞品评价挖掘",description:"抓取竞品评论、差评、问大家和 Reddit/社媒讨论，提炼用户痛点、卖点和改进机会。",category:"电商运营",platform:"OpenClaw",difficulty:"中等",downloads:"12.9K",url:"https://clawhub.ai/skills",tags:["竞品","评价","痛点","卖点"]},
+  {id:"skill-ecom-customer-reply",name:"售后回复与工单分流",description:"根据订单问题、物流状态和售后政策生成回复，并把退款、换货、投诉和人工介入自动分流。",category:"客户服务",platform:"Dify",difficulty:"中等",downloads:"15.4K",url:"https://clawhub.ai/skills",tags:["客服","售后","工单","转人工"]},
+  {id:"skill-growth-rednote",name:"小红书选题雷达",description:"按人群、产品和关键词抓取小红书热门笔记，拆标题、封面、评论痛点，生成一周选题表。",category:"增长获客",platform:"OpenClaw",difficulty:"中等",downloads:"16.5K",url:"https://clawhub.ai/skills",tags:["小红书","选题","评论","获客"]},
+  {id:"skill-growth-zhihu",name:"知乎问答引流助手",description:"搜索高意向问题，生成带来源、带案例、带软入口的回答草稿，适合站长和知识付费低成本引流。",category:"增长获客",platform:"通用",difficulty:"中等",downloads:"11.7K",url:"https://clawhub.ai/skills",tags:["知乎","问答","引流","SEO"]},
+  {id:"skill-growth-shortclip",name:"短视频切片脚本",description:"把长视频、直播或播客拆成爆点片段，生成标题、字幕、封面文字和平台发布说明。",category:"增长获客",platform:"通用",difficulty:"简单",downloads:"17.9K",url:"https://clawhub.ai/skills",tags:["切片","短视频","字幕","发布"]},
+  {id:"skill-growth-cold-email",name:"冷邮件个性化外联",description:"读取目标客户网站和公开资料，生成个性化邮件、跟进节奏和 CRM 字段，适合 B2B 获客。",category:"增长获客",platform:"通用",difficulty:"中等",downloads:"9.8K",url:"https://clawhub.ai/skills",tags:["冷邮件","B2B","CRM","外联"]},
+  {id:"skill-finance-invoice",name:"发票识别与报销单",description:"拍照或上传发票、行程单、餐饮票，自动提取金额、日期、类型和项目，生成报销表。",category:"财务法务",platform:"通用",difficulty:"简单",downloads:"13.8K",url:"https://clawhub.ai/skills",tags:["发票","报销","OCR","财务"]},
+  {id:"skill-finance-budget",name:"月度预算复盘",description:"读取账单和表格，按餐饮、交通、工具订阅、学习和家庭支出分类，生成预算建议和异常提醒。",category:"财务法务",platform:"通用",difficulty:"简单",downloads:"10.9K",url:"https://clawhub.ai/skills",tags:["预算","账单","复盘","异常"]},
+  {id:"skill-legal-contract",name:"合同风险初筛",description:"上传合同草稿，标出付款、违约、保密、交付、管辖和自动续费等风险点。只做初筛，不替代律师意见。",category:"财务法务",platform:"通用",difficulty:"中等",downloads:"12.4K",url:"https://clawhub.ai/skills",tags:["合同","风险","法务","初筛"]},
+  {id:"skill-legal-policy-qa",name:"制度政策问答",description:"把公司制度、报销政策、合同模板和审批规范做成问答，回答时附引用来源，减少重复咨询。",category:"财务法务",platform:"Dify",difficulty:"中等",downloads:"8.6K",url:"https://clawhub.ai/skills",tags:["制度","政策","引用","问答"]},
+  {id:"skill-local-ollama",name:"Ollama 本地模型工作台",description:"安装 Ollama、拉取小模型、接入 Open WebUI 或 Cherry Studio，先跑通隐私资料的本地问答。",category:"本地模型",platform:"通用",difficulty:"中等",downloads:"21.2K",url:"https://ollama.com",tags:["Ollama","本地模型","隐私","OpenWebUI"]},
+  {id:"skill-local-comfyui",name:"ComfyUI 图片工作流",description:"安装 ComfyUI，跑通文生图、图生图、局部重绘、商品图和风格迁移，适合本地 GPU 用户。",category:"本地模型",platform:"通用",difficulty:"进阶",downloads:"18.6K",url:"https://github.com/comfyanonymous/ComfyUI",tags:["ComfyUI","本地GPU","绘图","工作流"]},
+  {id:"skill-local-whisper",name:"Whisper 本地转写",description:"用本地 Whisper/WhisperX 转写会议、课程、访谈和视频，适合隐私音频和批量字幕。",category:"本地模型",platform:"通用",difficulty:"中等",downloads:"14.8K",url:"https://github.com/openai/whisper",tags:["Whisper","转写","字幕","本地"]},
+  {id:"skill-local-rag",name:"本地 RAG 小助手",description:"用 Ollama、Chroma 和本地文档跑一个离线问答原型，适合学习知识库底层流程。",category:"本地模型",platform:"通用",difficulty:"进阶",downloads:"11.6K",url:"https://www.trychroma.com",tags:["本地RAG","Chroma","Ollama","离线"]},
+  {id:"skill-support-faq-router",name:"FAQ 自动分流",description:"把客户问题按售前、售后、物流、退款、技术、投诉分流，低风险问题自动答，高风险转人工。",category:"客户服务",platform:"Dify",difficulty:"简单",downloads:"15.9K",url:"https://clawhub.ai/skills",tags:["FAQ","分流","客服","转人工"]},
+  {id:"skill-support-quality-check",name:"客服质检复盘",description:"批量分析客服聊天记录，标记响应慢、答非所问、情绪风险、违规承诺和优秀话术。",category:"客户服务",platform:"通用",difficulty:"中等",downloads:"9.5K",url:"https://clawhub.ai/skills",tags:["质检","聊天记录","风险","话术"]},
+  {id:"skill-support-knowledge-gap",name:"知识库缺口发现",description:"统计客服 Bot 没答好、用户追问多、转人工频繁的问题，自动生成知识库补充清单。",category:"客户服务",platform:"通用",difficulty:"中等",downloads:"8.7K",url:"https://clawhub.ai/skills",tags:["知识库","缺口","客服Bot","优化"]},
 ]

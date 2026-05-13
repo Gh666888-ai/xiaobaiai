@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowRight, Bot, Boxes, ListTree, Search, TerminalSquare } from "lucide-react"
+import { ArrowRight, Bot, Boxes, ListTree, Puzzle, Search, TerminalSquare } from "lucide-react"
 import { tools, categories } from "@/data/tools"
 import { categoryPath } from "@/data/tool-meta"
 import { NavBar } from "@/components/NavBar"
@@ -36,9 +36,24 @@ const categoryIntro: Record<string, string> = {
   AI数据: "表格分析、BI 报告、SQL、数据清洗和趋势解释。",
   AI学习: "语言学习、考试训练、论文辅助、课程总结和个人教练。",
   AI效率: "任务管理、自动化、日程、邮件、个人知识库和效率插件。",
+  AI数字人: "数字人口播、课程讲解、多语言视频和品牌 IP 出镜。",
+  AI电商: "商品图、主图、广告视频、商品描述、竞品和店铺经营。",
+  AI客服: "客服 Agent、工单、知识库回复、质检、转人工和售后流程。",
+  AI知识库: "企业搜索、文档问答、SOP、开发者文档和团队知识沉淀。",
+  AI会议: "会议转写、纪要、行动项、CRM 同步和会议质量复盘。",
+  AI财务: "发票、报销、预算、预测、审计和财务流程自动化。",
+  AI法律: "合同审阅、法律研究、尽调、法务知识库和风险提示。",
+  AI安全: "代码安全、威胁分析、事件响应、模型安全和 AI 治理。",
+  AI低代码: "无代码应用、内部工具、业务后台、表单和移动端 MVP。",
+  AI浏览器: "页面理解、网页总结、浏览器 Agent 和跨网页研究。",
+  MCP工具: "给 Agent 连接浏览器、文件、数据库、设计和业务系统。",
+  向量数据库: "RAG、语义搜索、Embedding 存储和企业知识库底座。",
+  AI翻译: "网页双语、本地化、文档翻译、出海网站和多语言 SEO。",
+  AI求职: "简历优化、岗位匹配、求职信、投递管理和面试准备。",
+  AI科研: "论文阅读、引用判断、文献图谱、综述和研究资料整理。",
 }
 
-const focusCategoryKeys = ["对话AI", "AI编程", "Agent平台", "模型平台", "AI办公", "AI搜索", "AI数据", "AI绘图", "AI视频", "AI效率", "AI营销", "AI学习"]
+const focusCategoryKeys = ["对话AI", "AI编程", "Agent平台", "模型平台", "AI电商", "AI客服", "AI知识库", "AI数字人", "AI视频", "AI办公", "AI搜索", "MCP工具", "向量数据库", "AI营销", "AI学习", "AI安全"]
 
 const modelWorkflowKits = [
   {
@@ -94,6 +109,7 @@ const modelWorkflowKits = [
 const trendingToolTopics = [
   { title: "API 中转站", text: "多模型接入、成本控制、Key 安全和一人公司工作台。", href: "/learn/subjects/personal-growth/api-proxy-side-business" },
   { title: "MCP 工具连接", text: "Agent 要做事，必须安全连接文件、浏览器、数据库和业务系统。", href: "/learn/subjects/agent-coding/mcp-agent-tools" },
+  { title: "Managed Agents 架构", text: "主 Agent 拆任务，子 Agent 隔离执行，SessionStore 记录状态，适合研究、代码库分析和企业长任务。", href: "/learn/subjects/agent-coding/managed-agents-sessionstore" },
   { title: "AI 网关", text: "统一管理模型路由、工具调用、限额、日志和人工确认。", href: "/learn/subjects/automation/agent-gateway-routing" },
   { title: "AI 视频工作流", text: "脚本、分镜、图像、视频、配音、字幕和发布复盘。", href: "/learn/subjects/content-creation/hot-ai-video-workflow" },
   { title: "企业 Agent 试点", text: "客服、销售、财务、运营里选一个两周能验收的流程。", href: "/learn/subjects/business-ai/enterprise-agent-pilot" },
@@ -120,6 +136,13 @@ const resourceEntrances = [
     icon: Boxes,
     tag: "找工具",
     text: "按写作、办公、绘图、视频、编程、自动化等场景找工具，不按名字乱逛。",
+  },
+  {
+    title: "Agent 技能库",
+    href: "/skills",
+    icon: Puzzle,
+    tag: "装技能",
+    text: "按 MCP、浏览器、知识库、电商、增长、客服等真实工作流找 Skill，让 Agent 真的能做事。",
   },
   {
     title: "学习路线",

@@ -9,6 +9,17 @@ import { Search, Download, Sparkles } from "lucide-react"
 
 const PAGE_SIZE = 48
 
+const coreWorkflowSkillIds = [
+  "skill-managed-agents-orchestrator",
+  "skill-sessionstore-agent-memory",
+  "skill-agent-worker-contract",
+  "skill-agent-shared-filesystem",
+  "skill-mcp-browserbase",
+  "skill-rag-dify-kb",
+  "skill-ecom-customer-reply",
+  "skill-local-ollama",
+]
+
 const skillLabSteps = [
   {
     title: "先看来源",
@@ -52,6 +63,9 @@ export default function SkillsPage() {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const [fetchedSkills, setFetchedSkills] = useState<FetchedSkillItem[]>([])
   const recommendationPlan = recommendSkillsForGoal(goal, 4)
+  const coreWorkflowSkills = coreWorkflowSkillIds
+    .map(id => skills.find(skill => skill.id === id))
+    .filter((skill): skill is (typeof skills)[number] => Boolean(skill))
   const discoveredSkills = fetchedSkills
     .filter(item => item.score >= 65 && (item.recommendedFor.includes(recommendationPlan.track.shortTitle) || item.recommendedFor.some(label => recommendationPlan.track.title.includes(label))))
     .slice(0, 3)
@@ -110,6 +124,29 @@ export default function SkillsPage() {
                 <h3 style={{fontSize:16,fontWeight:950,color:'#fff',lineHeight:1.35,marginBottom:7}}>{item.title}</h3>
                 <p style={{fontSize:13,color:'#c9c9c9',lineHeight:1.7,margin:0}}>{item.desc}</p>
               </div>
+            ))}
+          </div>
+        </section>
+
+        <section style={{background:'rgba(159,199,255,0.06)',border:'1px solid rgba(159,199,255,0.22)',borderRadius:12,padding:20,marginBottom:16}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',gap:14,flexWrap:'wrap',marginBottom:14}}>
+            <div>
+              <p style={{fontFamily:"'JetBrains Mono',monospace",fontSize:10,letterSpacing:'0.16em',color:'#9fc7ff',fontWeight:900,marginBottom:7}}>CORE WORKFLOWS</p>
+              <h2 style={{fontSize:23,fontWeight:950,color:'#fff',lineHeight:1.35,margin:0}}>Agent core workflow skills</h2>
+            </div>
+            <span style={{fontSize:13,fontWeight:950,color:'#9fc7ff'}}>MCP / RAG / browser / SessionStore / support</span>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:10}}>
+            {coreWorkflowSkills.map(skill=>(
+              <button key={skill.id} onClick={()=>{setSearch(skill.name); setCat(skill.category); setVisibleCount(PAGE_SIZE)}}
+                style={{textAlign:'left',border:'1px solid rgba(255,255,255,0.08)',background:'rgba(0,0,0,0.24)',borderRadius:10,padding:14,cursor:'pointer'}}>
+                <div style={{display:'flex',justifyContent:'space-between',gap:10,alignItems:'flex-start',marginBottom:8}}>
+                  <h3 style={{fontSize:16,fontWeight:950,color:'#fff',lineHeight:1.35,margin:0}}>{skill.name}</h3>
+                  <span style={{fontSize:11,fontWeight:900,color:'#9fc7ff',whiteSpace:'nowrap'}}>{skill.difficulty}</span>
+                </div>
+                <p style={{fontSize:13,color:'#cfcfcf',lineHeight:1.65,margin:'0 0 10px'}}>{skill.description}</p>
+                <p style={{fontSize:12,fontWeight:900,color:'#9fd6ae',lineHeight:1.5,margin:0}}>{skill.category} 路 {skill.platform}</p>
+              </button>
             ))}
           </div>
         </section>

@@ -1568,6 +1568,26 @@ learningCatalog.find((major) => major.id === "agent-coding")?.subjects.push(
   },
 )
 
+learningCatalog.find((major) => major.id === "agent-coding")?.subjects.push(
+  {
+    id: "managed-agents-sessionstore",
+    title: "Managed Agents 与 SessionStore",
+    description: "把一个大 Agent 拆成主控 Agent 和多个子 Agent：主控负责任务拆解、调度和最终验收，子 Agent 各自用隔离上下文完成研究、审查、测试或资料整理，再把结论交回主控。SessionStore 用来保存计划、子任务、文件、失败原因和下一步，让长任务能继续、能追踪、能复盘。",
+    goal: "画出一张多 Agent 协作架构图，并做出一份子 Agent 工作契约和 SessionStore 状态表。",
+    level: "advanced",
+    minutes: 135,
+    prerequisites: ["agent-concepts", "install-agent", "mcp-agent-tools"],
+    tutorials: [
+      { id: "managed-agents-why", title: "为什么要把一个大任务拆成多个 Agent", kind: "concept", minutes: 22, deliverable: "适合拆分和不适合拆分的任务清单", href: "/tools/Agent平台/claude-managed-agents" },
+      { id: "lead-worker-contract", title: "主 Agent 和子 Agent 怎么分工", kind: "practice", minutes: 28, deliverable: "主控/研究/审查/执行四类 Agent 职责表", href: "/skills" },
+      { id: "sessionstore-state-table", title: "SessionStore 到底要记什么", kind: "practice", minutes: 30, deliverable: "任务状态、文件、结论、失败原因和下一步表格", href: "/learn/subjects/agent-coding/managed-agents-sessionstore" },
+      { id: "shared-filesystem-rules", title: "共享文件区怎么避免互相覆盖", kind: "check", minutes: 25, deliverable: "共享目录命名、写入范围和合并规则", href: "/skills" },
+      { id: "human-review-gate", title: "哪些步骤必须留给人验收", kind: "check", minutes: 20, deliverable: "人工确认点和失败回滚清单", href: "/missions/codex-small-feature" },
+    ],
+    missions: ["agent-skill-first-install", "codex-small-feature", "industry-skill-stack-plan"],
+  },
+)
+
 learningCatalog.find((major) => major.id === "automation")?.subjects.push(
   {
     id: "agent-gateway-routing",

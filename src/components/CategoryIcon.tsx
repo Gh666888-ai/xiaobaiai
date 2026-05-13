@@ -16,6 +16,21 @@ const iconMap: Record<string, any> = {
   AI数据: BarChart3,
   AI学习: GraduationCap,
   AI效率: Sparkles,
+  AI数字人: Video,
+  AI电商: Briefcase,
+  AI客服: Bot,
+  AI知识库: BrainCircuit,
+  AI会议: FileAudio,
+  AI财务: BarChart3,
+  AI法律: Briefcase,
+  AI安全: Sparkles,
+  AI低代码: Code2,
+  AI浏览器: Search,
+  MCP工具: Workflow,
+  向量数据库: BrainCircuit,
+  AI翻译: PenLine,
+  AI求职: Briefcase,
+  AI科研: GraduationCap,
 }
 
 const paletteMap: Record<string, { bg: string; color: string; glow: string }> = {
@@ -34,6 +49,21 @@ const paletteMap: Record<string, { bg: string; color: string; glow: string }> = 
   AI数据: { bg: "linear-gradient(145deg,#f5fff8,#73dfa5 46%,#247c89)", color: "#061e13", glow: "rgba(115,223,165,0.32)" },
   AI学习: { bg: "linear-gradient(145deg,#f7fbff,#91c7ff 46%,#5365d6)", color: "#071326", glow: "rgba(145,199,255,0.34)" },
   AI效率: { bg: "linear-gradient(145deg,#fbfff2,#d7f76f 46%,#44833a)", color: "#142006", glow: "rgba(215,247,111,0.32)" },
+  AI数字人: { bg: "linear-gradient(145deg,#f4fbff,#7ad7ff 46%,#6e4acb)", color: "#081228", glow: "rgba(122,215,255,0.34)" },
+  AI电商: { bg: "linear-gradient(145deg,#f6fff8,#65e7a0 46%,#14807c)", color: "#061c11", glow: "rgba(101,231,160,0.32)" },
+  AI客服: { bg: "linear-gradient(145deg,#fff7f1,#ffa46e 46%,#b84d63)", color: "#2a0d04", glow: "rgba(255,164,110,0.34)" },
+  AI知识库: { bg: "linear-gradient(145deg,#f4fbff,#78c9ff 46%,#255d96)", color: "#071725", glow: "rgba(120,201,255,0.32)" },
+  AI会议: { bg: "linear-gradient(145deg,#fbf8ff,#c498ff 46%,#5152b9)", color: "#180c29", glow: "rgba(196,152,255,0.34)" },
+  AI财务: { bg: "linear-gradient(145deg,#f4fff8,#7ce4ad 46%,#27735f)", color: "#071b11", glow: "rgba(124,228,173,0.32)" },
+  AI法律: { bg: "linear-gradient(145deg,#f8fbff,#9cbcff 46%,#4b5fa9)", color: "#0a1226", glow: "rgba(156,188,255,0.32)" },
+  AI安全: { bg: "linear-gradient(145deg,#fff7f7,#ff9090 46%,#94466b)", color: "#2c0808", glow: "rgba(255,144,144,0.34)" },
+  AI低代码: { bg: "linear-gradient(145deg,#f5fff9,#8be7c2 46%,#337c8c)", color: "#071d16", glow: "rgba(139,231,194,0.32)" },
+  AI浏览器: { bg: "linear-gradient(145deg,#f3fbff,#7fcfff 46%,#315fbe)", color: "#071626", glow: "rgba(127,207,255,0.32)" },
+  MCP工具: { bg: "linear-gradient(145deg,#f5fffd,#68eadb 46%,#2d6f95)", color: "#061d1b", glow: "rgba(104,234,219,0.34)" },
+  向量数据库: { bg: "linear-gradient(145deg,#f8f7ff,#b7a2ff 46%,#6041a8)", color: "#140b2b", glow: "rgba(183,162,255,0.34)" },
+  AI翻译: { bg: "linear-gradient(145deg,#fffdf5,#f6d96c 46%,#7b7f2c)", color: "#201905", glow: "rgba(246,217,108,0.28)" },
+  AI求职: { bg: "linear-gradient(145deg,#f7fbff,#8ec5ff 46%,#3f709f)", color: "#071827", glow: "rgba(142,197,255,0.32)" },
+  AI科研: { bg: "linear-gradient(145deg,#f7fff9,#9fe3a5 46%,#4b7a7f)", color: "#091c10", glow: "rgba(159,227,165,0.3)" },
 }
 
 type CategoryIconProps = {
