@@ -115,6 +115,35 @@ function buildMissionPlaybook(mission: Mission) {
   }
 }
 
+function buildExecutionChecklist(mission: Mission, playbook: ReturnType<typeof buildMissionPlaybook>) {
+  const firstMaterial = playbook.materials.slice(0, 2).join("、") || "一个真实场景和一份真实材料"
+  const firstValidation = playbook.validation[0] || "能看到明确交付物"
+  const hasFixPrompt = mission.steps.some((step) => Boolean(step.fixPrompt))
+
+  return [
+    {
+      title: "准备材料",
+      text: firstMaterial,
+    },
+    {
+      title: "复制提示词",
+      text: "先跑出第一版结果，不在工具选择上卡住。",
+    },
+    {
+      title: "按标准验收",
+      text: firstValidation,
+    },
+    {
+      title: "二次修复",
+      text: hasFixPrompt ? "结果不好时直接用修复提示词再跑一版。" : "补充背景、格式和验收标准后再生成。",
+    },
+    {
+      title: "保存复盘",
+      text: playbook.recap,
+    },
+  ]
+}
+
 export function MissionDetailClient({ mission }: { mission: Mission }) {
   const { user, refresh } = useAuth()
   const [progress, setProgress] = useState<MissionProgressState>(() => ({ activeMissionId: mission.id, missions: {} }))
@@ -141,6 +170,7 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
   const missionIndex = missions.findIndex((item) => item.id === mission.id)
   const nextMission = missionIndex >= 0 ? missions[(missionIndex + 1) % missions.length] : missions.find((item) => item.id !== mission.id)
   const missionPlaybook = useMemo(() => buildMissionPlaybook(mission), [mission])
+  const executionChecklist = useMemo(() => buildExecutionChecklist(mission, missionPlaybook), [mission, missionPlaybook])
 
   function persist(next: MissionProgressState) {
     setProgress(next)
@@ -240,6 +270,8 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
             ))}
           </div>
         </section>
+
+        <MissionExecutionStrip mission={mission} checklist={executionChecklist} />
 
         <section className="mission-mvp-playbook" style={missionPlaybookStyle}>
           <div>
@@ -359,7 +391,7 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
           </section>
         </section>
 
-        <style>{`
+        <style dangerouslySetInnerHTML={{ __html: `
           .xb-workbench {
             background: radial-gradient(circle at top left, rgba(37,109,133,0.08), transparent 34%), linear-gradient(180deg,#f6f9fc 0%,#eef4f8 100%) !important;
             color: #17202a !important;
@@ -441,16 +473,59 @@ export function MissionDetailClient({ mission }: { mission: Mission }) {
             .mission-shell aside { position: static !important; }
             .mission-head { grid-template-columns: 1fr !important; }
             .mission-depth-intro { grid-template-columns: 1fr !important; }
+            .mission-execution-summary { grid-template-columns: 1fr !important; }
+            .mission-execution-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
           }
           @media (max-width: 720px) {
-            .step-action-row, .case-grid, .mission-mvp-grid { grid-template-columns: 1fr !important; }
+            .step-action-row, .case-grid, .mission-mvp-grid, .mission-execution-grid { grid-template-columns: 1fr !important; }
             .mission-step-top { grid-template-columns: 1fr !important; }
           }
-        `}</style>
+        ` }} />
       </main>
     </div>
   )
 }
+
+function MissionExecutionStrip({
+  mission,
+  checklist,
+}: {
+  mission: Mission
+  checklist: ReturnType<typeof buildExecutionChecklist>
+}) {
+  return (
+    <section className="mission-execution-strip" style={missionExecutionStripStyle}>
+      <div className="mission-execution-summary" style={missionExecutionSummaryStyle}>
+        <div>
+          <p style={{ color: "#256d85", fontSize: 12, fontWeight: 950, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 8 }}>EXECUTION CHECKLIST</p>
+          <h2 style={{ color: "#17202a", fontSize: 23, fontWeight: 950, lineHeight: 1.35, marginBottom: 8 }}>先照这个顺序做，不用自己猜下一步</h2>
+          <p style={{ color: "#667586", fontSize: 14, lineHeight: 1.8 }}>这个任务的目标是拿到一个能保存、能复用、能继续改进的结果。每一步都先做小交付，再验收。</p>
+        </div>
+        <div style={missionOutcomeCardStyle}>
+          <span style={{ color: "#667586", fontSize: 12, fontWeight: 950 }}>最终交付物</span>
+          <strong style={{ color: "#17202a", fontSize: 15, lineHeight: 1.65 }}>{mission.outcome}</strong>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+            <span style={missionMetaPillStyle}>{mission.minutes}</span>
+            <span style={missionMetaPillStyle}>{mission.difficulty}</span>
+            <span style={missionMetaPillStyle}>{mission.steps.length} 步</span>
+          </div>
+        </div>
+      </div>
+      <div className="mission-execution-grid" style={missionExecutionGridStyle}>
+        {checklist.map((item, index) => (
+          <div key={item.title} style={missionExecutionItemStyle}>
+            <span style={missionExecutionIndexStyle}>{index + 1}</span>
+            <div>
+              <strong style={{ color: "#17202a", fontSize: 15, fontWeight: 950, lineHeight: 1.45 }}>{item.title}</strong>
+              <p style={{ color: "#667586", fontSize: 13, lineHeight: 1.7, marginTop: 5 }}>{item.text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 function StepCard({
   mission,
   stepIndex,
@@ -475,16 +550,16 @@ function StepCard({
   const guidePhases =
     stepIndex === 0
       ? [
-          { key: "tool", label: "打开工具", doneText: step.toolAction ? "工具能打开，继续" : "我已经打开可用工具" },
-          { key: "inspect", label: "确认入口", doneText: "入口找到了，继续" },
-          { key: "done", label: "确认完成", doneText: "" },
+          { key: "tool", label: "准备并打开工具", doneText: step.toolAction ? "工具能打开，继续" : "我已经打开可用工具" },
+          { key: "inspect", label: "确认能继续操作", doneText: "入口找到了，继续" },
+          { key: "done", label: "保存这一小步", doneText: "" },
         ]
       : [
-          { key: "make", label: "复制模板并生成", doneText: "我已经生成出结果" },
-          { key: "inspect", label: "验收结果", doneText: "我按标准看过了" },
-          ...(hasFixPrompt ? [{ key: "improve", label: "二次修改", doneText: "我知道怎么补救了" }] : []),
-          { key: "recap", label: "沉淀经验", doneText: "我记住这一步经验了" },
-          { key: "done", label: "确认进入下一步", doneText: "" },
+          { key: "make", label: "复制提示词并生成", doneText: "我已经生成出结果" },
+          { key: "inspect", label: "按标准验收", doneText: "我按标准看过了" },
+          ...(hasFixPrompt ? [{ key: "improve", label: "结果不好先修复", doneText: "我知道怎么补救了" }] : []),
+          { key: "recap", label: "保存复盘经验", doneText: "我记住这一步经验了" },
+          { key: "done", label: "进入下一步", doneText: "" },
         ]
   const currentGuideStep = Math.min(guideStep, guidePhases.length - 1)
   const currentPhase = guidePhases[currentGuideStep]
@@ -817,6 +892,75 @@ const primaryBlockStyle: CSSProperties = {
   borderRadius: 12,
   padding: "18px 20px",
   marginBottom: 14,
+}
+
+const missionExecutionStripStyle: CSSProperties = {
+  display: "grid",
+  gap: 16,
+  border: "1px solid #dfe7ee",
+  background: "rgba(255,255,255,0.96)",
+  borderRadius: 14,
+  padding: "20px",
+  marginBottom: 18,
+  boxShadow: "0 16px 46px rgba(15,23,42,0.06)",
+}
+
+const missionExecutionSummaryStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "1fr minmax(260px, 360px)",
+  gap: 16,
+  alignItems: "stretch",
+}
+
+const missionOutcomeCardStyle: CSSProperties = {
+  display: "grid",
+  gap: 8,
+  alignContent: "start",
+  border: "1px solid #dfe7ee",
+  background: "#f7fbfd",
+  borderRadius: 12,
+  padding: "15px 16px",
+}
+
+const missionMetaPillStyle: CSSProperties = {
+  border: "1px solid #cfd9e3",
+  background: "#fff",
+  color: "#256d85",
+  borderRadius: 999,
+  padding: "7px 10px",
+  fontSize: 12,
+  fontWeight: 950,
+}
+
+const missionExecutionGridStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+  gap: 10,
+}
+
+const missionExecutionItemStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "30px 1fr",
+  gap: 10,
+  alignItems: "start",
+  border: "1px solid #dfe7ee",
+  background: "#f7fbfd",
+  borderRadius: 12,
+  padding: "14px",
+  minHeight: 130,
+}
+
+const missionExecutionIndexStyle: CSSProperties = {
+  width: 28,
+  height: 28,
+  borderRadius: "50%",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: "#17202a",
+  color: "#fff",
+  fontSize: 13,
+  fontWeight: 950,
 }
 
 const depthIntroStyle: CSSProperties = {

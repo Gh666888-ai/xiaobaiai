@@ -184,6 +184,133 @@ function LearningDiagram({ subject }: { subject?: MinorSubject }) {
   )
 }
 
+function buildMinorActionPath(subject: MinorSubject) {
+  const firstTutorial = subject.tutorials[0]
+  const secondTutorial = subject.tutorials[1]
+  const finalTutorial = subject.tutorials[subject.tutorials.length - 1]
+  const firstMission = subject.missions[0] ? missionById(subject.missions[0]) : undefined
+
+  return [
+    {
+      label: "先学",
+      title: firstTutorial?.title || "看第一节教程",
+      text: firstTutorial ? `先拿到：${firstTutorial.deliverable}` : "先理解这个小科目的目标和交付物。",
+      href: firstTutorial ? "" : "",
+      kind: "tutorial",
+    },
+    {
+      label: "再练",
+      title: secondTutorial?.title || finalTutorial?.title || "补齐关键步骤",
+      text: secondTutorial ? `继续做出：${secondTutorial.deliverable}` : "把第一步结果按验收标准检查一遍。",
+      href: secondTutorial ? "" : "",
+      kind: "tutorial",
+    },
+    {
+      label: "验收",
+      title: firstMission?.shortTitle || "做一个可检查任务",
+      text: firstMission ? firstMission.outcome : "用真实材料做一次小交付，不只收藏教程。",
+      href: firstMission ? `/missions/${firstMission.id}` : "",
+      kind: "mission",
+    },
+    {
+      label: "复盘",
+      title: "写下能复用的方法",
+      text: "记录材料、提示词、验收标准、哪里失败、下一版怎么改。",
+      href: "/community",
+      kind: "recap",
+    },
+  ]
+}
+
+function MinorActionPath({ major, subject }: { major: MajorSubject; subject: MinorSubject }) {
+  const path = buildMinorActionPath(subject)
+  return (
+    <section className={styles.minorActionPath}>
+      <div className={styles.minorActionHead}>
+        <div>
+          <p className={styles.eyebrow}>WHAT TO DO NEXT</p>
+          <h2>这个小科目怎么走</h2>
+          <p>先学方法，再做任务验收。教程负责教会，任务负责证明你真的做出来了。</p>
+        </div>
+        <Link className={styles.minorActionPrimary} href={subject.missions[0] ? `/missions/${subject.missions[0]}` : "#tutorial-list"}>
+          直接进入实操
+        </Link>
+      </div>
+      <div className={styles.minorActionTrack}>
+        {path.map((item, index) => {
+          const tutorial = item.kind === "tutorial" ? subject.tutorials[index] || subject.tutorials[subject.tutorials.length - 1] : undefined
+          const href = tutorial ? tutorialHref(major.id, subject.id, tutorial.id) : item.href || "#tutorial-list"
+          return (
+            <Link className={styles.minorActionNode} href={href} key={`${item.label}-${index}`}>
+              <span>{index + 1}</span>
+              <strong>{item.label}</strong>
+              <em>{item.title}</em>
+              <p>{item.text}</p>
+            </Link>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+function TutorialNextActionBand({
+  major,
+  subject,
+  tutorial,
+  nextTutorial,
+  primaryMission,
+}: {
+  major: MajorSubject
+  subject: MinorSubject
+  tutorial: TutorialItem
+  nextTutorial?: TutorialItem
+  primaryMission?: string
+}) {
+  const mission = primaryMission ? missionById(primaryMission) : undefined
+  return (
+    <section className={styles.tutorialNextBand}>
+      <div>
+        <p className={styles.eyebrow}>NEXT ACTION</p>
+        <h2>这节课看完以后，别停在收藏</h2>
+        <p>先保存这节课的交付物，再选一个下一步。小白AI的学习目标不是看懂，而是做出一个能复用的小成果。</p>
+      </div>
+      <div className={styles.tutorialNextGrid}>
+        {mission ? (
+          <Link className={styles.tutorialNextCardPrimary} href={`/missions/${mission.id}`}>
+            <span>实操验收</span>
+            <strong>{mission.shortTitle}</strong>
+            <p>{mission.outcome}</p>
+          </Link>
+        ) : null}
+        {nextTutorial ? (
+          <Link className={styles.tutorialNextCard} href={tutorialHref(major.id, subject.id, nextTutorial.id)}>
+            <span>继续学习</span>
+            <strong>{nextTutorial.title}</strong>
+            <p>继续同一个小科目的下一课，但学完后仍要回到任务里验收。</p>
+          </Link>
+        ) : (
+          <Link className={styles.tutorialNextCard} href={minorHref(major.id, subject.id)}>
+            <span>回到小科目</span>
+            <strong>{subject.title}</strong>
+            <p>这个小科目的教程已经到尾部，回去补任务或查看其他教程。</p>
+          </Link>
+        )}
+        <Link className={styles.tutorialNextCard} href="/community">
+          <span>复盘沉淀</span>
+          <strong>发布一次学习复盘</strong>
+          <p>写清楚：我做出了什么、哪里卡住、下一版准备用什么方法修。</p>
+        </Link>
+        <Link className={styles.tutorialNextCard} href={minorHref(major.id, subject.id)}>
+          <span>当前交付物</span>
+          <strong>{tutorial.deliverable}</strong>
+          <p>如果还没有这个结果，先回到本页步骤补完，不急着跳下一页。</p>
+        </Link>
+      </div>
+    </section>
+  )
+}
+
 function Breadcrumb({ items }: { items: Array<{ label: string; href?: string }> }) {
   return (
     <nav className={styles.breadcrumb} aria-label="学习路径位置">
@@ -194,6 +321,77 @@ function Breadcrumb({ items }: { items: Array<{ label: string; href?: string }> 
         </span>
       ))}
     </nav>
+  )
+}
+
+const sceneEntries = [
+  {
+    id: "workday-ai-boost",
+    title: "我是职场人",
+    subtitle: "明天上班就想省时间",
+    desc: "把阅读资料、写消息、整理表格和下班复盘串成一天提效卡。",
+    href: minorHref("personal-growth", "workday-ai-boost"),
+    missionHref: "/missions/workday-ai-boost-plan",
+    result: "职场一天 AI 提效卡",
+  },
+  {
+    id: "student-ai-study-upgrade",
+    title: "我是学生/自学者",
+    subtitle: "想把一个知识点学会",
+    desc: "让 AI 讲懂、出题、批改错题，再安排 3 天复习。",
+    href: minorHref("personal-growth", "student-ai-study-upgrade"),
+    missionHref: "/missions/student-ai-study-upgrade-plan",
+    result: "3 天学习提升计划",
+  },
+  {
+    id: "family-ai-household",
+    title: "我要管家庭生活",
+    subtitle: "日程、孩子、旅行、开支太乱",
+    desc: "整理家人需求、时间、预算和每天动作，做 7 天家庭协作卡。",
+    href: minorHref("personal-growth", "family-ai-household"),
+    missionHref: "/missions/family-ai-household-plan",
+    result: "家庭 7 天协作卡",
+  },
+  {
+    id: "side-income-content-sprint",
+    title: "我想做副业内容",
+    subtitle: "先做一条能发布的内容",
+    desc: "从目标人群、真实经历、选题、草稿到发布检查，跑一轮内容输出。",
+    href: minorHref("personal-growth", "side-income-content-sprint"),
+    missionHref: "/missions/side-income-content-sprint",
+    result: "7 天副业内容计划",
+  },
+  {
+    id: "one-person-company-starter",
+    title: "我想做一人公司",
+    subtitle: "定位、服务包、报价先成型",
+    desc: "把服务定位、报价、信任内容、咨询话术和交付验收压成起步包。",
+    href: minorHref("personal-growth", "one-person-company-starter"),
+    missionHref: "/missions/one-person-company-starter-plan",
+    result: "一人公司 7 天起步包",
+  },
+]
+
+function SceneEntryGrid({ compact = false }: { compact?: boolean }) {
+  return (
+    <div className={cn(styles.sceneEntryGrid, compact && styles.sceneEntryGridCompact)}>
+      {sceneEntries.map((entry) => (
+        <article className={styles.sceneEntryCard} key={entry.id}>
+          <div>
+            <span className={styles.sceneEntryLabel}>{entry.subtitle}</span>
+            <h3>{entry.title}</h3>
+            <p>{entry.desc}</p>
+          </div>
+          <div className={styles.sceneEntryFooter}>
+            <span>交付物：{entry.result}</span>
+            <div>
+              <Link href={entry.href}>看路径</Link>
+              <Link href={entry.missionHref}>做任务</Link>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
   )
 }
 
@@ -209,6 +407,17 @@ export function LearningHome() {
         <Link className={styles.primaryButton} href={subjectHref("ai-basics")}>我是新手，从这里开始</Link>
         <Link className={styles.secondaryButton} href="/learn/tutorials">只看教程</Link>
       </Hero>
+
+      <section className={styles.sectionPanel}>
+        <div className={styles.sectionHead}>
+          <div>
+            <p className={styles.eyebrow}>START BY SCENE</p>
+            <h2 className={styles.sectionTitle}>按你的身份开始</h2>
+            <p className={styles.sectionDesc}>如果不想先研究路线图，直接选最像自己的入口。每个入口都能落到一个可完成任务。</p>
+          </div>
+        </div>
+        <SceneEntryGrid />
+      </section>
 
       <section className={styles.sectionPanel}>
         <div className={styles.mapHeader}>
@@ -361,7 +570,7 @@ function RoadmapVisual({
 function VerticalRoadmapVisual({ catalog }: { catalog: MajorSubject[] }) {
   const major = (id: string) => catalog.find((item) => item.id === id)
   const routeNodes = [
-    { id: "start", title: "共同起点", text: "先做出第一个 AI 成果，知道模型、工具、Agent 和工作流的区别。", href: subjectHref("ai-basics"), x: 390, y: 36, w: 220, tone: "main" },
+    { id: "start", title: "共同起点", text: "先学会每天用 AI 做真实小事，再学提示词、上下文、搜索研究、模型和 Agent。", href: subjectHref("ai-basics"), x: 390, y: 36, w: 220, tone: "main" },
     { id: "office", title: "办公提效", text: "PPT、文档、会议、表格，先把每天重复工作变快。", href: subjectHref("office-productivity"), x: 132, y: 190, w: 210, tone: "branch" },
     { id: "content", title: "内容创作", text: "图文、短视频、脚本、分镜，先做可发布作品。", href: subjectHref("content-creation"), x: 395, y: 190, w: 210, tone: "branch" },
     { id: "agent", title: "Agent 与自动化", text: "让 AI 帮你读项目、改文件、跑流程、发提醒。", href: subjectHref("agent-coding"), x: 660, y: 190, w: 210, tone: "branch" },
@@ -372,17 +581,35 @@ function VerticalRoadmapVisual({ catalog }: { catalog: MajorSubject[] }) {
     { id: "solo", title: "一人公司项目", text: "接单服务、创作者工作室、个人 Agent、课程和小产品。", href: minorHref("personal-growth", "freelance-service"), x: 282, y: 560, w: 210, tone: "leaf" },
     { id: "company", title: "团队公司项目", text: "客服知识库、部门 SOP、自动日报、销售话术、培训系统。", href: subjectHref("business-ai"), x: 522, y: 560, w: 210, tone: "leaf" },
     { id: "industry", title: "行业 AI 项目", text: "餐饮、电商、教育、工厂、财税、法律、医美等行业落地。", href: subjectHref("industry-playbooks"), x: 762, y: 560, w: 210, tone: "leaf" },
-    { id: "models", title: "模型选择", text: "选大脑：看场景、价格、上下文、API 和本地模型。", href: "/models", x: 30, y: 738, w: 180, tone: "resource" },
-    { id: "agent-install", title: "Agent 安装", text: "装好执行工具，接上模型，再回项目里实操。", href: "/agent-install", x: 220, y: 738, w: 180, tone: "resource" },
-    { id: "tools", title: "工具资源", text: "按场景找工具，服务学习、行业项目和团队提效。", href: "/tools", x: 410, y: 738, w: 180, tone: "resource" },
-    { id: "cases", title: "实战展示", text: "看别人完整跑通的项目、结果、工具和踩坑。", href: "/member-cases", x: 600, y: 738, w: 180, tone: "resource" },
-    { id: "community", title: "社区复盘", text: "教程和任务做完后，把问题、结果和复盘发出来。", href: "/community", x: 790, y: 738, w: 180, tone: "resource" },
+    { id: "opc", title: "OPC 变现试验", text: "定位、服务包、信任内容、报价、交付和复盘，先跑 7 天闭环。", href: minorHref("personal-growth", "opc-super-individual"), x: 132, y: 724, w: 230, tone: "personal" },
+    { id: "visual", title: "视觉资产 MVP", text: "ComfyUI、角色场景、短剧分镜、图文配图，先做可展示素材包。", href: minorHref("content-creation", "comfyui-visual-asset-mvp"), x: 395, y: 724, w: 230, tone: "branch" },
+    { id: "pipeline", title: "管道收入复购", text: "获客入口、信任内容、体验、交付、复购和转介绍。", href: minorHref("personal-growth", "pipeline-income-system"), x: 660, y: 724, w: 230, tone: "team" },
+    { id: "frontier", title: "正文拆解与前沿雷达", text: "读正文，拆知识点，再判断资讯、论文、产品数据和硬件趋势该学该试还是观察。", href: minorHref("ai-basics", "ai-source-digestion"), x: 42, y: 884, w: 210, tone: "leaf" },
+    { id: "knowledge-qa", title: "知识库问答", text: "把文档、教程、案例和 FAQ 变成可搜索、可追溯、可更新的问答系统。", href: minorHref("business-ai", "searchable-knowledge-qa"), x: 282, y: 884, w: 210, tone: "team" },
+    { id: "multimodal", title: "音乐 3D 世界模型", text: "声音、3D、空间内容和世界模型，先做一个 30 秒概念 Demo。", href: minorHref("content-creation", "ai-music-3d-world-model"), x: 522, y: 884, w: 210, tone: "branch" },
+    { id: "embodied", title: "具身与空间计算", text: "机器人、AI 硬件、VR 和空间计算，先做机会图和低成本体验计划。", href: minorHref("ai-basics", "embodied-spatial-ai-primer"), x: 762, y: 884, w: 210, tone: "leaf" },
+    { id: "write", title: "会写会改", text: "消息、邮件、通知、文案和汇报段落，先写清读者、目的、材料和语气。", href: minorHref("ai-basics", "ai-writing-rewrite-training"), x: 162, y: 1084, w: 220, tone: "leaf" },
+    { id: "read", title: "会读资料", text: "文章、截图、聊天记录和说明书，拆成事实、风险、问题和行动。", href: minorHref("ai-basics", "ai-reading-material-training"), x: 402, y: 1084, w: 220, tone: "leaf" },
+    { id: "decide", title: "会辅助决策", text: "把纠结变成选项、标准、风险和低成本验证动作，人来拍板。", href: minorHref("ai-basics", "ai-decision-helper-training"), x: 642, y: 1084, w: 220, tone: "leaf" },
+    { id: "data", title: "会整理数据", text: "账单、名单、订单和打卡记录，整理成表格、异常和待确认清单。", href: minorHref("ai-basics", "ai-table-data-cleanup"), x: 162, y: 1260, w: 220, tone: "leaf" },
+    { id: "life", title: "会管理生活", text: "家庭、旅行、亲子、健康、财务和日程，拆成 7 天可执行动作。", href: minorHref("ai-basics", "ai-life-management"), x: 402, y: 1260, w: 220, tone: "leaf" },
+    { id: "coach", title: "会学习陪练", text: "让 AI 讲懂、出题、讲错题、做复习表，把一个知识点学会。", href: minorHref("ai-basics", "ai-learning-coach"), x: 642, y: 1260, w: 220, tone: "leaf" },
+    { id: "workday", title: "职场一天提效", text: "阅读、沟通、表格、会议和复盘，先省出 1 小时。", href: minorHref("personal-growth", "workday-ai-boost"), x: 30, y: 1440, w: 180, tone: "personal" },
+    { id: "student", title: "学生学习提升", text: "讲解、出题、错题和复习表，学会一个知识点。", href: minorHref("personal-growth", "student-ai-study-upgrade"), x: 220, y: 1440, w: 180, tone: "personal" },
+    { id: "family", title: "家庭管理", text: "家人需求、预算、日程和 7 天协作卡。", href: minorHref("personal-growth", "family-ai-household"), x: 410, y: 1440, w: 180, tone: "personal" },
+    { id: "side-income", title: "副业内容", text: "选题、素材、草稿、发布检查和复盘。", href: minorHref("personal-growth", "side-income-content-sprint"), x: 600, y: 1440, w: 180, tone: "personal" },
+    { id: "one-company-start", title: "一人公司起步", text: "定位、服务包、报价、内容和交付验收。", href: minorHref("personal-growth", "one-person-company-starter"), x: 790, y: 1440, w: 180, tone: "personal" },
+    { id: "models", title: "模型选择", text: "选大脑：看场景、价格、上下文、API 和本地模型。", href: "/models", x: 30, y: 1620, w: 180, tone: "resource" },
+    { id: "agent-install", title: "Agent 安装", text: "装好执行工具，接上模型，再回项目里实操。", href: "/agent-install", x: 220, y: 1620, w: 180, tone: "resource" },
+    { id: "tools", title: "工具资源", text: "按场景找工具，服务学习、行业项目和团队提效。", href: "/tools", x: 410, y: 1620, w: 180, tone: "resource" },
+    { id: "cases", title: "实战展示", text: "看别人完整跑通的项目、结果、工具和踩坑。", href: "/member-cases", x: 600, y: 1620, w: 180, tone: "resource" },
+    { id: "community", title: "社区复盘", text: "教程和任务做完后，把问题、结果和复盘发出来。", href: "/community", x: 790, y: 1620, w: 180, tone: "resource" },
   ]
 
   return (
     <div className={styles.verticalMapWrap}>
       <div className={styles.verticalMapCanvas} aria-label="从上往下的小白AI学习路线图">
-        <svg className={styles.verticalMapLines} viewBox="0 0 1020 900" role="img" aria-label="小白AI从共同基础到个人、一人公司、团队公司和行业项目的路线图">
+        <svg className={styles.verticalMapLines} viewBox="0 0 1020 1800" role="img" aria-label="小白AI从共同基础到个人、一人公司、团队公司、AI写作、AI读资料、AI辅助决策、表格整理、生活管理、学习陪练和场景套用的路线图">
           <defs>
             <marker id="vertical-roadmap-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#256d85" />
@@ -394,7 +621,12 @@ function VerticalRoadmapVisual({ catalog }: { catalog: MajorSubject[] }) {
           <path className={styles.verticalBranchLine} d="M765 300 C765 338 765 338 765 374" markerEnd="url(#vertical-roadmap-arrow)" />
           <path className={styles.verticalMainLine} d="M235 500 V532 M500 500 V532 M765 500 V532" />
           <path className={styles.verticalBranchLine} d="M235 532 H147 V560 M235 532 H387 V560 M500 532 H387 M500 532 H627 V560 M765 532 H627 M765 532 H867 V560" markerEnd="url(#vertical-roadmap-arrow)" />
-          <path className={styles.verticalSupportLine} d="M147 686 V710 M387 686 V710 M627 686 V710 M867 686 V710 M120 710 H880 M120 710 V738 M310 710 V738 M500 710 V738 M690 710 V738 M880 710 V738" markerEnd="url(#vertical-roadmap-arrow)" />
+          <path className={styles.verticalBranchLine} d="M147 686 V704 M387 686 V704 M627 686 V704 M867 686 V704 M147 704 H775 M247 704 V724 M510 704 V724 M775 704 V724" markerEnd="url(#vertical-roadmap-arrow)" />
+          <path className={styles.verticalSupportLine} d="M247 850 V866 M510 850 V866 M775 850 V866 M147 866 H867 M147 866 V884 M387 866 V884 M627 866 V884 M867 866 V884" markerEnd="url(#vertical-roadmap-arrow)" />
+          <path className={styles.verticalSupportLine} d="M147 1010 V1048 M387 1010 V1048 M627 1010 V1048 M867 1010 V1048 M272 1048 V1084 M512 1048 V1084 M752 1048 V1084" markerEnd="url(#vertical-roadmap-arrow)" />
+          <path className={styles.verticalSupportLine} d="M272 1210 V1228 M512 1210 V1228 M752 1210 V1228 M272 1228 V1260 M512 1228 V1260 M752 1228 V1260" markerEnd="url(#vertical-roadmap-arrow)" />
+          <path className={styles.verticalSupportLine} d="M272 1386 V1408 M512 1386 V1408 M752 1386 V1408 M120 1408 H880 M120 1408 V1440 M310 1408 V1440 M500 1408 V1440 M690 1408 V1440 M880 1408 V1440" markerEnd="url(#vertical-roadmap-arrow)" />
+          <path className={styles.verticalSupportLine} d="M120 1566 V1588 M310 1566 V1588 M500 1566 V1588 M690 1566 V1588 M880 1566 V1588 M120 1588 H880 M120 1588 V1620 M310 1588 V1620 M500 1588 V1620 M690 1588 V1620 M880 1588 V1620" markerEnd="url(#vertical-roadmap-arrow)" />
         </svg>
         {routeNodes.map((node) => (
           <Link
@@ -442,6 +674,19 @@ export function MajorSubjectView({ major }: { major: MajorSubject }) {
         <Link className={styles.secondaryButton} href="/learn/map">看完整路线图</Link>
       </Hero>
 
+      {major.id === "personal-growth" ? (
+        <section className={styles.sectionPanel}>
+          <div className={styles.sectionHead}>
+            <div>
+              <p className={styles.eyebrow}>SCENE ENTRIES</p>
+              <h2 className={styles.sectionTitle}>先按场景进</h2>
+              <p className={styles.sectionDesc}>个人成长不是先看一堆课程名。先选当前最想改善的场景，再进入对应小科目和实战任务。</p>
+            </div>
+          </div>
+          <SceneEntryGrid compact />
+        </section>
+      ) : null}
+
       <section className={styles.sectionPanel}>
         <div className={styles.sectionHead}>
           <div>
@@ -470,6 +715,8 @@ export function MinorSubjectView({ major, subject }: { major: MajorSubject; subj
         <Link className={styles.ghostButton} href={subjectHref(major.id)}>返回大科目</Link>
       </Hero>
 
+      <MinorActionPath major={major} subject={subject} />
+
       <section className={styles.split}>
         <div className={styles.sectionPanel}>
           <LearningDiagram subject={subject} />
@@ -480,7 +727,7 @@ export function MinorSubjectView({ major, subject }: { major: MajorSubject; subj
               <p className={styles.sectionDesc}>教程只解决这个小科目的核心问题。学完以后，用右侧任务验收。</p>
             </div>
           </div>
-          <ol className={styles.list}>
+          <ol className={styles.list} id="tutorial-list">
             {subject.tutorials.map((tutorial, index) => (
               <li key={tutorial.id}>
                 <Link className={styles.tutorialCard} href={tutorialHref(major.id, subject.id, tutorial.id)}>
@@ -508,6 +755,7 @@ export function MinorSubjectView({ major, subject }: { major: MajorSubject; subj
           </div>
         </aside>
       </section>
+
     </PageFrame>
   )
 }
@@ -753,6 +1001,398 @@ AI 要处理什么：
 请按新手能照做的方式，先给我第一步，再给验收标准和常见错误修复。`
 }
 
+type KnowledgeDepth = {
+  concept: string
+  principles: string[]
+  judgment: string[]
+  boundaries: string[]
+  transfer: string
+}
+
+function buildKnowledgeDepth(major: MajorSubject, subject: MinorSubject, tutorial: TutorialItem): KnowledgeDepth {
+  const title = tutorial.title
+  const generic: KnowledgeDepth = {
+    concept: `这节课真正要学的不是“让 AI 回答一次”，而是把「${title}」变成一个可判断、可复用、可迁移的方法。`,
+    principles: [
+      "先定义场景和目标，再选择工具。工具只是执行层，真正决定结果的是问题是否清楚、材料是否足够、验收标准是否具体。",
+      "AI 的输出默认只是草稿，不是事实结论。重要内容要拆成事实、推断、建议和待确认问题。",
+      "一次好结果不代表掌握。能把坏结果修好，才说明你真的理解了这个知识点。",
+    ],
+    judgment: [
+      `如果你能说清「${tutorial.deliverable}」给谁用、解决什么问题、哪里必须人工确认，这节课才算学到位。`,
+      "如果结果换一个场景就完全不会用了，说明你记住的是提示词，不是方法。",
+      "如果你不知道哪里可能错，就先不要把结果交给客户、老板、家人或团队。",
+    ],
+    boundaries: [
+      "不要把隐私、合同原文、客户手机号、API Key、付款信息直接丢给不确定的工具。",
+      "不要让 AI 替你做价值判断、法律判断、医疗判断或财务承诺；它可以辅助整理，最后由人负责。",
+      "不要把“说得像真的”当成正确。越流畅的答案，越要检查来源和边界。",
+    ],
+    transfer: "迁移方法：以后遇到任何新工具、新模型或新课程，都先问四件事：我给了什么材料、我要什么格式、用什么标准验收、失败后怎么修。",
+  }
+
+  if (subject.id === "ai-writing-rewrite-training") {
+    return {
+      concept: "AI 写作不是让机器替你表达，而是把读者、目的、事实、语气和行动拆清楚，再让 AI 帮你组织语言。",
+      principles: [
+        "写作质量首先由“读者是谁”决定。同一句话写给客户、同事、老板、家人，语气和信息顺序都不同。",
+        "好提示词要包含四个块：必须说的事实、不能说的禁区、希望读者做的动作、输出长度和语气。",
+        "改稿比写稿更重要。第一版负责铺开，第二版负责删废话、补事实、调语气、让读者愿意行动。",
+        "AI 最容易犯的错是替你夸大、替你承诺、替你编细节，所以写作任务必须保留事实边界。",
+      ],
+      judgment: [
+        "读者看完是否知道下一步该做什么。",
+        "有没有一句话可以直接删掉而不影响意思；如果有，说明还不够精炼。",
+        "事实、观点、承诺是否分开；尤其价格、效果、时间、责任不能让 AI 自己补。",
+        "换成正式、温和、简洁三种语气后，核心事实是否仍然一致。",
+      ],
+      boundaries: [
+        "涉及道歉、投诉、合同、报价、医疗、法律和财务承诺时，AI 只能打草稿，不能替你定最终说法。",
+        "不要让 AI 编客户案例、用户评价、数据结果，这类内容必须来自真实材料。",
+        "不要把“高级感”当目标。小白用户最需要的是清楚、可信、能行动。",
+      ],
+      transfer: "迁移方法：任何写作都按“读者 -> 目的 -> 事实 -> 禁区 -> 语气 -> 行动”六格卡来做。以后写邮件、通知、朋友圈、小红书、销售话术都用同一个底层框架。",
+    }
+  }
+
+  if (subject.id === "ai-reading-material-training") {
+    return {
+      concept: "AI 读资料的核心不是压缩文字，而是把资料拆成事实、风险、问题和行动，让人能继续判断。",
+      principles: [
+        "先告诉 AI 你为什么读。为了写摘要、做决策、找风险、做行动清单，读法完全不同。",
+        "资料分析要分层：原文事实、AI 推断、可能风险、待确认问题、下一步动作，不能混在一段话里。",
+        "长文档最怕漏重点，所以要让 AI 先输出结构目录，再按你的目标提取信息。",
+        "越重要的资料，越要让 AI 标注“来自哪里”和“不确定在哪里”。",
+      ],
+      judgment: [
+        "输出里是否能看出哪些是原文事实，哪些是 AI 总结。",
+        "是否列出了待确认问题，而不是假装全部都知道。",
+        "行动清单是否具体到人、时间、材料和下一步。",
+        "你是否能用这份结果向另一个人解释资料重点。",
+      ],
+      boundaries: [
+        "合同、政策、医疗、投资、财务资料不能只看 AI 摘要，必须回到原文核对。",
+        "资料来源不明时，不要让 AI 输出确定结论，只能输出假设和待查问题。",
+        "敏感资料先脱敏，尤其姓名、手机号、身份证、客户信息、内部价格。",
+      ],
+      transfer: "迁移方法：以后读任何资料，都用“四张表”：事实表、风险表、问题表、行动表。这个方法能迁移到课程、会议记录、合同、说明书和聊天记录。",
+    }
+  }
+
+  if (subject.id === "ai-decision-helper-training") {
+    return {
+      concept: "AI 辅助决策不是让 AI 替你选，而是帮你把选项、标准、风险和低成本验证动作摆清楚。",
+      principles: [
+        "好决策先定义标准，再比较选项。不要先问 AI 哪个好。",
+        "每个选项都要看收益、成本、风险、不可逆程度和最小验证方式。",
+        "AI 很擅长补盲区，但不承担后果；人必须保留最终拍板权。",
+        "当信息不足时，下一步不是做决定，而是设计一个低成本验证动作。",
+      ],
+      judgment: [
+        "你是否知道自己最看重哪 3 个标准。",
+        "每个选项是否都写出了最坏情况和可撤退方式。",
+        "AI 是否提出了你原来没想到的风险。",
+        "最后结论是否包含“先验证什么”，而不是直接梭哈。",
+      ],
+      boundaries: [
+        "医疗、投资、法律、重大借贷、婚姻家庭等高风险决定，AI 只能帮你整理问题和资料。",
+        "AI 不知道你的全部现实处境，不要把它的排序当成命令。",
+        "当你情绪很强时，先让 AI 帮你拆情绪和事实，不要马上做不可逆决定。",
+      ],
+      transfer: "迁移方法：以后任何纠结都先写成“我要在 A/B/C 中选择，标准是 1/2/3，限制是 X，最怕 Y”。这样 AI 才能帮你比较，而不是哄你。",
+    }
+  }
+
+  if (subject.id === "ai-table-data-cleanup") {
+    return {
+      concept: "AI 整理数据不是让它随便排个表，而是把混乱信息变成字段、规则、异常和待确认项。",
+      principles: [
+        "表格的第一步是定义字段。字段不清楚，AI 会把不同类型的信息混在一起。",
+        "整理数据必须保留原始信息和异常标记，不能为了整齐把不确定内容删掉。",
+        "AI 适合做初步清洗、归类、格式转换和异常提示，不适合无监督地改关键数据。",
+        "每次整理都要有校验样本，比如抽 5 行人工核对。",
+      ],
+      judgment: [
+        "字段是否能被另一个人理解。",
+        "异常值、缺失值、重复值是否单独标出。",
+        "原始数据是否还能追溯，没有被 AI 悄悄改没。",
+        "表格是否能支持下一步动作，比如统计、跟进、提醒、复盘。",
+      ],
+      boundaries: [
+        "财务、订单、库存、工资、客户名单等关键数据不能让 AI 自动覆盖原表。",
+        "不要把私人信息直接上传到不可信工具。",
+        "AI 生成的分类规则要先小样本测试，再批量使用。",
+      ],
+      transfer: "迁移方法：以后遇到乱资料，先问四个问题：我要哪些字段、哪些算异常、哪些不能改、整理后要做什么动作。",
+    }
+  }
+
+  if (subject.id === "ai-life-management") {
+    return {
+      concept: "AI 管理生活不是替你安排完美人生，而是把混乱的家庭、时间、预算和习惯拆成可执行的小动作。",
+      principles: [
+        "生活管理先选一个最乱的场景，不要一次管理全部人生。",
+        "计划必须符合时间、预算、家人需求和现实约束，否则只是好看的表。",
+        "AI 可以帮你拆步骤、做清单、提醒风险，但不能替家人沟通和承担责任。",
+        "生活类任务要以 7 天为单位复盘，太长容易失真，太短看不出变化。",
+      ],
+      judgment: [
+        "计划是否能在今天或明天开始执行。",
+        "每个动作是否有时间、地点、材料或负责人。",
+        "家人或同伴的需求是否被写进去，而不是只按你一个人的想法排。",
+        "是否有复盘指标，比如少忘一件事、省多少钱、少吵一次、每天多出多少时间。",
+      ],
+      boundaries: [
+        "健康、医疗、保险、理财等生活决策需要专业人士确认。",
+        "不要把家庭隐私、孩子信息、身份证件和财务细节随便交给外部工具。",
+        "AI 不能替你处理情感冲突，只能帮你准备沟通结构。",
+      ],
+      transfer: "迁移方法：任何生活问题都按“当前混乱点 -> 7 天目标 -> 每天动作 -> 风险提醒 -> 复盘指标”来拆。",
+    }
+  }
+
+  if (subject.id === "ai-learning-coach") {
+    return {
+      concept: "AI 学习陪练不是让它讲一大段课，而是让它根据你的水平讲懂、出题、批改、复习。",
+      principles: [
+        "先告诉 AI 你的当前水平和学习目的，否则它会默认你已经懂很多。",
+        "讲解必须配例子，例子必须贴近你的生活或工作场景。",
+        "真正学会要能复述、能做题、能解释错题，而不是觉得答案看起来懂了。",
+        "复习要间隔，不要一次性让 AI 塞满一整门课。",
+      ],
+      judgment: [
+        "你能不能用自己的话讲出这个知识点。",
+        "AI 出的题是否刚好比你当前水平难一点，而不是太简单或太难。",
+        "错题是否被拆成原因，而不只是给正确答案。",
+        "是否生成了 1 天、3 天、7 天的复习动作。",
+      ],
+      boundaries: [
+        "考试、证书、专业学科不能只靠 AI，要结合教材、真题和老师/专业资料。",
+        "不要让 AI 一次教完整章，先拆成一个小知识点。",
+        "AI 可能讲错概念，关键定义要回到教材或权威资料核对。",
+      ],
+      transfer: "迁移方法：以后学任何东西，都让 AI 按“我现在会什么 -> 用例子讲 -> 出 3 道题 -> 批改错因 -> 安排复习”来陪练。",
+    }
+  }
+
+  if (subject.id === "api-proxy-side-business") {
+    return {
+      concept: "API 中转和多模型接入的核心不是“找便宜接口”，而是管理模型入口、密钥、成本、限额、日志和风险边界。",
+      principles: [
+        "API Key 是账号能力的钥匙，不是普通密码。泄露以后别人可以消耗你的额度，也可能访问你绑定的模型服务。",
+        "中转站负责统一入口和路由，但它不是模型本身。要分清模型提供方、中转服务、客户端工具和自己的业务数据。",
+        "多模型路由的价值不是每次都用最强模型，而是按任务分配：便宜模型做初筛，强模型做关键判断，长上下文模型读资料。",
+        "成本控制要先设预算和限额，再谈自动化。没有限额的自动化就是一台可能失控的扣费机器。",
+      ],
+      judgment: [
+        "你是否知道每个模型适合什么任务，而不是只看排行榜。",
+        "你是否能查到本月用了多少 token、大概花了多少钱。",
+        "密钥是否只存在本地安全位置或环境变量，没有写进网页、截图、教程和公开仓库。",
+        "当模型输出变差时，你能判断是模型问题、提示词问题、上下文问题，还是中转服务问题。",
+      ],
+      boundaries: [
+        "不要把客户密钥、公司密钥和个人测试密钥混在一起。",
+        "不清楚来源的中转站不要接入敏感业务、客户资料或长期自动化任务。",
+        "不要把“能调通 API”包装成企业级服务，企业级还需要日志、权限、限额、审计、故障处理和数据边界。",
+      ],
+      transfer: "迁移方法：以后所有 API 类工具都按“五张表”判断：模型用途表、密钥存放表、成本预算表、禁用数据表、故障排查表。",
+    }
+  }
+
+  if (subject.id === "agent-gateway-routing") {
+    return {
+      concept: "AI 网关和 MCP 网关的知识重点是“谁能调用什么、花多少钱、留下什么记录、失败谁负责”。",
+      principles: [
+        "API 网关管模型调用，MCP 网关管工具调用，业务网关管权限和数据边界。三者不能混成一个万能入口。",
+        "Agent 能调用工具以后，风险从“回答错”升级成“做错动作”。所以工具权限要比聊天权限更严格。",
+        "路由不是越自动越好。关键动作要有人工确认，尤其发送消息、改数据、付款、删除、发布和调用外部系统。",
+        "日志不是给工程师看的摆设，而是出问题后能知道谁触发、调用了什么、花了多少、改了什么。",
+      ],
+      judgment: [
+        "你是否能画出模型调用和工具调用分别走哪条链路。",
+        "每个工具是否有只读/可写/危险动作分级。",
+        "是否能在日志里还原一次 Agent 的完整行动。",
+        "是否设置了预算、频率、失败提醒和人工接管点。",
+      ],
+      boundaries: [
+        "不要让 Agent 默认拥有删除、付款、群发、改库、改权限等高危能力。",
+        "不要把 MCP 工具当插件随便装。每个工具都等于给 Agent 开了一扇门。",
+        "没有审计日志的网关，不适合企业团队或客户交付场景。",
+      ],
+      transfer: "迁移方法：以后设计任何 Agent 系统，都先画“模型层、工具层、权限层、日志层、人工确认层”五层图，再决定接什么工具。",
+    }
+  }
+
+  if (major.id === "office-productivity") {
+    return {
+      concept: "办公提效的知识核心不是让 AI 多写几段话，而是把资料、对象、结论、行动和责任拆清楚，让交付物能被同事直接使用。",
+      principles: [
+        "办公输出先看使用对象。给老板、客户、同事、自己看的材料，结构和细节完全不同。",
+        "文档、PPT、表格、会议纪要都要区分事实、判断、建议和待确认项，不能把 AI 推断写成确定结论。",
+        "AI 适合先做草稿、提炼、改写、归类和检查遗漏，人负责确认事实、取舍重点和承担最终表达。",
+        "办公提效要看节省了哪一步时间：找资料、整理结构、改表达、做汇总、追行动，不能只看页面好不好看。",
+      ],
+      judgment: [
+        "交付物是否能让接收者在 30 秒内看懂重点和下一步。",
+        "是否标出了资料来源、待确认问题和需要人工决定的部分。",
+        "PPT 或文档是否围绕一个结论展开，而不是把所有信息平均堆上去。",
+        "表格、纪要、汇报是否能继续触发行动：谁做、什么时候做、做到什么程度。",
+      ],
+      boundaries: [
+        "涉及合同、报价、人事、财务、客户承诺和公司内部敏感资料时，AI 只能辅助草拟，不能直接定稿。",
+        "不要把未经核对的数据、业绩、客户案例和政策条款写进正式材料。",
+        "不要为了显得专业让 AI 堆术语。办公材料最重要的是准确、简洁、可执行。",
+      ],
+      transfer: "迁移方法：以后任何办公任务都按“读者是谁 -> 要做什么决定 -> 已有事实 -> AI 可帮哪一步 -> 哪些要人工确认 -> 最终行动”来拆。",
+    }
+  }
+
+  if (major.id === "content-creation") {
+    return {
+      concept: "内容创作的知识深度不是多生成几篇稿，而是理解受众、场景、真实素材、分发渠道、版权边界和复盘指标。",
+      principles: [
+        "内容先有目标读者，再有选题。没有读者画像，AI 只能写出泛泛而谈的安全话。",
+        "好内容来自真实素材：经历、案例、截图、数据、对话、问题和反差。AI 负责组织，不负责凭空制造可信细节。",
+        "不同渠道要不同结构。小红书看开头和收藏价值，短视频看前 3 秒和画面节奏，公众号看逻辑和信任，课程看学习路径。",
+        "创作不是一次生成，而是选题 -> 草稿 -> 钩子 -> 结构 -> 事实核对 -> 发布检查 -> 数据复盘的循环。",
+      ],
+      judgment: [
+        "内容是否能让目标读者觉得“这说的就是我”。",
+        "标题、开头、案例和结尾是否服务同一个核心承诺。",
+        "有没有具体素材支撑，而不是只有观点和形容词。",
+        "发布后能不能用点击、完播、收藏、评论、咨询、转化之一判断下一版怎么改。",
+      ],
+      boundaries: [
+        "不要让 AI 编造亲身经历、客户反馈、收益数据、产品效果和专家背书。",
+        "图片、音乐、视频素材要考虑版权和平台规则，不要默认网上能看到就能商用。",
+        "热点内容要先核实来源，尤其 AI 新闻、政策、医疗、金融、法律相关内容。",
+      ],
+      transfer: "迁移方法：以后任何内容都用“人群 -> 痛点 -> 真实素材 -> 一个承诺 -> 渠道结构 -> 发布指标 -> 下次迭代”七格卡来做。",
+    }
+  }
+
+  if (major.id === "personal-growth") {
+    return {
+      concept: "个人成长类 AI 学习的核心不是多收藏工具，而是把生活、工作、学习和副业里的一个真实问题变成可执行、可复盘的小系统。",
+      principles: [
+        "个人场景先从一天、一周、一个成果开始，不要一上来规划整个人生。",
+        "AI 能帮你拆目标、做清单、改表达、设计练习和复盘，但不能替你坚持、沟通和承担选择后果。",
+        "一人公司和副业要先验证需求和交付，再谈自动化、品牌和规模。",
+        "个人提效必须有可感知变化：省下时间、少犯错、多产出、学得更稳、获得更多机会或收入线索。",
+      ],
+      judgment: [
+        "这次学习是否对应一个真实生活或工作问题。",
+        "是否有 7 天内能完成的小交付物，而不是一个模糊愿望。",
+        "是否知道 AI 帮的是哪一步，人必须亲自做哪一步。",
+        "复盘时是否能说出变化：省了多久、产出了什么、少了什么错误、下一版改哪里。",
+      ],
+      boundaries: [
+        "不要把个人隐私、家庭信息、财务细节和身份证件直接交给不可信工具。",
+        "不要把 AI 的建议当成人生决定，重大选择要结合现实资源和可信的人。",
+        "副业和一人公司不要承诺 AI 自动赚钱，先做真实交付和真实反馈。",
+      ],
+      transfer: "迁移方法：以后任何个人 AI 应用都按“真实问题 -> 7 天目标 -> AI 可帮步骤 -> 人工确认点 -> 可见成果 -> 复盘指标”来做。",
+    }
+  }
+
+  if (major.id === "agent-coding") {
+    return {
+      concept: "Agent 的知识深度不在于它能不能自动写代码，而在于你能不能控制它的目标、权限、上下文、改动范围和验证方式。",
+      principles: [
+        "模型负责思考和生成，Agent 负责读文件、改文件、跑命令、调用工具。模型不是 Agent，Agent 也不是万能员工。",
+        "Agent 最怕目标太大、上下文太乱、权限太宽。好用法是小目标、窄范围、先读后改、每步验证。",
+        "工程 Agent 的核心循环是：读项目 -> 列计划 -> 小改动 -> 看 diff -> 跑验证 -> 说明风险。",
+        "CLAUDE.md、AGENTS.md、项目规则和权限白名单，本质上是给 Agent 的公司制度。",
+      ],
+      judgment: [
+        "Agent 是否先理解项目结构，而不是一上来改文件。",
+        "本次改动是否能用 diff 解释清楚，是否只触碰必要文件。",
+        "是否跑过 typecheck、lint、test、build 或至少一个可信验证。",
+        "它是否说清楚未验证风险，而不是只说完成了。",
+      ],
+      boundaries: [
+        "不要让 Agent 处理密钥、付款、生产数据、用户隐私和高危系统权限。",
+        "不要同时让多个 Agent 改同一批文件，容易互相覆盖。",
+        "不要把大需求一次性丢给 Agent。先拆成可验证的小改动。",
+      ],
+      transfer: "迁移方法：任何工程 Agent 都按“小范围授权 + 明确验收 + diff 复核 + 验证命令 + 风险说明”来用，不管它叫 Codex、Claude Code、Cursor 还是别的名字。",
+    }
+  }
+
+  if (major.id === "automation") {
+    return {
+      concept: "自动化的知识核心不是把按钮串起来，而是把触发、输入、处理、人工确认、输出、失败处理和日志设计清楚。",
+      principles: [
+        "流程先半自动，再自动。第一次必须保留人工确认，尤其涉及客户、金钱、公开发布和团队通知。",
+        "每个节点都要知道输入是什么、输出是什么、失败时怎么办。",
+        "AI 节点最需要固定输出格式，否则后面的节点会因为格式不稳定而断掉。",
+        "真正可用的自动化一定有日志、重试、提醒和停止开关。",
+      ],
+      judgment: [
+        "流程能否用一条样例数据完整跑通。",
+        "失败时谁知道、谁处理、怎么恢复。",
+        "AI 输出是否固定成 JSON、表格、字段或模板。",
+        "有没有误发、重复发、无限循环、成本失控的风险。",
+      ],
+      boundaries: [
+        "不要一上来接真实客户群发、付款、删数据、改数据库。",
+        "不要让 AI 自动决定高风险动作，它只能生成草稿或建议。",
+        "没有日志的流程不要上线，因为出错后无法复盘。",
+      ],
+      transfer: "迁移方法：以后任何自动化都用“触发 -> 处理 -> 人工确认 -> 输出 -> 失败提醒 -> 日志”六段式来设计。",
+    }
+  }
+
+  if (major.id === "business-ai" || major.id === "industry-playbooks") {
+    return {
+      concept: "企业和行业 AI 落地不是把工具装进公司，而是把一个岗位、一个流程、一个交付物先跑通，再用指标判断是否值得扩大。",
+      principles: [
+        "行业 AI 必须从具体岗位和具体流程开始。餐饮、教育、电商、法律、财税、医美都不是一个提示词能解决的。",
+        "企业 AI 的第一目标通常不是炫技，而是省时间、减少错误、提高响应速度、提高转化或沉淀知识。",
+        "知识库、客服 Bot、销售助手、SOP Agent 都必须有资料来源、禁答边界和人工转接条件。",
+        "试点要小，指标要清楚。先用 10 到 50 条真实样本测试，再决定是否扩到团队。",
+      ],
+      judgment: [
+        "是否明确了哪个岗位、哪类问题、哪份材料、哪个交付物。",
+        "是否能用省时、准确率、处理量、转化率、人工接管次数之一验收。",
+        "AI 不知道或不能回答时，是否会明确转人工。",
+        "是否记录了失败案例，并把失败案例反哺到资料、提示词或流程里。",
+      ],
+      boundaries: [
+        "不要承诺 AI 替代员工，先承诺减少重复劳动和提高交付稳定性。",
+        "不要让 AI 独自处理法律、财务、医疗、投诉赔付和重大客户承诺。",
+        "不要用演示数据证明上线可行，必须用脱敏真实样本测试。",
+      ],
+      transfer: "迁移方法：任何行业都按“岗位 -> 重复问题 -> 资料来源 -> AI 可接手动作 -> 人工确认点 -> 验收指标 -> 复盘更新”七步拆。",
+    }
+  }
+
+  if (major.id === "ai-basics") {
+    return {
+      ...generic,
+      concept: "AI 入门真正要建立的是判断力：知道什么时候给材料、什么时候要格式、什么时候验收、什么时候必须人工确认。",
+      principles: [
+        "模型负责生成可能答案，工具负责承载功能，Agent 负责连续执行任务，工作流负责把步骤串起来。不要把它们混成一个词。",
+        "提示词不是咒语，而是任务说明书。说明书越清楚，输出越稳定。",
+        "AI 能提高起步速度，但不能自动保证正确；验收标准永远要由人设定。",
+      ],
+      judgment: [
+        "你能不能说清这次用的是模型、工具、Agent 还是工作流。",
+        "你有没有给 AI 足够材料，而不是只问一句空问题。",
+        "你有没有让 AI 输出成可检查格式，比如表格、清单、步骤、对比。",
+      ],
+      boundaries: [
+        "不确定来源的工具先不要上传隐私材料。",
+        "不知道结果对不对时，不要直接转发给别人当结论。",
+        "不要为了追热点频繁换工具，先把一个方法练熟。",
+      ],
+      transfer: "迁移方法：任何 AI 新玩法都先放进四类里看：模型、工具、Agent、工作流。分清它是哪类，再决定学不学、怎么用。",
+    }
+  }
+
+  return generic
+}
+
 type LandingPlaybook = {
   title: string
   scenario: string
@@ -969,6 +1609,7 @@ function TutorialDepthBlocks({ major, subject, tutorial }: { major: MajorSubject
   const template = buildLessonTemplate(major, subject, tutorial)
   const nextTutorial = subject.tutorials[subject.tutorials.findIndex((item) => item.id === tutorial.id) + 1]
   const playbook = buildLandingPlaybook(major, subject, tutorial)
+  const knowledge = buildKnowledgeDepth(major, subject, tutorial)
 
   return (
     <div className={styles.deepLesson}>
@@ -986,6 +1627,38 @@ function TutorialDepthBlocks({ major, subject, tutorial }: { major: MajorSubject
           </div>
         ))}
       </div>
+
+      <section className={styles.knowledgeDepth}>
+        <div className={styles.knowledgeDepthIntro}>
+          <p className={styles.eyebrow}>KNOWLEDGE DEPTH</p>
+          <h3>这节课真正要懂什么</h3>
+          <p>{knowledge.concept}</p>
+        </div>
+        <div className={styles.knowledgeDepthGrid}>
+          <div>
+            <strong>底层原理</strong>
+            <ul>
+              {knowledge.principles.map((item) => <li key={item}>{item}</li>)}
+            </ul>
+          </div>
+          <div>
+            <strong>判断标准</strong>
+            <ul>
+              {knowledge.judgment.map((item) => <li key={item}>{item}</li>)}
+            </ul>
+          </div>
+          <div>
+            <strong>边界和误区</strong>
+            <ul>
+              {knowledge.boundaries.map((item) => <li key={item}>{item}</li>)}
+            </ul>
+          </div>
+          <div className={styles.knowledgeTransfer}>
+            <strong>迁移方法</strong>
+            <p>{knowledge.transfer}</p>
+          </div>
+        </div>
+      </section>
 
       <div className={styles.deepLessonGrid}>
         <section className={styles.deepLessonBlock}>
@@ -1157,6 +1830,14 @@ export function TutorialDetailView({
           </div>
         </aside>
       </section>
+
+      <TutorialNextActionBand
+        major={major}
+        subject={subject}
+        tutorial={tutorial}
+        nextTutorial={nextTutorial}
+        primaryMission={primaryMission}
+      />
     </PageFrame>
   )
 }

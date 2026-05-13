@@ -211,6 +211,105 @@
   gap: 14px;
 }
 
+.sceneEntryGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sceneEntryGridCompact {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.sceneEntryCard {
+  display: grid;
+  align-content: space-between;
+  gap: 18px;
+  min-height: 252px;
+  padding: 18px;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid #e1e8ef;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(232, 243, 250, 0.55), rgba(255, 255, 255, 0) 54%),
+    #fff;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.sceneEntryCard:hover {
+  transform: translateY(-2px);
+  border-color: #c8d8e4;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.075);
+}
+
+.sceneEntryLabel {
+  display: inline-flex;
+  width: fit-content;
+  margin-bottom: 10px;
+  padding: 5px 9px;
+  color: #256d85;
+  font-size: 12px;
+  font-weight: 760;
+  line-height: 1;
+  border: 1px solid #cfe0ea;
+  border-radius: 999px;
+  background: #f3f9fc;
+}
+
+.sceneEntryCard h3 {
+  margin: 0;
+  color: #17202a;
+  font-size: 18px;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+.sceneEntryCard p {
+  margin: 9px 0 0;
+  color: #536170;
+  font-size: 14px;
+  line-height: 1.62;
+}
+
+.sceneEntryFooter {
+  display: grid;
+  gap: 12px;
+}
+
+.sceneEntryFooter span {
+  color: #667586;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.sceneEntryFooter div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.sceneEntryFooter a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 8px 10px;
+  color: #256d85;
+  font-size: 13px;
+  font-weight: 760;
+  text-decoration: none;
+  border: 1px solid #d8e5ed;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.sceneEntryFooter a:last-child {
+  color: #fff;
+  border-color: #256d85;
+  background: #256d85;
+}
+
 .majorCard,
 .minorCard,
 .tutorialCard,
@@ -914,6 +1013,74 @@
   line-height: 1.65;
 }
 
+.knowledgeDepth {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+  border: 1px solid #d2e3eb;
+  border-radius: 20px;
+  background:
+    linear-gradient(135deg, rgba(37, 109, 133, 0.08), rgba(31, 138, 112, 0.05)),
+    #fbfdff;
+}
+
+.knowledgeDepthIntro h3 {
+  margin: 4px 0 8px;
+  color: #17202a;
+  font-size: 24px;
+  line-height: 1.28;
+}
+
+.knowledgeDepthIntro p {
+  margin: 0;
+  color: #4f6070;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.knowledgeDepthGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.knowledgeDepthGrid > div {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 210px;
+  padding: 18px;
+  border: 1px solid #dfe7ee;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.knowledgeDepthGrid strong {
+  color: #17202a;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.knowledgeDepthGrid ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.knowledgeDepthGrid li,
+.knowledgeDepthGrid p {
+  margin: 0;
+  color: #536170;
+  font-size: 14px;
+  line-height: 1.68;
+}
+
+.knowledgeTransfer {
+  border-color: #cfe0ea !important;
+  background: #f3f9fc !important;
+}
+
 .deepLessonGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1067,7 +1234,7 @@
 .verticalMapCanvas {
   position: relative;
   min-width: 1020px;
-  height: 900px;
+  height: 1800px;
   border: 1px solid #dfe7ee;
   border-radius: 20px;
   background:
@@ -1302,6 +1469,222 @@
 
 .minorGoal {
   color: #667586;
+}
+
+.minorActionPath {
+  display: grid;
+  gap: 16px;
+  margin-top: 22px;
+  padding: 22px;
+  border: 1px solid #dfe7ee;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 16px 44px rgba(15, 23, 42, 0.06);
+}
+
+.minorActionHead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: end;
+}
+
+.minorActionHead h2 {
+  margin: 4px 0 8px;
+  color: #17202a;
+  font-size: 24px;
+  line-height: 1.28;
+}
+
+.minorActionHead p {
+  margin: 0;
+  max-width: 720px;
+  color: #536170;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.minorActionPrimary {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: #17202a;
+  color: #fff;
+  padding: 0 18px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 820;
+  white-space: nowrap;
+}
+
+.minorActionTrack {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.minorActionTrack::before {
+  content: "";
+  position: absolute;
+  top: 31px;
+  left: 18px;
+  right: 18px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #256d85, #1f8a70, #f59e0b, #17202a);
+}
+
+.minorActionNode {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  min-height: 166px;
+  padding: 15px;
+  border: 1px solid #dfe7ee;
+  border-radius: 16px;
+  background: #fbfdff;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.minorActionNode:hover {
+  transform: translateY(-2px);
+  border-color: #c8d8e4;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+}
+
+.minorActionNode span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: #17202a;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 820;
+}
+
+.minorActionNode strong {
+  color: #256d85;
+  font-size: 12px;
+  font-weight: 820;
+}
+
+.minorActionNode em {
+  color: #17202a;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 760;
+  line-height: 1.4;
+}
+
+.minorActionNode p {
+  margin: 0;
+  color: #667586;
+  font-size: 13px;
+  line-height: 1.62;
+}
+
+.tutorialNextBand {
+  display: grid;
+  gap: 18px;
+  margin-top: 22px;
+  padding: 24px;
+  border: 1px solid #dfe7ee;
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(37, 109, 133, 0.08), rgba(31, 138, 112, 0.05)),
+    rgba(255, 255, 255, 0.95);
+  box-shadow: 0 16px 44px rgba(15, 23, 42, 0.06);
+}
+
+.tutorialNextBand h2 {
+  margin: 4px 0 8px;
+  color: #17202a;
+  font-size: 24px;
+  line-height: 1.28;
+}
+
+.tutorialNextBand > div > p {
+  margin: 0;
+  max-width: 760px;
+  color: #536170;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.tutorialNextGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tutorialNextCard,
+.tutorialNextCardPrimary {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 168px;
+  padding: 16px;
+  border: 1px solid #dfe7ee;
+  border-radius: 16px;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.tutorialNextCardPrimary {
+  border-color: #17202a;
+  background: #17202a;
+}
+
+.tutorialNextCard:hover,
+.tutorialNextCardPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+}
+
+.tutorialNextCard span,
+.tutorialNextCardPrimary span {
+  color: #256d85;
+  font-size: 12px;
+  font-weight: 820;
+}
+
+.tutorialNextCardPrimary span {
+  color: #9ed6e7;
+}
+
+.tutorialNextCard strong,
+.tutorialNextCardPrimary strong {
+  color: #17202a;
+  font-size: 16px;
+  line-height: 1.42;
+}
+
+.tutorialNextCardPrimary strong {
+  color: #fff;
+}
+
+.tutorialNextCard p,
+.tutorialNextCardPrimary p {
+  margin: 0;
+  color: #667586;
+  font-size: 13px;
+  line-height: 1.62;
+}
+
+.tutorialNextCardPrimary p {
+  color: #d6e1e8;
 }
 
 .split {
@@ -1567,6 +1950,8 @@
   }
 
   .subjectGrid,
+  .sceneEntryGrid,
+  .sceneEntryGridCompact,
   .minorGrid,
   .missionFeatureGrid,
   .missionLibraryGrid {
@@ -1602,6 +1987,7 @@
 
   .visualLessonMap,
   .deepLessonGrid,
+  .knowledgeDepthGrid,
   .lessonPlaybookGrid {
     grid-template-columns: 1fr;
   }
@@ -1665,6 +2051,8 @@
   }
 
   .visualMapBranchList,
+  .sceneEntryGrid,
+  .sceneEntryGridCompact,
   .missionFeatureGrid,
   .missionLibraryGrid,
   .tutorialSubjectGrid {
@@ -1673,7 +2061,7 @@
 
   .verticalMapCanvas {
     min-width: 860px;
-    height: 840px;
+    height: 1510px;
   }
 
   .verticalMapLines {
@@ -1688,6 +2076,27 @@
 
   .subjectRouteTrack {
     grid-template-columns: repeat(3, minmax(180px, 1fr));
+  }
+
+  .minorActionHead {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .minorActionPrimary {
+    width: fit-content;
+  }
+
+  .minorActionTrack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .minorActionTrack::before {
+    display: none;
+  }
+
+  .tutorialNextGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1760,7 +2169,7 @@
 
   .verticalMapCanvas {
     min-width: 820px;
-    height: 860px;
+    height: 1440px;
   }
 
   .verticalMapLines {
@@ -1788,5 +2197,36 @@
 
   .subjectRouteTrack {
     grid-template-columns: repeat(2, minmax(170px, 1fr));
+  }
+
+  .minorActionPath {
+    border-radius: 18px;
+    padding: 18px;
+  }
+
+  .minorActionPrimary {
+    width: 100%;
+  }
+
+  .minorActionTrack {
+    grid-template-columns: 1fr;
+  }
+
+  .minorActionNode {
+    min-height: 0;
+  }
+
+  .tutorialNextBand {
+    border-radius: 18px;
+    padding: 18px;
+  }
+
+  .tutorialNextGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .tutorialNextCard,
+  .tutorialNextCardPrimary {
+    min-height: 0;
   }
 }
