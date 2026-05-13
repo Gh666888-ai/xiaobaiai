@@ -12,7 +12,7 @@ import { SmartImage } from "@/components/SmartImage"
 import { SeoKeywordLinks } from "@/components/SeoKeywordLinks"
 import { SeoRelatedLinks } from "@/components/SeoRelatedLinks"
 import { BottomActionPanel } from "@/components/BottomActionPanel"
-import { screenshotImageSources, sourceLogoSources } from "@/lib/visual-assets"
+import { newsImageSources } from "@/lib/news-images"
 import styles from "@/components/learning/SupportPage.module.css"
 
 type ArticleBlock =
@@ -210,10 +210,3 @@ export default function NewsDetailPage() {
   )
 }
 
-function newsImageSources(item: any) {
-  return [
-    item.image,
-    ...screenshotImageSources(item.url || ""),
-    ...sourceLogoSources(item.source || ""),
-  ].filter(Boolean)
-}

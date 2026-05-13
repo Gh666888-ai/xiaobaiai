@@ -173,6 +173,15 @@ function extractImage(html, url) {
   return ""
 }
 
+function isLikelyLogoImage(url = "") {
+  return /favicon|logo|icon|avatar|simpleicons|google\.com\/s2\/favicons|cdn\.simpleicons\.org/i.test(String(url))
+}
+
+function realArticleImage(html, url) {
+  const image = extractImage(html, url)
+  return image && !isLikelyLogoImage(image) ? image : ""
+}
+
 function extractCandidates(html, source) {
   const candidates = []
   const seen = new Set()
@@ -199,16 +208,6 @@ function extractCandidates(html, source) {
     if (candidates.length >= 8) break
   }
   return candidates
-}
-
-function sourceLogo(source) {
-  if (/GitHub/i.test(source)) return "https://cdn.simpleicons.org/github"
-  if (/Hugging/i.test(source)) return "https://cdn.simpleicons.org/huggingface"
-  if (/Dify/i.test(source)) return "https://www.google.com/s2/favicons?domain=dify.ai&sz=128"
-  if (/n8n/i.test(source)) return "https://cdn.simpleicons.org/n8n"
-  if (/CSDN/i.test(source)) return "https://www.google.com/s2/favicons?domain=csdn.net&sz=128"
-  if (/InfoQ/i.test(source)) return "https://www.google.com/s2/favicons?domain=infoq.cn&sz=128"
-  return ""
 }
 
 function buildTemplateArticle(item, pageDescription) {
@@ -441,7 +440,7 @@ function writeNewsItems(fresh, existing, reason) {
 async function enrichCandidate(candidate) {
   const html = await requestText(candidate.url, 12000)
   const pageDescription = extractMetaDescription(html)
-  const image = extractImage(html, candidate.url) || sourceLogo(candidate.source)
+  const image = realArticleImage(html, candidate.url)
   const aiDraft = await callAIEditor(candidate, pageDescription)
   const summary = aiDraft?.summary || buildSummary(candidate, pageDescription)
   const content = aiDraft?.content || buildTemplateArticle({ ...candidate, summary }, pageDescription)

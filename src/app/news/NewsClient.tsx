@@ -7,7 +7,7 @@ import { news, newsCategories, NewsCategory } from "@/data/news"
 import { NavBar } from "@/components/NavBar"
 import { inferContentVisualKind } from "@/components/ContentVisual"
 import { SmartImage } from "@/components/SmartImage"
-import { screenshotImageSources, sourceLogoSources } from "@/lib/visual-assets"
+import { newsImageSources } from "@/lib/news-images"
 import styles from "@/components/learning/SupportPage.module.css"
 
 function fmt(date: string) {
@@ -64,14 +64,6 @@ const helpfulEvolutions = [
     action: "/learn",
   },
 ]
-
-function newsImageSources(item: any) {
-  return [
-    ...screenshotImageSources(item.url || ""),
-    item.image,
-    ...sourceLogoSources(item.source || ""),
-  ].filter(Boolean)
-}
 
 export default function NewsPage() {
   const [cat, setCat] = useState<NewsCategory | null>(null)
