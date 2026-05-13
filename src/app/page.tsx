@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react"
 import { Search } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
-import { LevelBadge } from "@/components/LevelBadge"
 import { useAuth } from "@/lib/AuthContext"
 
 const SYMBOLS = [
@@ -98,7 +97,7 @@ export default function HomePage() {
           {user ? (
             <div style={{ marginTop: 14, marginBottom: 22, color: "#8e7d4b", fontSize: 12, lineHeight: 1.75, opacity: 0, animation: "fadeUp 0.8s ease forwards 1.08s", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
               <span>欢迎回来</span>
-              <LevelBadge name={user.name} xp={user.xp} contributionPoints={user.contributionPoints} track={user.coCreatorTrack === "team" ? "team" : "personal"} coCreatorApproved={user.coCreatorApproved} compact />
+              <span style={{ color: "#e8c96a", fontWeight: 950 }}>{user.name}</span>
             </div>
           ) : null}
 

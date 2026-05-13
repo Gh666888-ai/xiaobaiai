@@ -67,8 +67,8 @@ const helpfulEvolutions = [
 
 function newsImageSources(item: any) {
   return [
-    item.image,
     ...screenshotImageSources(item.url || ""),
+    item.image,
     ...sourceLogoSources(item.source || ""),
   ].filter(Boolean)
 }

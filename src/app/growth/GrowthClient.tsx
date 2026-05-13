@@ -5,7 +5,6 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowRight, CalendarCheck, Compass, Flame, Medal, Sparkles, Target, TrendingUp } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
-import { LevelBadge } from "@/components/LevelBadge"
 import { XiaobaiMascot } from "@/components/XiaobaiMascot"
 import { stages } from "@/data/learning-path"
 import { progressId, readLearningProgress } from "@/lib/learning-progress"
@@ -51,7 +50,7 @@ function missionDoneKey(mission: { id: string; cadence?: string }, today: string
   return mission.cadence === "once" ? `once:${mission.id}` : `${today}:${mission.id}`
 }
 
-function levelBadge(xp: number) {
+function progressPrompt(xp: number) {
   if (xp >= 1200) return { title: "高阶身份已点亮", subtitle: "名牌、边框和主页装饰会更醒目", color: "#256d85", mood: "complete" as const }
   if (xp >= 700) return { title: "装饰权益已开启", subtitle: "社区里会比普通用户更容易被看见", color: "#2f7d4d", mood: "recommend" as const }
   if (xp >= 360) return { title: "第一阶段奖励已到手", subtitle: "继续通关，下一档装饰会叠加", color: "#256d85", mood: "happy" as const }
@@ -100,7 +99,7 @@ export default function GrowthClient() {
   const teamNextLevel = teamNextLevelInfo?.level || null
   const teamNeedsReview = Boolean(teamNextLevelInfo?.requiresReview)
   const displayXP = nextLevel ? state.xp : LEVELS[LEVELS.length - 1]?.minXP || state.xp
-  const badge = levelBadge(state.xp)
+  const progressMessage = progressPrompt(state.xp)
   const levelBaseXP = currentLevel.minXP
   const levelNextXP = nextLevel?.minXP || Math.max(currentLevel.minXP + 1, state.xp)
   const levelPercent = Math.min(100, Math.round(((state.xp - levelBaseXP) / Math.max(1, levelNextXP - levelBaseXP)) * 100))
@@ -213,13 +212,17 @@ export default function GrowthClient() {
           </div>
           <aside className={styles.heroAside}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <XiaobaiMascot size={54} mood={badge.mood} />
+              <XiaobaiMascot size={54} mood={progressMessage.mood} />
               <div>
-                <h2 className={styles.asideTitle}>{badge.title}</h2>
-                <p className={styles.asideText}>{badge.subtitle}</p>
+                <h2 className={styles.asideTitle}>{progressMessage.title}</h2>
+                <p className={styles.asideText}>{progressMessage.subtitle}</p>
               </div>
             </div>
-            <LevelBadge compact name={user?.name || "个人"} xp={state.xp} contributionPoints={contributionPoints} coCreatorApproved={user?.coCreatorApproved} />
+            <div className={styles.card} style={{ minHeight: 0, padding: 14, boxShadow: "none" }}>
+              <span className={styles.tag}>当前进度</span>
+              <h3 className={styles.cardTitle} style={{ marginTop: 10 }}>{currentLevel.name}</h3>
+              <p className={styles.cardText} style={{ marginTop: 6 }}>{state.xp} XP</p>
+            </div>
           </aside>
         </section>
 

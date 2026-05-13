@@ -5,9 +5,8 @@ import Link from "next/link"
 import { Building2, Compass, Crown, GraduationCap, LogOut, Menu, Newspaper, Trophy, Users, X } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/AuthContext"
-import { LevelBadge, LevelIcon } from "@/components/LevelBadge"
 import { XiaobaiLogo } from "@/components/XiaobaiLogo"
-import { LEVEL_TRACKS, getNextLevel, getUserLevel } from "@/data/user"
+import { getNextLevel, getUserLevel } from "@/data/user"
 
 const links = [
   { label: "开始学习", href: "/learn", icon: GraduationCap },
@@ -18,14 +17,6 @@ const links = [
   { label: "成长舱", href: "/growth", icon: Trophy },
   { label: "关于我们", href: "/about", icon: Building2 },
 ]
-
-const coCreatorPreviewContribution: Record<number, number> = {
-  15: 0,
-  16: 20,
-  17: 60,
-  18: 160,
-  19: 360,
-}
 
 export function NavBar() {
   const { user, logout } = useAuth()
@@ -50,8 +41,6 @@ export function NavBar() {
   const idleMinutesNeed = xpNeed ? Math.ceil((xpNeed / 2) * 5) : 0
   const missionDaysNeed = xpNeed ? Math.ceil(xpNeed / 110) : 0
   const xpLabel = next?.requiresContribution ? `${contributionPoints} 贡献值` : next?.requiresReview ? `${userXP} XP · 共创待审核` : next ? `${userXP} XP` : "已达最高档"
-  const levelCatalog = LEVEL_TRACKS[levelTrack] || LEVEL_TRACKS.personal
-  const isCoCreatorGod = Boolean(user?.coCreatorApproved) && level.level >= 19
   const prefetchRoute = (href: string) => {
     router.prefetch(href)
   }
@@ -84,21 +73,17 @@ export function NavBar() {
         <div className="site-nav-auth">
           {user ? (
             <div className="site-profile-wrap">
-              <button type="button" className="site-auth-link site-profile-button" aria-label={`${user.name} 的等级`} onClick={() => setProfileOpen((open) => !open)}>
-              <span className="desktop-level"><LevelBadge compact name={user.name} xp={userXP} track={levelTrack} contributionPoints={contributionPoints} coCreatorApproved={user.coCreatorApproved} /></span>
-              <span className="mobile-level"><LevelBadge compact name={user.name} xp={userXP} track={levelTrack} contributionPoints={contributionPoints} coCreatorApproved={user.coCreatorApproved} /></span>
+              <button type="button" className="site-auth-link site-profile-button" aria-label={`${user.name} 的账号菜单`} onClick={() => setProfileOpen((open) => !open)}>
+                <span className="profile-chip-name">{user.name}</span>
+                <span className="profile-chip-xp">{userXP} XP</span>
               </button>
               {profileOpen && (
                 <div className="site-profile-popover">
                   <div className="profile-head">
-                    <LevelIcon level={level.level} name={level.name} compact />
                     <div className="profile-title">
                       <p>{user.name}</p>
                       <span>{user.email}</span>
                     </div>
-                  </div>
-                  <div className="profile-current-plate">
-                    <LevelBadge compact name={user.name} xp={userXP} track={levelTrack} contributionPoints={contributionPoints} coCreatorApproved={user.coCreatorApproved} />
                   </div>
                   <div className="profile-xp-row">
                     <span>{level.name}</span>
@@ -114,46 +99,18 @@ export function NavBar() {
                       <span>或做 {missionDaysNeed} 天任务</span>
                     </div>
                   )}
-                  {isCoCreatorGod ? (
-                    <>
-                      <p className="profile-god-note">共创神已解锁完整等级图鉴，可查看全部等级铭牌。</p>
-                      <div className="profile-levels is-god-view" aria-label="共创神完整等级图鉴">
-                        {levelCatalog.map((item) => (
-                          <div key={item.level} className="profile-level-item is-unlocked" title={`${item.name} · ${item.minXP} XP`}>
-                            <LevelIcon level={item.level} name={item.name} compact />
-                            <span className="profile-level-caption">{item.name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  ) : (
-                    <div className="profile-level-snapshot" aria-label="当前等级和下一级">
-                      <div className="profile-level-card is-current">
-                        <div className="profile-level-card-visual">
-                          <LevelBadge compact name={user.name} xp={userXP} track={levelTrack} contributionPoints={contributionPoints} coCreatorApproved={user.coCreatorApproved} />
-                        </div>
-                        <span>当前等级</span>
-                        <strong>{level.name}</strong>
-                        <p>{level.reward.title}</p>
-                      </div>
-                      {next ? (
-                        <div className="profile-level-card">
-                          <div className="profile-level-card-visual">
-                            <LevelBadge compact name={user.name} xp={next.level.minXP} track={levelTrack} contributionPoints={coCreatorPreviewContribution[next.level.level] || contributionPoints} coCreatorApproved={next.level.level >= 15} previewLevel={next.level.level} />
-                          </div>
-                          <span>{next.requiresReview ? "共创审核" : "下一级预览"}</span>
-                          <strong>{next.level.name}</strong>
-                          <p>{next.requiresReview ? "需要人工审核真实案例、复盘质量和共建贡献" : next.level.reward.title}</p>
-                        </div>
-                      ) : (
-                        <div className="profile-level-card">
-                          <span>下一步</span>
-                          <strong>保持最高档</strong>
-                          <p>继续完成任务、发布复盘和参与共建。</p>
-                        </div>
-                      )}
+                  <div className="profile-level-snapshot" aria-label="当前进度和下一步">
+                    <div className="profile-level-card is-current">
+                      <span>当前进度</span>
+                      <strong>{level.name}</strong>
+                      <p>{level.reward.title}</p>
                     </div>
-                  )}
+                    <div className="profile-level-card">
+                      <span>{next ? "下一步" : "当前状态"}</span>
+                      <strong>{next ? next.level.name : "保持最高档"}</strong>
+                      <p>{next ? next.requiresReview ? "提交真实案例和复盘后等待审核。" : next.level.reward.title : "继续完成任务、发布复盘和参与共建。"}</p>
+                    </div>
+                  </div>
                   <p className="profile-benefit">当前权益：{level.reward.vanity}</p>
                   <div className="profile-actions">
                     <Link href="/growth" className="profile-action-primary">做任务升级</Link>
@@ -249,20 +206,6 @@ export function NavBar() {
           align-items: center;
           gap: 12px;
           margin-bottom: 14px;
-        }
-        .profile-head .levelIconBadge {
-          flex: 0 0 auto;
-          width: 78px;
-          height: 92px;
-          margin: -10px 0 -8px;
-        }
-        .profile-current-plate {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 56px;
-          margin: -2px 0 12px;
-          overflow: visible;
         }
         .profile-title {
           min-width: 0;
@@ -371,10 +314,6 @@ export function NavBar() {
           min-height: 58px;
           margin: -2px 0 6px;
           overflow: visible;
-        }
-        .profile-level-card-visual .xiaobaiLevelNameplate {
-          transform: scale(0.82);
-          transform-origin: center;
         }
         .profile-level-card.is-current {
           border-color: rgba(122,98,48,0.72);

@@ -25,48 +25,60 @@ const caseReports = [
   {
     icon: Code2,
     title: "家庭提醒小程序从 0 做到体验版",
+    type: "应用 MVP",
     maker: "个人开发者 / 在家做项目",
+    audience: "适合想做小程序、工具站、家庭服务类产品的人",
     outcome: "做出 3 个页面、登录、提醒列表，并上传微信体验版",
     tools: "Codex、微信开发者工具、Supabase",
     shipped: "体验版已上传，完成真机预览",
     steps: ["先写一页需求，让 Agent 拆页面和数据表", "每次只让 Agent 改一个小功能，跑通再继续", "上传体验版后把域名、登录、空状态逐项检查"],
     lesson: "不要一开始做支付和会员，先让一个真实流程能在手机上跑起来。",
+    nextAction: "从一个能点开的核心流程开始",
     href: "/agent-mini-program",
     tone: "cyan",
   },
   {
     icon: Bot,
     title: "用 Claude Code 接国内模型修好站内页面",
+    type: "工程 Agent",
     maker: "网站站长 / 小团队",
+    audience: "适合已经有网站、项目、代码仓库，想让 Agent 帮忙改功能的人",
     outcome: "Agent 能读项目、改组件、跑构建，并修复一个真实页面问题",
     tools: "Claude Code、MiniMax/DeepSeek API、Node.js",
     shipped: "代码合并后构建通过，服务器完成重启",
     steps: ["先把模型 API 配好，确认 Agent 能启动", "让 Agent 先读文件和报计划，不直接大改", "改完跑 typecheck、lint、build，再上线验证"],
     lesson: "Agent 不是一句话许愿机，要让它先读项目、拆任务、跑检查。",
+    nextAction: "先让 Agent 读项目，再让它改一处小功能",
     href: "/agent-install/claude-code",
     tone: "gold",
   },
   {
     icon: BriefcaseBusiness,
     title: "门店 FAQ 做成可用的知识库客服",
+    type: "企业提效",
     maker: "实体门店 / 客服负责人",
+    audience: "适合门店、教育、服务业、电商客服，把重复问答沉淀成流程",
     outcome: "把价格、服务范围、售后规则做成可问答 Bot",
     tools: "Dify、飞书文档、企业微信",
     shipped: "内部试用，客服可复制答案给客户",
     steps: ["先整理 50 条真实高频问题", "上传资料后设置不能乱承诺的回答边界", "用客户原话测试，答不准的补资料再训练"],
     lesson: "知识库不是上传越多越好，先覆盖每天真的会被问到的问题。",
+    nextAction: "先整理高频问题，再做知识库 Bot",
     href: "/dify-knowledge-base",
     tone: "green",
   },
   {
     icon: Palette,
     title: "AI 漫剧账号做出第一集样片包",
+    type: "内容变现",
     maker: "内容副业 / 短剧方向",
+    audience: "适合创作者、副业账号、短视频团队，先做可展示样片",
     outcome: "完成角色设定、12 个分镜、画面提示词和配音脚本",
     tools: "即梦、剪映、通用提示词模板",
     shipped: "样片包已整理，可进入正式制作",
     steps: ["先固定主角外观和世界观", "每个镜头单独写画面，不用一句话生成全片", "统一风格后再配音和剪辑"],
     lesson: "AI 漫剧的关键不是炫技，是角色一致、镜头可控、能持续更新。",
+    nextAction: "先做一集样片包，不先追求完整账号矩阵",
     href: "/missions/ai-comic-video-first-episode",
     tone: "purple",
   },
@@ -156,10 +168,15 @@ export default function MemberCasesPage() {
                 <Link key={item.href} href={item.href} className={`featuredCase tone-${item.tone}`}>
                   <div className="featuredTop">
                     <span className="caseIcon"><Icon size={22} /></span>
-                    <span className="caseOutcome">{item.shipped}</span>
+                    <span className="caseType">{item.type}</span>
                   </div>
                   <h3>{item.title}</h3>
                   <p>{item.maker}</p>
+                  <div className="caseAudience">{item.audience}</div>
+                  <div className="caseResult">
+                    <strong>状态</strong>
+                    <span>{item.shipped}</span>
+                  </div>
                   <div className="caseResult">
                     <strong>结果</strong>
                     <span>{item.outcome}</span>
@@ -172,7 +189,8 @@ export default function MemberCasesPage() {
                     {item.steps.map((step) => <li key={step}>{step}</li>)}
                   </ol>
                   <span className="caseLesson">{item.lesson}</span>
-                  <span className="caseLink">查看完整复盘 <ArrowRight size={14} /></span>
+                  <span className="caseNext">{item.nextAction}</span>
+                  <span className="caseLink">查看对应路径 <ArrowRight size={14} /></span>
                 </Link>
               )
             })}
@@ -359,12 +377,20 @@ export default function MemberCasesPage() {
           box-shadow: 0 0 24px color-mix(in srgb, var(--tone) 35%, transparent);
           flex-shrink: 0;
         }
-        .caseOutcome {
+        .caseOutcome,
+        .caseType {
           color: var(--tone);
           font-size: 12px;
           font-weight: 950;
           line-height: 1.45;
           text-align: right;
+        }
+        .caseType {
+          border: 1px solid color-mix(in srgb, var(--tone) 34%, transparent);
+          background: color-mix(in srgb, var(--tone) 10%, transparent);
+          border-radius: 999px;
+          padding: 7px 10px;
+          line-height: 1.2;
         }
         .featuredCase h3 {
           color: #fff;
@@ -390,6 +416,18 @@ export default function MemberCasesPage() {
           background: rgba(255,255,255,0.035);
           border-radius: 12px;
           padding: 10px 12px;
+          margin-bottom: 9px;
+        }
+        .caseAudience {
+          min-height: 48px;
+          border: 1px solid color-mix(in srgb, var(--tone) 18%, transparent);
+          background: rgba(255,255,255,0.035);
+          border-radius: 12px;
+          padding: 10px 12px;
+          color: #efe7d0;
+          font-size: 14px;
+          font-weight: 900;
+          line-height: 1.55;
           margin-bottom: 9px;
         }
         .caseResult strong {
@@ -423,6 +461,18 @@ export default function MemberCasesPage() {
           font-size: 15px;
           font-weight: 900;
           line-height: 1.6;
+        }
+        .caseNext {
+          display: block;
+          color: #fff;
+          background: color-mix(in srgb, var(--tone) 13%, transparent);
+          border: 1px solid color-mix(in srgb, var(--tone) 22%, transparent);
+          border-radius: 10px;
+          padding: 9px 11px;
+          margin: -4px 0 13px;
+          font-size: 14px;
+          font-weight: 950;
+          line-height: 1.5;
         }
         .caseLink {
           margin-top: auto;
@@ -624,6 +674,7 @@ export default function MemberCasesPage() {
         }
         .standardCard p,
         .caseOutcome,
+        .caseType,
         .caseResult strong,
         .caseLink,
         .tutorialLink svg {
@@ -635,11 +686,15 @@ export default function MemberCasesPage() {
           box-shadow: none;
         }
         .caseResult,
+        .caseAudience,
+        .caseNext,
         .tutorialLink {
           border-color: #dfe7ee;
           background: #f7fbfd;
         }
         .caseResult span,
+        .caseAudience,
+        .caseNext,
         .tutorialLink,
         .caseLesson {
           color: #536170;
