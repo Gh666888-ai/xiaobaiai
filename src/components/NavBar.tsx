@@ -19,6 +19,12 @@ const links = [
   { label: "关于我们", href: "/about", icon: Building2 },
 ]
 
+function isActiveNavItem(pathname: string | null, href: string) {
+  if (!pathname) return false
+  if (href === "/tools" && pathname === "/skills") return false
+  return pathname === href || pathname.startsWith(`${href}/`)
+}
+
 export function NavBar() {
   const { user, logout } = useAuth()
   const pathname = usePathname()
@@ -61,7 +67,7 @@ export function NavBar() {
         <div className="site-nav-links">
           {links.map((item) => {
             const Icon = item.icon
-            const active = pathname === item.href || pathname?.startsWith(`${item.href}/`)
+            const active = isActiveNavItem(pathname, item.href)
             return (
               <Link key={item.href} href={item.href} prefetch className={`site-nav-link ${active ? "is-active" : ""}`} onMouseEnter={() => prefetchRoute(item.href)} onFocus={() => prefetchRoute(item.href)}>
                 <Icon size={14} />
@@ -138,7 +144,7 @@ export function NavBar() {
         <div className="site-mobile-menu">
           {links.map((item) => {
             const Icon = item.icon
-            const active = pathname === item.href || pathname?.startsWith(`${item.href}/`)
+            const active = isActiveNavItem(pathname, item.href)
             return (
               <Link key={item.href} href={item.href} prefetch className={`site-mobile-link ${active ? "is-active" : ""}`} onTouchStart={() => prefetchRoute(item.href)} onMouseEnter={() => prefetchRoute(item.href)} onFocus={() => prefetchRoute(item.href)}>
                 <Icon size={15} />
