@@ -12,6 +12,7 @@
     "check:full": "npm run lint && npm run typecheck && npm run build",
     "generate:mascot": "node scripts/generate-xiaobai-mascot-assets.js",
     "generate:news-covers": "node scripts/generate-news-covers.js",
+    "generate:news-covers:local": "node scripts/generate-news-covers-local.js",
     "fetch:skills": "node scripts/fetch-skills.js",
     "update:model-prices": "node scripts/update-model-prices.js",
     "daily:model-prices": "npm run update:model-prices && npm run build"
