@@ -13,6 +13,7 @@ import {
 import { missions } from "@/data/missions"
 import { NavBar } from "@/components/NavBar"
 import { BackButton } from "@/components/learning/BackButton"
+import { RoadmapScrollFrame } from "@/components/learning/RoadmapScrollFrame"
 import styles from "./LearningSystem.module.css"
 
 function cn(...names: Array<string | false | undefined>) {
@@ -607,7 +608,7 @@ function VerticalRoadmapVisual({ catalog }: { catalog: MajorSubject[] }) {
   ]
 
   return (
-    <div className={styles.verticalMapWrap}>
+    <RoadmapScrollFrame>
       <div className={styles.verticalMapCanvas} aria-label="从上往下的小白AI学习路线图">
         <svg className={styles.verticalMapLines} viewBox="0 0 1020 1800" role="img" aria-label="小白AI从共同基础到个人、一人公司、团队公司、AI写作、AI读资料、AI辅助决策、表格整理、生活管理、学习陪练和场景套用的路线图">
           <defs>
@@ -640,7 +641,7 @@ function VerticalRoadmapVisual({ catalog }: { catalog: MajorSubject[] }) {
           </Link>
         ))}
       </div>
-    </div>
+    </RoadmapScrollFrame>
   )
 }
 

@@ -1226,14 +1226,48 @@
   font-family: 'JetBrains Mono', 'Noto Sans SC', monospace;
 }
 
+.verticalMapShell {
+  position: relative;
+}
+
+.verticalMapMobileHint {
+  display: none;
+}
+
 .verticalMapWrap {
+  position: relative;
   overflow-x: auto;
-  padding: 8px 2px 4px;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+  padding: 8px 2px 12px;
+  cursor: grab;
+  scrollbar-width: thin;
+  scrollbar-color: #9fb3c8 transparent;
+}
+
+.verticalMapWrap:active {
+  cursor: grabbing;
+}
+
+.verticalMapWrap::-webkit-scrollbar {
+  height: 8px;
+}
+
+.verticalMapWrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.verticalMapWrap::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(100, 116, 139, 0.42);
 }
 
 .verticalMapCanvas {
   position: relative;
   min-width: 1020px;
+  width: 1020px;
   height: 1800px;
   border: 1px solid #dfe7ee;
   border-radius: 20px;
@@ -2164,20 +2198,81 @@
   .verticalMapWrap {
     margin-left: -14px;
     margin-right: -14px;
-    padding-left: 14px;
+    padding: 10px 14px 16px;
+    scroll-padding-left: 14px;
+  }
+
+  .verticalMapShell::before,
+  .verticalMapShell::after {
+    content: "";
+    position: absolute;
+    top: 48px;
+    bottom: 10px;
+    z-index: 4;
+    width: 36px;
+    pointer-events: none;
+  }
+
+  .verticalMapShell::before {
+    left: -14px;
+    background: linear-gradient(90deg, #f6f9fc 12%, rgba(246,249,252,0));
+  }
+
+  .verticalMapShell::after {
+    right: -14px;
+    background: linear-gradient(270deg, #f6f9fc 12%, rgba(246,249,252,0));
+  }
+
+  .verticalMapMobileHint {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 2px -2px 8px;
+    padding: 10px 12px;
+    border: 1px solid #dfe7ee;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.92);
+    color: #536170;
+    font-size: 13px;
+    font-weight: 850;
+  }
+
+  .verticalMapMobileHint div {
+    display: inline-flex;
+    gap: 8px;
+  }
+
+  .verticalMapMobileHint button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid #cfd9e3;
+    border-radius: 12px;
+    background: #17202a;
+    color: #fff;
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1;
   }
 
   .verticalMapCanvas {
-    min-width: 820px;
+    min-width: 920px;
+    width: 920px;
     height: 1440px;
   }
 
   .verticalMapLines {
-    transform: scale(0.8);
+    transform: scale(0.82);
+    transform-origin: left top;
   }
 
   .verticalMapNode {
-    transform: scale(0.8);
+    transform: scale(0.82);
+    transform-origin: left top;
+    pointer-events: auto;
   }
 
   .subjectRouteMap {
