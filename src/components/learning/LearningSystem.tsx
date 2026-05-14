@@ -94,7 +94,7 @@ function Hero({
             <span className={styles.stepNumber}>1</span>
             <span>
               <span className={styles.stepTitle}>找到适合你的路</span>
-              <span className={styles.stepText}>个人副业、职场提效、一人公司、团队赋能、行业变现都能直接进入。</span>
+              <span className={styles.stepText}>个人副业、职场提效、一人公司、团队赋能、行业实战都能直接进入。</span>
             </span>
           </li>
           <li>
@@ -407,7 +407,7 @@ export function LearningHome() {
       >
         <Link className={styles.primaryButton} href={subjectHref("ai-basics")}>我是新手，从这里开始</Link>
         <Link className={styles.secondaryButton} href="/learn/tutorials">只看教程</Link>
-        <Link className={styles.secondaryButton} href="/strategy">看领域规划</Link>
+        <Link className={styles.secondaryButton} href="/strategy">看发展路线</Link>
       </Hero>
 
       <section className={styles.sectionPanel}>
@@ -452,11 +452,11 @@ export function LearningHome() {
       <section className={styles.sectionPanel}>
         <div className={styles.sectionHead}>
           <div>
-            <p className={styles.eyebrow}>BUSINESS MAP</p>
-            <h2 className={styles.sectionTitle}>学习路线怎么连接后期商业化</h2>
-            <p className={styles.sectionDesc}>小白AI不是让用户一直看教程。每条学习线最后都要沉淀成模板、案例、行业包、Skill 或企业交付能力。</p>
+            <p className={styles.eyebrow}>ROADMAP</p>
+            <h2 className={styles.sectionTitle}>学习路线后面会怎么展开</h2>
+            <p className={styles.sectionDesc}>小白AI不是让用户一直看教程。每条学习线最后都要沉淀成模板、案例、行业任务、Skill 或可复用流程。</p>
           </div>
-          <Link className={styles.secondaryButton} href="/strategy">查看完整领域规划</Link>
+          <Link className={styles.secondaryButton} href="/strategy">查看发展路线</Link>
         </div>
         <div className={styles.minorGrid}>
           <Link className={styles.minorCard} href="/learn/subjects/personal-growth">
@@ -467,7 +467,7 @@ export function LearningHome() {
           <Link className={styles.minorCard} href="/learn/subjects/business-ai">
             <span className={styles.pill}>团队线</span>
             <h3 className={styles.minorTitle}>企业知识库、客服和SOP</h3>
-            <p className={styles.minorDesc}>从一个岗位、一个流程、一个交付物开始试点，再把知识库、客服Bot、销售助手和自动化流程做成可交付方案。</p>
+            <p className={styles.minorDesc}>从一个岗位、一个流程、一个交付物开始试点，再把知识库、客服Bot、销售助手和自动化流程做成可复用方案。</p>
           </Link>
           <Link className={styles.minorCard} href="/learn/subjects/industry-playbooks">
             <span className={styles.pill}>行业线</span>
@@ -616,7 +616,7 @@ function VerticalRoadmapVisual({ catalog }: { catalog: MajorSubject[] }) {
     { id: "solo", title: "一人公司项目", text: "接单服务、创作者工作室、个人 Agent、课程和小产品。", href: minorHref("personal-growth", "freelance-service"), x: 282, y: 560, w: 210, tone: "leaf" },
     { id: "company", title: "团队公司项目", text: "客服知识库、部门 SOP、自动日报、销售话术、培训系统。", href: subjectHref("business-ai"), x: 522, y: 560, w: 210, tone: "leaf" },
     { id: "industry", title: "行业 AI 项目", text: "餐饮、电商、教育、工厂、财税、法律、医美等行业落地。", href: subjectHref("industry-playbooks"), x: 762, y: 560, w: 210, tone: "leaf" },
-    { id: "opc", title: "OPC 变现试验", text: "定位、服务包、信任内容、报价、交付和复盘，先跑 7 天闭环。", href: minorHref("personal-growth", "opc-super-individual"), x: 132, y: 724, w: 230, tone: "personal" },
+    { id: "opc", title: "OPC 起步试验", text: "定位、服务包、信任内容、沟通、交付和复盘，先跑 7 天闭环。", href: minorHref("personal-growth", "opc-super-individual"), x: 132, y: 724, w: 230, tone: "personal" },
     { id: "visual", title: "视觉资产 MVP", text: "ComfyUI、角色场景、短剧分镜、图文配图，先做可展示素材包。", href: minorHref("content-creation", "comfyui-visual-asset-mvp"), x: 395, y: 724, w: 230, tone: "branch" },
     { id: "pipeline", title: "管道收入复购", text: "获客入口、信任内容、体验、交付、复购和转介绍。", href: minorHref("personal-growth", "pipeline-income-system"), x: 660, y: 724, w: 230, tone: "team" },
     { id: "frontier", title: "正文拆解与前沿雷达", text: "读正文，拆知识点，再判断资讯、论文、产品数据和硬件趋势该学该试还是观察。", href: minorHref("ai-basics", "ai-source-digestion"), x: 42, y: 884, w: 210, tone: "leaf" },
@@ -638,7 +638,7 @@ function VerticalRoadmapVisual({ catalog }: { catalog: MajorSubject[] }) {
     { id: "agent-install", title: "Agent 安装", text: "装好执行工具，接上模型，再回项目里实操。", href: "/agent-install", x: 220, y: 1620, w: 180, tone: "resource" },
     { id: "tools", title: "工具资源", text: "按场景找工具，服务学习、行业项目和团队提效。", href: "/tools", x: 410, y: 1620, w: 180, tone: "resource" },
     { id: "cases", title: "实战展示", text: "看别人完整跑通的项目、结果、工具和踩坑。", href: "/member-cases", x: 600, y: 1620, w: 180, tone: "resource" },
-    { id: "strategy", title: "领域规划", text: "看小白AI后期要做哪些领域、怎么变现、怎么从学习走到交付。", href: "/strategy", x: 790, y: 1620, w: 180, tone: "resource" },
+    { id: "strategy", title: "发展路线", text: "看小白AI后续会补深哪些方向，以及怎么从学习走到实战。", href: "/strategy", x: 790, y: 1620, w: 180, tone: "resource" },
   ]
 
   return (
@@ -856,7 +856,7 @@ function lessonScenario(major: MajorSubject, subject: MinorSubject, tutorial: Tu
     "agent-coding": "想让 Agent 真正读项目、改文件、跑验证的人",
     automation: "想把重复工作做成可运行流程的人",
     "business-ai": "想把 AI 落到客服、销售、SOP 和团队交付的人",
-    "industry-playbooks": "想把 AI 落到具体行业、能提效或变现的人",
+    "industry-playbooks": "想把 AI 落到具体行业、做出可检查结果的人",
     "personal-growth": "想让 AI 改善收入、时间、生活和个人工作流的人",
     "office-productivity": "每天要写汇报、看文档、做表格和开会的人",
     "content-creation": "想稳定产出图文、短视频、脚本或作品的人",
