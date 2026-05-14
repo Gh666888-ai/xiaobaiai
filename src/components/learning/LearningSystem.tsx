@@ -407,6 +407,7 @@ export function LearningHome() {
       >
         <Link className={styles.primaryButton} href={subjectHref("ai-basics")}>我是新手，从这里开始</Link>
         <Link className={styles.secondaryButton} href="/learn/tutorials">只看教程</Link>
+        <Link className={styles.secondaryButton} href="/strategy">看领域规划</Link>
       </Hero>
 
       <section className={styles.sectionPanel}>
@@ -446,6 +447,39 @@ export function LearningHome() {
           </div>
         </div>
         <LearningDiagram />
+      </section>
+
+      <section className={styles.sectionPanel}>
+        <div className={styles.sectionHead}>
+          <div>
+            <p className={styles.eyebrow}>BUSINESS MAP</p>
+            <h2 className={styles.sectionTitle}>学习路线怎么连接后期商业化</h2>
+            <p className={styles.sectionDesc}>小白AI不是让用户一直看教程。每条学习线最后都要沉淀成模板、案例、行业包、Skill 或企业交付能力。</p>
+          </div>
+          <Link className={styles.secondaryButton} href="/strategy">查看完整领域规划</Link>
+        </div>
+        <div className={styles.minorGrid}>
+          <Link className={styles.minorCard} href="/learn/subjects/personal-growth">
+            <span className={styles.pill}>个人线</span>
+            <h3 className={styles.minorTitle}>个人创作、副业和一人公司</h3>
+            <p className={styles.minorDesc}>从AI基础能力进入内容、口播、数字人、电商素材、接单服务和个人Agent，先做能发布、能接单、能复盘的结果。</p>
+          </Link>
+          <Link className={styles.minorCard} href="/learn/subjects/business-ai">
+            <span className={styles.pill}>团队线</span>
+            <h3 className={styles.minorTitle}>企业知识库、客服和SOP</h3>
+            <p className={styles.minorDesc}>从一个岗位、一个流程、一个交付物开始试点，再把知识库、客服Bot、销售助手和自动化流程做成可交付方案。</p>
+          </Link>
+          <Link className={styles.minorCard} href="/learn/subjects/industry-playbooks">
+            <span className={styles.pill}>行业线</span>
+            <h3 className={styles.minorTitle}>电商、本地商家和行业AI项目</h3>
+            <p className={styles.minorDesc}>每个行业都要有材料、步骤、工具、验收和下一步，不做只有行业名的空页面。</p>
+          </Link>
+          <Link className={styles.minorCard} href="/learn/subjects/agent-coding">
+            <span className={styles.pill}>技术线</span>
+            <h3 className={styles.minorTitle}>Agent / MCP / Skill生态</h3>
+            <p className={styles.minorDesc}>从安装Agent、连接工具、使用Skill，到多Agent协作和SessionStore，形成小白AI长期护城河。</p>
+          </Link>
+        </div>
       </section>
     </PageFrame>
   )
@@ -604,7 +638,7 @@ function VerticalRoadmapVisual({ catalog }: { catalog: MajorSubject[] }) {
     { id: "agent-install", title: "Agent 安装", text: "装好执行工具，接上模型，再回项目里实操。", href: "/agent-install", x: 220, y: 1620, w: 180, tone: "resource" },
     { id: "tools", title: "工具资源", text: "按场景找工具，服务学习、行业项目和团队提效。", href: "/tools", x: 410, y: 1620, w: 180, tone: "resource" },
     { id: "cases", title: "实战展示", text: "看别人完整跑通的项目、结果、工具和踩坑。", href: "/member-cases", x: 600, y: 1620, w: 180, tone: "resource" },
-    { id: "community", title: "社区复盘", text: "教程和任务做完后，把问题、结果和复盘发出来。", href: "/community", x: 790, y: 1620, w: 180, tone: "resource" },
+    { id: "strategy", title: "领域规划", text: "看小白AI后期要做哪些领域、怎么变现、怎么从学习走到交付。", href: "/strategy", x: 790, y: 1620, w: 180, tone: "resource" },
   ]
 
   return (

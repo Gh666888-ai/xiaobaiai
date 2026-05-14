@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, Mail, MessageCircle, Route, Users } from "lucide-react"
+import { ArrowRight, BarChart3, Mail, MessageCircle, Route, Users } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
 import styles from "@/components/learning/SupportPage.module.css"
 
@@ -26,6 +26,7 @@ export default function AboutPage() {
             <div className={styles.actions}>
               <Link href="/learn" className={styles.primaryButton}>进入学习地图</Link>
               <Link href="/member-cases" className={styles.secondaryButton}>看实战展示</Link>
+              <Link href="/strategy" className={styles.secondaryButton}>看领域规划</Link>
               <Link href="/community" className={styles.secondaryButton}>去社区复盘</Link>
             </div>
           </div>
@@ -60,6 +61,34 @@ export default function AboutPage() {
                 </article>
               )
             })}
+          </div>
+        </section>
+
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <div>
+              <p className={styles.eyebrow}>Strategy</p>
+              <h2 className={styles.panelTitle}>后期领域规划与商业路径</h2>
+              <p className={styles.panelDesc}>小白AI后期会围绕普通人AI基础、个人创作与副业、电商与本地商家、中小企业提效、Agent / MCP / Skill、家庭生活AI六条线推进。商业化也会从免费内容、模板包、会员订阅逐步走到企业交付。</p>
+            </div>
+            <Link href="/strategy" className={styles.primaryButton}>查看完整报告</Link>
+          </div>
+          <div className={styles.grid}>
+            <article className={styles.card}>
+              <span className={styles.tag}><BarChart3 size={14} /> 近期重点</span>
+              <h3 className={styles.cardTitle}>先跑个人、电商和内容场景</h3>
+              <p className={styles.cardText}>这些场景需求具体、传播快、付费验证容易，适合先沉淀模板、任务和真实案例。</p>
+            </article>
+            <article className={styles.card}>
+              <span className={styles.tag}><Users size={14} /> 中期重点</span>
+              <h3 className={styles.cardTitle}>再进入企业知识库和客服</h3>
+              <p className={styles.cardText}>企业端从一个岗位、一个流程、一个交付物开始，用省时、准确率和人工接管次数验收。</p>
+            </article>
+            <article className={styles.card}>
+              <span className={styles.tag}><Route size={14} /> 长期重点</span>
+              <h3 className={styles.cardTitle}>形成Skill和Agent生态</h3>
+              <p className={styles.cardText}>用户不只是看教程，而是能选择技能、装到Agent、完成行业工作流。</p>
+            </article>
           </div>
         </section>
 

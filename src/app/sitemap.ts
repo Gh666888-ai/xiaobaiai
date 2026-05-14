@@ -49,6 +49,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: url("/community"), lastModified, changeFrequency: "daily", priority: 0.86 },
     { url: url("/models"), lastModified, changeFrequency: "weekly", priority: 0.82 },
     { url: url("/skills"), lastModified, changeFrequency: "weekly", priority: 0.8 },
+    { url: url("/strategy"), lastModified, changeFrequency: "monthly", priority: 0.76 },
     { url: url("/chat"), lastModified, changeFrequency: "weekly", priority: 0.78 },
     { url: url("/workflows"), lastModified, changeFrequency: "weekly", priority: 0.76 },
     { url: url("/growth"), lastModified, changeFrequency: "weekly", priority: 0.72 },
