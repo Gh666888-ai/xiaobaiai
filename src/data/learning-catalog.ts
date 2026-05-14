@@ -317,7 +317,7 @@ export const learningCatalog: MajorSubject[] = [
         tutorials: [
           { id: "story-brief", title: "故事简报", kind: "concept", minutes: 15, deliverable: "故事一句话", href: "/missions/ai-comic-video-first-episode" },
           { id: "shot-list", title: "分镜清单", kind: "practice", minutes: 25, deliverable: "8-12 个镜头", href: "/missions/ai-comic-video-first-episode" },
-          { id: "visual-prompt", title: "画面提示词", kind: "tool", minutes: 20, deliverable: "角色和场景提示词", href: "/missions/ai-comic-video-first-episode" },
+          { id: "visual-prompt", title: "镜头级提示词", kind: "tool", minutes: 25, deliverable: "角色、场景和分段视频提示词", href: "/missions/ai-comic-video-first-episode" },
         ],
         missions: ["ai-comic-video-first-episode"],
       },
