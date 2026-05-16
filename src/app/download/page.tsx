@@ -3,13 +3,13 @@ import Link from "next/link"
 import { ArrowRight, Download, FileCheck2, Settings2, Sparkles } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
 
-const version = "2.1.118"
+const version = "2.1.119"
 const installerName = `Xiaobai-Setup-${version}.exe`
 const installerUrl = `/downloads/xiaobai-agent/${installerName}`
 const manifestUrl = "/downloads/xiaobai-agent/release-manifest.json"
 const latestUrl = "/downloads/xiaobai-agent/latest.yml"
 const installerSize = "85.8 MB"
-const installerSha256 = "f59c81c9624d6fee5ffa8357dcc0e7c5f815fb86659fc1e5ca69f43f119c654a"
+const installerSha256 = "0b951de1f0f87a27b28d538de2710e9b3894ed6f44df6e45bbc509b896d785f5"
 
 const cardStyle = {
   border: "1px solid #e4edf4",
@@ -121,7 +121,7 @@ export default function DownloadPage() {
           <h2 style={{ margin: "0 0 12px", color: "#102131", fontSize: 20, fontWeight: 950 }}>确认下载成功</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: 12 }}>
             {[
-              "浏览器开始下载 Xiaobai-Setup-2.1.118.exe。",
+              `浏览器开始下载 ${installerName}。`,
               "安装后能看到 Xiaobai Nexus 桌面快捷方式。",
               "登录会员账号后进入小白主界面。",
             ].map((item) => (
