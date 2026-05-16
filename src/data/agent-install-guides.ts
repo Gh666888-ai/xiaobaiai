@@ -498,14 +498,14 @@ export const agentInstallGuides: AgentInstallGuide[] = [
     ],
     installSteps: [
       { title: "登录小白AI网站会员", body: "先在 xiaobaiai.cn 登录或注册会员。桌面端会使用同一套会员账号，不提供游客模式。" },
-      { title: "下载安装包", body: "进入小白 Agent 下载页，下载当前 Windows 安装包。", command: "https://www.xiaobaiai.cn/download" },
+      { title: "下载安装包", body: "点击按钮下载当前 Windows 安装包。", command: "/downloads/xiaobai-agent/Xiaobai-Setup-2.1.118.exe" },
       { title: "安装并启动", body: "运行安装包，安装完成后从桌面或开始菜单打开 Xiaobai Nexus。" },
       { title: "用网站会员账号登录桌面端", body: "输入小白AI网站的会员邮箱和密码。登录成功后才会进入主界面，聊天、记忆、设置和桌面能力才会解锁。" },
       { title: "准备小白需要的 API", body: "首次使用前至少准备一套模型 API；如果要语音对话，再准备 ASR 语音识别和 TTS 语音合成。下方 API 区已经写清楚每个 Key 去哪个平台、哪个业务模块申请。" },
     ],
     startCommands: [
       { title: "图形界面启动", body: "从 Windows 桌面快捷方式或开始菜单打开 Xiaobai Nexus。" },
-      { title: "下载页", body: "如果要在另一台电脑安装，直接打开下载页。", command: "https://www.xiaobaiai.cn/download" },
+      { title: "下载页", body: "如果要在另一台电脑安装，直接打开下载页。", command: "/download" },
     ],
     firstPrompts: [
       "小白，检查我的模型、语音识别、TTS 和桌面控制是否配置完整。",

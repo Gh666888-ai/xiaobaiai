@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowRight, CheckCircle2, Download } from "lucide-react"
+import { ArrowRight, Download, FileCheck2, Settings2, Sparkles } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
 
 const version = "2.1.118"
@@ -9,11 +9,18 @@ const installerUrl = `/downloads/xiaobai-agent/${installerName}`
 const manifestUrl = "/downloads/xiaobai-agent/release-manifest.json"
 const latestUrl = "/downloads/xiaobai-agent/latest.yml"
 const installerSize = "85.8 MB"
-const installerSha256 = "44fbf9cb174141de071be7266e711487c20f2c1e87e81fddf031c7677c1c1dfe"
+const installerSha256 = "f59c81c9624d6fee5ffa8357dcc0e7c5f815fb86659fc1e5ca69f43f119c654a"
+
+const cardStyle = {
+  border: "1px solid #e4edf4",
+  borderRadius: 16,
+  background: "#ffffff",
+  boxShadow: "0 18px 45px rgba(25, 54, 82, 0.08)",
+} as const
 
 export const metadata: Metadata = {
   title: "下载小白 Agent Windows 桌面版 - 小白AI",
-  description: "下载小白 Agent Windows 桌面版安装包，包含版本号、文件大小、SHA256 校验和和自动更新文件。",
+  description: "下载小白 Agent Windows 桌面版安装包，查看安装步骤、API 准备入口和版本信息。",
   alternates: { canonical: "/download" },
   openGraph: {
     title: "下载小白 Agent Windows 桌面版",
@@ -25,86 +32,105 @@ export const metadata: Metadata = {
 
 export default function DownloadPage() {
   return (
-    <div style={{ minHeight: "100vh", background: "#050505", color: "#f7f0dc", fontFamily: "'Noto Sans SC', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#f6f9fc", color: "#17202a", fontFamily: "'Noto Sans SC', sans-serif" }}>
       <NavBar />
-      <main style={{ width: "min(1120px, calc(100% - 32px))", margin: "0 auto", padding: "54px 0 80px" }}>
-        <section style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.2fr) minmax(280px, 0.8fr)", gap: 28, alignItems: "stretch" }}>
-          <div style={{ border: "1px solid rgba(201,168,76,0.22)", borderRadius: 14, background: "linear-gradient(145deg, rgba(20,17,10,0.92), rgba(8,8,8,0.96))", padding: 28 }}>
-            <p style={{ margin: "0 0 14px", color: "#c9a84c", fontSize: 12, fontWeight: 950, letterSpacing: "0.18em", textTransform: "uppercase" }}>Xiaobai Agent Desktop</p>
-            <h1 style={{ margin: "0 0 16px", color: "#fff", fontSize: "clamp(34px, 5vw, 62px)", lineHeight: 1.08, fontWeight: 950, letterSpacing: 0 }}>下载小白 Agent Windows 版</h1>
-            <p style={{ margin: "0 0 24px", maxWidth: 680, color: "#d3c397", fontSize: 16, lineHeight: 1.9, fontWeight: 750 }}>
-              这是小白 Agent 的桌面端安装包。另一台 Windows 电脑打开这个页面，点击下载后安装即可。当前版本已经包含 Agent 调度、自我进化提案、语音闭环和桌面控制能力的最新构建。
+      <main style={{ width: "min(1120px, calc(100% - 32px))", margin: "0 auto", padding: "44px 0 76px" }}>
+        <section style={{ ...cardStyle, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: 30, alignItems: "center", padding: "clamp(24px, 4vw, 42px)", overflow: "hidden" }}>
+          <div>
+            <p style={{ margin: "0 0 12px", color: "#256d85", fontSize: 13, fontWeight: 950 }}>小白 Agent 官方桌面版</p>
+            <h1 style={{ margin: "0 0 16px", color: "#102131", fontSize: "clamp(34px, 5vw, 58px)", lineHeight: 1.08, fontWeight: 950, letterSpacing: 0 }}>下载 Xiaobai Nexus</h1>
+            <p style={{ margin: "0 0 24px", maxWidth: 680, color: "#4c6172", fontSize: 17, lineHeight: 1.85, fontWeight: 650 }}>
+              Windows 电脑点击下面按钮就会开始下载安装包。安装后用小白AI网站会员账号登录，再按引导配置模型、语音识别和语音合成 API。
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
-              <a href={installerUrl} download style={{ display: "inline-flex", alignItems: "center", gap: 9, minHeight: 46, borderRadius: 10, background: "#e8c96a", color: "#111", padding: "0 18px", textDecoration: "none", fontSize: 15, fontWeight: 950 }}>
-                <Download size={18} />
-                下载 Windows 安装包
+              <a href={installerUrl} download aria-label="下载小白 Agent Windows 安装包" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 50, borderRadius: 12, background: "#256d85", color: "#fff", padding: "0 22px", textDecoration: "none", fontSize: 16, fontWeight: 950, boxShadow: "0 12px 24px rgba(37,109,133,0.22)" }}>
+                <Download size={19} />
+                立即下载 Windows 安装包
               </a>
-              <Link href="/agent-install" style={{ display: "inline-flex", alignItems: "center", gap: 8, minHeight: 46, borderRadius: 10, border: "1px solid rgba(201,168,76,0.38)", color: "#e8c96a", padding: "0 16px", textDecoration: "none", fontSize: 14, fontWeight: 900 }}>
-                安装教程
+              <Link href="/agent-install/xiaobai-nexus" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 50, borderRadius: 12, border: "1px solid #bfd4df", color: "#256d85", background: "#fff", padding: "0 18px", textDecoration: "none", fontSize: 15, fontWeight: 900 }}>
+                查看安装教程
                 <ArrowRight size={16} />
               </Link>
             </div>
+            <div style={{ marginTop: 18, display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {["会员登录使用", "可换银河/照片背景", "已预留自动更新", "Windows 10/11"].map((item) => (
+                <span key={item} style={{ borderRadius: 999, background: "#eaf4f7", color: "#256d85", padding: "7px 10px", fontSize: 12, fontWeight: 900 }}>{item}</span>
+              ))}
+            </div>
           </div>
 
-          <aside style={{ border: "1px solid rgba(255,255,255,0.12)", borderRadius: 14, background: "rgba(255,255,255,0.035)", padding: 22 }}>
-            <h2 style={{ margin: "0 0 16px", color: "#fff", fontSize: 20, fontWeight: 950 }}>发布信息</h2>
-            <div style={{ display: "grid", gap: 12, color: "#d5caa7", fontSize: 13, lineHeight: 1.65 }}>
-              <div><b style={{ color: "#fff" }}>版本：</b>{version}</div>
-              <div><b style={{ color: "#fff" }}>文件：</b>{installerName}</div>
-              <div><b style={{ color: "#fff" }}>大小：</b>{installerSize}</div>
-              <div style={{ wordBreak: "break-all" }}><b style={{ color: "#fff" }}>SHA256：</b>{installerSha256}</div>
-            </div>
-            <div style={{ marginTop: 18, display: "grid", gap: 9 }}>
-              <a href={manifestUrl} style={{ color: "#e8c96a", fontSize: 13, fontWeight: 850, textDecoration: "none" }}>查看 release-manifest.json</a>
-              <a href={latestUrl} style={{ color: "#e8c96a", fontSize: 13, fontWeight: 850, textDecoration: "none" }}>查看 latest.yml 自动更新文件</a>
-            </div>
-          </aside>
+          <div style={{ borderRadius: 18, background: "linear-gradient(145deg, #e9f4f8, #ffffff)", border: "1px solid #d8e8ef", padding: 18 }}>
+            <img src="/xiaobai-nexus-interface-annotated.svg" alt="Xiaobai Nexus 界面功能标注图" style={{ display: "block", width: "100%", height: "auto", borderRadius: 12, border: "1px solid #d6e4ec", background: "#fff" }} />
+          </div>
         </section>
 
-        <section style={{ marginTop: 24, display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 14 }}>
+        <section style={{ marginTop: 20, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))", gap: 14 }}>
           {[
-            ["下载后直接安装", "打开安装包，按提示完成安装，然后从桌面或开始菜单启动小白 Agent。"],
-            ["首次启动配置 API", "安装后打开小白 Agent，在设置里填入 LLM、语音识别和 TTS。申请入口见 Xiaobai Nexus 安装指南。"],
-            ["自动更新已预留", "网站同时提供 latest.yml 和 blockmap，后续可作为桌面端更新通道。"],
-          ].map(([title, body]) => (
-            <div key={title} style={{ border: "1px solid rgba(201,168,76,0.16)", borderRadius: 12, background: "rgba(201,168,76,0.045)", padding: 16 }}>
-              <CheckCircle2 size={18} style={{ color: "#e8c96a", marginBottom: 10 }} />
-              <h3 style={{ margin: "0 0 8px", color: "#fff", fontSize: 15, fontWeight: 950 }}>{title}</h3>
-              <p style={{ margin: 0, color: "#b9ae8f", fontSize: 13, lineHeight: 1.75 }}>{body}</p>
+            { icon: Download, title: "下载后直接安装", body: "打开安装包，按提示安装。安装完成后从桌面快捷方式或开始菜单启动 Xiaobai Nexus。" },
+            { icon: Settings2, title: "登录并配置 API", body: "桌面端需要小白AI会员账号。语音对话还需要配置 ASR 和 TTS，教程页写清楚了申请位置。" },
+            { icon: Sparkles, title: "开始使用小白", body: "这一版包含自定义背景、语音闭环、Agent 调度、自我进化入口和桌面能力中心。" },
+          ].map(({ icon: Icon, title, body }) => (
+            <div key={title} style={{ ...cardStyle, padding: 18 }}>
+              <Icon size={20} style={{ color: "#256d85", marginBottom: 12 }} />
+              <h2 style={{ margin: "0 0 8px", color: "#102131", fontSize: 17, fontWeight: 950 }}>{title}</h2>
+              <p style={{ margin: 0, color: "#5b6f7f", fontSize: 14, lineHeight: 1.75 }}>{body}</p>
             </div>
           ))}
         </section>
 
-        <section style={{ marginTop: 24, border: "1px solid rgba(201,168,76,0.18)", borderRadius: 14, background: "rgba(255,255,255,0.035)", padding: 18 }}>
-          <h2 style={{ margin: "0 0 10px", color: "#fff", fontSize: 18, fontWeight: 950 }}>界面长什么样</h2>
-          <p style={{ margin: "0 0 14px", color: "#b9ae8f", fontSize: 13, lineHeight: 1.8 }}>
-            Xiaobai Nexus 主界面分成语音入口、消息处理器、对话输入、运行状态、更新诊断、Agent 调度和自我进化区。底层背景支持替换照片，默认是银河系宇宙背景。
-          </p>
-          <img src="/xiaobai-nexus-interface-annotated.svg" alt="Xiaobai Nexus 界面功能标注图" style={{ display: "block", width: "100%", height: "auto", borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)" }} />
+        <section style={{ marginTop: 20, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: 16 }}>
+          <aside style={{ ...cardStyle, padding: 20 }}>
+            <h2 style={{ margin: "0 0 14px", color: "#102131", fontSize: 20, fontWeight: 950 }}>版本信息</h2>
+            <div style={{ display: "grid", gap: 11, color: "#536879", fontSize: 14, lineHeight: 1.65 }}>
+              <div><b style={{ color: "#17202a" }}>版本：</b>{version}</div>
+              <div><b style={{ color: "#17202a" }}>文件：</b>{installerName}</div>
+              <div><b style={{ color: "#17202a" }}>大小：</b>{installerSize}</div>
+              <div style={{ wordBreak: "break-all" }}><b style={{ color: "#17202a" }}>SHA256：</b>{installerSha256}</div>
+            </div>
+            <div style={{ marginTop: 16, display: "flex", flexWrap: "wrap", gap: 10 }}>
+              <a href={manifestUrl} style={{ color: "#256d85", fontSize: 13, fontWeight: 900, textDecoration: "none" }}>发布清单</a>
+              <a href={latestUrl} style={{ color: "#256d85", fontSize: 13, fontWeight: 900, textDecoration: "none" }}>自动更新文件</a>
+            </div>
+          </aside>
+
+          <section style={{ ...cardStyle, padding: 20 }}>
+            <h2 style={{ margin: "0 0 12px", color: "#102131", fontSize: 20, fontWeight: 950 }}>API 去哪里准备</h2>
+            <p style={{ margin: "0 0 14px", color: "#5b6f7f", fontSize: 14, lineHeight: 1.8 }}>
+              小白至少需要一套模型 API；要语音对话，再准备 ASR 语音识别和 TTS 语音合成。完整申请位置在 Xiaobai Nexus 安装教程里。
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 190px), 1fr))", gap: 10 }}>
+              {[
+                ["豆包 TTS", "火山方舟 / 豆包语音合成 2.0"],
+                ["阿里云 ASR", "阿里云百炼 / DashScope API Key"],
+                ["MiniMax", "MiniMax 开放平台 / API Keys"],
+                ["OpenAI", "OpenAI Platform / API keys"],
+              ].map(([name, desc]) => (
+                <div key={name} style={{ border: "1px solid #e2edf3", borderRadius: 12, padding: 12, background: "#f8fbfd" }}>
+                  <b style={{ display: "block", color: "#102131", fontSize: 14, marginBottom: 5 }}>{name}</b>
+                  <span style={{ color: "#5f7282", fontSize: 13, lineHeight: 1.55 }}>{desc}</span>
+                </div>
+              ))}
+            </div>
+            <Link href="/agent-install/xiaobai-nexus#api" style={{ marginTop: 14, display: "inline-flex", alignItems: "center", gap: 8, minHeight: 40, borderRadius: 10, color: "#256d85", textDecoration: "none", fontSize: 14, fontWeight: 950 }}>
+              查看完整 API 准备清单 <ArrowRight size={15} />
+            </Link>
+          </section>
         </section>
 
-        <section style={{ marginTop: 24, border: "1px solid rgba(201,168,76,0.18)", borderRadius: 12, background: "rgba(255,255,255,0.035)", padding: 18 }}>
-          <h2 style={{ margin: "0 0 10px", color: "#fff", fontSize: 18, fontWeight: 950 }}>API 去哪里准备</h2>
-          <p style={{ margin: "0 0 14px", color: "#b9ae8f", fontSize: 13, lineHeight: 1.8 }}>
-            Xiaobai Nexus 至少需要一套模型 API；要语音对话，还需要语音识别 ASR 和语音合成 TTS。我们已经在安装指南里写清楚每个 Key 去哪个平台、哪个业务模块申请。
-          </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 10 }}>
+        <section style={{ marginTop: 20, ...cardStyle, padding: 20 }}>
+          <h2 style={{ margin: "0 0 12px", color: "#102131", fontSize: 20, fontWeight: 950 }}>确认下载成功</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: 12 }}>
             {[
-              ["豆包 TTS", "火山方舟 / 豆包语音合成 2.0"],
-              ["阿里云 ASR", "阿里云百炼 / DashScope API Key"],
-              ["MiniMax", "MiniMax 开放平台 / API Keys"],
-              ["OpenAI", "OpenAI Platform / API keys"],
-            ].map(([name, desc]) => (
-              <div key={name} style={{ border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: 12, background: "rgba(0,0,0,0.18)" }}>
-                <b style={{ display: "block", color: "#fff", fontSize: 13, marginBottom: 5 }}>{name}</b>
-                <span style={{ color: "#b9ae8f", fontSize: 12, lineHeight: 1.55 }}>{desc}</span>
-              </div>
+              "浏览器开始下载 Xiaobai-Setup-2.1.118.exe。",
+              "安装后能看到 Xiaobai Nexus 桌面快捷方式。",
+              "登录会员账号后进入小白主界面。",
+            ].map((item) => (
+              <p key={item} style={{ display: "grid", gridTemplateColumns: "22px 1fr", gap: 8, margin: 0, color: "#536879", fontSize: 14, lineHeight: 1.7 }}>
+                <FileCheck2 size={17} color="#2f7d4d" style={{ marginTop: 4 }} />
+                <span>{item}</span>
+              </p>
             ))}
           </div>
-          <Link href="/agent-install/xiaobai-nexus#api" style={{ marginTop: 14, display: "inline-flex", alignItems: "center", gap: 8, minHeight: 40, borderRadius: 10, color: "#e8c96a", textDecoration: "none", fontSize: 13, fontWeight: 950 }}>
-            查看完整 API 准备清单 <ArrowRight size={15} />
-          </Link>
         </section>
       </main>
     </div>

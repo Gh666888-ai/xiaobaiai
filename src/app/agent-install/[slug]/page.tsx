@@ -41,6 +41,31 @@ function CodeBlock({ code }: { code: string }) {
   )
 }
 
+function ActionValue({ value, title }: { value: string; title?: string }) {
+  const isUrl = /^https?:\/\//.test(value) || value.startsWith("/")
+  if (!isUrl) return <CodeBlock code={value} />
+
+  const label = value.endsWith(".exe")
+    ? "立即下载安装包"
+    : title?.includes("下载")
+      ? "打开下载入口"
+    : title?.includes("文档") || value.includes("docs")
+      ? "打开官方文档"
+      : "打开页面"
+
+  return (
+    <a
+      href={value}
+      target={value.startsWith("/") ? undefined : "_blank"}
+      rel={value.startsWith("/") ? undefined : "noreferrer"}
+      className={styles.primaryButton}
+      style={{ width: "fit-content", marginTop: 4 }}
+    >
+      {label} <ArrowRight size={14} />
+    </a>
+  )
+}
+
 function ClaudeCodeRoadmapVisual() {
   const stages = [
     { title: "安装底座", text: "Node.js、Git、VS Code、Claude Code。先看到版本号。" },
@@ -204,7 +229,7 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
               <div key={step.title} className={styles.details}>
                 <h3 className={styles.cardTitle} style={{ fontSize: 18 }}>{index + 1}. {step.title}</h3>
                 <p className={styles.panelDesc}>{step.body}</p>
-                {step.command && <CodeBlock code={step.command} />}
+                {step.command && <ActionValue value={step.command} title={step.title} />}
               </div>
             ))}
           </div>
@@ -223,7 +248,7 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
               <div key={step.title} className={styles.card}>
                 <h3 className={styles.cardTitle}>{step.title}</h3>
                 <p className={styles.cardText}>{step.body}</p>
-                {step.command && <CodeBlock code={step.command} />}
+                {step.command && <ActionValue value={step.command} title={step.title} />}
               </div>
             ))}
           </div>
