@@ -6,12 +6,12 @@ import { LiveEvaluationNotice } from "@/components/LiveEvaluationNotice"
 import { agentInstallGuides } from "@/data/agent-install-guides"
 import styles from "@/components/learning/SupportPage.module.css"
 
-const agentDesktopCategories = new Set(["Agent 桌面应用"])
-const desktopCategories = new Set(["桌面 AI 助理", "桌面知识库 Agent", "本地模型桌面应用"])
+const agentDesktopCategories = new Set(["产品方官方 Agent 桌面应用", "第三方 Agent 桌面应用"])
+const desktopCategories = new Set(["产品方官方桌面 AI 助理", "第三方桌面 AI 客户端", "桌面知识库 Agent", "本地模型桌面应用"])
 const agentDesktopGuides = agentInstallGuides.filter((guide) => agentDesktopCategories.has(guide.category))
 const desktopGuides = agentInstallGuides.filter((guide) => desktopCategories.has(guide.category))
 const engineeringGuides = agentInstallGuides.filter((guide) => !desktopCategories.has(guide.category) && !agentDesktopCategories.has(guide.category))
-const firstChoiceSlugs = ["openclaw", "clawx", "cherry-studio", "cline"]
+const firstChoiceSlugs = ["openclaw", "codex-app", "cherry-studio", "cline"]
 const firstChoiceGuides = firstChoiceSlugs
   .map((slug) => agentInstallGuides.find((guide) => guide.slug === slug))
   .filter((guide): guide is (typeof agentInstallGuides)[number] => Boolean(guide))
@@ -33,9 +33,9 @@ function CompactGuideList({ guides, accent = "#256d85" }: { guides: typeof agent
 }
 
 export const metadata: Metadata = {
-  title: "主流Agent和桌面AI助理安装 - Claude Code、Codex、OpenClaw、ChatGPT Desktop、Cherry Studio教程",
-  description: "小白AI整理主流工程 Agent 和桌面 AI 助理安装教程：Claude Code、OpenAI Codex、OpenClaw、Hermes、Cursor Agent、Cline、ChatGPT Desktop、Claude Desktop、Cherry Studio、Chatbox、AnythingLLM、LM Studio，一分钟直接跑通能用，并接入 DeepSeek V4、Kimi、OpenAI 等模型 API。",
-  keywords: ["主流Agent安装", "桌面AI助理", "Claude Code安装", "Codex安装", "OpenClaw安装", "ChatGPT Desktop", "Cherry Studio", "DeepSeek V4 API接入"],
+  title: "主流Agent和桌面AI助理安装 - Codex App、Claude Code、Copilot、Gemini CLI、Cherry Studio教程",
+  description: "小白AI整理主流工程 Agent、AI IDE、桌面 AI 客户端和本地模型应用安装教程：Codex App、Claude Code、GitHub Copilot Agent、Gemini CLI、Qwen Code、OpenClaw、Cursor Agent、Cline、Continue、ChatGPT Desktop、Claude Desktop、Cherry Studio、Jan、Msty、LM Studio、Ollama，并区分产品方官方桌面端、第三方客户端、插件和模型 API。",
+  keywords: ["主流Agent安装", "Codex App安装", "GitHub Copilot Agent", "Gemini CLI", "Qwen Code", "桌面AI助理", "Claude Code安装", "OpenClaw安装", "Cherry Studio", "DeepSeek V4 API接入"],
   alternates: { canonical: "/agent-install" },
   openGraph: {
     title: "主流Agent和桌面AI助理安装 | 小白AI",
@@ -49,7 +49,7 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   name: "主流Agent和桌面AI助理安装",
-  description: "Claude Code、Codex、OpenClaw、Hermes、Cursor Agent、Cline、ChatGPT Desktop、Claude Desktop、Cherry Studio、Chatbox、AnythingLLM、LM Studio 安装和模型 API 接入教程。",
+  description: "Codex App、Claude Code、Codex CLI、GitHub Copilot Agent、Gemini CLI、Qwen Code、OpenClaw、Hermes、Cursor Agent、Cline、Continue、ChatGPT Desktop、Claude Desktop、Cherry Studio、Jan、Msty、LM Studio、Ollama 安装和模型 API 接入教程。",
   url: "https://www.xiaobaiai.cn/agent-install",
   inLanguage: "zh-CN",
   mainEntity: {
@@ -78,7 +78,7 @@ export default function AgentInstallPage() {
             </p>
             <form action="/search" className={styles.searchForm}>
               <Search size={16} style={{ marginLeft: 14, color: "#256d85", flexShrink: 0 }} />
-              <input name="q" type="search" placeholder="搜索：Claude Code、OpenClaw、Cherry Studio、Cline" />
+              <input name="q" type="search" placeholder="搜索：Codex App、Claude Code、Gemini CLI、Jan、Cherry Studio、Cline" />
               <button type="submit">搜索</button>
             </form>
           </div>
@@ -98,7 +98,7 @@ export default function AgentInstallPage() {
           <div className={styles.panelHead}>
             <div>
               <h2 className={styles.panelTitle}>不知道选哪个，先从这 4 个开始</h2>
-              <p className={styles.panelDesc}>一个工程 Agent、一个 OpenClaw 桌面壳、一个桌面 AI 客户端、一个 VS Code Agent 插件。先跑通其中一个，再看全部列表。</p>
+              <p className={styles.panelDesc}>一个工程 Agent、一个产品方官方桌面端、一个第三方桌面客户端、一个 VS Code Agent 插件。更多工具已放进下面的完整列表。</p>
             </div>
             <span className={styles.tag}><ShieldCheck size={14} /> Key 不写进仓库</span>
           </div>
@@ -132,10 +132,11 @@ export default function AgentInstallPage() {
         <section className={styles.panel}>
           <h2 className={styles.panelTitle}>小白怎么选第一款？</h2>
           <p className={styles.panelDesc}>
-            只是日常对话和写东西，可以先用 MiniMax 会员；完全不会终端，先选 ChatGPT Desktop、Claude Desktop、Cherry Studio 或 Chatbox；想接 DeepSeek V4 做代码任务，先选 OpenClaw 或 Cline；已经能用终端和 Git，再选 Claude Code 或 Codex。
+            只是日常对话和写东西，可以先用 ChatGPT Desktop 或 Claude Desktop；想用产品方官方工程 Agent 桌面端，先看 Codex App；想接 DeepSeek V4 做代码任务，先选 OpenClaw、Cline 或 Continue；想用第三方多模型桌面客户端，再选 Cherry Studio、Chatbox、Msty 或 LobeHub；想本地跑模型，再选 LM Studio、Jan、GPT4All 或 Ollama；已经能用终端和 Git，再选 Claude Code、Codex CLI、Gemini CLI 或 Qwen Code。
           </p>
           <div className={styles.actions}>
             <Link href="/agent-install/openclaw" className={styles.primaryButton}>国内新手先跑 OpenClaw</Link>
+            <Link href="/agent-install/codex-app" className={styles.secondaryButton}>Codex App 教程</Link>
             <Link href="/agent-install/claude-code" className={styles.secondaryButton}>Claude Code 教程</Link>
             <Link href="/agent-install/cline" className={styles.secondaryButton}>Cline 教程</Link>
           </div>

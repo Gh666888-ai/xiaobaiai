@@ -5,6 +5,7 @@ import { news } from "@/data/news"
 import { stages } from "@/data/learning-path"
 import { toolPath } from "@/data/tool-meta"
 import { missions } from "@/data/missions"
+import { agentInstallGuides } from "@/data/agent-install-guides"
 
 export type SearchKind = "工具" | "模型" | "教程" | "任务" | "资讯" | "工作流" | "技能"
 
@@ -238,6 +239,28 @@ export function searchSite(query: string, limit = 40): SearchResult[] {
     })),
   )
 
+  const agentInstallResults = agentInstallGuides.map((guide) => ({
+    id: `agent-install-${guide.slug}`,
+    kind: "教程" as const,
+    title: `${guide.name} 安装和设置教程`,
+    description: `${guide.tagline} 包含准备条件、安装步骤、启动验证、模型/API 接入和常见报错。`,
+    href: `/agent-install/${guide.slug}`,
+    meta: `${guide.category} · ${guide.minutes} · ${guide.difficulty}`,
+    score: scoreText(q, [
+      guide.name,
+      guide.title,
+      guide.category,
+      guide.tagline,
+      guide.summary,
+      guide.bestFor.join(" "),
+      guide.requirements.join(" "),
+      guide.installSteps.map((step) => `${step.title} ${step.body}`).join(" "),
+      guide.startCommands.map((step) => `${step.title} ${step.body}`).join(" "),
+      guide.commonIssues.map((issue) => `${issue.title} ${issue.solution}`).join(" "),
+      guide.apiConnections.map((api) => `${api.name} ${api.description} ${api.fields.map((field) => `${field.label} ${field.value}`).join(" ")}`).join(" "),
+    ]) + 20,
+  }))
+
   const seoTutorialResults = seoTutorialResultsSeed.map((item) => ({
     id: `seo-${item.id}`,
     kind: "教程" as const,
@@ -286,7 +309,7 @@ export function searchSite(query: string, limit = 40): SearchResult[] {
     score: scoreText(q, [workflow.title, workflow.description, workflow.meta, workflow.keywords]) + 12,
   }))
 
-  return [...toolResults, ...modelResults, ...seoTutorialResults, ...tutorialResults, ...missionResults, ...newsResults, ...workflowResults, ...skillResults]
+  return [...toolResults, ...modelResults, ...seoTutorialResults, ...agentInstallResults, ...tutorialResults, ...missionResults, ...newsResults, ...workflowResults, ...skillResults]
     .filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
