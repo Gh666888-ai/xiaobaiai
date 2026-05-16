@@ -9,7 +9,7 @@ const installerUrl = `/downloads/xiaobai-agent/${installerName}`
 const manifestUrl = "/downloads/xiaobai-agent/release-manifest.json"
 const latestUrl = "/downloads/xiaobai-agent/latest.yml"
 const installerSize = "85.8 MB"
-const installerSha256 = "0b951de1f0f87a27b28d538de2710e9b3894ed6f44df6e45bbc509b896d785f5"
+const installerSha256 = "0a0e5b86b38733efeaec2951c66b2c0ef503898be0141967357048b3e09ea7b9"
 
 const cardStyle = {
   border: "1px solid #e4edf4",
