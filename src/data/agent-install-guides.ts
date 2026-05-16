@@ -403,6 +403,61 @@ codex`,
 
 export const agentInstallGuides: AgentInstallGuide[] = [
   {
+    slug: "xiaobai-nexus",
+    name: "Xiaobai Nexus",
+    title: "Xiaobai Nexus 小白桌面 Agent 安装和会员登录",
+    category: "小白官方 Agent 桌面应用",
+    minutes: "3-8 分钟",
+    difficulty: "小白官方",
+    tagline: "小白自己的桌面 Agent 中枢，连接语音、桌面控制、记忆库、自我进化和多 Agent 调度。只有小白AI网站会员可以登录使用。",
+    summary: "Xiaobai Nexus 是小白AI的官方桌面端。先在小白AI网站注册/登录会员，再下载 Windows 安装包；桌面端启动后必须用同一个网站会员账号登录，不能游客绕过。",
+    bestFor: [
+      "想把网站学习、桌面执行、语音对话和本地 Agent 调度连在一起的人。",
+      "需要小白统一调用 Codex、Claude Code、OpenClaw、桌面应用和记忆库的用户。",
+      "准备体验真人数字人前端、语音闭环和半自动自我进化流水线的内部会员。",
+    ],
+    requirements: [
+      "Windows 10/11 电脑。",
+      "小白AI网站会员账号。",
+      "可用的模型 API、语音识别和 TTS 配置，首次启动后在设置里填写。",
+    ],
+    installSteps: [
+      { title: "登录小白AI网站会员", body: "先在 xiaobaiai.cn 登录或注册会员。桌面端会使用同一套会员账号，不提供游客模式。" },
+      { title: "下载安装包", body: "进入小白 Agent 下载页，下载当前 Windows 安装包。", command: "https://www.xiaobaiai.cn/download" },
+      { title: "安装并启动", body: "运行安装包，安装完成后从桌面或开始菜单打开 Xiaobai Nexus。" },
+      { title: "用网站会员账号登录桌面端", body: "输入小白AI网站的会员邮箱和密码。登录成功后才会进入主界面，聊天、记忆、设置和桌面能力才会解锁。" },
+    ],
+    startCommands: [
+      { title: "图形界面启动", body: "从 Windows 桌面快捷方式或开始菜单打开 Xiaobai Nexus。" },
+      { title: "下载页", body: "如果要在另一台电脑安装，直接打开下载页。", command: "https://www.xiaobaiai.cn/download" },
+    ],
+    firstPrompts: [
+      "小白，检查我的模型、语音识别、TTS 和桌面控制是否配置完整。",
+      "小白，把你现在能调用的 Agent、模型和桌面能力列成一张表。",
+      "小白，开启自我进化，先只生成更新提案，不要直接改核心代码。",
+    ],
+    commonIssues: [
+      { title: "登录失败", solution: "确认使用的是小白AI网站会员邮箱和密码；如果网站也不能登录，先在网站重置或重新注册会员。" },
+      { title: "登录后模型不能回复", solution: "会员登录只负责使用权限；模型 API、语音识别和 TTS 仍需要在桌面端设置里单独配置。" },
+      { title: "另一台电脑下载慢", solution: "优先使用 /download 页面里的 Windows 安装包链接；如果浏览器缓存旧页面，强制刷新后再下载。" },
+    ],
+    apiConnections: [deepseekOpenAiConnection, minimaxOpenAiConnection, openAiConnection],
+    postInstallSetup: [
+      {
+        title: "1. 先完成会员登录",
+        why: "Xiaobai Nexus 是小白AI会员桌面端。会员登录是进入主界面和调用本地能力的第一道门。",
+        steps: [
+          "用小白AI网站会员账号登录桌面端。",
+          "登录成功后再配置模型、语音和 TTS。",
+          "退出登录后，桌面端应回到登录页，不能继续使用聊天和设置接口。",
+        ],
+        checks: ["未登录访问主界面会回到登录页。", "未登录直接调用本地消息接口会返回 401。", "登录账号和网站会员账号一致。"],
+      },
+      ...defaultAgentPostInstallSetup,
+    ],
+    officialUrl: "/download",
+  },
+  {
     slug: "claude-code",
     name: "Claude Code",
     title: "Claude Code 从安装到项目 MVP 终极路线",

@@ -6,12 +6,13 @@ import { LiveEvaluationNotice } from "@/components/LiveEvaluationNotice"
 import { agentInstallGuides } from "@/data/agent-install-guides"
 import styles from "@/components/learning/SupportPage.module.css"
 
-const agentDesktopCategories = new Set(["产品方官方 Agent 桌面应用", "第三方 Agent 桌面应用"])
+const officialXiaobaiCategory = "小白官方 Agent 桌面应用"
+const agentDesktopCategories = new Set([officialXiaobaiCategory, "产品方官方 Agent 桌面应用", "第三方 Agent 桌面应用"])
 const desktopCategories = new Set(["产品方官方桌面 AI 助理", "第三方桌面 AI 客户端", "桌面知识库 Agent", "本地模型桌面应用"])
 const agentDesktopGuides = agentInstallGuides.filter((guide) => agentDesktopCategories.has(guide.category))
 const desktopGuides = agentInstallGuides.filter((guide) => desktopCategories.has(guide.category))
 const engineeringGuides = agentInstallGuides.filter((guide) => !desktopCategories.has(guide.category) && !agentDesktopCategories.has(guide.category))
-const firstChoiceSlugs = ["openclaw", "codex-app", "cherry-studio", "cline"]
+const firstChoiceSlugs = ["xiaobai-nexus", "openclaw", "codex-app", "cline"]
 const firstChoiceGuides = firstChoiceSlugs
   .map((slug) => agentInstallGuides.find((guide) => guide.slug === slug))
   .filter((guide): guide is (typeof agentInstallGuides)[number] => Boolean(guide))
@@ -72,9 +73,9 @@ export default function AgentInstallPage() {
         <section className={styles.hero}>
           <div>
             <p className={styles.eyebrow}>Agent Install</p>
-            <h1 className={styles.title}>先装好一个 Agent，再让它真正干活</h1>
+            <h1 className={styles.title}>先装 Xiaobai Nexus，再连接其它 Agent</h1>
             <p className={styles.subtitle}>
-              这里把 Agent、桌面助理、模型 API 分清楚。先选一个最适合你电脑和任务的入口，跑通启动、模型接入和第一个可验证动作。
+              这里是小白AI的 Agent 下载和安装专区。先下载小白自己的桌面中枢 Xiaobai Nexus，再按任务需要接入 Codex、Claude Code、OpenClaw、Cline 和各类模型 API。
             </p>
             <form action="/search" className={styles.searchForm}>
               <Search size={16} style={{ marginLeft: 14, color: "#256d85", flexShrink: 0 }} />
@@ -82,16 +83,16 @@ export default function AgentInstallPage() {
               <button type="submit">搜索</button>
             </form>
             <div className={styles.actions}>
-              <Link href="/download" className={styles.primaryButton}>下载小白 Agent 桌面版</Link>
+              <Link href="/download" className={styles.primaryButton}>下载 Xiaobai Nexus</Link>
               <Link href="/download" className={styles.secondaryButton}>查看版本和校验信息</Link>
             </div>
           </div>
           <aside className={styles.heroAside}>
             <h2 className={styles.asideTitle}>新手安装顺序</h2>
             <ol className={styles.steps}>
-              <li><b>1</b><span>先选一个入口，不要同时装一堆。</span></li>
-              <li><b>2</b><span>确认模型、Key、权限和本机路径都能跑通。</span></li>
-              <li><b>3</b><span>回到学习项目里，用 Agent 做一个真实小任务。</span></li>
+              <li><b>1</b><span>先登录小白AI网站会员。</span></li>
+              <li><b>2</b><span>下载并登录 Xiaobai Nexus 桌面端。</span></li>
+              <li><b>3</b><span>再按任务接入其它 Agent、模型和技能。</span></li>
             </ol>
           </aside>
         </section>
@@ -101,8 +102,8 @@ export default function AgentInstallPage() {
         <section className={styles.panel}>
           <div className={styles.panelHead}>
             <div>
-              <h2 className={styles.panelTitle}>不知道选哪个，先从这 4 个开始</h2>
-              <p className={styles.panelDesc}>一个工程 Agent、一个产品方官方桌面端、一个第三方桌面客户端、一个 VS Code Agent 插件。更多工具已放进下面的完整列表。</p>
+              <h2 className={styles.panelTitle}>先从这 4 个入口开始</h2>
+              <p className={styles.panelDesc}>Xiaobai Nexus 是小白自己的桌面中枢；OpenClaw、Codex App 和 Cline 是它后续可调度、可学习、可接入的外部 Agent 路线。</p>
             </div>
             <span className={styles.tag}><ShieldCheck size={14} /> Key 不写进仓库</span>
           </div>

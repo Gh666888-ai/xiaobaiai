@@ -10,7 +10,7 @@ import { getNextLevel, getUserLevel } from "@/data/user"
 
 const links = [
   { label: "开始学习", href: "/learn", icon: GraduationCap },
-  { label: "小白Agent", href: "/download", icon: Download },
+  { label: "Agent专区", href: "/agent-install", icon: Download },
   { label: "工具资源", href: "/tools", icon: Compass },
   { label: "技能库", href: "/skills", icon: Puzzle },
   { label: "实战展示", href: "/member-cases", icon: Crown },

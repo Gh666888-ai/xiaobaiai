@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowRight, CheckCircle2, Download, ShieldCheck } from "lucide-react"
+import { ArrowRight, CheckCircle2, Download } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
 
 const version = "2.1.118"
@@ -64,7 +64,7 @@ export default function DownloadPage() {
 
         <section style={{ marginTop: 24, display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 14 }}>
           {[
-            ["下载后直接安装", "Windows 可能提示未知发布者，这是因为当前安装包还没有代码签名证书。"],
+            ["下载后直接安装", "打开安装包，按提示完成安装，然后从桌面或开始菜单启动小白 Agent。"],
             ["首次启动配置模型", "安装后打开小白 Agent，在设置里填入你的 LLM、语音识别和 TTS 服务配置。"],
             ["自动更新已预留", "网站同时提供 latest.yml 和 blockmap，后续可作为桌面端更新通道。"],
           ].map(([title, body]) => (
@@ -74,13 +74,6 @@ export default function DownloadPage() {
               <p style={{ margin: 0, color: "#b9ae8f", fontSize: 13, lineHeight: 1.75 }}>{body}</p>
             </div>
           ))}
-        </section>
-
-        <section style={{ marginTop: 24, border: "1px solid rgba(126,231,255,0.22)", borderRadius: 12, background: "rgba(126,231,255,0.045)", padding: 16, display: "flex", gap: 12, alignItems: "flex-start" }}>
-          <ShieldCheck size={20} style={{ color: "#7ee7ff", flexShrink: 0, marginTop: 2 }} />
-          <p style={{ margin: 0, color: "#dceff2", fontSize: 13, lineHeight: 1.8 }}>
-            安全提示：安装包目前未签名，适合内部测试和你自己的电脑使用。正式公开分发前建议购买 Windows Authenticode 代码签名证书，降低 SmartScreen 拦截和用户不信任感。
-          </p>
         </section>
       </main>
     </div>
