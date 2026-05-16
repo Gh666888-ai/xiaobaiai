@@ -81,6 +81,10 @@ export default function AgentInstallPage() {
               <input name="q" type="search" placeholder="搜索：Codex App、Claude Code、Gemini CLI、Jan、Cherry Studio、Cline" />
               <button type="submit">搜索</button>
             </form>
+            <div className={styles.actions}>
+              <Link href="/download" className={styles.primaryButton}>下载小白 Agent 桌面版</Link>
+              <Link href="/download" className={styles.secondaryButton}>查看版本和校验信息</Link>
+            </div>
           </div>
           <aside className={styles.heroAside}>
             <h2 className={styles.asideTitle}>新手安装顺序</h2>

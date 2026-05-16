@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import Link from "next/link"
 import { Search } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
 import { useAuth } from "@/lib/AuthContext"
@@ -111,6 +112,15 @@ export default function HomePage() {
             />
             <button type="submit" style={{ marginRight: 6, height: 34, padding: "0 14px", borderRadius: 8, border: "1px solid #7a6230", background: "rgba(201,168,76,0.12)", color: "#e8c96a", fontSize: 12, fontWeight: 950, cursor: "pointer" }}>搜索</button>
           </form>
+
+          <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 12, marginTop: 18, opacity: 0, animation: "fadeUp 0.8s ease forwards 1.44s" }}>
+            <Link href="/download" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minHeight: 44, padding: "0 18px", borderRadius: 10, background: "#e8c96a", color: "#111", fontSize: 14, fontWeight: 950, textDecoration: "none" }}>
+              下载小白 Agent
+            </Link>
+            <Link href="/agent-install" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minHeight: 44, padding: "0 16px", borderRadius: 10, border: "1px solid rgba(201,168,76,0.34)", color: "#e8c96a", background: "rgba(0,0,0,0.24)", fontSize: 14, fontWeight: 900, textDecoration: "none" }}>
+              查看安装教程
+            </Link>
+          </div>
 
         </div>
       </section>
