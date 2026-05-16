@@ -517,6 +517,7 @@ export const agentInstallGuides: AgentInstallGuide[] = [
       { title: "登录后模型不能回复", solution: "会员登录只负责使用权限；模型 API、语音识别和 TTS 仍需要在桌面端设置里单独配置。" },
       { title: "不知道 API 去哪里申请", solution: "看本页“先选模型 API 或本地模型”区域：豆包 TTS 去火山方舟，阿里云 ASR 去阿里云百炼，MiniMax 去 MiniMax 开放平台，OpenAI 去 OpenAI Platform。" },
       { title: "另一台电脑下载慢", solution: "优先使用 /download 页面里的 Windows 安装包链接；如果浏览器缓存旧页面，强制刷新后再下载。" },
+      { title: "Windows 提示未知发布者或不常下载", solution: "浏览器下载栏里点“保留 / 显示更多 / 仍要保留”；打开安装包时如果出现 SmartScreen 蓝色窗口，点“更多信息 / 仍要运行”；如果文件被锁定，右键安装包进入“属性”，在“常规”里勾选“解除锁定”后再安装。" },
     ],
     apiConnections: [xiaobaiDoubaoTtsConnection, xiaobaiAliyunAsrConnection, deepseekOpenAiConnection, xiaobaiMinimaxConnection, xiaobaiOpenAiConnection],
     interfaceImage: {

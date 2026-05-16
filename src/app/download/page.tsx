@@ -132,6 +132,25 @@ export default function DownloadPage() {
             ))}
           </div>
         </section>
+
+        <section style={{ marginTop: 20, border: "1px solid #d8e8ef", borderRadius: 16, background: "#eef7fa", padding: 20 }}>
+          <h2 style={{ margin: "0 0 12px", color: "#102131", fontSize: 20, fontWeight: 950 }}>Windows 提示未知发布者怎么办</h2>
+          <p style={{ margin: "0 0 14px", color: "#526879", fontSize: 14, lineHeight: 1.8 }}>
+            小白安装包正在准备正式代码签名证书。证书完成前，Windows 或浏览器可能会提示“未知发布者”或“此文件不常下载”。如果你是从本页下载，可以按下面方式继续安装。
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))", gap: 12 }}>
+            {[
+              ["浏览器拦截下载", "打开下载列表，点“保留”或“显示更多”，再点“仍要保留”。"],
+              ["SmartScreen 蓝色窗口", "点“更多信息”，再点“仍要运行”。"],
+              ["文件被系统锁定", "右键安装包，打开“属性”，在“常规”里勾选“解除锁定”，再点“应用”。"],
+            ].map(([title, body]) => (
+              <div key={title} style={{ border: "1px solid #d7e8ef", borderRadius: 12, background: "#fff", padding: 14 }}>
+                <b style={{ display: "block", marginBottom: 6, color: "#102131", fontSize: 14 }}>{title}</b>
+                <span style={{ color: "#5b6f7f", fontSize: 13, lineHeight: 1.7 }}>{body}</span>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   )
