@@ -1,8 +1,8 @@
-version: 2.1.120
+version: 2.1.131
 files:
-  - url: Xiaobai-Setup-2.1.120.exe
-    sha512: tehkLyQ73clgV+9NU2IaJItTwIZ2fnOnMmkf0NX9YF2LB9I4cwJD0gtkccr0LmukDRhoY0VOB6hJwSAzLbqf4w==
-    size: 89941149
-path: Xiaobai-Setup-2.1.120.exe
-sha512: tehkLyQ73clgV+9NU2IaJItTwIZ2fnOnMmkf0NX9YF2LB9I4cwJD0gtkccr0LmukDRhoY0VOB6hJwSAzLbqf4w==
-releaseDate: '2026-05-16T20:01:18.282Z'
+  - url: Xiaobai-Setup-2.1.131.exe
+    sha512: 8wd7ue/Ckv7xkfHMUciRyV0pLXMfbjUdcVxuh8EaCaf1LsTvZCngh4rkdfj3YILnzNt4EEZpdYipxUoUvnV92Q==
+    size: 89948787
+path: Xiaobai-Setup-2.1.131.exe
+sha512: 8wd7ue/Ckv7xkfHMUciRyV0pLXMfbjUdcVxuh8EaCaf1LsTvZCngh4rkdfj3YILnzNt4EEZpdYipxUoUvnV92Q==
+releaseDate: '2026-05-16T21:31:35.337Z'
