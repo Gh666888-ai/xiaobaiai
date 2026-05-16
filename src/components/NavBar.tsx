@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { Building2, Compass, Crown, GraduationCap, LogOut, Menu, Newspaper, Puzzle, Trophy, Users, X } from "lucide-react"
+import { Building2, Compass, Crown, Download, GraduationCap, LogOut, Menu, Newspaper, Puzzle, Trophy, Users, X } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/AuthContext"
 import { XiaobaiLogo } from "@/components/XiaobaiLogo"
@@ -14,6 +14,7 @@ const links = [
   { label: "技能库", href: "/skills", icon: Puzzle },
   { label: "实战展示", href: "/member-cases", icon: Crown },
   { label: "AI资讯", href: "/news", icon: Newspaper },
+  { label: "下载", href: "/download", icon: Download },
   { label: "社区", href: "/community", icon: Users },
   { label: "成长舱", href: "/growth", icon: Trophy },
   { label: "关于我们", href: "/about", icon: Building2 },
