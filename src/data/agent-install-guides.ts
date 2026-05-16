@@ -41,6 +41,7 @@ export type AgentInstallGuide = {
   postInstallSetup?: AgentPostInstallSection[]
   ecosystemApps?: Array<{ name: string; type: string; description: string; href?: string }>
   skillPacks?: Array<{ name: string; when: string; install: string; command?: string }>
+  interfaceImage?: { src: string; alt: string; caption: string }
   officialUrl?: string
 }
 
@@ -301,6 +302,80 @@ const openAiConnection: AgentApiConnection = {
   ],
 }
 
+const xiaobaiDoubaoTtsConnection: AgentApiConnection = {
+  name: "豆包 TTS 语音合成",
+  badge: "推荐语音输出",
+  description: "用于让小白开口说话。推荐先用火山引擎的豆包语音合成 2.0，新版控制台优先使用 API Key，不要把普通模型 Key、网站会员账号或阿里云 AccessKey 填到这里。",
+  fields: [
+    { label: "去哪里申请", value: "火山引擎控制台 / 火山方舟 / 豆包语音合成大模型" },
+    { label: "控制台入口", value: "https://console.volcengine.com/ark" },
+    { label: "业务模块", value: "语音合成大模型 / 豆包语音合成 2.0" },
+    { label: "要创建什么", value: "API Key；旧版控制台可能还需要 App ID 和 Access Token" },
+    { label: "填到小白哪里", value: "语音设置 -> TTS 服务商选择 doubao，填写 doubaoKey；旧版再填 doubaoAppId / doubaoAccessKey" },
+    { label: "常用资源 ID", value: "seed-tts-2.0" },
+  ],
+  notes: [
+    "小白当前豆包 TTS 请求使用 openspeech.bytedance.com 的语音合成接口，优先走 X-Api-Key。",
+    "如果你已经拿到 App ID 和 Access Token，也可以用旧版字段，但新用户优先申请新版 API Key。",
+    "TTS 只负责把文字变成声音；它不是 LLM 大脑，也不负责语音识别。",
+  ],
+}
+
+const xiaobaiAliyunAsrConnection: AgentApiConnection = {
+  name: "阿里云百炼 ASR 语音识别",
+  badge: "推荐语音输入",
+  description: "用于把你说的话转成文字。小白当前首选阿里云百炼 Paraformer 实时语音识别，需要的是百炼 / DashScope API Key，格式通常是 sk- 开头。",
+  fields: [
+    { label: "去哪里申请", value: "阿里云百炼 Model Studio 控制台" },
+    { label: "控制台入口", value: "https://bailian.console.aliyun.com/" },
+    { label: "业务模块", value: "API Key 管理；语音识别使用 Paraformer 实时识别能力" },
+    { label: "要创建什么", value: "百炼 API Key / DashScope API Key，通常以 sk- 开头" },
+    { label: "不要填什么", value: "不要填阿里云 AccessKey ID、AccessKey Secret、Workspace ID 或模型名" },
+    { label: "填到小白哪里", value: "语音设置 -> ASR 服务商选择 aliyun，填写 aliyunApiKey" },
+  ],
+  notes: [
+    "阿里云百炼文档说明，使用模型或应用前需要先获取 API Key 作为鉴权凭证。",
+    "百炼 API Key 所属业务空间会影响可调用的模型和应用，普通用户先选默认业务空间即可。",
+    "ASR 只负责听懂你说的话；语音输出仍然要配置 TTS。",
+  ],
+}
+
+const xiaobaiMinimaxConnection: AgentApiConnection = {
+  name: "MiniMax LLM / 备用 TTS",
+  badge: "轻量对话",
+  description: "MiniMax 可以作为小白的日常对话模型，也可以给 MiniMax TTS 复用密钥。适合先低成本跑通聊天和语音回复。",
+  fields: [
+    { label: "去哪里申请", value: "MiniMax 开放平台" },
+    { label: "控制台入口", value: "https://platform.minimax.io/" },
+    { label: "业务模块", value: "API Keys -> Create new secret key" },
+    { label: "Base URL", value: "https://api.minimax.io/v1" },
+    { label: "API Key", value: "MiniMax API Key" },
+    { label: "填到小白哪里", value: "模型设置填写 MiniMax；TTS 选择 MiniMax 时可复用同一个 Key" },
+  ],
+  notes: [
+    "MiniMax 官方文档把 API Key 分为按量付费 API Key 和 Token Plan Key，新用户优先用 API Keys 里创建的 secret key。",
+    "如果只是聊天、写文案、轻量任务，可以先用 MiniMax 跑通；复杂工程任务再接 DeepSeek、OpenAI 或其它模型。",
+  ],
+}
+
+const xiaobaiOpenAiConnection: AgentApiConnection = {
+  name: "OpenAI LLM / TTS",
+  badge: "国际通用",
+  description: "如果你有 OpenAI API Key，可以作为小白的模型大脑，也可以作为 OpenAI TTS 的语音输出服务。",
+  fields: [
+    { label: "去哪里申请", value: "OpenAI Platform" },
+    { label: "控制台入口", value: "https://platform.openai.com/api-keys" },
+    { label: "业务模块", value: "API keys / Project keys" },
+    { label: "要创建什么", value: "OpenAI API Key" },
+    { label: "模型接口", value: "模型设置里选择 OpenAI，填写 openai api key" },
+    { label: "TTS 接口", value: "语音设置 -> TTS 选择 openai，填写 openaiTtsKey" },
+  ],
+  notes: [
+    "OpenAI 官方文档要求 API Key 用 Bearer 鉴权，并提醒不要把 Key 暴露在前端、公开仓库或日志里。",
+    "国内网络环境可能影响访问；如果连不上，先确认网络和账户计费状态。",
+  ],
+}
+
 const noCustomApiConnection = (product: string): AgentApiConnection => ({
   name: `${product} 账号登录`,
   badge: "不填第三方 Key",
@@ -426,6 +501,7 @@ export const agentInstallGuides: AgentInstallGuide[] = [
       { title: "下载安装包", body: "进入小白 Agent 下载页，下载当前 Windows 安装包。", command: "https://www.xiaobaiai.cn/download" },
       { title: "安装并启动", body: "运行安装包，安装完成后从桌面或开始菜单打开 Xiaobai Nexus。" },
       { title: "用网站会员账号登录桌面端", body: "输入小白AI网站的会员邮箱和密码。登录成功后才会进入主界面，聊天、记忆、设置和桌面能力才会解锁。" },
+      { title: "准备小白需要的 API", body: "首次使用前至少准备一套模型 API；如果要语音对话，再准备 ASR 语音识别和 TTS 语音合成。下方 API 区已经写清楚每个 Key 去哪个平台、哪个业务模块申请。" },
     ],
     startCommands: [
       { title: "图形界面启动", body: "从 Windows 桌面快捷方式或开始菜单打开 Xiaobai Nexus。" },
@@ -439,9 +515,15 @@ export const agentInstallGuides: AgentInstallGuide[] = [
     commonIssues: [
       { title: "登录失败", solution: "确认使用的是小白AI网站会员邮箱和密码；如果网站也不能登录，先在网站重置或重新注册会员。" },
       { title: "登录后模型不能回复", solution: "会员登录只负责使用权限；模型 API、语音识别和 TTS 仍需要在桌面端设置里单独配置。" },
+      { title: "不知道 API 去哪里申请", solution: "看本页“先选模型 API 或本地模型”区域：豆包 TTS 去火山方舟，阿里云 ASR 去阿里云百炼，MiniMax 去 MiniMax 开放平台，OpenAI 去 OpenAI Platform。" },
       { title: "另一台电脑下载慢", solution: "优先使用 /download 页面里的 Windows 安装包链接；如果浏览器缓存旧页面，强制刷新后再下载。" },
     ],
-    apiConnections: [deepseekOpenAiConnection, minimaxOpenAiConnection, openAiConnection],
+    apiConnections: [xiaobaiDoubaoTtsConnection, xiaobaiAliyunAsrConnection, deepseekOpenAiConnection, xiaobaiMinimaxConnection, xiaobaiOpenAiConnection],
+    interfaceImage: {
+      src: "/xiaobai-nexus-interface-annotated.svg",
+      alt: "Xiaobai Nexus 界面功能标注图",
+      caption: "主界面包含语音入口、消息处理器、运行状态、更新诊断、Agent 调度、自我进化和对话输入；底层背景默认是银河系宇宙，也可以替换成自己的照片。",
+    },
     postInstallSetup: [
       {
         title: "1. 先完成会员登录",

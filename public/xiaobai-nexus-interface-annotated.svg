@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+  <title id="title">Xiaobai Nexus interface annotated</title>
+  <desc id="desc">A labelled Xiaobai Nexus desktop interface showing the galaxy background, voice controls, memory stream, agent status, update diagnostics, settings, and chat input.</desc>
+  <defs>
+    <radialGradient id="galaxyCore" cx="48%" cy="49%" r="42%">
+      <stop offset="0" stop-color="#f6d69b" stop-opacity=".70"/>
+      <stop offset=".12" stop-color="#a7c9ff" stop-opacity=".42"/>
+      <stop offset=".36" stop-color="#365eac" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#02050d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="space" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#030713"/>
+      <stop offset=".55" stop-color="#07162a"/>
+      <stop offset="1" stop-color="#010205"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#132236" stop-opacity=".92"/>
+      <stop offset="1" stop-color="#07101c" stop-opacity=".82"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#000" flood-opacity=".42"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#e8c96a"/>
+    </marker>
+  </defs>
+  <rect width="1440" height="900" fill="url(#space)"/>
+  <ellipse cx="706" cy="438" rx="430" ry="174" fill="url(#galaxyCore)" transform="rotate(-18 706 438)"/>
+  <g opacity=".72">
+    <circle cx="127" cy="118" r="1.6" fill="#fff"/>
+    <circle cx="244" cy="694" r="1.2" fill="#fff"/>
+    <circle cx="398" cy="142" r="1.4" fill="#fff"/>
+    <circle cx="552" cy="728" r="1.7" fill="#fff"/>
+    <circle cx="692" cy="204" r="1.2" fill="#fff"/>
+    <circle cx="866" cy="118" r="1.5" fill="#fff"/>
+    <circle cx="1048" cy="706" r="1.2" fill="#fff"/>
+    <circle cx="1234" cy="208" r="1.8" fill="#fff"/>
+    <circle cx="1324" cy="618" r="1.3" fill="#fff"/>
+  </g>
+
+  <rect x="70" y="64" width="330" height="680" rx="18" fill="url(#panel)" stroke="#49617c" filter="url(#shadow)"/>
+  <rect x="1040" y="64" width="330" height="680" rx="18" fill="url(#panel)" stroke="#49617c" filter="url(#shadow)"/>
+  <rect x="430" y="626" width="580" height="118" rx="18" fill="#0a1422" fill-opacity=".86" stroke="#49617c" filter="url(#shadow)"/>
+
+  <g font-family="Inter, Microsoft YaHei, sans-serif">
+    <text x="116" y="118" fill="#f7f0dc" font-size="22" font-weight="800">Xiaobai Nexus</text>
+    <text x="116" y="144" fill="#9fb4cc" font-size="13">Cognitive Surface</text>
+    <circle cx="336" cy="124" r="18" fill="#e8c96a"/>
+    <text x="330" y="130" fill="#07101c" font-size="18" font-weight="900">⚙</text>
+    <rect x="106" y="178" width="258" height="74" rx="12" fill="#0c1928" stroke="#2e4964"/>
+    <text x="126" y="207" fill="#e7edf7" font-size="15" font-weight="700">语音入口</text>
+    <text x="126" y="232" fill="#9fb4cc" font-size="12">麦克风、TTS、打断和实时对话</text>
+    <rect x="106" y="276" width="258" height="330" rx="12" fill="#08111d" stroke="#2e4964"/>
+    <text x="126" y="307" fill="#e7edf7" font-size="15" font-weight="700">用户消息处理器</text>
+    <text x="126" y="334" fill="#9fb4cc" font-size="12">显示输入、工具调用、回复流</text>
+    <line x1="126" y1="366" x2="336" y2="366" stroke="#2e4964"/>
+    <text x="126" y="402" fill="#d7e2ee" font-size="12">listening / thinking / speaking</text>
+    <text x="126" y="436" fill="#d7e2ee" font-size="12">状态机会驱动数字人表情</text>
+    <text x="126" y="470" fill="#d7e2ee" font-size="12">API 配置和语音体检在设置里</text>
+
+    <text x="1086" y="118" fill="#f7f0dc" font-size="18" font-weight="800">运行状态</text>
+    <rect x="1076" y="152" width="258" height="88" rx="12" fill="#0c1928" stroke="#2e4964"/>
+    <text x="1096" y="184" fill="#e7edf7" font-size="14" font-weight="700">桌面更新 / 诊断</text>
+    <text x="1096" y="210" fill="#9fb4cc" font-size="12">版本、日志、启动失败定位</text>
+    <rect x="1076" y="264" width="258" height="188" rx="12" fill="#08111d" stroke="#2e4964"/>
+    <text x="1096" y="296" fill="#e7edf7" font-size="14" font-weight="700">Agent 调度</text>
+    <text x="1096" y="322" fill="#9fb4cc" font-size="12">Codex / Claude Code / OpenClaw</text>
+    <text x="1096" y="350" fill="#9fb4cc" font-size="12">按任务分派、回收结果、测速</text>
+    <rect x="1076" y="476" width="258" height="110" rx="12" fill="#08111d" stroke="#2e4964"/>
+    <text x="1096" y="508" fill="#e7edf7" font-size="14" font-weight="700">自我进化</text>
+    <text x="1096" y="534" fill="#9fb4cc" font-size="12">研究新技能，生成补丁提案</text>
+
+    <text x="480" y="674" fill="#f7f0dc" font-size="16" font-weight="800">对话输入</text>
+    <text x="480" y="704" fill="#9fb4cc" font-size="13">这里输入文字；语音识别完成后也会自动填入并发送</text>
+    <rect x="768" y="668" width="174" height="42" rx="10" fill="#e8c96a"/>
+    <text x="822" y="694" fill="#09111d" font-size="13" font-weight="900">发送</text>
+  </g>
+
+  <g fill="none" stroke="#e8c96a" stroke-width="2.2" marker-end="url(#arrow)">
+    <path d="M452 164 C502 150 552 142 614 136"/>
+    <path d="M438 365 C520 332 604 320 700 316"/>
+    <path d="M1000 193 C948 182 898 178 850 178"/>
+    <path d="M1000 338 C920 350 842 372 760 424"/>
+    <path d="M732 624 C722 574 718 526 720 482"/>
+  </g>
+  <g font-family="Inter, Microsoft YaHei, sans-serif" font-size="14" font-weight="800">
+    <rect x="610" y="100" width="220" height="40" rx="20" fill="#111827" stroke="#e8c96a"/>
+    <text x="635" y="126" fill="#f7f0dc">银河系宇宙背景，可替换照片</text>
+    <rect x="640" y="292" width="208" height="40" rx="20" fill="#111827" stroke="#e8c96a"/>
+    <text x="664" y="318" fill="#f7f0dc">核心工作区和记忆节点图</text>
+    <rect x="820" y="154" width="178" height="40" rx="20" fill="#111827" stroke="#e8c96a"/>
+    <text x="845" y="180" fill="#f7f0dc">更新和诊断入口</text>
+    <rect x="760" y="410" width="216" height="40" rx="20" fill="#111827" stroke="#e8c96a"/>
+    <text x="784" y="436" fill="#f7f0dc">多 Agent 调度和自我进化</text>
+  </g>
+</svg>

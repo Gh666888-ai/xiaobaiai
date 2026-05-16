@@ -173,6 +173,22 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
 
         <ApiTabs guide={guide} />
 
+        {guide.interfaceImage && (
+          <section className={styles.panel}>
+            <div className={styles.panelHead}>
+              <div>
+                <h2 className={styles.panelTitle}>界面功能标注</h2>
+                <p className={styles.panelDesc}>{guide.interfaceImage.caption}</p>
+              </div>
+            </div>
+            <img
+              src={guide.interfaceImage.src}
+              alt={guide.interfaceImage.alt}
+              style={{ width: "100%", height: "auto", borderRadius: 12, border: "1px solid #dfe7ee", display: "block" }}
+            />
+          </section>
+        )}
+
         {guide.slug === "claude-code" && <ClaudeCodeRoadmapVisual />}
 
         <section id="install" className={styles.panel}>

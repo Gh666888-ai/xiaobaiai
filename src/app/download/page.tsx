@@ -65,7 +65,7 @@ export default function DownloadPage() {
         <section style={{ marginTop: 24, display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 14 }}>
           {[
             ["下载后直接安装", "打开安装包，按提示完成安装，然后从桌面或开始菜单启动小白 Agent。"],
-            ["首次启动配置模型", "安装后打开小白 Agent，在设置里填入你的 LLM、语音识别和 TTS 服务配置。"],
+            ["首次启动配置 API", "安装后打开小白 Agent，在设置里填入 LLM、语音识别和 TTS。申请入口见 Xiaobai Nexus 安装指南。"],
             ["自动更新已预留", "网站同时提供 latest.yml 和 blockmap，后续可作为桌面端更新通道。"],
           ].map(([title, body]) => (
             <div key={title} style={{ border: "1px solid rgba(201,168,76,0.16)", borderRadius: 12, background: "rgba(201,168,76,0.045)", padding: 16 }}>
@@ -74,6 +74,37 @@ export default function DownloadPage() {
               <p style={{ margin: 0, color: "#b9ae8f", fontSize: 13, lineHeight: 1.75 }}>{body}</p>
             </div>
           ))}
+        </section>
+
+        <section style={{ marginTop: 24, border: "1px solid rgba(201,168,76,0.18)", borderRadius: 14, background: "rgba(255,255,255,0.035)", padding: 18 }}>
+          <h2 style={{ margin: "0 0 10px", color: "#fff", fontSize: 18, fontWeight: 950 }}>界面长什么样</h2>
+          <p style={{ margin: "0 0 14px", color: "#b9ae8f", fontSize: 13, lineHeight: 1.8 }}>
+            Xiaobai Nexus 主界面分成语音入口、消息处理器、对话输入、运行状态、更新诊断、Agent 调度和自我进化区。底层背景支持替换照片，默认是银河系宇宙背景。
+          </p>
+          <img src="/xiaobai-nexus-interface-annotated.svg" alt="Xiaobai Nexus 界面功能标注图" style={{ display: "block", width: "100%", height: "auto", borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)" }} />
+        </section>
+
+        <section style={{ marginTop: 24, border: "1px solid rgba(201,168,76,0.18)", borderRadius: 12, background: "rgba(255,255,255,0.035)", padding: 18 }}>
+          <h2 style={{ margin: "0 0 10px", color: "#fff", fontSize: 18, fontWeight: 950 }}>API 去哪里准备</h2>
+          <p style={{ margin: "0 0 14px", color: "#b9ae8f", fontSize: 13, lineHeight: 1.8 }}>
+            Xiaobai Nexus 至少需要一套模型 API；要语音对话，还需要语音识别 ASR 和语音合成 TTS。我们已经在安装指南里写清楚每个 Key 去哪个平台、哪个业务模块申请。
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 10 }}>
+            {[
+              ["豆包 TTS", "火山方舟 / 豆包语音合成 2.0"],
+              ["阿里云 ASR", "阿里云百炼 / DashScope API Key"],
+              ["MiniMax", "MiniMax 开放平台 / API Keys"],
+              ["OpenAI", "OpenAI Platform / API keys"],
+            ].map(([name, desc]) => (
+              <div key={name} style={{ border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: 12, background: "rgba(0,0,0,0.18)" }}>
+                <b style={{ display: "block", color: "#fff", fontSize: 13, marginBottom: 5 }}>{name}</b>
+                <span style={{ color: "#b9ae8f", fontSize: 12, lineHeight: 1.55 }}>{desc}</span>
+              </div>
+            ))}
+          </div>
+          <Link href="/agent-install/xiaobai-nexus#api" style={{ marginTop: 14, display: "inline-flex", alignItems: "center", gap: 8, minHeight: 40, borderRadius: 10, color: "#e8c96a", textDecoration: "none", fontSize: 13, fontWeight: 950 }}>
+            查看完整 API 准备清单 <ArrowRight size={15} />
+          </Link>
         </section>
       </main>
     </div>
