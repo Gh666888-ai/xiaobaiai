@@ -3,7 +3,7 @@ import Link from "next/link"
 import { ArrowRight, Download, FileCheck2, Settings2, Sparkles } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
 
-const version = "2.1.119"
+const version = "2.1.120"
 const installerName = `Xiaobai-Setup-${version}.exe`
 const installerUrl = `/downloads/xiaobai-agent/${installerName}`
 const manifestUrl = "/downloads/xiaobai-agent/release-manifest.json"
