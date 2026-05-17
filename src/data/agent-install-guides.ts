@@ -484,24 +484,24 @@ export const agentInstallGuides: AgentInstallGuide[] = [
     category: "小白官方 Agent 桌面应用",
     minutes: "3-8 分钟",
     difficulty: "小白官方",
-    tagline: "小白自己的桌面 Agent 中枢，连接语音、桌面控制、记忆库、自我进化和多 Agent 调度。只有小白AI网站会员可以登录使用。",
-    summary: "Xiaobai Nexus 是小白AI的官方桌面端。先在小白AI网站注册/登录会员，再下载 Windows 安装包；桌面端启动后必须用同一个网站会员账号登录，不能游客绕过。",
+    tagline: "小白自己的语音全程交互桌面 Agent 中枢。你可以直接说话下任务，让小白听懂、操作电脑、调度本地 Agent，并用语音回复结果。",
+    summary: "Xiaobai Nexus 是小白AI的官方桌面端，核心卖点不是普通聊天，也不是只加一个语音输入按钮，而是把“说话下任务、听懂意图、调用桌面能力、执行后语音回复”做成完整闭环。先在小白AI网站注册/登录会员，再下载 Windows 安装包；桌面端启动后必须用同一个网站会员账号登录，不能游客绕过。",
     bestFor: [
-      "想把网站学习、桌面执行、语音对话和本地 Agent 调度连在一起的人。",
+      "想直接对电脑说话，让小白听懂任务、操作桌面、全程语音回复结果的人。",
       "需要小白统一调用 Codex、Claude Code、OpenClaw、桌面应用和记忆库的用户。",
-      "准备体验真人数字人前端、语音闭环和半自动自我进化流水线的内部会员。",
+      "准备体验公开桌面 Agent 里非常少见的语音全程交互、真人数字人前端和半自动自我进化流水线的内部会员。",
     ],
     requirements: [
       "Windows 10/11 电脑。",
       "小白AI网站会员账号。",
-      "可用的模型 API、语音识别和 TTS 配置，首次启动后在设置里填写。",
+      "可用的模型 API、ASR 语音识别和 TTS 语音合成配置，首次启动后在设置里填写。",
     ],
     installSteps: [
       { title: "登录小白AI网站会员", body: "先在 xiaobaiai.cn 登录或注册会员。桌面端会使用同一套会员账号，不提供游客模式。" },
       { title: "下载安装包", body: "点击按钮下载当前 Windows 安装包。", command: "/downloads/xiaobai-agent/Xiaobai-Setup-2.1.132.exe" },
       { title: "安装并启动", body: "运行安装包，安装完成后从桌面或开始菜单打开 Xiaobai Nexus。" },
       { title: "用网站会员账号登录桌面端", body: "输入小白AI网站的会员邮箱和密码。登录成功后才会进入主界面，聊天、记忆、设置和桌面能力才会解锁。" },
-      { title: "准备小白需要的 API", body: "首次使用前至少准备一套模型 API；如果要语音对话，再准备 ASR 语音识别和 TTS 语音合成。下方 API 区已经写清楚每个 Key 去哪个平台、哪个业务模块申请。" },
+      { title: "准备小白需要的 API", body: "首次使用前至少准备一套模型 API；如果要语音操作电脑，再准备 ASR 语音识别和 TTS 语音合成。ASR 负责听懂你说的话，模型负责判断任务和调用工具，TTS 负责把结果说出来。下方 API 区已经写清楚每个 Key 去哪个平台、哪个业务模块申请。" },
     ],
     startCommands: [
       { title: "图形界面启动", body: "从 Windows 桌面快捷方式或开始菜单打开 Xiaobai Nexus。" },
@@ -509,6 +509,7 @@ export const agentInstallGuides: AgentInstallGuide[] = [
     ],
     firstPrompts: [
       "小白，检查我的模型、语音识别、TTS 和桌面控制是否配置完整。",
+      "小白，打开语音模式，我用说话的方式让你帮我操作电脑。",
       "小白，把你现在能调用的 Agent、模型和桌面能力列成一张表。",
       "小白，开启自我进化，先只生成更新提案，不要直接改核心代码。",
     ],
