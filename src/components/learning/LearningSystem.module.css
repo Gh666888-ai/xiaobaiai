@@ -21,6 +21,14 @@
   margin-bottom: 24px;
 }
 
+.heroCompact {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.heroCompact .heroPanel {
+  max-width: 760px;
+}
+
 .heroPanel,
 .sidePanel,
 .sectionPanel,
@@ -221,6 +229,173 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.identityPicker {
+  padding: 0;
+  overflow: hidden;
+}
+
+.identityPicker summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 76px;
+  padding: 0 24px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.identityPicker summary::-webkit-details-marker {
+  display: none;
+}
+
+.identityPicker summary span {
+  display: grid;
+  gap: 4px;
+}
+
+.identityPicker summary small {
+  color: #256d85;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.identityPicker summary strong {
+  color: #17202a;
+  font-size: 22px;
+  font-weight: 780;
+  line-height: 1.25;
+}
+
+.identityPicker summary em {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  color: #256d85;
+  font-style: normal;
+  font-size: 14px;
+  font-weight: 760;
+  border: 1px solid #cde4f0;
+  border-radius: 999px;
+  background: #e8f3fa;
+}
+
+.identityPicker[open] summary {
+  border-bottom: 1px solid #e5eaf0;
+}
+
+.identityPicker[open] summary em {
+  color: #667586;
+  border-color: #d9e2ea;
+  background: #fff;
+}
+
+.identityPicker[open] summary em::before {
+  content: "收起";
+}
+
+.identityPicker[open] summary em {
+  font-size: 0;
+}
+
+.identityPicker[open] .sceneEntryGrid {
+  padding: 20px 24px 24px;
+}
+
+.identityPicker[open] .diagram,
+.identityPicker[open] .minorGrid {
+  padding: 20px 24px 24px;
+}
+
+.goalRouteMap {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.goalRouteCard {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #dfe7ee;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.goalRouteHead {
+  display: grid;
+  gap: 6px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.goalRouteHead span {
+  color: #256d85;
+  font-size: 12px;
+  font-weight: 780;
+}
+
+.goalRouteHead strong {
+  color: #17202a;
+  font-size: 18px;
+  font-weight: 820;
+  line-height: 1.28;
+}
+
+.goalRouteSteps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.goalRouteSteps li {
+  position: relative;
+}
+
+.goalRouteSteps li:not(:last-child)::after {
+  content: "→";
+  margin-left: 8px;
+  color: #8fbccd;
+  font-weight: 900;
+}
+
+.goalRouteStep {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 8px 10px;
+  color: #17202a;
+  font-size: 13px;
+  font-weight: 780;
+  text-align: center;
+  text-decoration: none;
+  border: 1px solid #dfe7ee;
+  border-radius: 12px;
+  background: #fbfcfd;
+}
+
+.goalRouteShared {
+  border-color: #bedbe7;
+  background: #e8f3fa;
+  color: #256d85;
+}
+
+.goalRouteCross {
+  margin: 0;
+  padding-top: 8px;
+  color: #667586;
+  font-size: 13px;
+  line-height: 1.5;
+  border-top: 1px solid #edf1f5;
+}
+
 .sceneEntryCard {
   display: grid;
   align-content: space-between;
@@ -241,6 +416,10 @@
   transform: translateY(-2px);
   border-color: #c8d8e4;
   box-shadow: 0 14px 36px rgba(15, 23, 42, 0.075);
+}
+
+.sceneEntryCardLean {
+  min-height: 176px;
 }
 
 .sceneEntryLabel {
@@ -2013,6 +2192,23 @@
 
   .sectionHead .secondaryButton {
     margin-top: 14px;
+  }
+
+  .identityPicker summary {
+    padding: 0 18px;
+  }
+
+  .identityPicker[open] .sceneEntryGrid {
+    padding: 16px 18px 20px;
+  }
+
+  .identityPicker[open] .diagram,
+  .identityPicker[open] .minorGrid {
+    padding: 16px 18px 20px;
+  }
+
+  .goalRouteMap {
+    grid-template-columns: 1fr;
   }
 
   .diagram {

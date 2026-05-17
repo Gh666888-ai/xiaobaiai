@@ -71,48 +71,52 @@ function Hero({
   subtitle,
   children,
   id,
+  compact = false,
 }: {
   eyebrow?: string
   title: string
   subtitle: string
   children?: ReactNode
   id?: string
+  compact?: boolean
 }) {
   return (
-    <section className={styles.hero} id={id}>
+    <section className={cn(styles.hero, compact && styles.heroCompact)} id={id}>
       <div className={styles.heroPanel}>
         <p className={styles.eyebrow}>{eyebrow}</p>
         <h1 className={styles.title}>{title}</h1>
         <p className={styles.subtitle}>{subtitle}</p>
         {children ? <div className={styles.heroActions}>{children}</div> : null}
       </div>
-      <aside className={styles.sidePanel}>
-        <h2 className={styles.sideTitle}>学完能做什么</h2>
-        <p className={styles.sideText}>选一个最贴近你现在生活或工作的方向，先做出能看见的结果，再继续深入。</p>
-        <ol className={styles.nextList}>
-          <li>
-            <span className={styles.stepNumber}>1</span>
-            <span>
-              <span className={styles.stepTitle}>找到适合你的路</span>
-              <span className={styles.stepText}>个人副业、职场提效、一人公司、团队赋能、行业实战都能直接进入。</span>
-            </span>
-          </li>
-          <li>
-            <span className={styles.stepNumber}>2</span>
-            <span>
-              <span className={styles.stepTitle}>做出一个结果</span>
-              <span className={styles.stepText}>每个方向都会落到作品、流程、模板、知识库、自动化或业务方案。</span>
-            </span>
-          </li>
-          <li>
-            <span className={styles.stepNumber}>3</span>
-            <span>
-              <span className={styles.stepTitle}>让生活有变化</span>
-              <span className={styles.stepText}>目标是省时间、提效率、提高收入机会，或者让团队交付更稳定。</span>
-            </span>
-          </li>
-        </ol>
-      </aside>
+      {!compact ? (
+        <aside className={styles.sidePanel}>
+          <h2 className={styles.sideTitle}>学完能做什么</h2>
+          <p className={styles.sideText}>选一个最贴近你现在生活或工作的方向，先做出能看见的结果，再继续深入。</p>
+          <ol className={styles.nextList}>
+            <li>
+              <span className={styles.stepNumber}>1</span>
+              <span>
+                <span className={styles.stepTitle}>找到适合你的路</span>
+                <span className={styles.stepText}>个人副业、职场提效、一人公司、团队赋能、行业实战都能直接进入。</span>
+              </span>
+            </li>
+            <li>
+              <span className={styles.stepNumber}>2</span>
+              <span>
+                <span className={styles.stepTitle}>做出一个结果</span>
+                <span className={styles.stepText}>每个方向都会落到作品、流程、模板、知识库、自动化或业务方案。</span>
+              </span>
+            </li>
+            <li>
+              <span className={styles.stepNumber}>3</span>
+              <span>
+                <span className={styles.stepTitle}>让生活有变化</span>
+                <span className={styles.stepText}>目标是省时间、提效率、提高收入机会，或者让团队交付更稳定。</span>
+              </span>
+            </li>
+          </ol>
+        </aside>
+      ) : null}
     </section>
   )
 }
@@ -377,14 +381,12 @@ function SceneEntryGrid({ compact = false }: { compact?: boolean }) {
   return (
     <div className={cn(styles.sceneEntryGrid, compact && styles.sceneEntryGridCompact)}>
       {sceneEntries.map((entry) => (
-        <article className={styles.sceneEntryCard} key={entry.id}>
+        <article className={cn(styles.sceneEntryCard, styles.sceneEntryCardLean)} key={entry.id}>
           <div>
-            <span className={styles.sceneEntryLabel}>{entry.subtitle}</span>
+            <span className={styles.sceneEntryLabel}>{entry.result}</span>
             <h3>{entry.title}</h3>
-            <p>{entry.desc}</p>
           </div>
           <div className={styles.sceneEntryFooter}>
-            <span>交付物：{entry.result}</span>
             <div>
               <Link href={entry.href}>看路径</Link>
               <Link href={entry.missionHref}>做任务</Link>
@@ -396,68 +398,143 @@ function SceneEntryGrid({ compact = false }: { compact?: boolean }) {
   )
 }
 
+const goalRoutes = [
+  {
+    id: "personal",
+    title: "个人能稳定产出",
+    href: subjectHref("personal-growth"),
+    result: "副业 / 创作 / 一人公司",
+    steps: [
+      { label: "AI基础", href: subjectHref("ai-basics"), shared: true },
+      { label: "内容创作", href: subjectHref("content-creation"), shared: true },
+      { label: "自动化", href: subjectHref("automation"), shared: true },
+      { label: "一人公司", href: minorHref("personal-growth", "one-person-company") },
+    ],
+    cross: "也能转向行业落地",
+  },
+  {
+    id: "team",
+    title: "团队流程能复用",
+    href: subjectHref("business-ai"),
+    result: "知识库 / 客服 / SOP",
+    steps: [
+      { label: "AI基础", href: subjectHref("ai-basics"), shared: true },
+      { label: "办公提效", href: subjectHref("office-productivity"), shared: true },
+      { label: "自动化", href: subjectHref("automation"), shared: true },
+      { label: "企业知识库", href: subjectHref("business-ai") },
+    ],
+    cross: "也能转向 Agent 进阶",
+  },
+  {
+    id: "industry",
+    title: "行业方案能交付",
+    href: subjectHref("industry-playbooks"),
+    result: "行业方案 / 获客 / 交付",
+    steps: [
+      { label: "AI基础", href: subjectHref("ai-basics"), shared: true },
+      { label: "内容创作", href: subjectHref("content-creation"), shared: true },
+      { label: "企业知识库", href: subjectHref("business-ai"), shared: true },
+      { label: "行业落地", href: subjectHref("industry-playbooks") },
+    ],
+    cross: "也能转向一人公司",
+  },
+  {
+    id: "agent",
+    title: "Agent 能替你干活",
+    href: subjectHref("agent-coding"),
+    result: "Agent / Skill / MCP",
+    steps: [
+      { label: "AI基础", href: subjectHref("ai-basics"), shared: true },
+      { label: "自动化", href: subjectHref("automation"), shared: true },
+      { label: "工程Agent", href: subjectHref("agent-coding") },
+      { label: "改小功能", href: minorHref("agent-coding", "small-code-change") },
+    ],
+    cross: "也能反哺团队流程",
+  },
+]
+
+function GoalRouteMap() {
+  return (
+    <div className={styles.goalRouteMap} aria-label="目标路线图">
+      {goalRoutes.map((route) => (
+        <article className={styles.goalRouteCard} key={route.id}>
+          <Link className={styles.goalRouteHead} href={route.href}>
+            <span>{route.result}</span>
+            <strong>{route.title}</strong>
+          </Link>
+          <ol className={styles.goalRouteSteps}>
+            {route.steps.map((step) => (
+              <li key={`${route.id}-${step.label}`}>
+                <Link className={cn(styles.goalRouteStep, step.shared && styles.goalRouteShared)} href={step.href}>
+                  {step.label}
+                </Link>
+              </li>
+            ))}
+          </ol>
+          <p className={styles.goalRouteCross}>{route.cross}</p>
+        </article>
+      ))}
+    </div>
+  )
+}
+
 export function LearningHome() {
-  const catalog = orderedCatalog()
   return (
     <PageFrame>
       <Hero
         id="learn-start"
-        title="小白AI 学习地图"
-        subtitle="从你现在最想改变的地方开始：省时间、做作品、接单、做一人公司、让团队提效，或者把 AI 落到具体行业。"
+        title="开始学习"
+        subtitle="选一个方向，做出一个结果。"
+        compact
       >
         <Link className={styles.primaryButton} href={subjectHref("ai-basics")}>我是新手，从这里开始</Link>
-        <Link className={styles.secondaryButton} href="/learn/tutorials">只看教程</Link>
-        <Link className={styles.secondaryButton} href="/strategy">看发展路线</Link>
+        <Link className={styles.secondaryButton} href="/missions">直接做任务</Link>
+        <Link className={styles.secondaryButton} href="/learn/tutorials">教程目录</Link>
+        <Link className={styles.ghostButton} href="/learn/map">完整路线图</Link>
       </Hero>
 
-      <section className={styles.sectionPanel}>
-        <div className={styles.sectionHead}>
-          <div>
-            <p className={styles.eyebrow}>START BY SCENE</p>
-            <h2 className={styles.sectionTitle}>按你的身份开始</h2>
-            <p className={styles.sectionDesc}>如果不想先研究路线图，直接选最像自己的入口。每个入口都能落到一个可完成任务。</p>
-          </div>
-        </div>
+      <details className={cn(styles.sectionPanel, styles.identityPicker)}>
+        <summary>
+          <span>
+            <small>START</small>
+            <strong>选择你的身份/目标</strong>
+          </span>
+          <em>展开</em>
+        </summary>
         <SceneEntryGrid />
-      </section>
+      </details>
 
-      <section className={styles.sectionPanel}>
+      <section className={cn(styles.sectionPanel, styles.homeRoutePanel)}>
         <div className={styles.mapHeader}>
           <div>
-            <p className={styles.eyebrow}>LEARNING TREE</p>
-            <h2 className={styles.sectionTitle}>从上往下学</h2>
-            <p className={styles.sectionDesc}>这张图就是开始学习的主结构。先走共同基础，再按个人在家、一人公司、团队公司和行业 AI 项目分开。</p>
+            <p className={styles.eyebrow}>ROUTE</p>
+            <h2 className={styles.sectionTitle}>按最终目标走</h2>
+            <p className={styles.sectionDesc}>同名小科目就是路线重合点。</p>
           </div>
-          <div className={styles.mapLegend} aria-label="路线图图例">
-            <span><i className={styles.legendMain} />起点</span>
-            <span><i className={styles.legendBranch} />方向</span>
-            <span><i className={styles.legendNext} />项目</span>
-            <span><i className={styles.legendResource} />展示入口</span>
-          </div>
+          <Link className={styles.secondaryButton} href="/learn/map">打开完整路线图</Link>
         </div>
-        <VerticalRoadmapVisual catalog={catalog} />
+        <GoalRouteMap />
       </section>
 
-      <section className={styles.sectionPanel}>
-        <div className={styles.sectionHead}>
-          <div>
-            <p className={styles.eyebrow}>HOW IT WORKS</p>
-            <h2 className={styles.sectionTitle}>怎么学</h2>
-            <p className={styles.sectionDesc}>不用先记一堆名词。每个小科目都按“输入、学习、结果”走，普通人也能知道自己做到了哪一步。</p>
-          </div>
-        </div>
+      <details className={cn(styles.sectionPanel, styles.identityPicker)}>
+        <summary>
+          <span>
+            <small>HOW</small>
+            <strong>怎么学</strong>
+          </span>
+          <em>展开</em>
+        </summary>
         <LearningDiagram />
-      </section>
+      </details>
 
-      <section className={styles.sectionPanel}>
-        <div className={styles.sectionHead}>
-          <div>
-            <p className={styles.eyebrow}>ROADMAP</p>
-            <h2 className={styles.sectionTitle}>学习路线后面会怎么展开</h2>
-            <p className={styles.sectionDesc}>小白AI不是让用户一直看教程。每条学习线最后都要沉淀成模板、案例、行业任务、Skill 或可复用流程。</p>
-          </div>
-          <Link className={styles.secondaryButton} href="/strategy">查看发展路线</Link>
-        </div>
+      <details className={cn(styles.sectionPanel, styles.identityPicker)}>
+        <summary>
+          <span>
+            <small>TRACKS</small>
+            <strong>四条主线</strong>
+          </span>
+          <em>展开</em>
+        </summary>
         <div className={styles.minorGrid}>
           <Link className={styles.minorCard} href="/learn/subjects/personal-growth">
             <span className={styles.pill}>个人线</span>
@@ -480,7 +557,7 @@ export function LearningHome() {
             <p className={styles.minorDesc}>从安装Agent、连接工具、使用Skill，到多Agent协作和SessionStore，形成小白AI长期护城河。</p>
           </Link>
         </div>
-      </section>
+      </details>
     </PageFrame>
   )
 }
