@@ -33,3 +33,13 @@
 3. `docs/xiaobai-ops.md`
 
 读完后再继续编码、排查或产品设计。
+
+## Universal Quality Rule
+
+- Do not stop at making a flow merely work.
+- After unblocking a flow, inspect the surrounding product and implementation:
+  - Is the user experience clearer and easier to finish?
+  - Is the code shorter, cleaner, and easier to maintain?
+  - Is the normal path still fast?
+  - Did the change reduce future regressions instead of adding fragile patches?
+- Treat "make it work" as the midpoint, not the finish line.
