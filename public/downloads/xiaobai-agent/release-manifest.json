@@ -1,22 +1,22 @@
 ﻿{
-    "generatedAt":  "2026-05-17T16:04:58.0226275Z",
-    "version":  "2.1.136",
+    "generatedAt":  "2026-05-18T08:51:01.9175700Z",
+    "version":  "2.1.137",
     "updateUrl":  "https://www.xiaobaiai.cn/downloads/xiaobai-agent/",
     "files":  [
                   {
                       "name":  "latest.yml",
                       "size":  348,
-                      "sha256":  "836aa3d6feee0425ee5c29842e84c0851b410503a3ad084616ef3ea75c588341"
+                      "sha256":  "a6e921895434838a8ed74f54fa39705b1f12c10612c6d8a929a89869f0f3ba90"
                   },
                   {
-                      "name":  "Xiaobai-Setup-2.1.136.exe",
-                      "size":  89973868,
-                      "sha256":  "db3cc47a311b505320a106119184892f37b00a9c91720f14ad14eed3f4d1774f"
+                      "name":  "Xiaobai-Setup-2.1.137.exe",
+                      "size":  89977245,
+                      "sha256":  "c442a47cee9dd5880955677422dcef427b7300c568bb73d82e400b912942c055"
                   },
                   {
-                      "name":  "Xiaobai-Setup-2.1.136.exe.blockmap",
-                      "size":  94728,
-                      "sha256":  "803d433b2ee957c92e401101e565e57343b70056c6c873b8a0f1bab56c4e107a"
+                      "name":  "Xiaobai-Setup-2.1.137.exe.blockmap",
+                      "size":  94918,
+                      "sha256":  "ff647d43f97f51a787d0d01c3e26888c89504bf9c4da90ee631383ff545e91c0"
                   }
               ]
 }
