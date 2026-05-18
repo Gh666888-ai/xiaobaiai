@@ -2,14 +2,17 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { ArrowRight, Download, FileCheck2, Settings2, Sparkles } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
+import { xiaobaiAgentRelease } from "@/data/xiaobai-agent-release"
 
-const version = "2.1.136"
-const installerName = `Xiaobai-Setup-${version}.exe`
-const installerUrl = `/downloads/xiaobai-agent/${installerName}`
-const manifestUrl = "/downloads/xiaobai-agent/release-manifest.json"
-const latestUrl = "/downloads/xiaobai-agent/latest.yml"
-const installerSize = "85.8 MB"
-const installerSha256 = "72737e9eb2dac1b2fdd3b2146b4319a02beb5a74c89ab4df036833c68a356f80"
+const {
+  version,
+  installerName,
+  installerUrl,
+  installerSize,
+  installerSha256,
+  manifestUrl,
+  latestUrl,
+} = xiaobaiAgentRelease
 
 const cardStyle = {
   border: "1px solid #e4edf4",
