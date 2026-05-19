@@ -1,14 +1,14 @@
 {
   "name": "小白 Agent 手机工作室",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "platform": "android-harmonyos",
   "packageName": "cn.xiaobaiai.agent.mobile",
-  "builtAt": "2026-05-19T08:48:40.713Z",
+  "builtAt": "2026-05-19T09:56:03.984Z",
   "files": [
     {
-      "name": "Xiaobai-Agent-Mobile-0.1.2.apk",
-      "size": 37515,
-      "sha256": "0059b5d79aa63e5a8818cb4833fcbbda04b2509b724f37a091f4ac7e047106d5"
+      "name": "Xiaobai-Agent-Mobile-0.1.3.apk",
+      "size": 37518,
+      "sha256": "beab66748a33db3b269b9cea63d94cd7bcca1d133a506a0b2025443417cabeef"
     }
   ]
 }

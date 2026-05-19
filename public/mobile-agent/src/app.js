@@ -7,6 +7,7 @@ const CLOUD_POLL_MS = 15000
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
 
 let cloudPollTimer = null
+let deferredRender = false
 
 const state = {
   settings: loadSettings(),
@@ -709,10 +710,46 @@ function escapeAttr(value) {
   return escapeHtml(value).replaceAll('\n', ' ')
 }
 
-function render() {
+function render(options = {}) {
+  const { scrollToBottom = false, preserveScroll = !scrollToBottom } = options
+  const scrollY = window.scrollY
   document.querySelector('#app').innerHTML = appTemplate()
   bindEvents()
-  scrollMessagesToBottom()
+  if (scrollToBottom) {
+    scrollMessagesToBottom()
+  } else if (preserveScroll) {
+    restoreScroll(scrollY)
+  }
+}
+
+function renderBackground() {
+  if (isComposerActive()) {
+    deferredRender = true
+    return
+  }
+  renderWithoutJump()
+}
+
+function renderWhenIdle() {
+  if (isComposerActive()) {
+    deferredRender = true
+    return
+  }
+  render({ scrollToBottom: shouldFollowMessages() })
+}
+
+function renderWithoutJump() {
+  render({ preserveScroll: true })
+}
+
+function isComposerActive() {
+  return document.activeElement?.id === 'composerText'
+}
+
+function flushDeferredRender() {
+  if (!deferredRender) return
+  deferredRender = false
+  renderWithoutJump()
 }
 
 function bindEvents() {
@@ -797,6 +834,7 @@ function bindEvents() {
     state.composing = event.target.value
     resizeComposer(textarea)
   })
+  textarea?.addEventListener('blur', flushDeferredRender)
   textarea?.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault()
@@ -868,7 +906,7 @@ async function syncCloudAssets() {
   if (!state.session.authenticated) return
   state.remote.checking = true
   state.remote.error = ''
-  render()
+  renderBackground()
 
   try {
     const [devices, tasks, skills, memories, delegations, approvals, conversations, health] = await Promise.all([
@@ -896,7 +934,7 @@ async function syncCloudAssets() {
     addSystemMessage(`同步失败：${error.message}`)
   } finally {
     state.remote.checking = false
-    render()
+    renderBackground()
   }
 }
 
@@ -958,7 +996,7 @@ async function sendCurrentMessage() {
   const content = state.composing.trim()
   if (!content || !state.session.authenticated) return
   state.composing = ''
-  addMessage('user', content)
+  addMessage('user', content, { forceRender: true })
 
   try {
     const device = selectedDevice()
@@ -1001,11 +1039,12 @@ async function sendApprovalDecision(approvalId, decision) {
   }
 }
 
-function addMessage(role, content) {
+function addMessage(role, content, options = {}) {
   state.messages.push({ role, content, ts: new Date().toISOString() })
   state.messages = state.messages.slice(-80)
   saveHistory()
-  render()
+  if (options.forceRender || role === 'user') render({ scrollToBottom: true })
+  else renderWhenIdle()
 }
 
 function addSystemMessage(content) {
@@ -1049,12 +1088,21 @@ function toggleVoiceInput() {
 }
 
 function scrollMessagesToBottom() {
-  if (!state.messages.length) {
-    window.scrollTo({ top: 0 })
-    return
-  }
   const list = document.querySelector('#messageList')
   if (list) list.scrollIntoView({ block: 'end' })
+}
+
+function shouldFollowMessages() {
+  if (isComposerActive()) return false
+  const page = document.documentElement
+  const distance = page.scrollHeight - (window.scrollY + window.innerHeight)
+  return distance < 180
+}
+
+function restoreScroll(scrollY) {
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: scrollY, left: 0, behavior: 'auto' })
+  })
 }
 
 function startCloudPoll() {
