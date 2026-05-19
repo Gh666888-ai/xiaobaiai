@@ -1,7 +1,7 @@
 const STORAGE_KEY = 'xiaobai-mobile-settings-v2'
 const HISTORY_KEY = 'xiaobai-mobile-chat-v2'
 const SESSION_KEY = 'xiaobai-mobile-session-v1'
-const APP_VERSION = '0.1.5'
+const APP_VERSION = '0.1.6'
 const DEFAULT_CLOUD_URL = 'https://www.xiaobaiai.cn'
 const DEFAULT_CHAT_MODEL = 'auto'
 const CHAT_MODE_LABELS = {
@@ -527,9 +527,45 @@ function appTemplate() {
     : ''
   return `
     <main class="phone-app ${state.settings.wallpaperImage ? 'has-wallpaper' : ''}"${wallpaper}>
-      ${state.ui.agentSetupOpen ? renderAgentSetupPage() : renderMainChatPage()}
+      ${!state.session.authenticated ? renderLoginPage() : state.ui.agentSetupOpen ? renderAgentSetupPage() : renderMainChatPage()}
       ${state.ui.studioOpen ? renderStudioSheet() : ''}
     </main>
+  `
+}
+
+function renderLoginPage() {
+  return `
+    <section class="login-screen">
+      <div class="login-brand">
+        <img class="login-logo" src="./icons/icon-192.png" alt="Xiaobai Nexus" />
+        <span>手机 APP</span>
+        <h1>登录小白网站会员账号</h1>
+        <p>登录后会自动同步账号对应的问答 API、会员状态和电脑端 Agent 连接。之后先进入普通问答，需要操作电脑时再从左侧菜单进入 Xiaobai Nexus。</p>
+      </div>
+
+      <div class="login-card">
+        <label class="field">
+          <span>账号</span>
+          <input id="memberAccount" value="${escapeAttr(state.memberLogin.account)}" placeholder="手机号或邮箱" autocomplete="username" />
+        </label>
+        <label class="field">
+          <span>密码</span>
+          <input id="memberPassword" value="${escapeAttr(state.memberLogin.password)}" placeholder="小白网站会员密码" type="password" autocomplete="current-password" />
+        </label>
+        <button class="primary-button full" data-action="cloud-login" ${state.memberLogin.busy ? 'disabled' : ''}>
+          ${state.memberLogin.busy ? '正在登录并同步' : '登录并进入问答'}
+        </button>
+        ${state.memberLogin.error ? `<div class="notice error">${escapeHtml(state.memberLogin.error)}</div>` : ''}
+        ${state.session.error ? `<div class="notice error">${escapeHtml(state.session.error)}</div>` : ''}
+      </div>
+
+      <div class="login-flow">
+        <span>1. 登录会员账号</span>
+        <span>2. 自动配置问答 API</span>
+        <span>3. 进入普通问答</span>
+        <span>4. 菜单里连接电脑 Agent</span>
+      </div>
+    </section>
   `
 }
 
@@ -537,8 +573,14 @@ function renderMainChatPage() {
   return `
     <header class="app-topbar">
       <button class="round-button" data-action="toggle-studio" aria-label="打开菜单">${icon('menu')}</button>
-      <button class="plus-pill" data-action="toggle-settings">${icon('sparkle')}<span>${selectedModel().label}</span></button>
-      <button class="round-button ghost-top app-icon-button" data-action="open-studio-agent" aria-label="Xiaobai Nexus">${appIcon()}</button>
+      <div class="title-stack">
+        <h1>小白问答</h1>
+        <button class="inline-status ${modelConfig().configured ? 'online' : 'warn'}" data-action="toggle-settings">
+          <span class="status-dot"></span>
+          <span>${escapeHtml(chatApiStatusText())}</span>
+        </button>
+      </div>
+      <button class="round-button ghost-top" data-action="toggle-settings" aria-label="模型和背景">${icon('sparkle')}</button>
     </header>
 
     ${renderUpdateBanner()}
@@ -554,6 +596,13 @@ function renderMainChatPage() {
   `
 }
 
+function chatApiStatusText() {
+  const config = modelConfig()
+  if (config.configured) return `${config.providerLabel} · ${config.model}`
+  if (state.remote.chatModelConfig) return '正在保存账号 API'
+  return `${selectedModel().label} · 默认问答`
+}
+
 function renderUpdateBanner() {
   if (!state.update.available) return ''
   return `
@@ -563,22 +612,6 @@ function renderUpdateBanner() {
         <span>当前 ${escapeHtml(state.update.currentVersion === '0.0.0' ? '旧版' : state.update.currentVersion)}。更新后可修复原生壳层、键盘、状态栏等问题。</span>
       </div>
       <button class="primary-button slim" data-action="download-update">立即更新</button>
-    </section>
-  `
-}
-
-function renderModeRail() {
-  return `
-    <section class="mode-rail" aria-label="小白模式">
-      <div class="mode-switch">
-        ${CHAT_MODE_OPTIONS.map((item) => `
-          <button class="${chatMode() === item.id ? 'active' : ''}" data-mode="${escapeAttr(item.id)}">
-            <strong>${escapeHtml(item.label)}</strong>
-            <span>${escapeHtml(item.hint)}</span>
-          </button>
-        `).join('')}
-      </div>
-      <button class="round-button settings-button" data-action="toggle-settings" aria-label="模型和背景">${icon('image')}</button>
     </section>
   `
 }
@@ -837,64 +870,6 @@ function userLabel() {
   return state.session.user?.email || state.session.user?.name || state.session.user?.id || '会员已登录'
 }
 
-function renderAccountGate() {
-  if (state.session.authenticated) {
-    return `
-      <section class="sync-strip">
-        <span>${escapeHtml(remoteSummary())}</span>
-        <button class="text-button" data-action="sync-cloud">${icon('sync')}同步</button>
-      </section>
-      <section class="diagnostic-card ${state.remote.devices.length ? 'ok' : 'warn'}">
-        <strong>${state.remote.devices.length ? '同步状态' : '还没连上电脑端'}</strong>
-        <span>${escapeHtml(syncDiagnosis())}</span>
-      </section>
-    `
-  }
-
-  return `
-    <section class="setup-panel account-gate">
-      <div class="setup-head">
-        <div>
-          <h2>连接我的 Xiaobai Nexus</h2>
-          <p>问答模式不用登录；进入 Xiaobai Nexus 模式时，登录同一个小白账号，就能找到自己的电脑端 Agent。</p>
-        </div>
-      </div>
-      <div class="field-grid">
-        <label class="field">
-          <span>账号</span>
-          <input id="memberAccount" value="${escapeAttr(state.memberLogin.account)}" placeholder="手机号或邮箱" autocomplete="username" />
-        </label>
-        <label class="field">
-          <span>密码</span>
-          <input id="memberPassword" value="${escapeAttr(state.memberLogin.password)}" placeholder="登录后不保存在手机端" type="password" autocomplete="current-password" />
-        </label>
-      </div>
-      <button class="primary-button full" data-action="cloud-login" ${state.memberLogin.busy ? 'disabled' : ''}>${state.memberLogin.busy ? '登录中' : '登录并连接我的 Xiaobai Nexus'}</button>
-      ${state.memberLogin.error ? `<div class="notice error">${escapeHtml(state.memberLogin.error)}</div>` : ''}
-      ${state.session.error ? `<div class="notice error">${escapeHtml(state.session.error)}</div>` : ''}
-      <button class="text-button advanced-toggle" data-action="toggle-advanced">开发调试：局域网直连</button>
-      ${state.ui.advancedOpen ? renderAdvancedLocalPanel() : ''}
-    </section>
-  `
-}
-
-function renderAdvancedLocalPanel() {
-  return `
-    <div class="advanced-panel">
-      <p>普通用户不需要填写这里。它只用于研发阶段同一网络内调试电脑端 API。</p>
-      <label class="field">
-        <span>本机调试地址</span>
-        <input id="localBaseUrl" value="${escapeAttr(state.settings.localBaseUrl)}" placeholder="http://127.0.0.1:3721" inputmode="url" />
-      </label>
-      <label class="field">
-        <span>本机调试 Token</span>
-        <input id="localToken" value="${escapeAttr(state.settings.localToken)}" placeholder="没配置就留空" autocomplete="off" />
-      </label>
-      <button class="secondary-button" data-action="local-debug-connect">测试本机连接</button>
-    </div>
-  `
-}
-
 function remoteSummary() {
   const device = selectedDevice()
   if (!device) return '还没有绑定电脑端小白'
@@ -940,7 +915,10 @@ function renderStudioSheet() {
     <section class="studio-backdrop" data-action="close-studio">
       <aside class="studio-sheet" role="dialog" aria-label="小白菜单" data-sheet>
         <div class="drawer-head">
-          <h2>小白</h2>
+          <div>
+            <h2>小白</h2>
+            <p>${escapeHtml(userLabel())}</p>
+          </div>
           <div class="drawer-head-actions">
             <button class="icon-only" data-action="search-history" aria-label="搜索">${icon('search')}</button>
             <button class="icon-only" data-action="toggle-settings" aria-label="账号和设置">${icon('user')}</button>
@@ -948,9 +926,10 @@ function renderStudioSheet() {
         </div>
 
         <nav class="drawer-nav">
+          <button data-action="close-studio">${icon('send')}<span>普通问答</span></button>
+          <button data-action="open-agent-setup">${appIcon()}<span>Xiaobai Nexus</span><small>连接电脑端 Agent</small></button>
           <button data-studio-tab="projects">${icon('folder')}<span>项目</span></button>
           <button data-studio-tab="images">${icon('image')}<span>图片</span></button>
-          <button data-action="open-agent-setup">${appIcon()}<span>Xiaobai Nexus</span></button>
           <button data-studio-tab="files">${icon('library')}<span>文件库</span></button>
           <button data-studio-tab="apps">${icon('apps')}<span>应用</span></button>
         </nav>
@@ -1210,7 +1189,7 @@ function renderFunctionalEmpty(title, body, action, actionLabel) {
   return `
     <div class="empty functional-empty">
       <strong>${escapeHtml(title)}</strong>
-      <span>${escapeHtml(body)}${state.session.authenticated ? '' : ' 登录 Xiaobai Nexus 后会自动同步。'}</span>
+      <span>${escapeHtml(body)}${state.session.authenticated ? '' : ' 登录小白网站账号后会自动同步。'}</span>
       <button class="secondary-button slim" data-action="${escapeAttr(action)}">${escapeHtml(actionLabel)}</button>
     </div>
   `
@@ -1257,7 +1236,7 @@ function renderSyncedCollection(title, rows, emptyText) {
           </div>
         `).join('')}
       </div>
-    ` : `<div class="empty">${escapeHtml(emptyText)}${state.session.authenticated ? '' : ' 登录 Xiaobai Nexus 后会自动同步。'}</div>`}
+    ` : `<div class="empty">${escapeHtml(emptyText)}${state.session.authenticated ? '' : ' 登录小白网站账号后会自动同步。'}</div>`}
   `
 }
 
@@ -1793,6 +1772,10 @@ async function loginCloudMember() {
     state.session.sessionId = result.sessionId || result.sid || ''
     saveSession()
     state.memberLogin.password = ''
+    state.ui.agentSetupOpen = false
+    state.ui.studioOpen = false
+    state.settings.mobileMode = 'chat'
+    saveSettings()
     addSystemMessage('网站会员登录成功，正在查找你的电脑端小白。')
     await syncCloudAssets()
     openEventStream()

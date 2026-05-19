@@ -1,4 +1,4 @@
-const CACHE_NAME = 'xiaobai-mobile-app-v6-chat-agent-mode'
+const CACHE_NAME = 'xiaobai-mobile-app-v7-login-chat-nexus'
 const scopePath = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const assetPath = (path) => `${scopePath}${path}`
 const CORE_ASSETS = [

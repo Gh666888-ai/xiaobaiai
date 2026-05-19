@@ -1,14 +1,14 @@
 {
   "name": "Xiaobai Nexus",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "platform": "android-harmonyos",
   "packageName": "cn.xiaobaiai.agent.mobile",
-  "builtAt": "2026-05-19T13:07:46.330Z",
+  "builtAt": "2026-05-19T14:28:49.333Z",
   "files": [
     {
-      "name": "Xiaobai-Nexus-0.1.5.apk",
-      "size": 37515,
-      "sha256": "88d691b918df3f42ca4def014abd94098ac9c2cab66e14f9481e80ebea8eb607"
+      "name": "Xiaobai-Nexus-0.1.6.apk",
+      "size": 37518,
+      "sha256": "f77e6ba0528468b14c706f6d476bd59a83058eabd182d28744c07e2a37794bac"
     }
   ]
 }
