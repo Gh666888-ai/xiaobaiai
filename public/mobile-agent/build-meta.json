@@ -1,6 +1,6 @@
 {
   "name": "xiaobai-mobile-app",
-  "builtAt": "2026-05-19T22:44:32.298Z",
+  "builtAt": "2026-05-19T23:19:00.609Z",
   "files": [
     "index.html",
     "manifest.webmanifest",
@@ -11,6 +11,7 @@
     "icons/icon-192.png",
     "icons/icon-512.png",
     "src/app.js",
-    "src/styles.css"
+    "src/styles.css",
+    "src/tianshu-shared-spec.json"
   ]
 }

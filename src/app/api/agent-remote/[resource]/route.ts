@@ -55,6 +55,22 @@ function safeText(value: unknown, limit: number) {
   return String(value || "").trim().slice(0, limit)
 }
 
+function normalizeDevicePayload(body: any, userId: string) {
+  const now = new Date().toISOString()
+  const deviceKey = safeText(body?.deviceKey || body?.device_key, 160)
+  if (!deviceKey) throw new Error("deviceKey required")
+  return {
+    user_id: userId,
+    device_key: deviceKey,
+    device_name: safeText(body?.deviceName || body?.device_name || "我的电脑小白", 80),
+    online: body?.online !== false,
+    capabilities: body?.capabilities && typeof body.capabilities === "object" ? body.capabilities : {},
+    snapshot: body?.snapshot && typeof body.snapshot === "object" ? body.snapshot : {},
+    last_seen_at: now,
+    updated_at: now,
+  }
+}
+
 function createAuthSupabase() {
   return createClient(supabaseUrl, supabaseAnonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -199,6 +215,10 @@ export async function GET(req: NextRequest, { params }: { params: { resource: st
       .limit(limit)
     if (error) return isMissingTable(error) ? setupResponse(resource) : jsonError("资产同步读取失败。", 500)
     const rows = (data || []).map(assetRow)
+    if (resource === "hotspots") {
+      const payload = rows[0]?.payload || {}
+      return NextResponse.json(payload.hotspots || payload)
+    }
     return NextResponse.json({ [resource]: rows, items: rows })
   }
 
@@ -227,6 +247,44 @@ export async function POST(req: NextRequest, { params }: { params: { resource: s
 
   const auth = await requireUser(req)
   if (!auth.ok) return jsonError(auth.error, auth.status)
+
+  if (resource === "devices") {
+    try {
+      const payload = normalizeDevicePayload(body, auth.user.id)
+      const { data, error } = await auth.adminSupabase
+        .from("agent_remote_devices")
+        .upsert(payload, { onConflict: "user_id,device_key" })
+        .select("*")
+        .single()
+      if (error) return isMissingTable(error) ? jsonError("远程设备表还没有部署，请先执行最新 supabase.sql。", 503) : jsonError("设备同步失败。", 500)
+      return NextResponse.json({ ok: true, device: data })
+    } catch (error: any) {
+      return jsonError(error?.message || "设备同步失败。", 400)
+    }
+  }
+
+  if (resource === "assets") {
+    const deviceKey = safeText(body?.deviceKey || body?.device_key, 160)
+    const assetType = safeText(body?.assetType || body?.asset_type, 80)
+    if (!deviceKey || !assetType) return jsonError("deviceKey and assetType required")
+    const { data: device, error: deviceError } = await auth.adminSupabase
+      .from("agent_remote_devices")
+      .select("id")
+      .eq("user_id", auth.user.id)
+      .eq("device_key", deviceKey)
+      .maybeSingle()
+    if (deviceError) return isMissingTable(deviceError) ? jsonError("远程设备表还没有部署，请先执行最新 supabase.sql。", 503) : jsonError("设备读取失败。", 500)
+    if (!device) return jsonError("device not registered", 404)
+    const { error } = await auth.adminSupabase.from("agent_remote_assets").upsert({
+      user_id: auth.user.id,
+      device_id: device.id,
+      asset_type: assetType,
+      payload: body?.payload && typeof body.payload === "object" ? body.payload : {},
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "user_id,device_id,asset_type" })
+    if (error) return isMissingTable(error) ? jsonError("远程资产表还没有部署，请先执行最新 supabase.sql。", 503) : jsonError("资产同步失败。", 500)
+    return NextResponse.json({ ok: true })
+  }
 
   if (resource === "tasks") {
     const payload = {
