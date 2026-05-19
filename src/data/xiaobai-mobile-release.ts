@@ -33,6 +33,6 @@ export const xiaobaiMobileRelease = {
   apkSize: formatBytes(apkFile.size),
   apkSha256: apkFile.sha256,
   manifestUrl: "/downloads/xiaobai-mobile/release-manifest.json",
-  appUrl: "/mobile-agent/",
-  webAppUrl: "/mobile-agent/",
+  appUrl: "/mobile-agent/index.html",
+  webAppUrl: "/mobile-agent/index.html",
 } as const
