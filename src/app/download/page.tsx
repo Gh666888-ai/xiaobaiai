@@ -3,6 +3,7 @@ import Link from "next/link"
 import { ArrowRight, Download, FileCheck2, Settings2, Sparkles } from "lucide-react"
 import { NavBar } from "@/components/NavBar"
 import { xiaobaiAgentRelease } from "@/data/xiaobai-agent-release"
+import { xiaobaiMobileRelease } from "@/data/xiaobai-mobile-release"
 
 const {
   version,
@@ -13,6 +14,17 @@ const {
   manifestUrl,
   latestUrl,
 } = xiaobaiAgentRelease
+
+const {
+  version: mobileVersion,
+  packageName: mobilePackageName,
+  apkName: mobileApkName,
+  apkUrl: mobileApkUrl,
+  apkSize: mobileApkSize,
+  apkSha256: mobileApkSha256,
+  manifestUrl: mobileManifestUrl,
+  webAppUrl: mobileWebAppUrl,
+} = xiaobaiMobileRelease
 
 const cardStyle = {
   border: "1px solid #e4edf4",
@@ -93,6 +105,51 @@ export default function DownloadPage() {
           </div>
           <div style={{ marginTop: 16, borderRadius: 12, background: "#eef7fa", border: "1px solid #d4e7ee", padding: 14, color: "#21495a", fontSize: 14, lineHeight: 1.75, fontWeight: 750 }}>
             装好后别空聊，直接说：“小白，检查一下我的电脑和语音配置。”如果它能回答下一步，你已经有了电脑里的小白入口。
+          </div>
+        </section>
+
+        <section style={{ marginTop: 20, border: "1px solid #d8e8ef", borderRadius: 16, background: "#ffffff", boxShadow: "0 18px 45px rgba(25, 54, 82, 0.08)", padding: "clamp(20px, 3vw, 30px)" }}>
+          <p style={{ margin: "0 0 10px", color: "#256d85", fontSize: 13, fontWeight: 950 }}>手机端 App</p>
+          <h2 style={{ margin: "0 0 12px", color: "#102131", fontSize: "clamp(26px, 4vw, 40px)", lineHeight: 1.15, fontWeight: 950, letterSpacing: 0 }}>离开电脑，也能指挥家里的小白 Agent</h2>
+          <p style={{ margin: "0 0 18px", maxWidth: 900, color: "#506577", fontSize: 16, lineHeight: 1.85, fontWeight: 650 }}>
+            下载安卓 / 鸿蒙可安装包，手机上直接登录小白网站会员账号，就能连接同账号登录的电脑端小白。你在外面发任务，电脑端小白负责执行、调用本机 Agent、同步任务进度和结果。
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 16, alignItems: "stretch" }}>
+            <div style={{ border: "1px solid #e0edf3", borderRadius: 12, background: "#f8fbfd", padding: 16 }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginBottom: 14 }}>
+                <a href={mobileApkUrl} download aria-label="下载小白 Agent 手机端 APK" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 48, borderRadius: 12, background: "#101820", color: "#fff", padding: "0 20px", textDecoration: "none", fontSize: 15, fontWeight: 950 }}>
+                  <Download size={18} />
+                  下载手机端 APK
+                </a>
+                <a href={mobileWebAppUrl} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 48, borderRadius: 12, border: "1px solid #bfd4df", color: "#256d85", background: "#fff", padding: "0 16px", textDecoration: "none", fontSize: 14, fontWeight: 900 }}>
+                  打开网页版手机工作室
+                  <ArrowRight size={15} />
+                </a>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: 10 }}>
+                {[
+                  ["账号直连", "不用填电脑 IP，不用复制本机 Token，登录网站会员账号即可绑定同账号电脑端。"],
+                  ["远程发任务", "手机发出的任务进入网站云端中继，电脑端小白在线时自动拉取执行。"],
+                  ["同步资产", "会话、记忆、技能和委托状态会同步到手机工作室，方便离开电脑后继续看。"],
+                ].map(([title, body]) => (
+                  <div key={title} style={{ border: "1px solid #e0edf3", borderRadius: 12, background: "#fff", padding: 13 }}>
+                    <b style={{ display: "block", marginBottom: 6, color: "#102131", fontSize: 14 }}>{title}</b>
+                    <span style={{ color: "#5b6f7f", fontSize: 13, lineHeight: 1.7 }}>{body}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <aside style={{ border: "1px solid #e0edf3", borderRadius: 12, background: "#f8fbfd", padding: 16 }}>
+              <h3 style={{ margin: "0 0 12px", color: "#102131", fontSize: 17, fontWeight: 950 }}>手机端版本</h3>
+              <div style={{ display: "grid", gap: 9, color: "#536879", fontSize: 13, lineHeight: 1.65 }}>
+                <div><b style={{ color: "#17202a" }}>版本：</b>{mobileVersion}</div>
+                <div><b style={{ color: "#17202a" }}>文件：</b>{mobileApkName}</div>
+                <div><b style={{ color: "#17202a" }}>包名：</b>{mobilePackageName}</div>
+                <div><b style={{ color: "#17202a" }}>大小：</b>{mobileApkSize}</div>
+                <div style={{ wordBreak: "break-all" }}><b style={{ color: "#17202a" }}>SHA256：</b>{mobileApkSha256}</div>
+              </div>
+              <a href={mobileManifestUrl} style={{ marginTop: 13, display: "inline-flex", color: "#256d85", fontSize: 13, fontWeight: 900, textDecoration: "none" }}>手机端发布清单</a>
+            </aside>
           </div>
         </section>
 

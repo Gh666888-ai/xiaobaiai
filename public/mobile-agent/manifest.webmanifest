@@ -1,0 +1,18 @@
+{
+  "name": "小白 Agent 手机工作室",
+  "short_name": "小白工作室",
+  "description": "在手机上连接电脑端小白 Agent，发送任务、语音输入、查看任务和多 Agent 状态。",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f5f1",
+  "theme_color": "#101820",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
