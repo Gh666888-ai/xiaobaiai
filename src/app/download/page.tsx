@@ -62,6 +62,10 @@ export default function DownloadPage() {
                 <Download size={19} />
                 立即下载 Windows 安装包
               </a>
+              <a href={mobileApkUrl} download aria-label="下载小白 Agent 手机端 APK" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 50, borderRadius: 12, background: "#101820", color: "#fff", padding: "0 22px", textDecoration: "none", fontSize: 16, fontWeight: 950, boxShadow: "0 12px 24px rgba(16,24,32,0.18)" }}>
+                <Download size={19} />
+                下载手机 APP
+              </a>
               <Link href="/agent-install/xiaobai-nexus" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 50, borderRadius: 12, border: "1px solid #bfd4df", color: "#256d85", background: "#fff", padding: "0 18px", textDecoration: "none", fontSize: 15, fontWeight: 900 }}>
                 跟着小白安装
                 <ArrowRight size={16} />
