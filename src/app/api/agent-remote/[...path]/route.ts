@@ -365,7 +365,7 @@ export async function GET(req: NextRequest, ctx: { params: { path?: string[] } }
     return NextResponse.json({ messages: (data || []).reverse() })
   }
 
-  if (["memories", "skills", "delegations", "approvals"].includes(path[0] || "")) {
+  if (["memories", "skills", "delegations", "approvals", "hotspots"].includes(path[0] || "")) {
     const assetType = path[0]
     const { data, error } = await db
       .from("agent_remote_assets")
@@ -379,6 +379,7 @@ export async function GET(req: NextRequest, ctx: { params: { path?: string[] } }
     if (assetType === "memories") return NextResponse.json({ memories: payload.memories || payload.items || [] })
     if (assetType === "skills") return NextResponse.json({ skills: payload.skills || payload.items || [] })
     if (assetType === "approvals") return NextResponse.json({ approvals: payload.approvals || payload.items || [] })
+    if (assetType === "hotspots") return NextResponse.json(payload.hotspots || payload)
     return NextResponse.json(payload)
   }
 

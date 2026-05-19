@@ -4,7 +4,7 @@ import { bearerToken, createServerSupabase, hasSupabaseConfig, requireUser } fro
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-const assetResources = new Set(["projects", "images", "files", "apps", "skills", "memories"])
+const assetResources = new Set(["projects", "images", "files", "apps", "skills", "memories", "hotspots"])
 const assetTypeByResource: Record<string, string> = {
   projects: "project",
   images: "image",
@@ -12,6 +12,7 @@ const assetTypeByResource: Record<string, string> = {
   apps: "app",
   skills: "skill",
   memories: "memory",
+  hotspots: "hotspots",
 }
 const chatModelAssetTypes = ["chat_model", "agent_model", "model_config"]
 const agentOnlineWindowMs = 120000

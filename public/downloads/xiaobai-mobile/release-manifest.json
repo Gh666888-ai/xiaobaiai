@@ -1,7 +1,7 @@
 {
   "name": "小白天枢",
-  "version": "0.1.9",
-  "versionCode": 109,
+  "version": "0.1.10",
+  "versionCode": 110,
   "platform": "android-harmonyos",
   "packageName": "cn.xiaobaiai.agent.mobile",
   "signing": "debug",
@@ -10,12 +10,12 @@
   "minSdk": 23,
   "targetSdk": 35,
   "privacyPolicyUrl": "https://www.xiaobaiai.cn/privacy",
-  "builtAt": "2026-05-19T22:28:59.780Z",
+  "builtAt": "2026-05-19T22:44:04.525Z",
   "files": [
     {
-      "name": "Xiaobai-Tianshu-0.1.9.apk",
-      "size": 57996,
-      "sha256": "122d32b964f2b81487a5aa8fff1ed3144243049ad6788550c7628ac38ff14583"
+      "name": "Xiaobai-Tianshu-0.1.10.apk",
+      "size": 62094,
+      "sha256": "5a0bee716238fbbe6b7605209deabcaa2bfb497e3f8dacf6e308f3cc2d995963"
     }
   ]
 }

@@ -1,7 +1,7 @@
 const state = {
-  version: '0.1.9',
-  apkName: 'Xiaobai-Tianshu-0.1.9.apk',
-  apkUrl: '../downloads/xiaobai-mobile/Xiaobai-Tianshu-0.1.9.apk',
+  version: '0.1.10',
+  apkName: 'Xiaobai-Tianshu-0.1.10.apk',
+  apkUrl: '../downloads/xiaobai-mobile/Xiaobai-Tianshu-0.1.10.apk',
 }
 
 function render() {
