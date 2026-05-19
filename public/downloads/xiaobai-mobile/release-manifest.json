@@ -1,7 +1,7 @@
 {
-  "name": "Xiaobai Nexus",
-  "version": "0.1.6",
-  "versionCode": 106,
+  "name": "小白天枢",
+  "version": "0.1.7",
+  "versionCode": 107,
   "platform": "android-harmonyos",
   "packageName": "cn.xiaobaiai.agent.mobile",
   "signing": "debug",
@@ -10,12 +10,12 @@
   "minSdk": 23,
   "targetSdk": 35,
   "privacyPolicyUrl": "https://www.xiaobaiai.cn/privacy",
-  "builtAt": "2026-05-19T16:27:14.083Z",
+  "builtAt": "2026-05-19T17:58:38.539Z",
   "files": [
     {
-      "name": "Xiaobai-Nexus-0.1.6.apk",
-      "size": 49806,
-      "sha256": "4486edfd36215d8a8cfbe29fcc3a18514436e59144068f269f5eb2cff60864a0"
+      "name": "Xiaobai-Tianshu-0.1.7.apk",
+      "size": 53900,
+      "sha256": "337168afb27c34a3936279a17b6f51709bf429ce7aee2f14073fe9e2a4a9905a"
     }
   ]
 }

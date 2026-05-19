@@ -7,10 +7,10 @@ type ReleaseFile = {
 }
 
 const files = (releaseManifest.files || []) as ReleaseFile[]
-const apkFile = files.find((file) => /^Xiaobai-Nexus-\d+\.\d+\.\d+\.apk$/.test(file.name))
+const apkFile = files.find((file) => /^Xiaobai-Tianshu-\d+\.\d+\.\d+\.apk$/.test(file.name))
 
 if (!apkFile) {
-  throw new Error("Xiaobai Nexus APK is missing from release-manifest.json")
+  throw new Error("Xiaobai Tianshu APK is missing from release-manifest.json")
 }
 
 const formatBytes = (value: number) => {

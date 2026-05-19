@@ -1,7 +1,7 @@
 {
-  "name": "Xiaobai Nexus",
-  "short_name": "Xiaobai Nexus",
-  "description": "小白手机端 AI 入口：问答、图片、项目、文件库、应用，并连接自己的小白 Agent。",
+  "name": "小白天枢",
+  "short_name": "小白天枢",
+  "description": "小白手机端 AI 中枢：普通问答和电脑端 Agent 控制分开，界面保持简洁。",
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait",

@@ -4,23 +4,6 @@ import Script from "next/script"
 import { AuthProvider } from "@/lib/AuthContext"
 import { FloatingChat } from "@/components/FloatingChat"
 import { OnlineXpTracker } from "@/components/OnlineXpTracker"
-import { Noto_Sans_SC, JetBrains_Mono } from "next/font/google"
-
-const noto = Noto_Sans_SC({
-  subsets: ["latin"],
-  weight: ["300", "400", "700", "900"],
-  variable: "--font-noto",
-  display: "swap",
-  preload: true,
-})
-
-const jetbrains = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["300", "400", "700"],
-  variable: "--font-jetbrains",
-  display: "swap",
-  preload: true,
-})
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.xiaobaiai.cn"),
@@ -145,7 +128,7 @@ const websiteJsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="zh-CN" className={`${noto.variable} ${jetbrains.variable}`}>
+    <html lang="zh-CN">
       <head>
         <meta name="baidu-site-verification" content="codeva-RTXCqCLk3P" />
         <meta name="baidu-site-verification" content="codeva-ZUKoSdLniD" />
