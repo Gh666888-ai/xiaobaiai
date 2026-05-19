@@ -1,6 +1,6 @@
 {
   "name": "xiaobai-tianshu-shared-spec",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "source": "desktop-agent-cognitive-surface",
   "identity": {
     "visibleAgentName": "天枢",
@@ -66,10 +66,13 @@
   },
   "voiceInteraction": {
     "mobileSpeechInput": true,
+    "inAppRealtimeRecognition": true,
+    "autoSendFinalRecognition": true,
+    "mobileTtsPlayback": true,
+    "harmonyOsFallback": "if system speech recognition or TTS is unavailable, keep manual input and text responses working",
     "routes": ["normal-chat", "tianshu-desktop-task"],
     "desktopVoiceStateSync": false,
-    "mobileTtsPlayback": false,
-    "note": "phone speech recognition can send text to chat or desktop Agent tasks; desktop voice orb state and TTS playback are not claimed as complete"
+    "note": "phone speech recognition can send text to chat or desktop Agent tasks and phone TTS can read responses; desktop voice orb state is not claimed as complete"
   },
   "mobilePersistence": {
     "chatHistory": "chatHistory",
