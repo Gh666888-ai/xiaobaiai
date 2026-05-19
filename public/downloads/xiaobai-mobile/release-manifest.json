@@ -1,14 +1,14 @@
 {
-  "name": "小白 Agent 手机工作室",
+  "name": "Xiaobai Nexus",
   "version": "0.1.5",
   "platform": "android-harmonyos",
   "packageName": "cn.xiaobaiai.agent.mobile",
-  "builtAt": "2026-05-19T10:43:04.021Z",
+  "builtAt": "2026-05-19T13:07:46.330Z",
   "files": [
     {
-      "name": "Xiaobai-Agent-Mobile-0.1.5.apk",
+      "name": "Xiaobai-Nexus-0.1.5.apk",
       "size": 37515,
-      "sha256": "e75892661edc542dac1acad7eb5949838a993befda068b86bc69fa4d483a566d"
+      "sha256": "88d691b918df3f42ca4def014abd94098ac9c2cab66e14f9481e80ebea8eb607"
     }
   ]
 }

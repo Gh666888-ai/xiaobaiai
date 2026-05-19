@@ -3,6 +3,69 @@ const HISTORY_KEY = 'xiaobai-mobile-chat-v2'
 const SESSION_KEY = 'xiaobai-mobile-session-v1'
 const APP_VERSION = '0.1.5'
 const DEFAULT_CLOUD_URL = 'https://www.xiaobaiai.cn'
+const DEFAULT_CHAT_MODEL = 'auto'
+const CHAT_MODE_LABELS = {
+  chat: '问答',
+  agent: 'Xiaobai Nexus',
+}
+const CHAT_MODE_OPTIONS = [
+  { id: 'chat', label: '问答', hint: '直接和小白聊天' },
+  { id: 'agent', label: 'Xiaobai Nexus', hint: '连接自己的电脑端 Agent' },
+]
+const MODEL_OPTIONS = [
+  { id: 'auto', label: '自动选择', hint: '按任务自动挑模型' },
+  { id: 'deepseek', label: 'DeepSeek', hint: '中文、推理、代码' },
+  { id: 'qwen', label: '通义千问', hint: '中文与办公任务' },
+  { id: 'kimi', label: 'Kimi', hint: '长文档和资料整理' },
+  { id: 'gpt', label: 'GPT', hint: '通用问答和创作' },
+  { id: 'claude', label: 'Claude', hint: '长文、分析和改写' },
+]
+const MODEL_PROVIDER_RULES = [
+  { id: 'deepseek', label: 'DeepSeek', hosts: ['deepseek.com'], models: ['deepseek'] },
+  { id: 'kimi', label: 'Kimi', hosts: ['moonshot.cn', 'kimi.moonshot'], models: ['kimi'] },
+  { id: 'minimax', label: 'MiniMax', hosts: ['minimax.io'], models: ['minimax', 'abab'] },
+  { id: 'qwen', label: '通义千问', hosts: ['dashscope.aliyuncs.com', 'aliyuncs.com'], models: ['qwen', 'qwq'] },
+  { id: 'gpt', label: 'OpenAI', hosts: ['api.openai.com'], models: ['gpt-', 'o3', 'o4', 'o1'] },
+  { id: 'openrouter', label: 'OpenRouter', hosts: ['openrouter.ai'], models: [] },
+  { id: 'custom', label: 'OpenAI Compatible', hosts: [], models: [] },
+]
+const MODEL_API_PRESETS = [
+  {
+    id: 'openrouter-free',
+    label: 'OpenRouter 免费',
+    hint: '需要 OpenRouter Key，可换任何 :free 模型',
+    baseUrl: 'https://openrouter.ai/api/v1',
+    model: 'deepseek/deepseek-r1:free',
+  },
+  {
+    id: 'deepseek-fast',
+    label: 'DeepSeek V4 Flash',
+    hint: '便宜、中文强、速度优先',
+    baseUrl: 'https://api.deepseek.com',
+    model: 'deepseek-v4-flash',
+  },
+  {
+    id: 'kimi',
+    label: 'Kimi',
+    hint: '长文本和资料整理',
+    baseUrl: 'https://api.moonshot.cn/v1',
+    model: 'kimi-k2.6',
+  },
+  {
+    id: 'qwen',
+    label: '通义千问',
+    hint: '可用阿里云百炼/DashScope Key',
+    baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    model: 'qwen-plus',
+  },
+  {
+    id: 'minimax',
+    label: 'MiniMax',
+    hint: '中文对话和创作',
+    baseUrl: 'https://api.minimax.io/v1',
+    model: 'MiniMax-M2.7',
+  },
+]
 const CLOUD_POLL_MS = 15000
 const ACTIVE_CLOUD_POLL_MS = 2500
 const EVENT_RECONNECT_BASE_MS = 1500
@@ -21,7 +84,10 @@ const state = {
   ui: {
     studioOpen: false,
     studioTab: 'devices',
+    studioDetail: false,
     advancedOpen: false,
+    settingsOpen: false,
+    agentSetupOpen: false,
   },
   session: {
     ...loadSession(),
@@ -40,11 +106,16 @@ const state = {
     devices: [],
     selectedDeviceId: '',
     tasks: [],
+    projects: [],
+    images: [],
+    files: [],
+    apps: [],
     skills: [],
     memories: [],
     delegations: null,
     approvals: [],
     health: null,
+    chatModelConfig: null,
   },
   update: {
     checking: false,
@@ -160,6 +231,12 @@ function loadSettings() {
       localBaseUrl: saved.localBaseUrl || 'http://127.0.0.1:3721',
       localToken: saved.localToken || '',
       remoteMode: saved.remoteMode || 'cloud',
+      mobileMode: saved.mobileMode === 'agent' ? 'agent' : 'chat',
+      chatModel: MODEL_OPTIONS.some((item) => item.id === saved.chatModel) ? saved.chatModel : DEFAULT_CHAT_MODEL,
+      modelBaseUrl: typeof saved.modelBaseUrl === 'string' ? saved.modelBaseUrl : '',
+      modelApiKey: typeof saved.modelApiKey === 'string' ? saved.modelApiKey : '',
+      modelName: typeof saved.modelName === 'string' ? saved.modelName : '',
+      wallpaperImage: typeof saved.wallpaperImage === 'string' ? saved.wallpaperImage : '',
     }
   } catch {
     return {
@@ -167,6 +244,12 @@ function loadSettings() {
       localBaseUrl: 'http://127.0.0.1:3721',
       localToken: '',
       remoteMode: 'cloud',
+      mobileMode: 'chat',
+      chatModel: DEFAULT_CHAT_MODEL,
+      modelBaseUrl: '',
+      modelApiKey: '',
+      modelName: '',
+      wallpaperImage: '',
     }
   }
 }
@@ -177,6 +260,12 @@ function saveSettings() {
     localBaseUrl: state.settings.localBaseUrl,
     localToken: state.settings.localToken,
     remoteMode: state.settings.remoteMode,
+    mobileMode: state.settings.mobileMode,
+    chatModel: state.settings.chatModel,
+    modelBaseUrl: state.settings.modelBaseUrl,
+    modelApiKey: state.settings.modelApiKey,
+    modelName: state.settings.modelName,
+    wallpaperImage: state.settings.wallpaperImage,
   }))
 }
 
@@ -200,23 +289,28 @@ function loadSession() {
   try {
     const saved = JSON.parse(localStorage.getItem(SESSION_KEY) || '{}')
     const token = String(saved.token || '').trim()
+    const sessionId = String(saved.sessionId || '').trim()
+    const user = saved.user || null
     return {
-      authenticated: !!token,
-      user: saved.user || null,
+      authenticated: !!(token || sessionId || user),
+      user,
       token,
+      sessionId,
+      savedAt: saved.savedAt || '',
     }
   } catch {
-    return { authenticated: false, user: null, token: '' }
+    return { authenticated: false, user: null, token: '', sessionId: '', savedAt: '' }
   }
 }
 
 function saveSession() {
-  if (!state.session.token) {
+  if (!state.session.token && !state.session.sessionId && !state.session.user) {
     localStorage.removeItem(SESSION_KEY)
     return
   }
   localStorage.setItem(SESSION_KEY, JSON.stringify({
     token: state.session.token,
+    sessionId: state.session.sessionId || '',
     user: state.session.user || null,
     savedAt: new Date().toISOString(),
   }))
@@ -281,17 +375,111 @@ function localDebugApi() {
   return new XiaobaiLocalDebugClient(state.settings)
 }
 
+function chatMode() {
+  return state.settings.mobileMode === 'agent' ? 'agent' : 'chat'
+}
+
+function normalizeModelBaseUrl(value) {
+  const raw = String(value || '').trim().replace(/\/+$/, '')
+  return raw || ''
+}
+
+function detectModelProvider(baseUrl = state.settings.modelBaseUrl, modelName = state.settings.modelName) {
+  const host = String(baseUrl || '').toLowerCase()
+  const model = String(modelName || '').toLowerCase()
+  return MODEL_PROVIDER_RULES.find((rule) => (
+    rule.hosts.some((item) => host.includes(item))
+    || rule.models.some((item) => model.includes(item))
+  )) || MODEL_PROVIDER_RULES[MODEL_PROVIDER_RULES.length - 1]
+}
+
+function modelConfig() {
+  const provider = detectModelProvider()
+  const baseUrl = normalizeModelBaseUrl(state.settings.modelBaseUrl)
+  const apiKey = String(state.settings.modelApiKey || '').trim()
+  const model = String(state.settings.modelName || '').trim()
+  return {
+    configured: !!(baseUrl && apiKey && model),
+    provider: provider.id,
+    providerLabel: provider.label,
+    baseUrl,
+    apiKey,
+    model,
+  }
+}
+
+function modelConfigForRequest() {
+  const config = modelConfig()
+  if (!config.configured) return null
+  return {
+    provider: config.provider,
+    providerLabel: config.providerLabel,
+    baseUrl: config.baseUrl,
+    apiKey: config.apiKey,
+    model: config.model,
+  }
+}
+
+function modelPreferenceForTask() {
+  const config = modelConfig()
+  if (config.configured) {
+    return {
+      source: 'mobile-model-api',
+      provider: config.provider,
+      providerLabel: config.providerLabel,
+      baseUrl: config.baseUrl,
+      model: config.model,
+    }
+  }
+  return state.settings.chatModel || DEFAULT_CHAT_MODEL
+}
+
+function selectedModel() {
+  const config = modelConfig()
+  if (config.configured) {
+    return {
+      id: 'custom',
+      label: config.providerLabel,
+      hint: config.model,
+    }
+  }
+  return MODEL_OPTIONS.find((item) => item.id === state.settings.chatModel) || MODEL_OPTIONS[0]
+}
+
+function canSendInCurrentMode() {
+  return chatMode() === 'chat' || state.session.authenticated
+}
+
+function modeStatusText() {
+  if (chatMode() === 'chat') return selectedModel().label
+  return statusText()
+}
+
 function icon(name) {
   const icons = {
     add: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
     menu: '<svg viewBox="0 0 24 24" fill="none"><path d="M5 7h14M5 12h14M5 17h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     close: '<svg viewBox="0 0 24 24" fill="none"><path d="m7 7 10 10M17 7 7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    back: '<svg viewBox="0 0 24 24" fill="none"><path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     mic: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 4a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V7a3 3 0 0 0-3-3Z" stroke="currentColor" stroke-width="2"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     send: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 12 20 5l-5 15-3-6-8-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
     sync: '<svg viewBox="0 0 24 24" fill="none"><path d="M20 7v5h-5M4 17v-5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 12a7 7 0 0 0-12-5M5 12a7 7 0 0 0 12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     laptop: '<svg viewBox="0 0 24 24" fill="none"><path d="M5 6h14v10H5V6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3 19h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    image: '<svg viewBox="0 0 24 24" fill="none"><path d="M5 5h14v14H5V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m8 16 3-3 2 2 2-3 3 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="9" r="1.2" fill="currentColor"/></svg>',
+    search: '<svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2.2"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+    user: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2.2"/><path d="M5 21a7 7 0 0 1 14 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+    folder: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 7h6l2 2h8v9H4V7Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>',
+    library: '<svg viewBox="0 0 24 24" fill="none"><path d="M5 5h4v14H5V5Zm5 2h4v12h-4V7Zm5-2h4v14h-4V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+    apps: '<svg viewBox="0 0 24 24" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="2.2"/><circle cx="17" cy="7" r="2" stroke="currentColor" stroke-width="2.2"/><circle cx="7" cy="17" r="2" stroke="currentColor" stroke-width="2.2"/><circle cx="17" cy="17" r="2" stroke="currentColor" stroke-width="2.2"/></svg>',
+    agent: '<svg viewBox="0 0 24 24" fill="none"><path d="M7 17a7 7 0 1 1 10 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M8 17h8M10 20h4M9 10h.01M15 10h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+    sparkle: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z" fill="currentColor"/><path d="M18 16l.8 2.2L21 19l-2.2.8L18 22l-.8-2.2L15 19l2.2-.8L18 16Z" fill="currentColor"/></svg>',
+    wave: '<svg viewBox="0 0 24 24" fill="none"><path d="M6 13v-2M10 17V7M14 20V4M18 16V8" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
   }
   return icons[name] || ''
+}
+
+function appIcon() {
+  return '<img class="app-inline-icon" src="./icons/icon-192.png" alt="Xiaobai Nexus" />'
 }
 
 function sessionClass() {
@@ -316,7 +504,7 @@ function syncDiagnosis() {
     return '云端中继已连接，但没有电脑端设备记录。请确认电脑端小白已更新、已登录同一账号，并等待 15 秒自动注册。'
   }
   if (!state.remote.devices.length) {
-    return '没有发现电脑端小白。请确认电脑端已更新到 2.1.147 以上、用同一个网站账号登录，并保持小白 Agent 正在运行。'
+    return '没有发现电脑端小白。请确认电脑端已更新到 2.1.147 以上、用同一个网站账号登录，并保持 Xiaobai Nexus 正在运行。'
   }
   const device = selectedDevice()
   if (!device?.online) return '电脑端小白已绑定但当前离线，打开电脑端小白后会自动恢复同步。'
@@ -334,33 +522,35 @@ function deviceName(device) {
 }
 
 function appTemplate() {
+  const wallpaper = state.settings.wallpaperImage
+    ? ` style="--wallpaper-image: url('${cssUrl(state.settings.wallpaperImage)}')"`
+    : ''
   return `
-    <main class="phone-app">
-      <header class="app-topbar">
-        <button class="round-button" data-action="new-chat" aria-label="新任务">${icon('add')}</button>
-        <div class="title-stack">
-          <h1>小白 Agent</h1>
-          <button class="inline-status ${sessionClass()}" data-action="open-studio-devices">
-            <span class="status-dot"></span>
-            <span>${statusText()} · ${escapeHtml(userLabel())}</span>
-          </button>
-        </div>
-        <button class="round-button" data-action="toggle-studio" aria-label="工作室">${icon('menu')}</button>
-      </header>
-
-      ${renderUpdateBanner()}
-      ${renderAccountGate()}
-      ${state.session.authenticated ? renderWorkbench() : ''}
-
-      <section class="chat-surface ${state.session.authenticated ? '' : 'locked'}">
-        <div class="message-list" id="messageList">
-          ${state.messages.length ? state.messages.map(renderMessage).join('') : renderEmptyChat()}
-        </div>
-      </section>
-
-      ${renderComposer()}
+    <main class="phone-app ${state.settings.wallpaperImage ? 'has-wallpaper' : ''}"${wallpaper}>
+      ${state.ui.agentSetupOpen ? renderAgentSetupPage() : renderMainChatPage()}
       ${state.ui.studioOpen ? renderStudioSheet() : ''}
     </main>
+  `
+}
+
+function renderMainChatPage() {
+  return `
+    <header class="app-topbar">
+      <button class="round-button" data-action="toggle-studio" aria-label="打开菜单">${icon('menu')}</button>
+      <button class="plus-pill" data-action="toggle-settings">${icon('sparkle')}<span>${selectedModel().label}</span></button>
+      <button class="round-button ghost-top app-icon-button" data-action="open-studio-agent" aria-label="Xiaobai Nexus">${appIcon()}</button>
+    </header>
+
+    ${renderUpdateBanner()}
+    ${state.ui.settingsOpen ? renderPersonalizationPanel() : ''}
+
+    <section class="chat-surface">
+      <div class="message-list" id="messageList">
+        ${state.messages.length ? state.messages.map(renderMessage).join('') : ''}
+      </div>
+    </section>
+
+    ${renderComposer()}
   `
 }
 
@@ -374,6 +564,181 @@ function renderUpdateBanner() {
       </div>
       <button class="primary-button slim" data-action="download-update">立即更新</button>
     </section>
+  `
+}
+
+function renderModeRail() {
+  return `
+    <section class="mode-rail" aria-label="小白模式">
+      <div class="mode-switch">
+        ${CHAT_MODE_OPTIONS.map((item) => `
+          <button class="${chatMode() === item.id ? 'active' : ''}" data-mode="${escapeAttr(item.id)}">
+            <strong>${escapeHtml(item.label)}</strong>
+            <span>${escapeHtml(item.hint)}</span>
+          </button>
+        `).join('')}
+      </div>
+      <button class="round-button settings-button" data-action="toggle-settings" aria-label="模型和背景">${icon('image')}</button>
+    </section>
+  `
+}
+
+function renderPersonalizationPanel() {
+  const config = modelConfig()
+  return `
+    <section class="personal-panel">
+      <label class="field">
+        <span>回答模型</span>
+        <select id="chatModel">
+          ${MODEL_OPTIONS.map((item) => `
+            <option value="${escapeAttr(item.id)}" ${selectedModel().id === item.id ? 'selected' : ''}>
+              ${escapeHtml(item.label)} - ${escapeHtml(item.hint)}
+            </option>
+          `).join('')}
+        </select>
+      </label>
+      <div class="model-api-panel">
+        <div class="panel-head compact">
+          <h3>自己的模型 API</h3>
+          <span class="tag ${config.configured ? 'ok' : 'warn'}">${escapeHtml(config.configured ? `${config.providerLabel} · ${config.model}` : '未配置')}</span>
+        </div>
+        <div class="preset-grid">
+          ${MODEL_API_PRESETS.map((preset) => `
+            <button class="preset-chip" data-model-preset="${escapeAttr(preset.id)}">
+              <strong>${escapeHtml(preset.label)}</strong>
+              <span>${escapeHtml(preset.hint)}</span>
+            </button>
+          `).join('')}
+        </div>
+        <div class="field-grid">
+          <label class="field">
+            <span>Base URL</span>
+            <input id="modelBaseUrl" value="${escapeAttr(state.settings.modelBaseUrl)}" placeholder="https://api.deepseek.com 或 https://api.openai.com/v1" inputmode="url" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>API Key</span>
+            <input id="modelApiKey" value="${escapeAttr(state.settings.modelApiKey)}" placeholder="sk-..." type="password" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>模型名</span>
+            <input id="modelName" value="${escapeAttr(state.settings.modelName)}" placeholder="deepseek-v4-flash / kimi-k2.6 / gpt-4.1-mini" autocomplete="off" />
+          </label>
+        </div>
+        <p class="model-detect-note">不填写时默认使用小白提供的 DeepSeek 免费问答入口；连接电脑端 Agent 后会自动把电脑端的低成本问答 API 保存到手机本地，电脑不在线也能继续普通问答；手动填写时会优先走你自己的模型 API。</p>
+        <div class="model-actions">
+          <button class="secondary-button slim" data-action="test-model-api">测试模型</button>
+          <button class="ghost-button slim" data-action="clear-model-api">清空模型 API</button>
+        </div>
+      </div>
+      <div class="wallpaper-actions">
+        <label class="secondary-button wallpaper-picker">
+          ${icon('image')}换背景照片
+          <input id="wallpaperInput" type="file" accept="image/*" />
+        </label>
+        <button class="ghost-button" data-action="clear-wallpaper">恢复默认</button>
+      </div>
+    </section>
+  `
+}
+
+function renderAgentSetupPage() {
+  const connected = state.session.authenticated && !!selectedDevice()
+  const device = selectedDevice()
+  return `
+    <section class="agent-setup-page">
+      <header class="agent-setup-top">
+        <button class="round-button back-button" data-action="close-agent-setup" aria-label="返回">${icon('back')}</button>
+        <h1>Xiaobai Nexus</h1>
+      </header>
+
+      <div class="agent-hero">
+        <div class="agent-cloud-mark">${appIcon()}</div>
+        <h2>设置 Xiaobai Nexus</h2>
+        <p>一个帮助你调用电脑、理解任务并完成复杂工作的 AI 智能体。</p>
+      </div>
+
+      <div class="setup-steps">
+        <div class="setup-step">
+          <span>${icon('laptop')}</span>
+          <p>Xiaobai Nexus 会利用你的台式电脑算力、文件和本地工具来完成复杂工作。</p>
+        </div>
+        <div class="setup-step">
+          <span>${icon('user')}</span>
+          <p>用同一个小白账号登录手机和桌面端，手机就能找到自己的电脑端 Agent。</p>
+        </div>
+        <div class="setup-step">
+          <span>${icon('sync')}</span>
+          <p>按照桌面端提示完成连接，之后任务、进度、结果和确认请求会同步到手机。</p>
+        </div>
+      </div>
+
+      ${connected ? `
+        <div class="agent-connected-card">
+          <strong>${escapeHtml(deviceName(device))}</strong>
+          <span>${device?.online ? '已在线，可以远程执行任务。' : '已绑定，打开桌面端小白后会恢复在线。'}</span>
+        </div>
+      ` : renderAgentSetupLogin()}
+
+      ${renderConnectedControls(connected)}
+
+      <div class="agent-setup-actions">
+        <button class="secondary-button full" data-action="send-download-link">把下载链接发到我的邮箱</button>
+        <button class="primary-button full" data-action="agent-desktop-ready">我已在桌面端登录</button>
+      </div>
+    </section>
+  `
+}
+
+function renderConnectedControls(connected) {
+  return `
+    <div class="nexus-control-panel">
+      <h3>连接后可以控制</h3>
+      <div class="nexus-control-grid">
+        <button data-action="toggle-settings">
+          ${icon('image')}
+          <span>更换手机背景</span>
+        </button>
+        <button data-control-command="OPEN_HOTSPOT_PANEL" ${connected ? '' : 'disabled'}>
+          ${icon('wave')}
+          <span>唤出电脑热点界面</span>
+        </button>
+        <button data-control-command="OPEN_NETWORK_SETTINGS" ${connected ? '' : 'disabled'}>
+          ${icon('laptop')}
+          <span>打开电脑网络设置</span>
+        </button>
+        <button data-control-command="CHECK_AGENT_STATUS" ${connected ? '' : 'disabled'}>
+          ${icon('sync')}
+          <span>检查桌面端状态</span>
+        </button>
+      </div>
+      <p>涉及电脑系统界面的动作会先发给桌面端小白，由电脑端按权限和确认规则执行。</p>
+    </div>
+  `
+}
+
+function renderAgentSetupLogin() {
+  if (state.session.authenticated) {
+    return `
+      <div class="agent-waiting-card">
+        <strong>还没发现桌面端小白</strong>
+        <span>${escapeHtml(syncDiagnosis())}</span>
+      </div>
+    `
+  }
+  return `
+    <div class="agent-login-card">
+      <label class="field">
+        <span>小白账号</span>
+        <input id="memberAccount" value="${escapeAttr(state.memberLogin.account)}" placeholder="手机号或邮箱" autocomplete="username" />
+      </label>
+      <label class="field">
+        <span>密码</span>
+        <input id="memberPassword" value="${escapeAttr(state.memberLogin.password)}" placeholder="登录后不保存在手机端" type="password" autocomplete="current-password" />
+      </label>
+      <button class="primary-button full" data-action="cloud-login" ${state.memberLogin.busy ? 'disabled' : ''}>${state.memberLogin.busy ? '登录中' : '登录并查找桌面端'}</button>
+      ${state.memberLogin.error ? `<div class="notice error">${escapeHtml(state.memberLogin.error)}</div>` : ''}
+      ${state.session.error ? `<div class="notice error">${escapeHtml(state.session.error)}</div>` : ''}
+    </div>
   `
 }
 
@@ -455,12 +820,12 @@ function renderStepDot(label, done) {
 function renderIdleTaskCard() {
   return `
     <div class="current-task-card idle">
-      <span class="eyeless-label">远程工作台</span>
-      <h2>告诉电脑端小白要做什么</h2>
-      <p>手机负责下达任务，电脑端负责执行、调用本机 Agent、同步结果。</p>
+      <span class="eyeless-label">Xiaobai Nexus 模式</span>
+      <h2>把任务交给自己的 Agent</h2>
+      <p>像 ChatGPT 里进入工作模式一样，手机负责下达目标，你自己的电脑端小白负责执行、调用本机能力并同步结果。</p>
       <div class="quick-intents">
         <button data-quick-task="继续上次未完成的任务">继续上次任务</button>
-        <button data-quick-task="检查电脑端小白 Agent 的连接和同步状态">检查连接</button>
+        <button data-quick-task="检查我的 Xiaobai Nexus 连接和同步状态">检查连接</button>
         <button data-action="open-studio-skills">技能库</button>
       </div>
     </div>
@@ -490,8 +855,8 @@ function renderAccountGate() {
     <section class="setup-panel account-gate">
       <div class="setup-head">
         <div>
-          <h2>登录小白网站账号</h2>
-          <p>离开家也能操作电脑上的小白 Agent。手机只需要登录网站账号，家里电脑端小白保持在线即可。</p>
+          <h2>连接我的 Xiaobai Nexus</h2>
+          <p>问答模式不用登录；进入 Xiaobai Nexus 模式时，登录同一个小白账号，就能找到自己的电脑端 Agent。</p>
         </div>
       </div>
       <div class="field-grid">
@@ -504,7 +869,7 @@ function renderAccountGate() {
           <input id="memberPassword" value="${escapeAttr(state.memberLogin.password)}" placeholder="登录后不保存在手机端" type="password" autocomplete="current-password" />
         </label>
       </div>
-      <button class="primary-button full" data-action="cloud-login" ${state.memberLogin.busy ? 'disabled' : ''}>${state.memberLogin.busy ? '登录中' : '登录并连接我的电脑小白'}</button>
+      <button class="primary-button full" data-action="cloud-login" ${state.memberLogin.busy ? 'disabled' : ''}>${state.memberLogin.busy ? '登录中' : '登录并连接我的 Xiaobai Nexus'}</button>
       ${state.memberLogin.error ? `<div class="notice error">${escapeHtml(state.memberLogin.error)}</div>` : ''}
       ${state.session.error ? `<div class="notice error">${escapeHtml(state.session.error)}</div>` : ''}
       <button class="text-button advanced-toggle" data-action="toggle-advanced">开发调试：局域网直连</button>
@@ -541,19 +906,25 @@ function renderEmptyChat() {
   return `
     <div class="empty-chat">
       <img class="empty-logo" src="./icons/icon-192.png" alt="小白 AI" />
-      <h2>今天让小白做什么？</h2>
-      <p>手机发任务，家里电脑端小白执行。复杂任务会拆解、分派给合适 Agent，并把结果同步回来。</p>
+      <h2>${chatMode() === 'agent' ? '让 Xiaobai Nexus 做什么？' : '今天想问小白什么？'}</h2>
+      <p>${chatMode() === 'agent'
+        ? '进入 Xiaobai Nexus 模式后，手机发目标，自己的电脑端小白负责拆解、执行和同步结果。'
+        : '这里先是一个可问答的手机 App。需要电脑执行时，再切到 Xiaobai Nexus 模式。'}</p>
     </div>
   `
 }
 
 function renderComposer() {
-  const disabled = !state.session.authenticated
+  const disabled = !canSendInCurrentMode()
+  const placeholder = chatMode() === 'agent'
+    ? (disabled ? '先连接我的 Xiaobai Nexus' : '发任务给我的 Xiaobai Nexus')
+    : '问问小白'
   return `
     <form class="composer" data-action="composer">
+      <button class="tool-button" type="button" data-action="toggle-settings" aria-label="添加">${icon('add')}</button>
+      <textarea id="composerText" placeholder="${escapeAttr(placeholder)}" rows="1" ${disabled ? 'disabled' : ''}>${escapeHtml(state.composing)}</textarea>
       <button class="tool-button ${state.listening ? 'active' : ''}" type="button" data-action="voice" aria-label="语音输入" ${disabled ? 'disabled' : ''}>${icon('mic')}</button>
-      <textarea id="composerText" placeholder="${disabled ? '先登录网站账号' : '发任务给家里电脑上的小白'}" rows="1" ${disabled ? 'disabled' : ''}>${escapeHtml(state.composing)}</textarea>
-      <button class="send-button" type="button" data-action="send" aria-label="发送" ${disabled ? 'disabled' : ''}>${icon('send')}</button>
+      <button class="send-button" type="button" data-action="send" aria-label="发送" ${disabled ? 'disabled' : ''}>${icon('wave')}</button>
     </form>
   `
 }
@@ -564,29 +935,83 @@ function renderMessage(message) {
 }
 
 function renderStudioSheet() {
+  if (state.ui.studioDetail) return renderStudioDetailSheet()
   return `
     <section class="studio-backdrop" data-action="close-studio">
-      <div class="studio-sheet" role="dialog" aria-label="小白工作室" data-sheet>
-        <div class="studio-head">
-          <div>
-            <h2>小白工作室</h2>
-            <p>远程电脑、任务、Agent、技能和记忆都放这里，主界面只保留对话。</p>
+      <aside class="studio-sheet" role="dialog" aria-label="小白菜单" data-sheet>
+        <div class="drawer-head">
+          <h2>小白</h2>
+          <div class="drawer-head-actions">
+            <button class="icon-only" data-action="search-history" aria-label="搜索">${icon('search')}</button>
+            <button class="icon-only" data-action="toggle-settings" aria-label="账号和设置">${icon('user')}</button>
           </div>
-          <button class="icon-only" data-action="close-studio" aria-label="关闭工作室">${icon('close')}</button>
         </div>
-        <div class="studio-tabs">
-          ${studioTab('devices', '电脑')}
-          ${studioTab('tasks', '任务')}
-          ${studioTab('agents', 'Agent')}
-          ${studioTab('skills', '技能')}
-          ${studioTab('memories', '记忆')}
+
+        <nav class="drawer-nav">
+          <button data-studio-tab="projects">${icon('folder')}<span>项目</span></button>
+          <button data-studio-tab="images">${icon('image')}<span>图片</span></button>
+          <button data-action="open-agent-setup">${appIcon()}<span>Xiaobai Nexus</span></button>
+          <button data-studio-tab="files">${icon('library')}<span>文件库</span></button>
+          <button data-studio-tab="apps">${icon('apps')}<span>应用</span></button>
+        </nav>
+
+        <div class="recent-block">
+          <h3>最近</h3>
+          ${renderRecentList()}
         </div>
-        <div class="studio-content">
+
+        <div class="studio-content drawer-detail">
           ${renderStudioContent()}
         </div>
-      </div>
+
+        <button class="drawer-chat-button" data-action="close-studio">${icon('send')}聊天</button>
+      </aside>
     </section>
   `
+}
+
+function renderStudioDetailSheet() {
+  const title = studioTabTitle(state.ui.studioTab)
+  return `
+    <section class="studio-backdrop" data-action="close-studio">
+      <aside class="studio-sheet detail-mode" role="dialog" aria-label="${escapeAttr(title)}" data-sheet>
+        <div class="drawer-detail-head">
+          <button class="icon-only" data-action="back-studio-menu" aria-label="返回菜单">${icon('back')}</button>
+          <h2>${escapeHtml(title)}</h2>
+          <button class="icon-only" data-action="sync-cloud" aria-label="同步">${icon('sync')}</button>
+        </div>
+        <div class="studio-content active-detail">
+          ${renderStudioContent()}
+        </div>
+        <button class="drawer-chat-button" data-action="close-studio">${icon('send')}聊天</button>
+      </aside>
+    </section>
+  `
+}
+
+function studioTabTitle(tab) {
+  const titles = {
+    devices: '我的电脑',
+    projects: '项目',
+    images: '图片',
+    files: '文件库',
+    apps: '应用',
+    tasks: '最近任务',
+    agents: '能力',
+    skills: '技能库',
+    memories: '记忆',
+  }
+  return titles[tab] || '小白'
+}
+
+function renderRecentList() {
+  const tasks = (state.remote.tasks || []).slice(0, 3)
+  if (!tasks.length) return '<button class="recent-item" data-action="new-chat">新的小白对话</button>'
+  return tasks.map((task) => `
+    <button class="recent-item" data-action="open-studio-tasks">
+      ${escapeHtml(task.content || task.title || task.task || '小白任务')}
+    </button>
+  `).join('')
 }
 
 function studioTab(id, label) {
@@ -594,11 +1019,246 @@ function studioTab(id, label) {
 }
 
 function renderStudioContent() {
+  if (state.ui.studioTab === 'projects') return renderProjectsView()
+  if (state.ui.studioTab === 'images') return renderImagesView()
+  if (state.ui.studioTab === 'files') return renderFilesView()
+  if (state.ui.studioTab === 'apps') return renderAppsView()
   if (state.ui.studioTab === 'tasks') return renderTaskBoard()
   if (state.ui.studioTab === 'agents') return renderDelegations()
   if (state.ui.studioTab === 'skills') return renderSkills()
   if (state.ui.studioTab === 'memories') return renderMemories()
   return renderDevices()
+}
+
+function renderProjectsView() {
+  const rows = state.remote.projects || []
+  return `
+    <div class="panel-head rich">
+      <div>
+        <h3>项目工作区</h3>
+        <p>把同一个目标里的聊天、桌面任务、文件、说明和结果放在一起，手机和电脑继续同一件事。</p>
+      </div>
+      <button class="text-button" data-action="sync-cloud">同步</button>
+    </div>
+    <div class="collection-actions">
+      <button class="secondary-button slim" data-action="create-project">${icon('folder')}新建项目</button>
+      <button class="ghost-button slim" data-action="open-studio-tasks">查看任务</button>
+    </div>
+    ${rows.length ? `
+      <div class="project-list">
+        ${rows.slice(0, 16).map((item) => renderProjectCard(item)).join('')}
+      </div>
+    ` : renderFunctionalEmpty(
+      '还没有同步项目',
+      '电脑端创建项目、保存任务结果，或从当前聊天新建项目后，会在这里显示项目里的聊天、文件和执行状态。',
+      'create-project',
+      '从当前聊天创建'
+    )}
+  `
+}
+
+function renderProjectCard(item) {
+  const payload = item.payload || item.meta || {}
+  const chatCount = countValue(item.chat_count, item.chats, payload.chats)
+  const fileCount = countValue(item.file_count, item.files, payload.files)
+  const taskCount = countValue(item.task_count, item.tasks, payload.tasks)
+  return `
+    <button class="project-card" data-project-id="${escapeAttr(item.id || item.project_id || '')}">
+      <div class="project-main">
+        <span class="project-icon">${icon('folder')}</span>
+        <span>
+          <strong>${escapeHtml(item.title || item.name || payload.title || '未命名项目')}</strong>
+          <small>${escapeHtml(item.summary || item.description || payload.instructions || '同步的项目上下文')}</small>
+        </span>
+      </div>
+      <div class="project-stats">
+        <em>${chatCount} 聊天</em>
+        <em>${fileCount} 文件</em>
+        <em>${taskCount} 任务</em>
+      </div>
+    </button>
+  `
+}
+
+function renderImagesView() {
+  const rows = state.remote.images || []
+  return `
+    <div class="panel-head rich">
+      <div>
+        <h3>图片</h3>
+        <p>保存生成图、截图、上传照片和可继续编辑的视觉资产，后续聊天或 Agent 任务都能复用。</p>
+      </div>
+      <button class="text-button" data-action="sync-cloud">同步</button>
+    </div>
+    <div class="collection-actions">
+      <button class="secondary-button slim" data-action="pick-image">${icon('image')}上传图片</button>
+      <button class="ghost-button slim" data-action="generate-image">生成图片</button>
+    </div>
+    ${rows.length ? `
+      <div class="asset-grid">
+        ${rows.slice(0, 18).map((item) => renderImageCard(item)).join('')}
+      </div>
+    ` : renderFunctionalEmpty(
+      '还没有图片资产',
+      '手机上传的照片、电脑端截图、生成图和编辑后的图片会同步到这里，点进聊天时可以继续使用。',
+      'pick-image',
+      '上传第一张'
+    )}
+  `
+}
+
+function renderImageCard(item) {
+  const payload = item.payload || item.meta || {}
+  const url = item.url || item.thumbnail_url || item.thumbnail || payload.url || payload.thumbnail || payload.imageUrl || ''
+  const label = item.title || item.name || item.filename || payload.prompt || '图片资产'
+  return `
+    <button class="image-card" data-asset-id="${escapeAttr(item.id || item.asset_id || '')}">
+      ${url ? `<img src="${escapeAttr(url)}" alt="${escapeAttr(label)}" loading="lazy" />` : `<span class="image-placeholder">${icon('image')}</span>`}
+      <span>${escapeHtml(label)}</span>
+    </button>
+  `
+}
+
+function renderFilesView() {
+  const rows = state.remote.files || []
+  return `
+    <div class="panel-head rich">
+      <div>
+        <h3>文件库</h3>
+        <p>集中保存上传资料、桌面端产出的报告、代码包和聊天里生成的文件，方便再次加入对话。</p>
+      </div>
+      <button class="text-button" data-action="sync-cloud">同步</button>
+    </div>
+    <div class="collection-actions">
+      <button class="secondary-button slim" data-action="upload-file">${icon('library')}上传文件</button>
+      <button class="ghost-button slim" data-action="sync-cloud">同步桌面结果</button>
+    </div>
+    ${rows.length ? `
+      <div class="file-list">
+        ${rows.slice(0, 20).map((item) => renderFileRow(item)).join('')}
+      </div>
+    ` : renderFunctionalEmpty(
+      '文件库还是空的',
+      '上传的文档、表格、图片、电脑端任务输出和安装包结果都会进入这里，之后可以直接加回聊天。',
+      'upload-file',
+      '上传文件'
+    )}
+  `
+}
+
+function renderFileRow(item) {
+  const payload = item.payload || item.meta || {}
+  const name = item.filename || item.name || item.title || payload.filename || payload.name || '未命名文件'
+  const type = item.mime_type || item.type || payload.type || fileTypeFromName(name)
+  const note = item.path || item.url || item.summary || payload.source || payload.path || item.created_at || ''
+  return `
+    <button class="file-row" data-file-id="${escapeAttr(item.id || item.file_id || '')}">
+      <span class="file-icon">${icon('library')}</span>
+      <span>
+        <strong>${escapeHtml(name)}</strong>
+        <small>${escapeHtml(note)}</small>
+      </span>
+      <em>${escapeHtml(formatFileMeta(type, item.size || payload.size))}</em>
+    </button>
+  `
+}
+
+function renderAppsView() {
+  const rows = state.remote.apps || []
+  return `
+    <div class="panel-head rich">
+      <div>
+        <h3>应用</h3>
+        <p>把电脑端小白可调用的桌面能力、网站数据源、工具和连接器同步到手机，聊天时按需调用。</p>
+      </div>
+      <button class="text-button" data-action="sync-cloud">同步</button>
+    </div>
+    <div class="collection-actions">
+      <button class="secondary-button slim" data-action="connect-apps">${icon('apps')}连接应用</button>
+      <button class="ghost-button slim" data-action="open-agent-setup">Nexus 设置</button>
+    </div>
+    ${rows.length ? `
+      <div class="app-list">
+        ${rows.slice(0, 20).map((item) => renderAppRow(item)).join('')}
+      </div>
+    ` : renderFunctionalEmpty(
+      '还没有可用应用',
+      '连接 Xiaobai Nexus 后，电脑端工具、热点面板、文件搜索、浏览器和你自己的 Agent 能力会显示在这里。',
+      'connect-apps',
+      '连接桌面应用'
+    )}
+  `
+}
+
+function renderAppRow(item) {
+  const payload = item.payload || item.meta || {}
+  const name = item.appName || item.name || item.title || payload.name || '应用'
+  const status = item.status || payload.status || (item.connected ? 'connected' : 'available')
+  return `
+    <button class="app-row" data-app-id="${escapeAttr(item.id || item.app_id || '')}">
+      <span class="app-row-icon">${icon('apps')}</span>
+      <span>
+        <strong>${escapeHtml(name)}</strong>
+        <small>${escapeHtml(item.description || item.summary || payload.description || '可在聊天或 Agent 任务中调用')}</small>
+      </span>
+      ${statusTag(status)}
+    </button>
+  `
+}
+
+function renderFunctionalEmpty(title, body, action, actionLabel) {
+  return `
+    <div class="empty functional-empty">
+      <strong>${escapeHtml(title)}</strong>
+      <span>${escapeHtml(body)}${state.session.authenticated ? '' : ' 登录 Xiaobai Nexus 后会自动同步。'}</span>
+      <button class="secondary-button slim" data-action="${escapeAttr(action)}">${escapeHtml(actionLabel)}</button>
+    </div>
+  `
+}
+
+function countValue(...values) {
+  for (const value of values) {
+    if (Array.isArray(value)) return value.length
+    const number = Number(value)
+    if (Number.isFinite(number) && number >= 0) return number
+  }
+  return 0
+}
+
+function fileTypeFromName(name) {
+  const match = String(name || '').match(/\.([a-z0-9]+)$/i)
+  return match ? match[1].toUpperCase() : 'FILE'
+}
+
+function formatFileMeta(type, size) {
+  const normalizedType = String(type || 'FILE').split('/').pop().toUpperCase()
+  const number = Number(size || 0)
+  if (!Number.isFinite(number) || number <= 0) return normalizedType
+  if (number >= 1024 * 1024) return `${normalizedType} ${(number / 1024 / 1024).toFixed(1)}MB`
+  if (number >= 1024) return `${normalizedType} ${Math.round(number / 1024)}KB`
+  return `${normalizedType} ${number}B`
+}
+
+function renderSyncedCollection(title, rows, emptyText) {
+  return `
+    <div class="panel-head">
+      <h3>${escapeHtml(title)}</h3>
+      <button class="text-button" data-action="sync-cloud">同步</button>
+    </div>
+    ${(rows || []).length ? `
+      <div class="list">
+        ${(rows || []).slice(0, 12).map((item) => `
+          <div class="list-row">
+            <div class="row-top">
+              <div class="row-title">${escapeHtml(item.title || item.name || item.filename || item.appName || item.id || title)}</div>
+              ${item.status ? statusTag(item.status) : ''}
+            </div>
+            <div class="row-note">${escapeHtml(item.summary || item.description || item.path || item.updated_at || item.created_at || '')}</div>
+          </div>
+        `).join('')}
+      </div>
+    ` : `<div class="empty">${escapeHtml(emptyText)}${state.session.authenticated ? '' : ' 登录 Xiaobai Nexus 后会自动同步。'}</div>`}
+  `
 }
 
 function renderDevices() {
@@ -655,11 +1315,11 @@ function renderDelegations() {
   const approvals = state.remote.approvals || []
   return `
     <div class="panel-head">
-      <h3>本机 Agent 编队</h3>
+      <h3>Xiaobai Nexus 能力</h3>
       <button class="text-button" data-action="sync-cloud">刷新</button>
     </div>
     ${approvals.length ? `<div class="list approval-list">${approvals.slice(0, 6).map(renderApprovalRow).join('')}</div>` : ''}
-    ${models.length ? `<div class="list">${models.map(renderAgentModel).join('')}</div>` : '<div class="empty">电脑端在线后，这里会显示 Codex、Claude Code、Hermes、OpenClaw 等可用状态。</div>'}
+    ${models.length ? `<div class="list">${models.map(renderAgentModel).join('')}</div>` : '<div class="empty">电脑端在线后，这里会显示你自己的 Agent 能力、桌面执行器、本地工具和可用模型状态。</div>'}
     <div class="panel-head second">
       <h3>最近委托</h3>
     </div>
@@ -799,6 +1459,10 @@ function escapeAttr(value) {
   return escapeHtml(value).replaceAll('\n', ' ')
 }
 
+function cssUrl(value) {
+  return String(value || '').replaceAll('\\', '\\\\').replaceAll("'", "\\'")
+}
+
 function render(options = {}) {
   const { scrollToBottom = false, preserveScroll = !scrollToBottom } = options
   const scrollY = window.scrollY
@@ -845,21 +1509,81 @@ function bindEvents() {
   document.querySelector('[data-action="new-chat"]')?.addEventListener('click', startNewTaskView)
   document.querySelector('[data-action="toggle-studio"]')?.addEventListener('click', () => {
     state.ui.studioOpen = true
+    state.ui.studioDetail = false
+    if (state.session.authenticated) syncCloudAssets().catch(() => {})
     render()
+  })
+  document.querySelector('[data-action="toggle-settings"]')?.addEventListener('click', () => {
+    state.ui.settingsOpen = !state.ui.settingsOpen
+    state.ui.studioOpen = false
+    render()
+  })
+  document.querySelectorAll('[data-action="open-agent-setup"], [data-action="open-studio-agent"]').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.ui.agentSetupOpen = true
+      state.ui.studioOpen = false
+      state.settings.mobileMode = 'agent'
+      saveSettings()
+      render()
+    })
+  })
+  document.querySelector('[data-action="close-agent-setup"]')?.addEventListener('click', () => {
+    state.ui.agentSetupOpen = false
+    render()
+  })
+  document.querySelector('[data-action="agent-desktop-ready"]')?.addEventListener('click', () => {
+    if (!state.session.authenticated) {
+      addSystemMessage('先登录同一个小白账号，再检查桌面端连接。')
+      return
+    }
+    syncCloudAssets().catch(() => {})
+  })
+  document.querySelector('[data-action="send-download-link"]')?.addEventListener('click', () => {
+    addSystemMessage('下载链接发送入口已经放好；下一步需要云端补邮箱发送接口。')
+  })
+  document.querySelectorAll('[data-control-command]').forEach((button) => {
+    button.addEventListener('click', () => {
+      sendControlCommand(button.dataset.controlCommand)
+    })
+  })
+  document.querySelector('[data-action="search-history"]')?.addEventListener('click', () => {
+    addSystemMessage('搜索入口已经放好；下一步接入会话、项目和文件库搜索。')
+  })
+  document.querySelector('[data-action="create-project"]')?.addEventListener('click', startProjectDraft)
+  document.querySelector('[data-action="pick-image"]')?.addEventListener('click', startImageUploadFlow)
+  document.querySelector('[data-action="generate-image"]')?.addEventListener('click', startImageGenerationFlow)
+  document.querySelector('[data-action="upload-file"]')?.addEventListener('click', startFileUploadFlow)
+  document.querySelector('[data-action="connect-apps"]')?.addEventListener('click', startAppConnectionFlow)
+  document.querySelectorAll('[data-project-id], [data-asset-id], [data-file-id], [data-app-id]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const title = button.querySelector('strong')?.textContent || button.querySelector('span:last-child')?.textContent || '这个项目'
+      addSystemMessage(`已选中「${title.trim()}」。下一步会把它加入当前聊天上下文，并同步到电脑端 Xiaobai Nexus。`)
+      closeStudio()
+    })
+  })
+  document.querySelectorAll('[data-mode]').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.settings.mobileMode = button.dataset.mode === 'agent' ? 'agent' : 'chat'
+      saveSettings()
+      render()
+    })
   })
   document.querySelector('[data-action="open-studio-devices"]')?.addEventListener('click', () => {
     state.ui.studioOpen = true
     state.ui.studioTab = 'devices'
+    state.ui.studioDetail = true
     render()
   })
   document.querySelector('[data-action="open-studio-tasks"]')?.addEventListener('click', () => {
     state.ui.studioOpen = true
     state.ui.studioTab = 'tasks'
+    state.ui.studioDetail = true
     render()
   })
   document.querySelector('[data-action="open-studio-skills"]')?.addEventListener('click', () => {
     state.ui.studioOpen = true
     state.ui.studioTab = 'skills'
+    state.ui.studioDetail = true
     render()
   })
   document.querySelectorAll('[data-quick-task]').forEach((button) => {
@@ -871,12 +1595,18 @@ function bindEvents() {
   document.querySelectorAll('[data-action="close-studio"]').forEach((node) => {
     node.addEventListener('click', closeStudio)
   })
+  document.querySelector('[data-action="back-studio-menu"]')?.addEventListener('click', () => {
+    state.ui.studioDetail = false
+    render()
+  })
   document.querySelector('[data-sheet]')?.addEventListener('click', (event) => {
     event.stopPropagation()
   })
   document.querySelectorAll('[data-studio-tab]').forEach((button) => {
     button.addEventListener('click', () => {
       state.ui.studioTab = button.dataset.studioTab
+      state.ui.studioDetail = true
+      if (state.session.authenticated) syncCloudAssets().catch(() => {})
       render()
     })
   })
@@ -903,6 +1633,16 @@ function bindEvents() {
   document.querySelector('[data-action="download-update"]')?.addEventListener('click', downloadMobileUpdate)
   document.querySelector('[data-action="send"]')?.addEventListener('click', sendCurrentMessage)
   document.querySelector('[data-action="voice"]')?.addEventListener('click', toggleVoiceInput)
+  document.querySelectorAll('[data-model-preset]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const preset = MODEL_API_PRESETS.find((item) => item.id === button.dataset.modelPreset)
+      if (!preset) return
+      state.settings.modelBaseUrl = preset.baseUrl
+      state.settings.modelName = preset.model
+      saveSettings()
+      render()
+    })
+  })
 
   document.querySelector('#memberAccount')?.addEventListener('input', (event) => {
     state.memberLogin.account = event.target.value
@@ -917,6 +1657,40 @@ function bindEvents() {
   document.querySelector('#localToken')?.addEventListener('input', (event) => {
     state.settings.localToken = event.target.value
     saveSettings()
+  })
+  document.querySelector('#chatModel')?.addEventListener('change', (event) => {
+    state.settings.chatModel = MODEL_OPTIONS.some((item) => item.id === event.target.value) ? event.target.value : DEFAULT_CHAT_MODEL
+    saveSettings()
+    render()
+  })
+  document.querySelector('#modelBaseUrl')?.addEventListener('input', (event) => {
+    state.settings.modelBaseUrl = event.target.value
+    saveSettings()
+    renderBackground()
+  })
+  document.querySelector('#modelApiKey')?.addEventListener('input', (event) => {
+    state.settings.modelApiKey = event.target.value
+    saveSettings()
+    renderBackground()
+  })
+  document.querySelector('#modelName')?.addEventListener('input', (event) => {
+    state.settings.modelName = event.target.value
+    saveSettings()
+    renderBackground()
+  })
+  document.querySelector('[data-action="clear-model-api"]')?.addEventListener('click', () => {
+    state.settings.modelBaseUrl = ''
+    state.settings.modelApiKey = ''
+    state.settings.modelName = ''
+    saveSettings()
+    render()
+  })
+  document.querySelector('[data-action="test-model-api"]')?.addEventListener('click', testModelApi)
+  document.querySelector('#wallpaperInput')?.addEventListener('change', setWallpaperFromInput)
+  document.querySelector('[data-action="clear-wallpaper"]')?.addEventListener('click', () => {
+    state.settings.wallpaperImage = ''
+    saveSettings()
+    render()
   })
 
   const textarea = document.querySelector('#composerText')
@@ -942,13 +1716,59 @@ function closeStudio() {
 function startNewTaskView() {
   state.messages = []
   state.composing = ''
+  state.ui.studioOpen = false
+  state.ui.agentSetupOpen = false
   saveHistory()
-  addSystemMessage('已开启新的手机任务视图；这不会删除电脑端聊天记录。')
+  render({ scrollToBottom: true })
+}
+
+function startProjectDraft() {
+  state.composing = state.composing || '把当前聊天整理成一个新项目，包含目标、已有资料、下一步任务和需要同步到电脑端的文件。'
+  state.ui.studioOpen = false
+  render({ scrollToBottom: true })
+}
+
+function startImageUploadFlow() {
+  state.ui.studioOpen = false
+  state.ui.settingsOpen = true
+  addSystemMessage('图片入口已打开：可以先用“换背景照片”选择本机图片；后续上传到文件库和图片库时会同步到电脑端。')
+  render({ scrollToBottom: true })
+}
+
+function startImageGenerationFlow() {
+  state.composing = '帮我生成一张图片：'
+  state.ui.studioOpen = false
+  render({ scrollToBottom: true })
+}
+
+function startFileUploadFlow() {
+  state.ui.studioOpen = false
+  addSystemMessage('文件上传入口已经接好到文件库页面；云端文件上传接口部署后，这里会直接选择文件并同步到电脑端。')
+  render({ scrollToBottom: true })
+}
+
+function startAppConnectionFlow() {
+  state.ui.studioOpen = false
+  state.ui.agentSetupOpen = true
+  addSystemMessage('应用连接会先进入 Xiaobai Nexus 设置，连接桌面端后会同步电脑上的热点面板、浏览器、文件搜索和你的 Agent 能力。')
+  render({ scrollToBottom: true })
 }
 
 function resizeComposer(textarea) {
   textarea.style.height = 'auto'
   textarea.style.height = `${Math.min(textarea.scrollHeight, 128)}px`
+}
+
+function setWallpaperFromInput(event) {
+  const file = event.target.files?.[0]
+  if (!file || !file.type.startsWith('image/')) return
+  const reader = new FileReader()
+  reader.onload = () => {
+    state.settings.wallpaperImage = String(reader.result || '')
+    saveSettings()
+    render()
+  }
+  reader.readAsDataURL(file)
 }
 
 async function loginCloudMember() {
@@ -969,7 +1789,8 @@ async function loginCloudMember() {
     const result = await cloudApi().post('/api/agent-remote/login', { account, password })
     state.session.authenticated = true
     state.session.user = result.user || { email: account }
-    state.session.token = result.token || result.sessionToken || ''
+    state.session.token = result.token || result.sessionToken || result.accessToken || ''
+    state.session.sessionId = result.sessionId || result.sid || ''
     saveSession()
     state.memberLogin.password = ''
     addSystemMessage('网站会员登录成功，正在查找你的电脑端小白。')
@@ -992,6 +1813,25 @@ function normalizeCloudLoginError(error) {
   return message
 }
 
+function saveDesktopChatModelToPhone(config) {
+  if (!config || typeof config !== 'object') return false
+  const baseUrl = normalizeModelBaseUrl(config.baseUrl || config.base_url || '')
+  const apiKey = String(config.apiKey || config.api_key || '').trim()
+  const model = String(config.model || config.modelName || '').trim()
+  if (!baseUrl || !apiKey || !model) return false
+  const previous = `${state.settings.modelBaseUrl}|${state.settings.modelName}`
+  state.settings.modelBaseUrl = baseUrl
+  state.settings.modelApiKey = apiKey
+  state.settings.modelName = model
+  saveSettings()
+  const next = `${baseUrl}|${model}`
+  if (next !== previous) {
+    const label = config.providerLabel || config.label || model
+    addSystemMessage(`已从电脑端 Agent 保存问答 API：${label}。之后电脑不在线，普通问答也会继续使用这套用户自己的 API。`)
+  }
+  return true
+}
+
 async function syncCloudAssets() {
   if (!state.session.authenticated) return
   state.remote.checking = true
@@ -999,7 +1839,7 @@ async function syncCloudAssets() {
   renderBackground()
 
   try {
-    const [devices, tasks, skills, memories, delegations, approvals, conversations, health] = await Promise.all([
+    const [devices, tasks, skills, memories, delegations, approvals, conversations, health, projects, images, files, apps, chatModel] = await Promise.all([
       cloudApi().get('/api/agent-remote/devices').catch(() => ({ devices: [] })),
       cloudApi().get('/api/agent-remote/tasks?limit=20').catch(() => ({ tasks: [] })),
       cloudApi().get('/api/agent-remote/skills?limit=20').catch(() => ({ skills: [] })),
@@ -1008,16 +1848,27 @@ async function syncCloudAssets() {
       cloudApi().get('/api/agent-remote/approvals?limit=20').catch(() => ({ approvals: [] })),
       cloudApi().get('/api/agent-remote/conversations?limit=80').catch(() => ({ messages: [] })),
       cloudApi().get('/api/agent-remote/health').catch(() => null),
+      cloudApi().get('/api/agent-remote/projects?limit=20').catch(() => ({ projects: [] })),
+      cloudApi().get('/api/agent-remote/images?limit=20').catch(() => ({ images: [] })),
+      cloudApi().get('/api/agent-remote/files?limit=20').catch(() => ({ files: [] })),
+      cloudApi().get('/api/agent-remote/apps?limit=20').catch(() => ({ apps: [] })),
+      cloudApi().get('/api/agent-remote/chat-model').catch(() => ({ chatModel: null })),
     ])
 
     state.remote.devices = devices.devices || devices.items || []
     if (!state.remote.selectedDeviceId && state.remote.devices[0]) state.remote.selectedDeviceId = state.remote.devices[0].id
     state.remote.tasks = tasks.tasks || tasks.items || []
+    state.remote.projects = projects.projects || projects.items || []
+    state.remote.images = images.images || images.items || []
+    state.remote.files = files.files || files.items || []
+    state.remote.apps = apps.apps || apps.items || []
     state.remote.skills = skills.skills || skills.items || []
     state.remote.memories = memories.memories || memories.items || []
     state.remote.delegations = delegations
     state.remote.approvals = approvals.approvals || approvals.items || []
     state.remote.health = health
+    state.remote.chatModelConfig = chatModel.chatModel || chatModel.model || null
+    saveDesktopChatModelToPhone(state.remote.chatModelConfig)
     syncConversationMessages(conversations.messages || conversations.items || [])
     scheduleActiveCloudPoll()
   } catch (error) {
@@ -1178,17 +2029,22 @@ function handleRemoteEvent(payload) {
 
 async function sendCurrentMessage() {
   const content = state.composing.trim()
-  if (!content || !state.session.authenticated || state.sending) return
+  if (!content || !canSendInCurrentMode() || state.sending) return
   state.sending = true
   state.composing = ''
   addMessage('user', content, { forceRender: true })
 
   try {
+    if (chatMode() === 'chat') {
+      await sendMobileChatMessage(content)
+      return
+    }
     const device = selectedDevice()
     await cloudApi().post('/api/agent-remote/tasks', {
       deviceId: device?.id || state.remote.selectedDeviceId || null,
       channel: 'MOBILE_APP',
       content,
+      modelPreference: modelPreferenceForTask(),
     })
     await syncCloudFast()
     scheduleActiveCloudPoll(true)
@@ -1196,6 +2052,80 @@ async function sendCurrentMessage() {
     addSystemMessage(`发送失败：${error.message}`)
   } finally {
     state.sending = false
+  }
+}
+
+async function sendMobileChatMessage(content) {
+  try {
+    const config = modelConfig()
+    const result = await cloudApi().post('/api/mobile-chat', {
+      content,
+      model: config.configured ? config.model : state.settings.chatModel || DEFAULT_CHAT_MODEL,
+      modelConfig: modelConfigForRequest(),
+      mode: 'chat',
+    })
+    const answer = result.answer || result.content || result.message
+    addMessage('agent', answer || '小白已经收到，但云端没有返回回答内容。', {
+      id: result.id || result.messageId || null,
+    })
+  } catch (error) {
+    const message = /404|not found/i.test(error?.message || '')
+      ? '手机问答入口已经准备好，但云端 /api/mobile-chat 还没有接上。下一步需要把小白网站账号、模型路由和回答流式接口补齐。'
+      : `问答失败：${error.message}`
+    addSystemMessage(message)
+  }
+}
+
+async function testModelApi() {
+  const config = modelConfig()
+  if (!config.configured) {
+    addSystemMessage('当前会使用小白默认 DeepSeek 免费问答入口。想换成自己的模型时，再填写 Base URL、API Key 和模型名。')
+    return
+  }
+  addSystemMessage(`正在测试 ${config.providerLabel} / ${config.model}...`)
+  try {
+    const result = await cloudApi().post('/api/mobile-chat', {
+      content: '请用一句中文回复：模型连接成功。',
+      model: config.model,
+      modelConfig: modelConfigForRequest(),
+      mode: 'test',
+    })
+    addSystemMessage(result.answer || result.content || result.message || '模型连接成功。')
+  } catch (error) {
+    addSystemMessage(`模型测试失败：${error.message}`)
+  }
+}
+
+async function sendControlCommand(command) {
+  const normalized = String(command || '').trim()
+  if (!normalized || !state.session.authenticated) {
+    addSystemMessage('先连接 Xiaobai Nexus 和桌面端小白，再使用电脑控制。')
+    return
+  }
+  const labels = {
+    OPEN_HOTSPOT_PANEL: '唤出电脑热点界面',
+    OPEN_NETWORK_SETTINGS: '打开电脑网络设置',
+    CHECK_AGENT_STATUS: '检查桌面端状态',
+  }
+  const label = labels[normalized] || '执行电脑控制'
+  addSystemMessage(`已请求桌面端小白：${label}。涉及系统界面时，电脑端会按权限规则确认后执行。`)
+  try {
+    const device = selectedDevice()
+    await cloudApi().post('/api/agent-remote/tasks', {
+      deviceId: device?.id || state.remote.selectedDeviceId || null,
+      channel: 'MOBILE_CONTROL',
+      content: `XIAOBAI_NEXUS_CONTROL:${JSON.stringify({
+        command: normalized,
+        label,
+        source: 'Xiaobai Nexus',
+        requestedAt: new Date().toISOString(),
+      })}`,
+      modelPreference: modelPreferenceForTask(),
+    })
+    await syncCloudFast()
+    scheduleActiveCloudPoll(true)
+  } catch (error) {
+    addSystemMessage(`电脑控制发送失败：${error.message}`)
   }
 }
 

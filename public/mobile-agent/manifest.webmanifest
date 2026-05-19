@@ -1,12 +1,12 @@
 {
-  "name": "小白 Agent 手机工作室",
-  "short_name": "小白工作室",
-  "description": "在手机上连接电脑端小白 Agent，发送任务、语音输入、查看任务和多 Agent 状态。",
+  "name": "Xiaobai Nexus",
+  "short_name": "Xiaobai Nexus",
+  "description": "小白手机端 AI 入口：问答、图片、项目、文件库、应用，并连接自己的小白 Agent。",
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#071022",
-  "theme_color": "#071022",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "./icons/icon.svg",
