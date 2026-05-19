@@ -20,6 +20,7 @@ const formatBytes = (value: number) => {
 }
 
 export const xiaobaiAgentRelease = {
+  displayName: "小白天枢",
   version: releaseManifest.version,
   installerName: installerFile.name,
   installerUrl: `/downloads/xiaobai-agent/${installerFile.name}`,

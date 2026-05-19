@@ -482,13 +482,13 @@ codex`,
 export const agentInstallGuides: AgentInstallGuide[] = [
   {
     slug: "xiaobai-nexus",
-    name: "Xiaobai Nexus",
-    title: "Xiaobai Nexus 安装：复制粘贴就能把小白装进电脑",
+    name: "小白天枢",
+    title: "小白天枢安装：复制粘贴就能把小白装进电脑",
     category: "小白官方 Agent 桌面应用",
     minutes: "3-8 分钟",
     difficulty: "小白官方",
     tagline: "打开小白AI，下载桌面端，复制粘贴配置，几分钟把语音、模型和桌面 Agent 跑起来。",
-    summary: "不用研究一堆术语。按顺序下载 Xiaobai Nexus，用小白AI会员账号登录，复制粘贴模型和语音配置，再让小白说一句话验收。跑通以后，你就能直接开口下任务，让它用更自然的声音告诉你下一步。",
+    summary: "不用研究一堆术语。按顺序下载小白天枢，用小白AI会员账号登录，复制粘贴模型和语音配置，再让小白说一句话验收。跑通以后，你就能直接开口下任务，让它用更自然的声音告诉你下一步。",
     bestFor: [
       "想把 AI 从网页聊天框搬到自己电脑上的人。",
       "想复制粘贴就完成安装、登录、模型和语音配置的新手。",
@@ -502,12 +502,12 @@ export const agentInstallGuides: AgentInstallGuide[] = [
     installSteps: [
       { title: "先登录小白AI会员账号", body: "桌面端也用这一套账号，聊天、任务和后续能力才接得上。" },
       { title: "下载安装包", body: "点击下面按钮下载 Windows 安装包。下载完成后双击安装，不需要自己找第三方包。", command: xiaobaiAgentRelease.installerUrl },
-      { title: "打开 Xiaobai Nexus", body: "安装完成后，从桌面快捷方式或开始菜单打开。看到登录页，输入小白AI会员账号。" },
+      { title: "打开小白天枢", body: "安装完成后，从桌面快捷方式或开始菜单打开。看到登录页，输入小白AI会员账号。" },
       { title: "复制粘贴配置", body: "模型、ASR、TTS 分开填。下方 API 区写清楚去哪里申请、复制哪一段、粘贴到哪里。" },
       { title: "让小白开口验收", body: "先复制下面测试句，让小白检查模型、语音识别、TTS 和桌面控制是否成功。" },
     ],
     startCommands: [
-      { title: "图形界面启动", body: "从 Windows 桌面快捷方式或开始菜单打开 Xiaobai Nexus。" },
+      { title: "图形界面启动", body: "从 Windows 桌面快捷方式或开始菜单打开小白天枢。" },
       { title: "下载页", body: "把这个入口发给新手，他打开后按页面复制粘贴也能装。", command: "/download" },
     ],
     firstPrompts: [
@@ -527,7 +527,7 @@ export const agentInstallGuides: AgentInstallGuide[] = [
     apiConnections: [xiaobaiDoubaoTtsConnection, xiaobaiAliyunAsrConnection, deepseekOpenAiConnection, xiaobaiMinimaxConnection, xiaobaiOpenAiConnection],
     interfaceImage: {
       src: "/xiaobai-nexus-interface-annotated.svg",
-      alt: "Xiaobai Nexus 界面功能标注图",
+      alt: "小白天枢界面功能标注图",
       caption: "主界面包含语音入口、消息处理器、运行状态、更新诊断、Agent 调度、自我进化和对话输入；底层背景默认是银河系宇宙，也可以替换成自己的照片。",
     },
     postInstallSetup: [

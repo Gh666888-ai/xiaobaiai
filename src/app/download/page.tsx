@@ -6,6 +6,7 @@ import { xiaobaiAgentRelease } from "@/data/xiaobai-agent-release"
 import { xiaobaiMobileRelease } from "@/data/xiaobai-mobile-release"
 
 const {
+  displayName,
   version,
   installerName,
   installerUrl,
@@ -37,14 +38,14 @@ const cardStyle = {
 } as const
 
 export const metadata: Metadata = {
-  title: "下载小白 Agent Windows 桌面版 - 小白AI",
-  description: "下载小白 Agent Windows 桌面版安装包，照着小白AI复制粘贴，几分钟跑通登录、模型和自然语音。",
+  title: "下载小白天枢 Windows 桌面版 - 小白AI",
+  description: "下载小白天枢 Windows 桌面版安装包，照着小白AI复制粘贴，几分钟跑通登录、模型和自然语音。",
   alternates: { canonical: "/download" },
   openGraph: {
-    title: "下载小白 Agent Windows 桌面版",
-    description: "下载 Xiaobai Nexus，按小白AI教程复制粘贴，把语音、模型和桌面 Agent 跑起来。",
+    title: "下载小白天枢 Windows 桌面版",
+    description: "下载小白天枢，按小白AI教程复制粘贴，把语音、模型和桌面 Agent 跑起来。",
     url: "/download",
-    images: [{ url: "/xiaobai-mascot-cutout.png", alt: "小白 Agent 下载" }],
+    images: [{ url: "/xiaobai-mascot-cutout.png", alt: "小白天枢下载" }],
   },
 }
 
@@ -58,7 +59,7 @@ export default function DownloadPage() {
             <p style={{ margin: "0 0 12px", color: "#256d85", fontSize: 13, fontWeight: 950 }}>小白AI 官方桌面版</p>
             <h1 style={{ margin: "0 0 16px", color: "#102131", fontSize: "clamp(34px, 5vw, 58px)", lineHeight: 1.08, fontWeight: 950, letterSpacing: 0 }}>把小白装进你的电脑</h1>
             <p style={{ margin: "0 0 24px", maxWidth: 680, color: "#4c6172", fontSize: 17, lineHeight: 1.85, fontWeight: 650 }}>
-              下载 Xiaobai Nexus，打开小白AI安装页，照着复制粘贴：登录、模型、语音识别、TTS 一次跑通。成功后，你就可以直接开口让小白检查电脑、整理任务、调用本地 Agent。
+              下载{displayName}，打开小白AI安装页，照着复制粘贴：登录、模型、语音识别、TTS 一次跑通。成功后，你就可以直接开口让小白检查电脑、整理任务、调用本地 Agent。
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
               <a href={installerUrl} download aria-label="下载小白 Agent Windows 安装包" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 50, borderRadius: 12, background: "#256d85", color: "#fff", padding: "0 22px", textDecoration: "none", fontSize: 16, fontWeight: 950, boxShadow: "0 12px 24px rgba(37,109,133,0.22)" }}>
@@ -85,7 +86,7 @@ export default function DownloadPage() {
           </div>
 
           <div style={{ borderRadius: 18, background: "linear-gradient(145deg, #e9f4f8, #ffffff)", border: "1px solid #d8e8ef", padding: 18 }}>
-            <img src="/xiaobai-nexus-interface-annotated.svg" alt="Xiaobai Nexus 界面功能标注图" style={{ display: "block", width: "100%", height: "auto", borderRadius: 12, border: "1px solid #d6e4ec", background: "#fff" }} />
+            <img src="/xiaobai-nexus-interface-annotated.svg" alt="小白天枢界面功能标注图" style={{ display: "block", width: "100%", height: "auto", borderRadius: 12, border: "1px solid #d6e4ec", background: "#fff" }} />
           </div>
         </section>
 
@@ -173,7 +174,7 @@ export default function DownloadPage() {
 
         <section style={{ marginTop: 20, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))", gap: 14 }}>
           {[
-            { icon: Download, title: "下载后直接安装", body: "打开安装包，按提示安装。安装完成后从桌面快捷方式或开始菜单启动 Xiaobai Nexus。" },
+            { icon: Download, title: "下载后直接安装", body: "打开安装包，按提示安装。安装完成后从桌面快捷方式或开始菜单启动小白天枢。" },
             { icon: Settings2, title: "照着教程复制粘贴", body: "小白AI已经把模型、ASR、TTS 分开写清楚。你按页面填，不用自己猜哪个 Key 填哪里。" },
             { icon: Sparkles, title: "让它开口带你做", body: "语音设置完成后，先让小白检查配置，再让它用自然语气说出下一步。" },
           ].map(({ icon: Icon, title, body }) => (
@@ -188,7 +189,7 @@ export default function DownloadPage() {
         <section style={{ marginTop: 20, border: "1px solid #d8e8ef", borderRadius: 16, background: "#ffffff", boxShadow: "0 18px 45px rgba(25, 54, 82, 0.08)", padding: 20 }}>
           <h2 style={{ margin: "0 0 12px", color: "#102131", fontSize: 20, fontWeight: 950 }}>更新后，你的聊天、技能和任务记录还在</h2>
           <p style={{ margin: "0 0 14px", color: "#526879", fontSize: 14, lineHeight: 1.85, fontWeight: 650 }}>
-            Xiaobai Nexus 的更新是覆盖升级程序本身，不会把你的本机个人资产当成临时缓存清掉。重新打开小白后，原来的聊天记录、技能库、任务记录、长期记忆、API 配置和 Agent 检测结果会继续从本机数据目录读取。
+            小白天枢的更新是覆盖升级程序本身，不会把你的本机个人资产当成临时缓存清掉。重新打开小白后，原来的聊天记录、技能库、任务记录、长期记忆、API 配置和 Agent 检测结果会继续从本机数据目录读取。
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: 12 }}>
             {[
@@ -248,7 +249,7 @@ export default function DownloadPage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: 12 }}>
             {[
               `浏览器开始下载 ${installerName}。`,
-              "安装后能看到 Xiaobai Nexus 桌面快捷方式。",
+              "安装后能看到小白天枢桌面快捷方式。",
               "按教程复制粘贴配置后，小白能听懂你说话，也能用更自然的声音回复。",
             ].map((item) => (
               <p key={item} style={{ display: "grid", gridTemplateColumns: "22px 1fr", gap: 8, margin: 0, color: "#536879", fontSize: 14, lineHeight: 1.7 }}>

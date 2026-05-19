@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
-  <title id="title">Xiaobai Nexus interface annotated</title>
-  <desc id="desc">A labelled Xiaobai Nexus desktop interface showing the galaxy background, voice controls, memory stream, agent status, update diagnostics, settings, and chat input.</desc>
+  <title id="title">小白天枢 interface annotated</title>
+  <desc id="desc">A labelled 小白天枢 desktop interface showing the galaxy background, voice controls, memory stream, agent status, update diagnostics, settings, and chat input.</desc>
   <defs>
     <radialGradient id="galaxyCore" cx="48%" cy="49%" r="42%">
       <stop offset="0" stop-color="#f6d69b" stop-opacity=".70"/>
@@ -43,7 +43,7 @@
   <rect x="430" y="626" width="580" height="118" rx="18" fill="#0a1422" fill-opacity=".86" stroke="#49617c" filter="url(#shadow)"/>
 
   <g font-family="Inter, Microsoft YaHei, sans-serif">
-    <text x="116" y="118" fill="#f7f0dc" font-size="22" font-weight="800">Xiaobai Nexus</text>
+    <text x="116" y="118" fill="#f7f0dc" font-size="22" font-weight="800">小白天枢</text>
     <text x="116" y="144" fill="#9fb4cc" font-size="13">Cognitive Surface</text>
     <circle cx="336" cy="124" r="18" fill="#e8c96a"/>
     <text x="330" y="130" fill="#07101c" font-size="18" font-weight="900">⚙</text>

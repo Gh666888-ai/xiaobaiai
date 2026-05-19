@@ -73,9 +73,9 @@ export default function AgentInstallPage() {
         <section className={styles.hero}>
           <div>
             <p className={styles.eyebrow}>Agent Install</p>
-            <h1 className={styles.title}>先装 Xiaobai Nexus，再连接其它 Agent</h1>
+            <h1 className={styles.title}>先装小白天枢，再连接其它 Agent</h1>
             <p className={styles.subtitle}>
-              这里是小白AI的 Agent 下载和安装专区。先下载小白自己的桌面中枢 Xiaobai Nexus，再按任务需要接入 Codex、Claude Code、OpenClaw、Cline 和各类模型 API。
+              这里是小白AI的 Agent 下载和安装专区。先下载小白自己的桌面中枢小白天枢，再按任务需要接入 Codex、Claude Code、OpenClaw、Cline 和各类模型 API。
             </p>
             <form action="/search" className={styles.searchForm}>
               <Search size={16} style={{ marginLeft: 14, color: "#256d85", flexShrink: 0 }} />
@@ -83,7 +83,7 @@ export default function AgentInstallPage() {
               <button type="submit">搜索</button>
             </form>
             <div className={styles.actions}>
-              <Link href="/download" className={styles.primaryButton}>下载 Xiaobai Nexus</Link>
+              <Link href="/download" className={styles.primaryButton}>下载小白天枢</Link>
               <Link href="/download" className={styles.secondaryButton}>查看版本和校验信息</Link>
             </div>
           </div>
@@ -91,7 +91,7 @@ export default function AgentInstallPage() {
             <h2 className={styles.asideTitle}>新手安装顺序</h2>
             <ol className={styles.steps}>
               <li><b>1</b><span>先登录小白AI网站会员。</span></li>
-              <li><b>2</b><span>下载并登录 Xiaobai Nexus 桌面端。</span></li>
+              <li><b>2</b><span>下载并登录小白天枢桌面端。</span></li>
               <li><b>3</b><span>再按任务接入其它 Agent、模型和技能。</span></li>
             </ol>
           </aside>
@@ -103,7 +103,7 @@ export default function AgentInstallPage() {
           <div className={styles.panelHead}>
             <div>
               <h2 className={styles.panelTitle}>先从这 4 个入口开始</h2>
-              <p className={styles.panelDesc}>Xiaobai Nexus 是小白自己的桌面中枢；OpenClaw、Codex App 和 Cline 是它后续可调度、可学习、可接入的外部 Agent 路线。</p>
+              <p className={styles.panelDesc}>小白天枢是小白自己的桌面中枢；OpenClaw、Codex App 和 Cline 是它后续可调度、可学习、可接入的外部 Agent 路线。</p>
             </div>
             <span className={styles.tag}><ShieldCheck size={14} /> Key 不写进仓库</span>
           </div>

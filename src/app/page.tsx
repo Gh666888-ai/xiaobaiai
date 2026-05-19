@@ -118,7 +118,7 @@ export default function HomePage() {
               进入 Agent 专区
             </Link>
             <Link href="/download" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minHeight: 44, padding: "0 16px", borderRadius: 10, border: "1px solid rgba(201,168,76,0.34)", color: "#e8c96a", background: "rgba(0,0,0,0.24)", fontSize: 14, fontWeight: 900, textDecoration: "none" }}>
-              下载 Xiaobai Nexus
+              下载小白天枢
             </Link>
           </div>
 
