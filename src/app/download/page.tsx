@@ -65,9 +65,12 @@ export default function DownloadPage() {
                 <Download size={19} />
                 立即下载 Windows 安装包
               </a>
-              <a href={mobileApkUrl} download aria-label="下载 Xiaobai Nexus Android 和鸿蒙 APK" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 50, borderRadius: 12, background: "#101820", color: "#fff", padding: "0 22px", textDecoration: "none", fontSize: 16, fontWeight: 950, boxShadow: "0 12px 24px rgba(16,24,32,0.18)" }}>
+              <a href={mobileApkUrl} download aria-label="下载 Xiaobai Nexus 手机 APP，适用于 Android 和鸿蒙 APK" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 50, borderRadius: 12, background: "#101820", color: "#fff", padding: "7px 20px", textDecoration: "none", fontSize: 16, fontWeight: 950, boxShadow: "0 12px 24px rgba(16,24,32,0.18)" }}>
                 <Download size={19} />
-                下载安卓 / 鸿蒙 APK
+                <span style={{ display: "grid", gap: 2, lineHeight: 1.1 }}>
+                  <span>下载手机 APP</span>
+                  <span style={{ fontSize: 11, fontWeight: 850, opacity: 0.78 }}>安卓 / 鸿蒙 APK</span>
+                </span>
               </a>
               <Link href="/agent-install/xiaobai-nexus" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 50, borderRadius: 12, border: "1px solid #bfd4df", color: "#256d85", background: "#fff", padding: "0 18px", textDecoration: "none", fontSize: 15, fontWeight: 900 }}>
                 跟着小白安装
@@ -124,9 +127,12 @@ export default function DownloadPage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 16, alignItems: "stretch" }}>
             <div style={{ border: "1px solid #e0edf3", borderRadius: 12, background: "#f8fbfd", padding: 16 }}>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginBottom: 14 }}>
-                <a href={mobileApkUrl} download aria-label="下载 Xiaobai Nexus Android 和鸿蒙 APK" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 48, borderRadius: 12, background: "#101820", color: "#fff", padding: "0 20px", textDecoration: "none", fontSize: 15, fontWeight: 950 }}>
+                <a href={mobileApkUrl} download aria-label="下载 Xiaobai Nexus 手机 APP，适用于 Android 和鸿蒙 APK" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 48, borderRadius: 12, background: "#101820", color: "#fff", padding: "7px 18px", textDecoration: "none", fontSize: 15, fontWeight: 950 }}>
                   <Download size={18} />
-                  下载安卓 / 鸿蒙 APK
+                  <span style={{ display: "grid", gap: 2, lineHeight: 1.1 }}>
+                    <span>下载手机 APP</span>
+                    <span style={{ fontSize: 11, fontWeight: 850, opacity: 0.78 }}>安卓 / 鸿蒙 APK</span>
+                  </span>
                 </a>
                 <a href={mobileWebAppUrl} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 48, borderRadius: 12, border: "1px solid #bfd4df", color: "#256d85", background: "#fff", padding: "0 16px", textDecoration: "none", fontSize: 14, fontWeight: 900 }}>
                   iOS 打开网页版
