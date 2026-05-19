@@ -6,6 +6,8 @@ const CORE_ASSETS = [
   assetPath('/index.html'),
   assetPath('/manifest.webmanifest'),
   assetPath('/icons/icon.svg'),
+  assetPath('/icons/icon-192.png'),
+  assetPath('/icons/icon-512.png'),
 ]
 
 self.addEventListener('install', (event) => {

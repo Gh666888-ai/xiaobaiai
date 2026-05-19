@@ -1,8 +1,12 @@
 const STORAGE_KEY = 'xiaobai-mobile-settings-v2'
 const HISTORY_KEY = 'xiaobai-mobile-chat-v2'
+const SESSION_KEY = 'xiaobai-mobile-session-v1'
 const DEFAULT_CLOUD_URL = 'https://www.xiaobaiai.cn'
+const CLOUD_POLL_MS = 15000
 
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
+
+let cloudPollTimer = null
 
 const state = {
   settings: loadSettings(),
@@ -12,11 +16,9 @@ const state = {
     advancedOpen: false,
   },
   session: {
-    authenticated: false,
+    ...loadSession(),
     checking: false,
     error: '',
-    user: null,
-    token: '',
   },
   memberLogin: {
     account: '',
@@ -33,6 +35,8 @@ const state = {
     skills: [],
     memories: [],
     delegations: null,
+    approvals: [],
+    health: null,
   },
   messages: loadHistory(),
   eventSource: null,
@@ -154,6 +158,32 @@ function saveSettings() {
   }))
 }
 
+function loadSession() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SESSION_KEY) || '{}')
+    const token = String(saved.token || '').trim()
+    return {
+      authenticated: !!token,
+      user: saved.user || null,
+      token,
+    }
+  } catch {
+    return { authenticated: false, user: null, token: '' }
+  }
+}
+
+function saveSession() {
+  if (!state.session.token) {
+    localStorage.removeItem(SESSION_KEY)
+    return
+  }
+  localStorage.setItem(SESSION_KEY, JSON.stringify({
+    token: state.session.token,
+    user: state.session.user || null,
+    savedAt: new Date().toISOString(),
+  }))
+}
+
 function loadHistory() {
   try {
     const saved = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]')
@@ -203,10 +233,28 @@ function statusText() {
   return device.online ? '电脑在线' : '电脑离线'
 }
 
+function syncDiagnosis() {
+  if (!state.session.authenticated) return '先登录小白网站账号。'
+  if (state.remote.error) return `同步异常：${state.remote.error}`
+  if (state.remote.health?.counts && state.remote.health.counts.devices === 0) {
+    return '云端中继已连接，但没有电脑端设备记录。请确认电脑端小白已更新、已登录同一账号，并等待 15 秒自动注册。'
+  }
+  if (!state.remote.devices.length) {
+    return '没有发现电脑端小白。请确认电脑端已更新到 2.1.147 以上、用同一个网站账号登录，并保持小白 Agent 正在运行。'
+  }
+  const device = selectedDevice()
+  if (!device?.online) return '电脑端小白已绑定但当前离线，打开电脑端小白后会自动恢复同步。'
+  return '电脑端小白在线，手机发送的任务会进入云端中继并由电脑端拉取执行。'
+}
+
 function selectedDevice() {
   return state.remote.devices.find((device) => String(device.id) === String(state.remote.selectedDeviceId))
     || state.remote.devices[0]
     || null
+}
+
+function deviceName(device) {
+  return device?.name || device?.device_name || '我的电脑小白'
 }
 
 function appTemplate() {
@@ -225,6 +273,7 @@ function appTemplate() {
       </header>
 
       ${renderAccountGate()}
+      ${state.session.authenticated ? renderWorkbench() : ''}
 
       <section class="chat-surface ${state.session.authenticated ? '' : 'locked'}">
         <div class="message-list" id="messageList">
@@ -235,6 +284,96 @@ function appTemplate() {
       ${renderComposer()}
       ${state.ui.studioOpen ? renderStudioSheet() : ''}
     </main>
+  `
+}
+
+function renderWorkbench() {
+  const device = selectedDevice()
+  const approval = latestPendingApproval()
+  const activeTask = latestActiveTask()
+  return `
+    <section class="workbench-panel ${device?.online ? 'online' : 'waiting'}">
+      <div class="device-status-card">
+        <img class="brand-mark" src="./icons/icon-192.png" alt="小白 AI" />
+        <div>
+          <span class="eyeless-label">${device?.online ? '电脑端在线' : '等待电脑端连接'}</span>
+          <strong>${escapeHtml(deviceName(device))}</strong>
+          <p>${escapeHtml(syncDiagnosis())}</p>
+        </div>
+      </div>
+      ${approval ? renderApprovalCard(approval) : activeTask ? renderCurrentTask(activeTask) : renderIdleTaskCard()}
+    </section>
+  `
+}
+
+function latestPendingApproval() {
+  return (state.remote.approvals || []).find((item) => String(item.status || '') === 'pending') || null
+}
+
+function latestActiveTask() {
+  return (state.remote.tasks || []).find((task) => !/complete|success|done|failed|error/i.test(String(task.status || '')))
+    || (state.remote.tasks || [])[0]
+    || null
+}
+
+function renderCurrentTask(task) {
+  const status = String(task.status || 'pending')
+  const isDone = /complete|success|done/i.test(status)
+  const isFailed = /fail|error|timeout|aborted/i.test(status)
+  const isRunning = /running|claimed|processing/i.test(status)
+  const result = task.error || task.result || ''
+  return `
+    <div class="current-task-card">
+      <div class="row-top">
+        <div>
+          <span class="eyeless-label">当前任务</span>
+          <h2>${escapeHtml(task.content || task.title || task.task || '远程任务')}</h2>
+        </div>
+        ${statusTag(status)}
+      </div>
+      <div class="task-timeline-mini">
+        ${renderStepDot('接收任务', true)}
+        ${renderStepDot('拆解目标', isRunning || isDone || isFailed)}
+        ${renderStepDot('电脑执行', isRunning || isDone || isFailed)}
+        ${renderStepDot('同步结果', isDone || isFailed)}
+      </div>
+      ${result ? `<p class="task-result-preview">${escapeHtml(result)}</p>` : `<p>${isRunning ? '电脑端小白正在执行，手机会自动同步结果。' : '任务已经进入云端队列，电脑端在线后会自动接收。'}</p>`}
+      <button class="secondary-button slim" data-action="open-studio-tasks">查看执行过程</button>
+    </div>
+  `
+}
+
+function renderApprovalCard(approval) {
+  return `
+    <div class="approval-card">
+      <span class="eyeless-label">等待你确认</span>
+      <h2>${escapeHtml(approval.action || '电脑端小白需要确认')}</h2>
+      <p>${escapeHtml(approval.reason || approval.impact || '这个步骤可能影响文件、账号、发布或系统设置，需要你在手机上批准后继续。')}</p>
+      ${approval.impact ? `<div class="approval-impact">${escapeHtml(approval.impact)}</div>` : ''}
+      <div class="approval-actions">
+        <button class="primary-button" data-approval-id="${escapeAttr(approval.id)}" data-approval-decision="approved">批准继续</button>
+        <button class="secondary-button" data-approval-id="${escapeAttr(approval.id)}" data-approval-decision="denied">拒绝</button>
+      </div>
+    </div>
+  `
+}
+
+function renderStepDot(label, done) {
+  return `<span class="${done ? 'done' : ''}"><i></i>${escapeHtml(label)}</span>`
+}
+
+function renderIdleTaskCard() {
+  return `
+    <div class="current-task-card idle">
+      <span class="eyeless-label">远程工作台</span>
+      <h2>告诉电脑端小白要做什么</h2>
+      <p>手机负责下达任务，电脑端负责执行、调用本机 Agent、同步结果。</p>
+      <div class="quick-intents">
+        <button data-quick-task="继续上次未完成的任务">继续上次任务</button>
+        <button data-quick-task="检查电脑端小白 Agent 的连接和同步状态">检查连接</button>
+        <button data-action="open-studio-skills">技能库</button>
+      </div>
+    </div>
   `
 }
 
@@ -249,6 +388,10 @@ function renderAccountGate() {
       <section class="sync-strip">
         <span>${escapeHtml(remoteSummary())}</span>
         <button class="text-button" data-action="sync-cloud">${icon('sync')}同步</button>
+      </section>
+      <section class="diagnostic-card ${state.remote.devices.length ? 'ok' : 'warn'}">
+        <strong>${state.remote.devices.length ? '同步状态' : '还没连上电脑端'}</strong>
+        <span>${escapeHtml(syncDiagnosis())}</span>
       </section>
     `
   }
@@ -301,13 +444,13 @@ function remoteSummary() {
   const device = selectedDevice()
   if (!device) return '还没有绑定电脑端小白'
   const stateText = device.online ? '在线' : '离线'
-  return `${device.name || '我的电脑小白'} · ${stateText} · ${state.remote.tasks.length} 个任务`
+  return `${deviceName(device)} · ${stateText} · ${state.remote.tasks.length} 个任务`
 }
 
 function renderEmptyChat() {
   return `
     <div class="empty-chat">
-      <div class="empty-mark">小</div>
+      <img class="empty-logo" src="./icons/icon-192.png" alt="小白 AI" />
       <h2>今天让小白做什么？</h2>
       <p>手机发任务，家里电脑端小白执行。复杂任务会拆解、分派给合适 Agent，并把结果同步回来。</p>
     </div>
@@ -382,7 +525,7 @@ function renderDevices() {
             <button class="device-row ${active ? 'active' : ''}" data-device-id="${escapeAttr(device.id)}">
               <span class="device-icon">${icon('laptop')}</span>
               <span>
-                <strong>${escapeHtml(device.name || '我的电脑小白')}</strong>
+                <strong>${escapeHtml(deviceName(device))}</strong>
                 <small>${escapeHtml(device.online ? '在线，可以远程执行任务' : '离线，等电脑端小白上线后执行')}</small>
               </span>
               <em>${device.online ? '在线' : '离线'}</em>
@@ -390,7 +533,7 @@ function renderDevices() {
           `
         }).join('')}
       </div>
-    ` : '<div class="empty">还没有绑定电脑端小白。电脑端用同一个网站账号登录后，会自动出现在这里。</div>'}
+    ` : `<div class="empty">${escapeHtml(syncDiagnosis())}</div>`}
   `
 }
 
@@ -419,16 +562,36 @@ function renderTaskBoard() {
 function renderDelegations() {
   const jobs = state.remote.delegations?.jobs || []
   const models = state.remote.delegations?.models || []
+  const approvals = state.remote.approvals || []
   return `
     <div class="panel-head">
       <h3>本机 Agent 编队</h3>
       <button class="text-button" data-action="sync-cloud">刷新</button>
     </div>
+    ${approvals.length ? `<div class="list approval-list">${approvals.slice(0, 6).map(renderApprovalRow).join('')}</div>` : ''}
     ${models.length ? `<div class="list">${models.map(renderAgentModel).join('')}</div>` : '<div class="empty">电脑端在线后，这里会显示 Codex、Claude Code、Hermes、OpenClaw 等可用状态。</div>'}
     <div class="panel-head second">
       <h3>最近委托</h3>
     </div>
     ${jobs.length ? `<div class="list">${jobs.slice(0, 8).map(renderJob).join('')}</div>` : '<div class="empty">复杂任务被电脑端小白分派后，会在这里显示委托进度。</div>'}
+  `
+}
+
+function renderApprovalRow(approval) {
+  return `
+    <div class="list-row">
+      <div class="row-top">
+        <div class="row-title">${escapeHtml(approval.action || approval.id || '确认请求')}</div>
+        ${statusTag(approval.status || 'pending')}
+      </div>
+      <div class="row-note">${escapeHtml(approval.reason || approval.impact || approval.from_agent || '')}</div>
+      ${String(approval.status || '') === 'pending' ? `
+        <div class="mini-actions">
+          <button class="primary-button slim" data-approval-id="${escapeAttr(approval.id)}" data-approval-decision="approved">批准</button>
+          <button class="secondary-button slim" data-approval-id="${escapeAttr(approval.id)}" data-approval-decision="denied">拒绝</button>
+        </div>
+      ` : ''}
+    </div>
   `
 }
 
@@ -505,7 +668,24 @@ function renderMemories() {
 function statusTag(status) {
   const value = String(status || 'unknown')
   const cls = /complete|success|ok|done/i.test(value) ? 'ok' : /fail|error|timeout|blocked|offline/i.test(value) ? 'bad' : 'warn'
-  return `<span class="tag ${cls}">${escapeHtml(value)}</span>`
+  return `<span class="tag ${cls}">${escapeHtml(statusLabel(value))}</span>`
+}
+
+function statusLabel(status) {
+  const value = String(status || 'unknown')
+  const labels = {
+    pending: '等待电脑',
+    running: '执行中',
+    completed: '已完成',
+    success: '已完成',
+    failed: '失败',
+    error: '异常',
+    aborted: '已中断',
+    pending_confirmation: '待确认',
+    approved: '已批准',
+    denied: '已拒绝',
+  }
+  return labels[value] || value
 }
 
 function formatTaskNote(task) {
@@ -546,6 +726,22 @@ function bindEvents() {
     state.ui.studioTab = 'devices'
     render()
   })
+  document.querySelector('[data-action="open-studio-tasks"]')?.addEventListener('click', () => {
+    state.ui.studioOpen = true
+    state.ui.studioTab = 'tasks'
+    render()
+  })
+  document.querySelector('[data-action="open-studio-skills"]')?.addEventListener('click', () => {
+    state.ui.studioOpen = true
+    state.ui.studioTab = 'skills'
+    render()
+  })
+  document.querySelectorAll('[data-quick-task]').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.composing = button.dataset.quickTask || ''
+      render()
+    })
+  })
   document.querySelectorAll('[data-action="close-studio"]').forEach((node) => {
     node.addEventListener('click', closeStudio)
   })
@@ -563,6 +759,11 @@ function bindEvents() {
       state.remote.selectedDeviceId = button.dataset.deviceId
       openEventStream()
       render()
+    })
+  })
+  document.querySelectorAll('[data-approval-id][data-approval-decision]').forEach((button) => {
+    button.addEventListener('click', () => {
+      sendApprovalDecision(button.dataset.approvalId, button.dataset.approvalDecision)
     })
   })
 
@@ -641,10 +842,12 @@ async function loginCloudMember() {
     state.session.authenticated = true
     state.session.user = result.user || { email: account }
     state.session.token = result.token || result.sessionToken || ''
+    saveSession()
     state.memberLogin.password = ''
     addSystemMessage('网站会员登录成功，正在查找你的电脑端小白。')
     await syncCloudAssets()
     openEventStream()
+    startCloudPoll()
   } catch (error) {
     state.memberLogin.error = normalizeCloudLoginError(error)
   } finally {
@@ -668,13 +871,15 @@ async function syncCloudAssets() {
   render()
 
   try {
-    const [devices, tasks, skills, memories, delegations, conversations] = await Promise.all([
+    const [devices, tasks, skills, memories, delegations, approvals, conversations, health] = await Promise.all([
       cloudApi().get('/api/agent-remote/devices').catch(() => ({ devices: [] })),
       cloudApi().get('/api/agent-remote/tasks?limit=20').catch(() => ({ tasks: [] })),
       cloudApi().get('/api/agent-remote/skills?limit=20').catch(() => ({ skills: [] })),
       cloudApi().get('/api/agent-remote/memories?limit=20').catch(() => ({ memories: [] })),
       cloudApi().get('/api/agent-remote/delegations?output=1').catch(() => null),
+      cloudApi().get('/api/agent-remote/approvals?limit=20').catch(() => ({ approvals: [] })),
       cloudApi().get('/api/agent-remote/conversations?limit=80').catch(() => ({ messages: [] })),
+      cloudApi().get('/api/agent-remote/health').catch(() => null),
     ])
 
     state.remote.devices = devices.devices || devices.items || []
@@ -683,6 +888,8 @@ async function syncCloudAssets() {
     state.remote.skills = skills.skills || skills.items || []
     state.remote.memories = memories.memories || memories.items || []
     state.remote.delegations = delegations
+    state.remote.approvals = approvals.approvals || approvals.items || []
+    state.remote.health = health
     syncConversationMessages(conversations.messages || conversations.items || [])
   } catch (error) {
     state.remote.error = error.message
@@ -760,8 +967,37 @@ async function sendCurrentMessage() {
       channel: 'MOBILE_APP',
       content,
     })
+    await syncCloudAssets()
   } catch (error) {
     addSystemMessage(`发送失败：${error.message}`)
+  }
+}
+
+async function sendApprovalDecision(approvalId, decision) {
+  const id = String(approvalId || '').trim()
+  const normalized = decision === 'denied' ? 'denied' : 'approved'
+  if (!id || !state.session.authenticated) return
+  const label = normalized === 'approved' ? '批准' : '拒绝'
+  addSystemMessage(`已${label}确认请求，正在通知电脑端小白。`)
+  try {
+    const payload = {
+      type: 'approval_decision',
+      id,
+      decision: normalized,
+      decidedAt: new Date().toISOString(),
+    }
+    const device = selectedDevice()
+    await cloudApi().post('/api/agent-remote/tasks', {
+      deviceId: device?.id || state.remote.selectedDeviceId || null,
+      channel: 'MOBILE_APPROVAL',
+      content: `XIAOBAI_REMOTE_APPROVAL_DECISION:${JSON.stringify(payload)}`,
+    })
+    state.remote.approvals = state.remote.approvals.map((item) =>
+      String(item.id) === id ? { ...item, status: normalized, decision: normalized } : item
+    )
+    await syncCloudAssets()
+  } catch (error) {
+    addSystemMessage(`确认发送失败：${error.message}`)
   }
 }
 
@@ -821,6 +1057,13 @@ function scrollMessagesToBottom() {
   if (list) list.scrollIntoView({ block: 'end' })
 }
 
+function startCloudPoll() {
+  if (cloudPollTimer || !state.session.authenticated) return
+  cloudPollTimer = setInterval(() => {
+    if (!state.remote.checking) syncCloudAssets().catch(() => {})
+  }, CLOUD_POLL_MS)
+}
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register(new URL('./sw.js', window.location.href)).catch(() => {})
@@ -828,3 +1071,7 @@ if ('serviceWorker' in navigator) {
 }
 
 render()
+if (state.session.authenticated) {
+  startCloudPoll()
+  syncCloudAssets().then(openEventStream).catch(() => {})
+}

@@ -170,13 +170,14 @@ export async function POST(req: NextRequest, ctx: { params: { path?: string[] } 
     const result = String(body?.result || body?.content || "")
     const errorMessage = body?.error ? String(body.error) : null
     const now = new Date().toISOString()
+    const isFinal = /complete|success|failed|error|aborted/i.test(status)
     const { data: task, error } = await db
       .from("agent_remote_tasks")
       .update({
         status,
         result,
         error: errorMessage,
-        completed_at: /complete|success|failed|error/i.test(status) ? now : null,
+        completed_at: isFinal ? now : null,
         updated_at: now,
       })
       .eq("id", taskId)
@@ -184,7 +185,7 @@ export async function POST(req: NextRequest, ctx: { params: { path?: string[] } 
       .select("*")
       .single()
     if (error) return jsonError(error.message, 500)
-    if (result || errorMessage) {
+    if ((result || errorMessage) && (isFinal || body?.message === true)) {
       await db.from("agent_remote_messages").insert({
         user_id: auth.user.id,
         device_id: task.device_id,
@@ -229,6 +230,30 @@ export async function GET(req: NextRequest, ctx: { params: { path?: string[] } }
   const path = parts(ctx)
   const limit = limitFrom(req)
 
+  if (path[0] === "health") {
+    const [devices, tasks, messages, assets] = await Promise.all([
+      db.from("agent_remote_devices").select("id, device_name, online, last_seen_at", { count: "exact" }).eq("user_id", auth.user.id).order("last_seen_at", { ascending: false }).limit(5),
+      db.from("agent_remote_tasks").select("id, status, created_at", { count: "exact" }).eq("user_id", auth.user.id).order("created_at", { ascending: false }).limit(5),
+      db.from("agent_remote_messages").select("id, created_at", { count: "exact" }).eq("user_id", auth.user.id).order("created_at", { ascending: false }).limit(1),
+      db.from("agent_remote_assets").select("id, asset_type, updated_at", { count: "exact" }).eq("user_id", auth.user.id).order("updated_at", { ascending: false }).limit(10),
+    ])
+    const firstError = devices.error || tasks.error || messages.error || assets.error
+    if (firstError) return jsonError(firstError.message, 500)
+    return NextResponse.json({
+      ok: true,
+      userId: auth.user.id,
+      counts: {
+        devices: devices.count || 0,
+        tasks: tasks.count || 0,
+        messages: messages.count || 0,
+        assets: assets.count || 0,
+      },
+      devices: devices.data || [],
+      latestTasks: tasks.data || [],
+      latestAssets: assets.data || [],
+    })
+  }
+
   if (path[0] === "devices") {
     const { data, error } = await db
       .from("agent_remote_devices")
@@ -261,7 +286,7 @@ export async function GET(req: NextRequest, ctx: { params: { path?: string[] } }
     return NextResponse.json({ messages: (data || []).reverse() })
   }
 
-  if (["memories", "skills", "delegations"].includes(path[0] || "")) {
+  if (["memories", "skills", "delegations", "approvals"].includes(path[0] || "")) {
     const assetType = path[0]
     const { data, error } = await db
       .from("agent_remote_assets")
@@ -274,6 +299,7 @@ export async function GET(req: NextRequest, ctx: { params: { path?: string[] } }
     const payload = data?.[0]?.payload || {}
     if (assetType === "memories") return NextResponse.json({ memories: payload.memories || payload.items || [] })
     if (assetType === "skills") return NextResponse.json({ skills: payload.skills || payload.items || [] })
+    if (assetType === "approvals") return NextResponse.json({ approvals: payload.approvals || payload.items || [] })
     return NextResponse.json(payload)
   }
 
