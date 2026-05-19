@@ -14,9 +14,17 @@ const assetTypeByResource: Record<string, string> = {
   memories: "memory",
 }
 const chatModelAssetTypes = ["chat_model", "agent_model", "model_config"]
+const agentOnlineWindowMs = 120000
 
 function jsonError(error: string, status = 400) {
   return NextResponse.json({ error }, { status })
+}
+
+function freshAgentOnline(row: any) {
+  const timestamp = Date.parse(row?.last_seen_at || row?.updated_at || "")
+  if (!row?.online || !Number.isFinite(timestamp)) return false
+  const age = Date.now() - timestamp
+  return age >= 0 && age <= agentOnlineWindowMs
 }
 
 function limitFrom(req: NextRequest, fallback = 20) {
@@ -93,7 +101,17 @@ export async function GET(req: NextRequest, { params }: { params: { resource: st
       .order("last_seen_at", { ascending: false })
       .limit(limit)
     if (error) return isMissingTable(error) ? setupResponse(resource) : jsonError("设备同步读取失败。", 500)
-    return NextResponse.json({ devices: data || [], items: data || [] })
+    const devices = (data || []).map((device: any) => {
+      const freshOnline = freshAgentOnline(device)
+      return {
+        ...device,
+        rawOnline: Boolean(device.online),
+        online: freshOnline,
+        freshOnline,
+        onlineWindowSeconds: Math.round(agentOnlineWindowMs / 1000),
+      }
+    })
+    return NextResponse.json({ devices, items: devices })
   }
 
   if (resource === "tasks") {
