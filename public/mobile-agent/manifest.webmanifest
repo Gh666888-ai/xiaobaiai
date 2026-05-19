@@ -1,7 +1,7 @@
 {
   "name": "小白天枢",
   "short_name": "小白天枢",
-  "description": "小白手机端 AI 中枢：普通问答和电脑端 Agent 控制分开，界面保持简洁。",
+  "description": "小白天枢手机端。",
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait",
