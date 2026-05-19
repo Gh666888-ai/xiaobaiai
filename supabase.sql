@@ -480,3 +480,80 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE workflow_runs TO service_role;
 ALTER TABLE workflow_runs ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can read own workflow runs" ON workflow_runs;
 CREATE POLICY "Users can read own workflow runs" ON workflow_runs FOR SELECT USING (auth.uid() = user_id);
+
+-- 小白 Agent 远程控制：手机端登录网站账号，通过云端中转操控家里电脑端小白。
+-- 手机不需要知道电脑 IP；电脑端用同一个会员账号保持在线、领取任务、回传结果。
+CREATE TABLE IF NOT EXISTS agent_remote_devices (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  device_key TEXT NOT NULL,
+  device_name TEXT NOT NULL DEFAULT '我的电脑小白',
+  online BOOLEAN NOT NULL DEFAULT FALSE,
+  capabilities JSONB NOT NULL DEFAULT '{}'::jsonb,
+  snapshot JSONB NOT NULL DEFAULT '{}'::jsonb,
+  last_seen_at TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, device_key)
+);
+
+CREATE INDEX IF NOT EXISTS agent_remote_devices_user_seen_idx ON agent_remote_devices(user_id, last_seen_at DESC);
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE agent_remote_devices TO service_role;
+ALTER TABLE agent_remote_devices ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can read own remote devices" ON agent_remote_devices;
+CREATE POLICY "Users can read own remote devices" ON agent_remote_devices FOR SELECT USING (auth.uid() = user_id);
+
+CREATE TABLE IF NOT EXISTS agent_remote_tasks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  device_id UUID REFERENCES agent_remote_devices(id) ON DELETE SET NULL,
+  content TEXT NOT NULL,
+  channel TEXT NOT NULL DEFAULT 'MOBILE_APP',
+  status TEXT NOT NULL DEFAULT 'pending',
+  result TEXT,
+  error TEXT,
+  claimed_at TIMESTAMPTZ,
+  completed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS agent_remote_tasks_user_created_idx ON agent_remote_tasks(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS agent_remote_tasks_pending_idx ON agent_remote_tasks(user_id, status, created_at);
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE agent_remote_tasks TO service_role;
+ALTER TABLE agent_remote_tasks ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can read own remote tasks" ON agent_remote_tasks;
+CREATE POLICY "Users can read own remote tasks" ON agent_remote_tasks FOR SELECT USING (auth.uid() = user_id);
+
+CREATE TABLE IF NOT EXISTS agent_remote_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  device_id UUID REFERENCES agent_remote_devices(id) ON DELETE SET NULL,
+  task_id UUID REFERENCES agent_remote_tasks(id) ON DELETE SET NULL,
+  role TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS agent_remote_messages_user_created_idx ON agent_remote_messages(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS agent_remote_messages_task_idx ON agent_remote_messages(task_id, created_at);
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE agent_remote_messages TO service_role;
+ALTER TABLE agent_remote_messages ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can read own remote messages" ON agent_remote_messages;
+CREATE POLICY "Users can read own remote messages" ON agent_remote_messages FOR SELECT USING (auth.uid() = user_id);
+
+CREATE TABLE IF NOT EXISTS agent_remote_assets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  device_id UUID REFERENCES agent_remote_devices(id) ON DELETE CASCADE,
+  asset_type TEXT NOT NULL,
+  payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, device_id, asset_type)
+);
+
+CREATE INDEX IF NOT EXISTS agent_remote_assets_user_type_idx ON agent_remote_assets(user_id, asset_type, updated_at DESC);
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE agent_remote_assets TO service_role;
+ALTER TABLE agent_remote_assets ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can read own remote assets" ON agent_remote_assets;
+CREATE POLICY "Users can read own remote assets" ON agent_remote_assets FOR SELECT USING (auth.uid() = user_id);
