@@ -1,8 +1,10 @@
 const STORAGE_KEY = 'xiaobai-mobile-settings-v2'
 const HISTORY_KEY = 'xiaobai-mobile-chat-v2'
 const SESSION_KEY = 'xiaobai-mobile-session-v1'
+const APP_VERSION = '0.1.4'
 const DEFAULT_CLOUD_URL = 'https://www.xiaobaiai.cn'
 const CLOUD_POLL_MS = 15000
+const UPDATE_CHECK_MS = 6 * 60 * 60 * 1000
 
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
 
@@ -38,6 +40,16 @@ const state = {
     delegations: null,
     approvals: [],
     health: null,
+  },
+  update: {
+    checking: false,
+    available: false,
+    webVersion: APP_VERSION,
+    latestVersion: '',
+    currentVersion: detectInstalledVersion(),
+    apkUrl: '',
+    size: 0,
+    error: '',
   },
   messages: loadHistory(),
   eventSource: null,
@@ -159,6 +171,22 @@ function saveSettings() {
   }))
 }
 
+function detectInstalledVersion() {
+  const match = String(navigator.userAgent || '').match(/XiaobaiMobile\/([0-9]+(?:\.[0-9]+){0,3})/)
+  return match?.[1] || '0.0.0'
+}
+
+function versionGreaterThan(left, right) {
+  const a = String(left || '0').split('.').map((item) => Number.parseInt(item, 10) || 0)
+  const b = String(right || '0').split('.').map((item) => Number.parseInt(item, 10) || 0)
+  const length = Math.max(a.length, b.length)
+  for (let index = 0; index < length; index += 1) {
+    if ((a[index] || 0) > (b[index] || 0)) return true
+    if ((a[index] || 0) < (b[index] || 0)) return false
+  }
+  return false
+}
+
 function loadSession() {
   try {
     const saved = JSON.parse(localStorage.getItem(SESSION_KEY) || '{}')
@@ -273,6 +301,7 @@ function appTemplate() {
         <button class="round-button" data-action="toggle-studio" aria-label="工作室">${icon('menu')}</button>
       </header>
 
+      ${renderUpdateBanner()}
       ${renderAccountGate()}
       ${state.session.authenticated ? renderWorkbench() : ''}
 
@@ -285,6 +314,19 @@ function appTemplate() {
       ${renderComposer()}
       ${state.ui.studioOpen ? renderStudioSheet() : ''}
     </main>
+  `
+}
+
+function renderUpdateBanner() {
+  if (!state.update.available) return ''
+  return `
+    <section class="update-banner">
+      <div>
+        <strong>发现手机 APP 新版 ${escapeHtml(state.update.latestVersion)}</strong>
+        <span>当前 ${escapeHtml(state.update.currentVersion === '0.0.0' ? '旧版' : state.update.currentVersion)}。更新后可修复原生壳层、键盘、状态栏等问题。</span>
+      </div>
+      <button class="primary-button slim" data-action="download-update">立即更新</button>
+    </section>
   `
 }
 
@@ -811,6 +853,7 @@ function bindEvents() {
     render()
   })
   document.querySelector('[data-action="local-debug-connect"]')?.addEventListener('click', testLocalDebugConnection)
+  document.querySelector('[data-action="download-update"]')?.addEventListener('click', downloadMobileUpdate)
   document.querySelector('[data-action="send"]')?.addEventListener('click', sendCurrentMessage)
   document.querySelector('[data-action="voice"]')?.addEventListener('click', toggleVoiceInput)
 
@@ -936,6 +979,42 @@ async function syncCloudAssets() {
     state.remote.checking = false
     renderBackground()
   }
+}
+
+async function checkMobileUpdate() {
+  if (state.update.checking) return
+  state.update.checking = true
+  state.update.error = ''
+
+  try {
+    const baseUrl = normalizeBaseUrl(state.settings.cloudUrl || DEFAULT_CLOUD_URL)
+    const response = await fetch(`${baseUrl}/downloads/xiaobai-mobile/release-manifest.json`, {
+      cache: 'no-store',
+      credentials: 'omit',
+    })
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const manifest = await response.json()
+    const latestVersion = String(manifest.version || '').trim()
+    const file = Array.isArray(manifest.files) ? manifest.files[0] : null
+    const currentVersion = detectInstalledVersion()
+
+    state.update.currentVersion = currentVersion
+    state.update.latestVersion = latestVersion
+    state.update.size = Number(file?.size || 0)
+    state.update.apkUrl = file?.name ? `${baseUrl}/downloads/xiaobai-mobile/${file.name}` : ''
+    state.update.available = !!state.update.apkUrl
+      && versionGreaterThan(latestVersion, currentVersion)
+  } catch (error) {
+    state.update.error = error.message || 'update check failed'
+  } finally {
+    state.update.checking = false
+    renderBackground()
+  }
+}
+
+function downloadMobileUpdate() {
+  if (!state.update.apkUrl) return
+  window.location.href = state.update.apkUrl
 }
 
 function syncConversationMessages(rows) {
@@ -1119,6 +1198,10 @@ if ('serviceWorker' in navigator) {
 }
 
 render()
+checkMobileUpdate().catch(() => {})
+setInterval(() => {
+  checkMobileUpdate().catch(() => {})
+}, UPDATE_CHECK_MS)
 if (state.session.authenticated) {
   startCloudPoll()
   syncCloudAssets().then(openEventStream).catch(() => {})
