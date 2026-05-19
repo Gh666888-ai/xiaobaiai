@@ -24,6 +24,9 @@ const {
   apkSha256: mobileApkSha256,
   manifestUrl: mobileManifestUrl,
   webAppUrl: mobileWebAppUrl,
+  platformLabel: mobilePlatformLabel,
+  compatibilityLabel: mobileCompatibilityLabel,
+  iosWebLabel: mobileIosWebLabel,
 } = xiaobaiMobileRelease
 
 const cardStyle = {
@@ -62,9 +65,9 @@ export default function DownloadPage() {
                 <Download size={19} />
                 立即下载 Windows 安装包
               </a>
-              <a href={mobileApkUrl} download aria-label="下载小白 Agent 手机端 APK" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 50, borderRadius: 12, background: "#101820", color: "#fff", padding: "0 22px", textDecoration: "none", fontSize: 16, fontWeight: 950, boxShadow: "0 12px 24px rgba(16,24,32,0.18)" }}>
+              <a href={mobileApkUrl} download aria-label="下载 Xiaobai Nexus Android 和鸿蒙 APK" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 50, borderRadius: 12, background: "#101820", color: "#fff", padding: "0 22px", textDecoration: "none", fontSize: 16, fontWeight: 950, boxShadow: "0 12px 24px rgba(16,24,32,0.18)" }}>
                 <Download size={19} />
-                下载手机 APP
+                下载安卓 / 鸿蒙 APK
               </a>
               <Link href="/agent-install/xiaobai-nexus" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 50, borderRadius: 12, border: "1px solid #bfd4df", color: "#256d85", background: "#fff", padding: "0 18px", textDecoration: "none", fontSize: 15, fontWeight: 900 }}>
                 跟着小白安装
@@ -116,19 +119,23 @@ export default function DownloadPage() {
           <p style={{ margin: "0 0 10px", color: "#256d85", fontSize: 13, fontWeight: 950 }}>手机端 App</p>
           <h2 style={{ margin: "0 0 12px", color: "#102131", fontSize: "clamp(26px, 4vw, 40px)", lineHeight: 1.15, fontWeight: 950, letterSpacing: 0 }}>离开电脑，也能指挥家里的小白 Agent</h2>
           <p style={{ margin: "0 0 18px", maxWidth: 900, color: "#506577", fontSize: 16, lineHeight: 1.85, fontWeight: 650 }}>
-            下载安卓 / 鸿蒙可安装包，手机上直接登录小白网站会员账号，就能连接同账号登录的电脑端小白。你在外面发任务，电脑端小白负责执行、调用本机 Agent、同步任务进度和结果。
+            下载安卓 / 鸿蒙可安装包，手机上直接登录小白网站会员账号，就能连接同账号登录的电脑端小白。iPhone 暂无原生安装包，可以先用网页版手机工作室并添加到主屏幕。你在外面发任务，电脑端小白负责执行、调用本机 Agent、同步任务进度和结果。
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 16, alignItems: "stretch" }}>
             <div style={{ border: "1px solid #e0edf3", borderRadius: 12, background: "#f8fbfd", padding: 16 }}>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginBottom: 14 }}>
-                <a href={mobileApkUrl} download aria-label="下载小白 Agent 手机端 APK" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 48, borderRadius: 12, background: "#101820", color: "#fff", padding: "0 20px", textDecoration: "none", fontSize: 15, fontWeight: 950 }}>
+                <a href={mobileApkUrl} download aria-label="下载 Xiaobai Nexus Android 和鸿蒙 APK" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 48, borderRadius: 12, background: "#101820", color: "#fff", padding: "0 20px", textDecoration: "none", fontSize: 15, fontWeight: 950 }}>
                   <Download size={18} />
-                  下载手机端 APK
+                  下载安卓 / 鸿蒙 APK
                 </a>
                 <a href={mobileWebAppUrl} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 48, borderRadius: 12, border: "1px solid #bfd4df", color: "#256d85", background: "#fff", padding: "0 16px", textDecoration: "none", fontSize: 14, fontWeight: 900 }}>
-                  打开网页版手机工作室
+                  iOS 打开网页版
                   <ArrowRight size={15} />
                 </a>
+              </div>
+              <div style={{ marginBottom: 14, display: "grid", gap: 8 }}>
+                <span style={{ display: "inline-flex", width: "fit-content", borderRadius: 999, background: "#eaf4f7", color: "#256d85", padding: "7px 10px", fontSize: 12, fontWeight: 950 }}>{mobilePlatformLabel}</span>
+                <p style={{ margin: 0, color: "#526879", fontSize: 13, lineHeight: 1.75, fontWeight: 700 }}>{mobileCompatibilityLabel}。{mobileIosWebLabel}。</p>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: 10 }}>
                 {[
@@ -147,6 +154,7 @@ export default function DownloadPage() {
               <h3 style={{ margin: "0 0 12px", color: "#102131", fontSize: 17, fontWeight: 950 }}>手机端版本</h3>
               <div style={{ display: "grid", gap: 9, color: "#536879", fontSize: 13, lineHeight: 1.65 }}>
                 <div><b style={{ color: "#17202a" }}>版本：</b>{mobileVersion}</div>
+                <div><b style={{ color: "#17202a" }}>系统：</b>{mobilePlatformLabel}</div>
                 <div><b style={{ color: "#17202a" }}>文件：</b>{mobileApkName}</div>
                 <div><b style={{ color: "#17202a" }}>包名：</b>{mobilePackageName}</div>
                 <div><b style={{ color: "#17202a" }}>大小：</b>{mobileApkSize}</div>
