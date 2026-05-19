@@ -1,14 +1,19 @@
 const STORAGE_KEY = 'xiaobai-mobile-settings-v2'
 const HISTORY_KEY = 'xiaobai-mobile-chat-v2'
 const SESSION_KEY = 'xiaobai-mobile-session-v1'
-const APP_VERSION = '0.1.4'
+const APP_VERSION = '0.1.5'
 const DEFAULT_CLOUD_URL = 'https://www.xiaobaiai.cn'
 const CLOUD_POLL_MS = 15000
+const ACTIVE_CLOUD_POLL_MS = 2500
+const EVENT_RECONNECT_BASE_MS = 1500
+const EVENT_RECONNECT_MAX_MS = 15000
 const UPDATE_CHECK_MS = 6 * 60 * 60 * 1000
 
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
 
 let cloudPollTimer = null
+let activeCloudPollTimer = null
+let eventReconnectTimer = null
 let deferredRender = false
 
 const state = {
@@ -53,6 +58,9 @@ const state = {
   },
   messages: loadHistory(),
   eventSource: null,
+  eventCursor: new Date().toISOString(),
+  eventReconnectDelay: EVENT_RECONNECT_BASE_MS,
+  sending: false,
   composing: '',
   listening: false,
   recognition: null,
@@ -94,6 +102,7 @@ class XiaobaiCloudClient {
     const url = new URL(`${this.baseUrl}/api/agent-remote/events`)
     if (this.token) url.searchParams.set('token', this.token)
     if (state.remote.selectedDeviceId) url.searchParams.set('deviceId', state.remote.selectedDeviceId)
+    if (state.eventCursor) url.searchParams.set('since', state.eventCursor)
     return url.toString()
   }
 }
@@ -224,6 +233,44 @@ function loadHistory() {
 
 function saveHistory() {
   localStorage.setItem(HISTORY_KEY, JSON.stringify(state.messages.slice(-80)))
+}
+
+function normalizeMessageContent(content) {
+  return String(content || '').replace(/\s+/g, ' ').trim()
+}
+
+function messageKey(message = {}) {
+  if (message.id) return `id:${message.id}`
+  if (message.taskId || message.task_id) {
+    return `task:${message.taskId || message.task_id}:${message.role || ''}:${normalizeMessageContent(message.content)}`
+  }
+  return `${message.role || ''}:${normalizeMessageContent(message.content)}`
+}
+
+function mergeMessages(rows) {
+  const merged = []
+  const seen = new Set()
+  for (const row of rows || []) {
+    const content = String(row?.content || '').trim()
+    if (!content) continue
+    const item = {
+      id: row.id || row.messageId || null,
+      taskId: row.task_id || row.taskId || null,
+      role: row.role === 'jarvis' || row.role === 'assistant' ? 'agent' : row.role === 'user' ? 'user' : 'system',
+      content,
+      ts: row.timestamp || row.created_at || row.ts || '',
+    }
+    const key = messageKey(item)
+    if (seen.has(key)) continue
+    seen.add(key)
+    merged.push(item)
+  }
+  return merged.slice(-80)
+}
+
+function rememberEventCursor(value) {
+  const next = String(value || '').trim()
+  if (next && next > String(state.eventCursor || '')) state.eventCursor = next
 }
 
 function cloudApi() {
@@ -972,12 +1019,32 @@ async function syncCloudAssets() {
     state.remote.approvals = approvals.approvals || approvals.items || []
     state.remote.health = health
     syncConversationMessages(conversations.messages || conversations.items || [])
+    scheduleActiveCloudPoll()
   } catch (error) {
     state.remote.error = error.message
     addSystemMessage(`同步失败：${error.message}`)
   } finally {
     state.remote.checking = false
     renderBackground()
+  }
+}
+
+async function syncCloudFast() {
+  if (!state.session.authenticated || state.remote.checking) return
+  state.remote.checking = true
+  try {
+    const [tasks, conversations] = await Promise.all([
+      cloudApi().get('/api/agent-remote/tasks?limit=20').catch(() => ({ tasks: [] })),
+      cloudApi().get('/api/agent-remote/conversations?limit=80').catch(() => ({ messages: [] })),
+    ])
+    state.remote.tasks = tasks.tasks || tasks.items || state.remote.tasks || []
+    syncConversationMessages(conversations.messages || conversations.items || [])
+  } catch (error) {
+    state.remote.error = error.message
+  } finally {
+    state.remote.checking = false
+    renderBackground()
+    scheduleActiveCloudPoll()
   }
 }
 
@@ -1019,11 +1086,8 @@ function downloadMobileUpdate() {
 
 function syncConversationMessages(rows) {
   if (!Array.isArray(rows) || rows.length === 0) return
-  state.messages = rows.map((row) => ({
-    role: row.role === 'jarvis' || row.role === 'assistant' ? 'agent' : row.role === 'user' ? 'user' : 'system',
-    content: row.content || '',
-    ts: row.timestamp || row.created_at || '',
-  })).filter((message) => message.content).slice(-80)
+  state.messages = mergeMessages(rows)
+  rememberEventCursor(rows[rows.length - 1]?.created_at || rows[rows.length - 1]?.timestamp)
   saveHistory()
 }
 
@@ -1039,9 +1103,13 @@ async function testLocalDebugConnection() {
 function openEventStream() {
   closeEventStream()
   if (!state.session.authenticated) return
+  if (eventReconnectTimer) {
+    clearTimeout(eventReconnectTimer)
+    eventReconnectTimer = null
+  }
   const source = new EventSource(cloudApi().eventUrl(), { withCredentials: true })
   state.eventSource = source
-  source.onmessage = (event) => {
+  const receive = (event) => {
     try {
       const payload = JSON.parse(event.data)
       handleRemoteEvent(payload)
@@ -1049,8 +1117,18 @@ function openEventStream() {
       addSystemMessage(event.data)
     }
   }
+  source.onopen = () => {
+    state.eventReconnectDelay = EVENT_RECONNECT_BASE_MS
+  }
+  source.onmessage = receive
+  source.addEventListener('connected', receive)
+  source.addEventListener('task_updated', receive)
+  source.addEventListener('response', receive)
+  source.addEventListener('conversation_updated', receive)
+  source.addEventListener('remote_error', receive)
   source.onerror = () => {
     closeEventStream()
+    scheduleEventReconnect()
   }
 }
 
@@ -1059,21 +1137,49 @@ function closeEventStream() {
   state.eventSource = null
 }
 
+function scheduleEventReconnect() {
+  if (!state.session.authenticated || eventReconnectTimer) return
+  const delay = Math.min(state.eventReconnectDelay || EVENT_RECONNECT_BASE_MS, EVENT_RECONNECT_MAX_MS)
+  eventReconnectTimer = setTimeout(() => {
+    eventReconnectTimer = null
+    state.eventReconnectDelay = Math.min(delay * 1.8, EVENT_RECONNECT_MAX_MS)
+    openEventStream()
+  }, delay)
+}
+
 function handleRemoteEvent(payload) {
   const type = payload.type
   const data = payload.data || {}
+  if (type === 'connected') return
+  rememberEventCursor(payload.ts || data.updated_at || data.created_at)
   if (type === 'response' && data.content) {
-    addMessage('agent', data.content)
+    addMessage(data.role === 'system' ? 'system' : 'agent', data.content, {
+      id: data.id ? `remote:${data.id}` : '',
+      taskId: data.task_id || '',
+    })
   } else if (type === 'task_updated' || type === 'delegation_updated') {
-    syncCloudAssets().catch(() => {})
+    if (Array.isArray(data.tasks) && data.tasks.length) {
+      const byId = new Map((state.remote.tasks || []).map((task) => [String(task.id), task]))
+      data.tasks.forEach((task) => byId.set(String(task.id), { ...(byId.get(String(task.id)) || {}), ...task }))
+      state.remote.tasks = [...byId.values()].sort((a, b) => String(b.updated_at || b.created_at || '').localeCompare(String(a.updated_at || a.created_at || '')))
+      renderBackground()
+      scheduleActiveCloudPoll()
+    } else {
+      syncCloudFast().catch(() => {})
+    }
   } else if (type === 'device_status') {
     syncCloudAssets().catch(() => {})
+  } else if (type === 'conversation_updated') {
+    syncCloudFast().catch(() => {})
+  } else if (type === 'remote_error') {
+    state.remote.error = data.message || '远程同步异常'
   }
 }
 
 async function sendCurrentMessage() {
   const content = state.composing.trim()
-  if (!content || !state.session.authenticated) return
+  if (!content || !state.session.authenticated || state.sending) return
+  state.sending = true
   state.composing = ''
   addMessage('user', content, { forceRender: true })
 
@@ -1084,9 +1190,12 @@ async function sendCurrentMessage() {
       channel: 'MOBILE_APP',
       content,
     })
-    await syncCloudAssets()
+    await syncCloudFast()
+    scheduleActiveCloudPoll(true)
   } catch (error) {
     addSystemMessage(`发送失败：${error.message}`)
+  } finally {
+    state.sending = false
   }
 }
 
@@ -1119,7 +1228,18 @@ async function sendApprovalDecision(approvalId, decision) {
 }
 
 function addMessage(role, content, options = {}) {
-  state.messages.push({ role, content, ts: new Date().toISOString() })
+  const message = {
+    id: options.id || null,
+    taskId: options.taskId || null,
+    role,
+    content,
+    ts: new Date().toISOString(),
+  }
+  const key = messageKey(message)
+  const duplicate = state.messages.some((item) => messageKey(item) === key)
+    || state.messages.slice(-6).some((item) => item.role === role && normalizeMessageContent(item.content) === normalizeMessageContent(content))
+  if (duplicate) return
+  state.messages.push(message)
   state.messages = state.messages.slice(-80)
   saveHistory()
   if (options.forceRender || role === 'user') render({ scrollToBottom: true })
@@ -1189,6 +1309,24 @@ function startCloudPoll() {
   cloudPollTimer = setInterval(() => {
     if (!state.remote.checking) syncCloudAssets().catch(() => {})
   }, CLOUD_POLL_MS)
+}
+
+function hasActiveRemoteTask() {
+  return (state.remote.tasks || []).some((task) => !/complete|success|done|failed|error|aborted/i.test(String(task.status || '')))
+}
+
+function scheduleActiveCloudPoll(force = false) {
+  if (!state.session.authenticated) return
+  if (!force && !hasActiveRemoteTask()) {
+    if (activeCloudPollTimer) clearTimeout(activeCloudPollTimer)
+    activeCloudPollTimer = null
+    return
+  }
+  if (activeCloudPollTimer) return
+  activeCloudPollTimer = setTimeout(() => {
+    activeCloudPollTimer = null
+    syncCloudFast().catch(() => {})
+  }, force ? 400 : ACTIVE_CLOUD_POLL_MS)
 }
 
 if ('serviceWorker' in navigator) {

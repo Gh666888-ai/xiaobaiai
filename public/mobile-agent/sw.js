@@ -1,4 +1,4 @@
-const CACHE_NAME = 'xiaobai-mobile-app-v4-update-check'
+const CACHE_NAME = 'xiaobai-mobile-app-v5-realtime-sync'
 const scopePath = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const assetPath = (path) => `${scopePath}${path}`
 const CORE_ASSETS = [

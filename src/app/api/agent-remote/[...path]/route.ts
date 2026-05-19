@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import { createServerSupabase, requireUser } from "@/lib/server-auth"
+import { createServerSupabase, createUserSupabase, bearerToken, requireUser } from "@/lib/server-auth"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+const STREAM_POLL_MS = 2000
+const STREAM_MAX_MS = 28000
 
 function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status })
@@ -31,6 +33,27 @@ function limitFrom(req: NextRequest, fallback = 20, max = 100) {
   return Math.max(1, Math.min(max, Number.isFinite(value) ? value : fallback))
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function isFinalStatus(status: string) {
+  return /complete|success|done|failed|error|aborted/i.test(status)
+}
+
+function sseEvent(type: string, data: any) {
+  return `event: ${type}\ndata: ${JSON.stringify({ type, data, ts: new Date().toISOString() })}\n\n`
+}
+
+function maxIso(values: Array<string | null | undefined>, fallback: string) {
+  let latest = fallback
+  for (const value of values) {
+    const text = String(value || "")
+    if (text && text > latest) latest = text
+  }
+  return latest
+}
+
 function normalizeDevice(body: any, userId: string) {
   const now = new Date().toISOString()
   const deviceName = String(body?.deviceName || body?.device_name || "我的电脑小白").trim().slice(0, 80)
@@ -52,6 +75,45 @@ async function currentUser(req: NextRequest) {
   const auth = await requireUser(req)
   if (!auth.ok) return auth
   return auth
+}
+
+async function currentUserWithQueryToken(req: NextRequest) {
+  const auth = await requireUser(req)
+  if (auth.ok || bearerToken(req)) return auth
+  const token = String(new URL(req.url).searchParams.get("token") || "").trim()
+  if (!token) return auth
+  const db = admin()
+  const { data, error } = await db.auth.getUser(token)
+  if (error || !data.user) return auth
+  return {
+    ok: true as const,
+    supabase: createUserSupabase(token),
+    adminSupabase: db,
+    user: { id: data.user.id, email: data.user.email },
+    token,
+  }
+}
+
+async function insertRemoteMessageOnce(db: ReturnType<typeof admin>, payload: {
+  user_id: string
+  device_id: string | null
+  task_id: string | null
+  role: string
+  content: string
+  created_at: string
+}) {
+  const content = String(payload.content || "").trim()
+  if (!content) return
+  const { data: existing } = await db
+    .from("agent_remote_messages")
+    .select("id")
+    .eq("user_id", payload.user_id)
+    .eq("task_id", payload.task_id)
+    .eq("role", payload.role)
+    .eq("content", content)
+    .limit(1)
+  if (existing?.length) return
+  await db.from("agent_remote_messages").insert({ ...payload, content })
 }
 
 export async function POST(req: NextRequest, ctx: { params: { path?: string[] } }) {
@@ -154,14 +216,19 @@ export async function POST(req: NextRequest, ctx: { params: { path?: string[] } 
       .limit(Math.max(1, Math.min(10, Number(body?.limit || 3))))
     if (error) return jsonError(error.message, 500)
     const ids = (tasks || []).map((task: any) => task.id)
+    let claimedTasks = tasks || []
     if (ids.length) {
-      await db
+      const { data: claimed, error: claimError } = await db
         .from("agent_remote_tasks")
         .update({ status: "running", device_id: device.id, claimed_at: new Date().toISOString(), updated_at: new Date().toISOString() })
         .in("id", ids)
+        .eq("status", "pending")
+        .select("*")
+      if (claimError) return jsonError(claimError.message, 500)
+      claimedTasks = claimed || []
     }
     await db.from("agent_remote_devices").update({ online: true, last_seen_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", device.id)
-    return NextResponse.json({ tasks: tasks || [], device })
+    return NextResponse.json({ tasks: claimedTasks, device })
   }
 
   if (path[0] === "tasks" && path[2] === "result") {
@@ -170,7 +237,19 @@ export async function POST(req: NextRequest, ctx: { params: { path?: string[] } 
     const result = String(body?.result || body?.content || "")
     const errorMessage = body?.error ? String(body.error) : null
     const now = new Date().toISOString()
-    const isFinal = /complete|success|failed|error|aborted/i.test(status)
+    const isFinal = isFinalStatus(status)
+    const { data: previous, error: previousError } = await db
+      .from("agent_remote_tasks")
+      .select("*")
+      .eq("id", taskId)
+      .eq("user_id", auth.user.id)
+      .maybeSingle()
+    if (previousError) return jsonError(previousError.message, 500)
+    if (!previous) return jsonError("task not found", 404)
+    const sameFinalResult = isFinal
+      && isFinalStatus(String(previous.status || ""))
+      && String(previous.result || "") === result
+      && String(previous.error || "") === String(errorMessage || "")
     const { data: task, error } = await db
       .from("agent_remote_tasks")
       .update({
@@ -185,8 +264,8 @@ export async function POST(req: NextRequest, ctx: { params: { path?: string[] } 
       .select("*")
       .single()
     if (error) return jsonError(error.message, 500)
-    if ((result || errorMessage) && (isFinal || body?.message === true)) {
-      await db.from("agent_remote_messages").insert({
+    if (!sameFinalResult && (result || errorMessage) && (isFinal || body?.message === true)) {
+      await insertRemoteMessageOnce(db, {
         user_id: auth.user.id,
         device_id: task.device_id,
         task_id: task.id,
@@ -224,7 +303,7 @@ export async function POST(req: NextRequest, ctx: { params: { path?: string[] } 
 }
 
 export async function GET(req: NextRequest, ctx: { params: { path?: string[] } }) {
-  const auth = await currentUser(req)
+  const auth = await currentUserWithQueryToken(req)
   if (!auth.ok) return jsonError(auth.error, auth.status)
   const db = admin()
   const path = parts(ctx)
@@ -305,17 +384,63 @@ export async function GET(req: NextRequest, ctx: { params: { path?: string[] } }
 
   if (path[0] === "events") {
     const encoder = new TextEncoder()
+    const startCursor = String(new URL(req.url).searchParams.get("since") || new Date(Date.now() - 3000).toISOString())
     const stream = new ReadableStream({
-      start(controller) {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "connected", ts: new Date().toISOString() })}\n\n`))
+      async start(controller) {
+        let cursor = startCursor
+        const startedAt = Date.now()
+        controller.enqueue(encoder.encode(sseEvent("connected", { cursor })))
+        while (!req.signal.aborted && Date.now() - startedAt < STREAM_MAX_MS) {
+          const [tasks, messages] = await Promise.all([
+            db
+              .from("agent_remote_tasks")
+              .select("id,status,result,error,updated_at,completed_at")
+              .eq("user_id", auth.user.id)
+              .gt("updated_at", cursor)
+              .order("updated_at", { ascending: true })
+              .limit(20),
+            db
+              .from("agent_remote_messages")
+              .select("id,task_id,role,content,created_at")
+              .eq("user_id", auth.user.id)
+              .gt("created_at", cursor)
+              .order("created_at", { ascending: true })
+              .limit(20),
+          ])
+          if (tasks.error || messages.error) {
+            controller.enqueue(encoder.encode(sseEvent("remote_error", { message: tasks.error?.message || messages.error?.message || "stream error" })))
+            break
+          }
+          const taskRows = tasks.data || []
+          const messageRows = messages.data || []
+          if (taskRows.length) {
+            controller.enqueue(encoder.encode(sseEvent("task_updated", { tasks: taskRows })))
+          }
+          for (const message of messageRows) {
+            if (message.role === "assistant" || message.role === "system") {
+              controller.enqueue(encoder.encode(sseEvent("response", message)))
+            } else {
+              controller.enqueue(encoder.encode(sseEvent("conversation_updated", message)))
+            }
+          }
+          cursor = maxIso([
+            ...taskRows.map((task: any) => task.updated_at),
+            ...messageRows.map((message: any) => message.created_at),
+          ], cursor)
+          if (!taskRows.length && !messageRows.length) {
+            controller.enqueue(encoder.encode(`: ping ${new Date().toISOString()}\n\n`))
+          }
+          await sleep(STREAM_POLL_MS)
+        }
         controller.close()
       },
     })
     return new Response(stream, {
       headers: {
         "Content-Type": "text/event-stream; charset=utf-8",
-        "Cache-Control": "no-cache",
+        "Cache-Control": "no-cache, no-transform",
         Connection: "keep-alive",
+        "X-Accel-Buffering": "no",
       },
     })
   }
