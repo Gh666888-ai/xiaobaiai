@@ -156,8 +156,8 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
               {guide.bestFor.map((item) => <span key={item} className={styles.tag}>{item}</span>)}
             </div>
             <div className={styles.actions}>
-              <a href="#api" className={styles.primaryButton}>先选模型</a>
-              <a href="#install" className={styles.secondaryButton}>安装启动</a>
+              <a href="#install" className={styles.primaryButton}>照着安装</a>
+              <a href="#api" className={styles.secondaryButton}>复制 API 配置</a>
               {guide.officialUrl && (
                 <a href={guide.officialUrl} target="_blank" rel="noreferrer" className={styles.secondaryButton}>
                   官方文档 <ExternalLink size={13} />
@@ -178,15 +178,15 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
         <section className={styles.panel}>
           <div className={styles.panelHead}>
             <div>
-              <h2 className={styles.panelTitle}>先按 3 步跑通</h2>
-              <p className={styles.panelDesc}>不要一次看完整页。先确认模型、安装本体、启动验证，能回一句话就算第一阶段完成。</p>
+              <h2 className={styles.panelTitle}>照着做，先跑通一次</h2>
+              <p className={styles.panelDesc}>不用先研究原理。先复制粘贴把安装、配置和第一句测试跑通，后面再让小白带你做真实任务。</p>
             </div>
           </div>
           <div className={styles.grid}>
             {[
-              ["1. 选模型", "云端 API 就准备 Key，本地模型就先启动 LM Studio / Ollama 服务。"],
-              ["2. 安装本体", "复制安装命令或打开官方安装包，看到版本号或应用能打开。"],
-              ["3. 启动验证", "发一句测试问题，能正常回复，再回到学习任务里实操。"],
+              ["1. 打开入口", "下载包、官方页、模型入口都放在这里，不用自己到处搜。"],
+              ["2. 复制粘贴", "命令和配置项按顺序填，看到版本号或应用能打开就继续。"],
+              ["3. 让它回一句话", "能听懂测试句、能回复你，就可以进入第一个真实任务。"],
             ].map(([title, desc]) => (
               <div key={title} className={styles.card}>
                 <h3 className={styles.cardTitle}>{title}</h3>
@@ -219,8 +219,8 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
         <section id="install" className={styles.panel}>
           <div className={styles.panelHead}>
             <div>
-              <h2 className={styles.panelTitle}>安装教程</h2>
-              <p className={styles.panelDesc}>按顺序做。遇到命令行报错，先看下方常见问题，不要反复重装。</p>
+              <h2 className={styles.panelTitle}>复制粘贴安装</h2>
+              <p className={styles.panelDesc}>从第 1 步往下做。每一步只处理一个动作，失败了看下方常见问题，不用反复重装。</p>
             </div>
             <TerminalSquare size={24} color="#256d85" />
           </div>
@@ -238,8 +238,8 @@ export default function AgentInstallDetailPage({ params }: PageProps) {
         <section className={styles.panel}>
           <div className={styles.panelHead}>
             <div>
-              <h2 className={styles.panelTitle}>安装好以后怎么启动</h2>
-              <p className={styles.panelDesc}>启动命令和打开方式单独放，避免和安装步骤混在一起。</p>
+              <h2 className={styles.panelTitle}>启动后先说这句</h2>
+              <p className={styles.panelDesc}>第一次不要急着做复杂任务。先用一条测试句确认它已经真的能用。</p>
             </div>
             <Play size={24} color="#256d85" />
           </div>

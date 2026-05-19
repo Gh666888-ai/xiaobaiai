@@ -23,11 +23,11 @@ const cardStyle = {
 
 export const metadata: Metadata = {
   title: "下载小白 Agent Windows 桌面版 - 小白AI",
-  description: "下载小白 Agent Windows 桌面版安装包，支持语音下任务、语音回复、桌面操作、Agent 调度和长期记忆。",
+  description: "下载小白 Agent Windows 桌面版安装包，照着小白AI复制粘贴，几分钟跑通登录、模型和自然语音。",
   alternates: { canonical: "/download" },
   openGraph: {
     title: "下载小白 Agent Windows 桌面版",
-    description: "小白 Agent 桌面端支持语音操作电脑、语音回复和多 Agent 调度。",
+    description: "下载 Xiaobai Nexus，按小白AI教程复制粘贴，把语音、模型和桌面 Agent 跑起来。",
     url: "/download",
     images: [{ url: "/xiaobai-mascot-cutout.png", alt: "小白 Agent 下载" }],
   },
@@ -40,10 +40,10 @@ export default function DownloadPage() {
       <main style={{ width: "min(1120px, calc(100% - 32px))", margin: "0 auto", padding: "44px 0 76px" }}>
         <section style={{ ...cardStyle, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: 30, alignItems: "center", padding: "clamp(24px, 4vw, 42px)", overflow: "hidden" }}>
           <div>
-            <p style={{ margin: "0 0 12px", color: "#256d85", fontSize: 13, fontWeight: 950 }}>小白 Agent 官方桌面版</p>
-            <h1 style={{ margin: "0 0 16px", color: "#102131", fontSize: "clamp(34px, 5vw, 58px)", lineHeight: 1.08, fontWeight: 950, letterSpacing: 0 }}>下载 Xiaobai Nexus</h1>
+            <p style={{ margin: "0 0 12px", color: "#256d85", fontSize: 13, fontWeight: 950 }}>小白AI 官方桌面版</p>
+            <h1 style={{ margin: "0 0 16px", color: "#102131", fontSize: "clamp(34px, 5vw, 58px)", lineHeight: 1.08, fontWeight: 950, letterSpacing: 0 }}>把小白装进你的电脑</h1>
             <p style={{ margin: "0 0 24px", maxWidth: 680, color: "#4c6172", fontSize: 17, lineHeight: 1.85, fontWeight: 650 }}>
-              Windows 电脑点击下面按钮就会开始下载安装包。小白 Agent 不是加了一个语音输入按钮，而是把“你开口说话 → 小白听懂任务 → 调用桌面和本地 Agent 执行 → 再用语音回复结果”做成全程交互闭环。安装后用小白AI网站会员账号登录，再按引导配置模型、语音识别和语音合成 API。
+              下载 Xiaobai Nexus，打开小白AI安装页，照着复制粘贴：登录、模型、语音识别、TTS 一次跑通。成功后，你就可以直接开口让小白检查电脑、整理任务、调用本地 Agent。
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
               <a href={installerUrl} download aria-label="下载小白 Agent Windows 安装包" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10, minHeight: 50, borderRadius: 12, background: "#256d85", color: "#fff", padding: "0 22px", textDecoration: "none", fontSize: 16, fontWeight: 950, boxShadow: "0 12px 24px rgba(37,109,133,0.22)" }}>
@@ -51,12 +51,12 @@ export default function DownloadPage() {
                 立即下载 Windows 安装包
               </a>
               <Link href="/agent-install/xiaobai-nexus" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 50, borderRadius: 12, border: "1px solid #bfd4df", color: "#256d85", background: "#fff", padding: "0 18px", textDecoration: "none", fontSize: 15, fontWeight: 900 }}>
-                查看安装教程
+                跟着小白安装
                 <ArrowRight size={16} />
               </Link>
             </div>
             <div style={{ marginTop: 18, display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {["语音全程交互", "语音操作电脑", "会员登录使用", "已预留自动更新", "Windows 10/11"].map((item) => (
+              {["复制粘贴就能装", "自然语音回复", "语音操作电脑", "会员登录使用", "Windows 10/11"].map((item) => (
                 <span key={item} style={{ borderRadius: 999, background: "#eaf4f7", color: "#256d85", padding: "7px 10px", fontSize: 12, fontWeight: 900 }}>{item}</span>
               ))}
             </div>
@@ -68,39 +68,39 @@ export default function DownloadPage() {
         </section>
 
         <section style={{ marginTop: 20, border: "1px solid #cfe1e9", borderRadius: 16, background: "#ffffff", boxShadow: "0 18px 45px rgba(25, 54, 82, 0.08)", padding: "clamp(20px, 3vw, 30px)" }}>
-          <p style={{ margin: "0 0 10px", color: "#256d85", fontSize: 13, fontWeight: 950 }}>&#x4E3A;&#x4EC0;&#x4E48;&#x4E0D;&#x53EA;&#x662F;&#x666E;&#x901A;&#x684C;&#x9762; Agent</p>
-          <h2 style={{ margin: "0 0 12px", color: "#102131", fontSize: "clamp(26px, 4vw, 40px)", lineHeight: 1.15, fontWeight: 950, letterSpacing: 0 }}>&#x5C0F;&#x767D;&#x4E0D;&#x53EA;&#x662F;&#x4F1A;&#x64CD;&#x4F5C;&#x7535;&#x8111;&#xFF0C;&#x8FD8;&#x662F;&#x5C11;&#x89C1;&#x7684;&#x8BED;&#x97F3;&#x5168;&#x7A0B;&#x4EA4;&#x4E92; Agent&#x3002;</h2>
+          <p style={{ margin: "0 0 10px", color: "#256d85", fontSize: 13, fontWeight: 950 }}>装好以后能做什么</p>
+          <h2 style={{ margin: "0 0 12px", color: "#102131", fontSize: "clamp(26px, 4vw, 40px)", lineHeight: 1.15, fontWeight: 950, letterSpacing: 0 }}>装完，不只是多一个聊天框。</h2>
           <p style={{ margin: "0 0 18px", maxWidth: 880, color: "#506577", fontSize: 16, lineHeight: 1.85, fontWeight: 650 }}>
-            OpenClaw / ClawX &#x8FD9;&#x7C7B;&#x684C;&#x9762; Agent &#x66F4;&#x50CF;&#x201C;&#x80FD;&#x770B;&#x5C4F;&#x5E55;&#x3001;&#x80FD;&#x70B9;&#x6309;&#x94AE;&#x7684;&#x64CD;&#x4F5C;&#x524D;&#x53F0;&#x201D;&#xFF1B;Xiaobai Nexus &#x66F4;&#x8FDB;&#x4E00;&#x6B65;&#xFF0C;&#x662F;&#x7ED9;&#x666E;&#x901A;&#x7528;&#x6237;&#x8BAD;&#x7EC3;&#x4E2A;&#x4EBA; Agent &#x7684;&#x5DE5;&#x4F5C;&#x7CFB;&#x7EDF;&#xFF1A;&#x6BCF;&#x6B21;&#x4EFB;&#x52A1;&#x90FD;&#x4F1A;&#x7559;&#x4E0B;&#x8FD0;&#x884C;&#x8BB0;&#x5F55;&#x3001;&#x5DE5;&#x5177;&#x8BC1;&#x636E;&#x3001;&#x6A21;&#x578B;&#x8868;&#x73B0;&#x548C;&#x53EF;&#x590D;&#x7528;&#x6280;&#x80FD;&#xFF0C;&#x4E0B;&#x6B21;&#x4E0D;&#x662F;&#x91CD;&#x65B0;&#x95EE;&#x4E00;&#x904D;&#xFF0C;&#x800C;&#x662F;&#x76F4;&#x63A5;&#x590D;&#x7528;&#x4F60;&#x7684;&#x6D41;&#x7A0B;&#x548C;&#x9A8C;&#x6536;&#x6807;&#x51C6;&#x3002;
+            小白AI把安装包、Key、配置项和测试句都拆成可复制步骤。你不用先懂 Agent、ASR、TTS，先让它听懂你、说回来、给下一步。
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 210px), 1fr))", gap: 12 }}>
             <div style={{ border: "1px solid #e0edf3", borderRadius: 12, background: "#f8fbfd", padding: 15 }}>
-              <b style={{ display: "block", marginBottom: 7, color: "#102131", fontSize: 15 }}>&#x4EFB;&#x52A1;&#x8D44;&#x4EA7;&#x95ED;&#x73AF;</b>
-              <span style={{ color: "#5b6f7f", fontSize: 13, lineHeight: 1.7 }}>&#x505A;&#x8FC7;&#x4E00;&#x6B21;&#x7684;&#x4EFB;&#x52A1;&#xFF0C;&#x4F1A;&#x6C89;&#x6DC0;&#x6210; agent_runs&#xFF1B;&#x6210;&#x529F;&#x6D41;&#x7A0B;&#x53EF;&#x4FDD;&#x5B58;&#x6210; agent_skills&#x3002;</span>
+              <b style={{ display: "block", marginBottom: 7, color: "#102131", fontSize: 15 }}>复制就能走</b>
+              <span style={{ color: "#5b6f7f", fontSize: 13, lineHeight: 1.7 }}>下载、登录、Key 填哪里、怎么测试，都按页面顺序来。</span>
             </div>
             <div style={{ border: "1px solid #e0edf3", borderRadius: 12, background: "#f8fbfd", padding: 15 }}>
-              <b style={{ display: "block", marginBottom: 7, color: "#102131", fontSize: 15 }}>&#x7ED3;&#x679C;&#x81EA;&#x52A8;&#x9A8C;&#x6536;</b>
-              <span style={{ color: "#5b6f7f", fontSize: 13, lineHeight: 1.7 }}>&#x4E0D;&#x53EA;&#x8F93;&#x51FA;&#x7B54;&#x6848;&#xFF0C;&#x8FD8;&#x8BB0;&#x5F55;&#x5DE5;&#x5177;&#x8C03;&#x7528;&#x3001;&#x5931;&#x8D25;&#x539F;&#x56E0;&#x548C;&#x9A8C;&#x8BC1;&#x7ED3;&#x679C;&#xFF0C;&#x51CF;&#x5C11;&#x201C;&#x770B;&#x8D77;&#x6765;&#x505A;&#x4E86;&#x5176;&#x5B9E;&#x6CA1;&#x505A;&#x201D;&#x3002;</span>
+              <b style={{ display: "block", marginBottom: 7, color: "#102131", fontSize: 15 }}>声音像人在带</b>
+              <span style={{ color: "#5b6f7f", fontSize: 13, lineHeight: 1.7 }}>选自然口语音色，不要播报腔。听起来要像有人陪你操作。</span>
             </div>
             <div style={{ border: "1px solid #e0edf3", borderRadius: 12, background: "#f8fbfd", padding: 15 }}>
-              <b style={{ display: "block", marginBottom: 7, color: "#102131", fontSize: 15 }}>&#x6A21;&#x578B;&#x53EF;&#x66FF;&#x6362;</b>
-              <span style={{ color: "#5b6f7f", fontSize: 13, lineHeight: 1.7 }}>&#x4EFB;&#x52A1;&#x6D41;&#x7A0B;&#x3001;&#x8BB0;&#x5FC6;&#x3001;&#x6280;&#x80FD;&#x548C;&#x5DE5;&#x5177;&#x5C42;&#x4E0D;&#x7ED1;&#x6B7B;&#x67D0;&#x4E00;&#x4E2A;&#x6A21;&#x578B;&#xFF0C;&#x540E;&#x7EED;&#x53EF;&#x63A5;&#x5165;&#x66F4;&#x5F3A;&#x6A21;&#x578B;&#x7EE7;&#x7EED;&#x8FDB;&#x5316;&#x3002;</span>
+              <b style={{ display: "block", marginBottom: 7, color: "#102131", fontSize: 15 }}>一次配置复用</b>
+              <span style={{ color: "#5b6f7f", fontSize: 13, lineHeight: 1.7 }}>模型和语音跑通后，下次直接继续训练你的个人 Agent。</span>
             </div>
             <div style={{ border: "1px solid #e0edf3", borderRadius: 12, background: "#f8fbfd", padding: 15 }}>
-              <b style={{ display: "block", marginBottom: 7, color: "#102131", fontSize: 15 }}>&#x957F;&#x671F;&#x4E2A;&#x4EBA;&#x7CFB;&#x7EDF;</b>
-              <span style={{ color: "#5b6f7f", fontSize: 13, lineHeight: 1.7 }}>&#x804A;&#x5929;&#x3001;&#x6280;&#x80FD;&#x3001;&#x4EFB;&#x52A1;&#x3001;&#x8BB0;&#x5FC6;&#x3001;Agent &#x8C03;&#x5EA6;&#x548C;&#x81EA;&#x52A8;&#x66F4;&#x65B0;&#x90FD;&#x56F4;&#x7ED5;&#x540C;&#x4E00;&#x4E2A;&#x7528;&#x6237;&#x8D44;&#x4EA7;&#x5E93;&#x8FD0;&#x8F6C;&#x3002;</span>
+              <b style={{ display: "block", marginBottom: 7, color: "#102131", fontSize: 15 }}>装完马上做</b>
+              <span style={{ color: "#5b6f7f", fontSize: 13, lineHeight: 1.7 }}>先做检查、语音回复和一次桌面 Agent 调度，不空聊。</span>
             </div>
           </div>
           <div style={{ marginTop: 16, borderRadius: 12, background: "#eef7fa", border: "1px solid #d4e7ee", padding: 14, color: "#21495a", fontSize: 14, lineHeight: 1.75, fontWeight: 750 }}>
-            &#x4E00;&#x53E5;&#x8BDD;&#x533A;&#x522B;&#xFF1A;&#x666E;&#x901A;&#x684C;&#x9762; Agent &#x5E2E;&#x4F60;&#x201C;&#x5B8C;&#x6210;&#x8FD9;&#x4E00;&#x6B21;&#x64CD;&#x4F5C;&#x201D;&#xFF1B;&#x5C0F;&#x767D;&#x8981;&#x8BAD;&#x7EC3;&#x6210;&#x201C;&#x4EE5;&#x540E;&#x6301;&#x7EED;&#x66FF;&#x4F60;&#x5B8C;&#x6210;&#x8FD9;&#x4E00;&#x7C7B;&#x5DE5;&#x4F5C;&#x201D;&#x7684;&#x4E2A;&#x4EBA; Agent&#x3002;
+            装好后别空聊，直接说：“小白，检查一下我的电脑和语音配置。”如果它能回答下一步，你已经有了电脑里的小白入口。
           </div>
         </section>
 
         <section style={{ marginTop: 20, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))", gap: 14 }}>
           {[
             { icon: Download, title: "下载后直接安装", body: "打开安装包，按提示安装。安装完成后从桌面快捷方式或开始菜单启动 Xiaobai Nexus。" },
-            { icon: Settings2, title: "登录并配置 API", body: "桌面端需要小白AI会员账号。要语音操作电脑，需要配置 ASR 语音识别和 TTS 语音合成，教程页写清楚了申请位置。" },
-            { icon: Sparkles, title: "开始语音操作小白", body: "这一版包含自定义背景、语音输入、语音回复、Agent 调度、自我进化入口和桌面能力中心。" },
+            { icon: Settings2, title: "照着教程复制粘贴", body: "小白AI已经把模型、ASR、TTS 分开写清楚。你按页面填，不用自己猜哪个 Key 填哪里。" },
+            { icon: Sparkles, title: "让它开口带你做", body: "语音设置完成后，先让小白检查配置，再让它用自然语气说出下一步。" },
           ].map(({ icon: Icon, title, body }) => (
             <div key={title} style={{ ...cardStyle, padding: 18 }}>
               <Icon size={20} style={{ color: "#256d85", marginBottom: 12 }} />
@@ -147,7 +147,7 @@ export default function DownloadPage() {
           <section style={{ ...cardStyle, padding: 20 }}>
             <h2 style={{ margin: "0 0 12px", color: "#102131", fontSize: 20, fontWeight: 950 }}>API 去哪里准备</h2>
             <p style={{ margin: "0 0 14px", color: "#5b6f7f", fontSize: 14, lineHeight: 1.8 }}>
-              小白至少需要一套模型 API；要语音操作电脑，再准备 ASR 语音识别和 TTS 语音合成。ASR 负责听懂你说的话，模型负责判断任务和调用能力，TTS 负责把执行结果说出来。完整申请位置在 Xiaobai Nexus 安装教程里。
+              小白至少需要一套模型 API；要语音操作电脑，再准备 ASR 语音识别和 TTS 语音合成。安装教程会告诉你每个 Key 去哪里申请、复制到哪里、怎么测试有没有成功。
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 190px), 1fr))", gap: 10 }}>
               {[
@@ -174,7 +174,7 @@ export default function DownloadPage() {
             {[
               `浏览器开始下载 ${installerName}。`,
               "安装后能看到 Xiaobai Nexus 桌面快捷方式。",
-              "配置语音识别和 TTS 后，可以直接对小白说话下任务。",
+              "按教程复制粘贴配置后，小白能听懂你说话，也能用更自然的声音回复。",
             ].map((item) => (
               <p key={item} style={{ display: "grid", gridTemplateColumns: "22px 1fr", gap: 8, margin: 0, color: "#536879", fontSize: 14, lineHeight: 1.7 }}>
                 <FileCheck2 size={17} color="#2f7d4d" style={{ marginTop: 4 }} />
