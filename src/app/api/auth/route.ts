@@ -48,19 +48,41 @@ export async function POST(req: NextRequest) {
   if (!supabaseUrl || !supabaseAnonKey) return jsonError("服务器登录配置缺失，请检查 Supabase 环境变量。", 500)
 
   const body = await req.json().catch(() => null)
-  const mode = body?.mode === "register" ? "register" : "login"
+  const mode = body?.mode === "register" ? "register" : body?.mode === "refresh" ? "refresh" : "login"
   const email = String(body?.email || "").trim()
   const password = String(body?.password || "")
   const name = String(body?.name || "").trim()
+  const refreshToken = String(body?.refresh_token || body?.refreshToken || "").trim()
 
-  if (!email || !password) return jsonError("请填写邮箱和密码。")
-  if (password.length < 6) return jsonError("密码至少 6 位。")
+  if (mode === "refresh" && !refreshToken) return jsonError("缺少刷新会话，请重新登录。", 401)
+  if (mode !== "refresh" && (!email || !password)) return jsonError("请填写邮箱和密码。")
+  if (mode !== "refresh" && password.length < 6) return jsonError("密码至少 6 位。")
   if (mode === "register" && !name) return jsonError("注册时请填写昵称，方便社区展示。")
 
   const authSupabase = createSupabaseClient(supabaseAnonKey)
   const adminSupabase = createSupabaseClient(supabaseServiceKey || supabaseAnonKey)
 
   try {
+    if (mode === "refresh") {
+      const { data, error } = await withTimeout(authSupabase.auth.refreshSession({ refresh_token: refreshToken }))
+      if (error) return jsonError(normalizeAuthError(error.message), 401)
+      if (!data.session || !data.user) return jsonError("会话已过期，请重新登录。", 401)
+
+      return NextResponse.json({
+        user: {
+          id: data.user.id,
+          email: data.user.email || "",
+          name: data.user.user_metadata?.name || data.user.email?.split("@")[0] || "用户",
+        },
+        session: {
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+          expires_at: data.session.expires_at,
+          token_type: data.session.token_type,
+        },
+      })
+    }
+
     if (mode === "register") {
       const { data: signUpData, error: signUpError } = await withTimeout(
         authSupabase.auth.signUp({
