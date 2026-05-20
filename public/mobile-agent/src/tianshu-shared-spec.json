@@ -1,6 +1,6 @@
 {
   "name": "xiaobai-tianshu-shared-spec",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "source": "desktop-agent-cognitive-surface",
   "identity": {
     "visibleAgentName": "天枢",
@@ -11,14 +11,14 @@
     "phone": [
       "topbar keeps menu, centered page title, and a non-clickable right spacer only",
       "drawer keeps only chat, tianshu, hotspots, and account entries",
-      "tianshu page shows identity, animated cognitive graph, connection status, real actions, and task composer",
+      "tianshu page shows identity, animated cognitive graph, visible voice orb, connection status, real actions, and task composer",
       "no explanatory panels and no duplicate account buttons"
     ],
     "wide": [
       "foldables and tablets use desktop-like three columns",
       "left column is identity and small graph",
       "center column is the large animated cognitive graph",
-      "right column is status, actions, tick state, and latest synced event"
+      "right column is status, actions, voice orb, tick state, and the full recent synced event stream"
     ],
     "backgrounds": [
       "cosmic animated background",
@@ -57,6 +57,11 @@
         "weibo": "array"
       }
     },
+    "mobilePanel": [
+      "GHIS header uses GLOBAL HOTSPOT TRACKING SYSTEM / GLOBAL HOTSPOT TRACE framing",
+      "mobile renders metric row, animated global heatmap, four platform lists, and LIVE event strip",
+      "wide foldable layout keeps the four platform lists in columns similar to desktop"
+    ],
     "itemFields": ["title", "word", "text", "rank", "heat", "url", "kind", "type", "mediaType"],
     "openBehavior": {
       "directVideo": "native VideoView in app",
