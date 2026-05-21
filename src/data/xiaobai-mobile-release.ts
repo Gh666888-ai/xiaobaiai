@@ -8,9 +8,16 @@ type ReleaseFile = {
 
 const files = (releaseManifest.files || []) as ReleaseFile[]
 const apkFile = files.find((file) => /^Xiaobai-Tianshu-\d+\.\d+\.\d+\.apk$/.test(file.name))
+const webPackageName = releaseManifest.webPackageName
+const webPackageSize = releaseManifest.webPackageSize
+const webPackageSha256 = releaseManifest.webPackageSha256
+const webVersion = releaseManifest.webVersion || releaseManifest.version
+const downloadName = webPackageName || apkFile?.name
+const downloadSize = webPackageName ? webPackageSize : apkFile?.size
+const downloadSha256 = webPackageName ? webPackageSha256 : apkFile?.sha256
 
-if (!apkFile) {
-  throw new Error("Xiaobai Tianshu APK is missing from release-manifest.json")
+if (!downloadName) {
+  throw new Error("Xiaobai Tianshu mobile package is missing from release-manifest.json")
 }
 
 const formatBytes = (value: number) => {
@@ -22,16 +29,25 @@ const formatBytes = (value: number) => {
 
 export const xiaobaiMobileRelease = {
   name: releaseManifest.name,
-  version: releaseManifest.version,
+  version: webVersion,
+  downloadVersion: webVersion,
   platform: releaseManifest.platform,
-  platformLabel: "Android / 鸿蒙 APK",
-  compatibilityLabel: "适用于安卓手机、鸿蒙手机和平板；iPhone 暂无原生安装包",
-  iosWebLabel: "iOS 可用网页版或添加到主屏幕",
+  platformLabel: "手机端 Web 包 / Android、鸿蒙、iOS 可用",
+  compatibilityLabel: "适用于安卓手机、鸿蒙手机、iPhone、折叠屏和平板",
+  iosWebLabel: "手机可直接打开网页版，也可下载更新包部署到手机端入口",
   packageName: releaseManifest.packageName,
-  apkName: apkFile.name,
-  apkUrl: `/downloads/xiaobai-mobile/${apkFile.name}`,
-  apkSize: formatBytes(apkFile.size),
-  apkSha256: apkFile.sha256,
+  apkName: apkFile?.name || "",
+  apkUrl: apkFile ? `/downloads/xiaobai-mobile/${apkFile.name}` : "",
+  apkSize: formatBytes(apkFile?.size || 0),
+  apkSha256: apkFile?.sha256 || "",
+  webPackageName,
+  webPackageUrl: webPackageName ? `/downloads/xiaobai-mobile/${webPackageName}` : "",
+  webPackageSize: formatBytes(webPackageSize),
+  webPackageSha256,
+  downloadName,
+  downloadUrl: `/downloads/xiaobai-mobile/${downloadName}`,
+  downloadSize: formatBytes(downloadSize || 0),
+  downloadSha256: downloadSha256 || "",
   manifestUrl: "/downloads/xiaobai-mobile/release-manifest.json",
   appUrl: "/mobile-agent/index.html",
   webAppUrl: "/mobile-agent/index.html",
