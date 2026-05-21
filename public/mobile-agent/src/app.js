@@ -6,6 +6,8 @@ let remoteEventSource = null
 const API_STORAGE_KEY = 'xiaobai-tianshu-api-config'
 const AUTH_STORAGE_KEY = 'xiaobai-tianshu-auth-session'
 const CHAT_BACKGROUND_STORAGE_KEY = 'xiaobai-mobile-chat-background'
+const CHAT_THREADS_STORAGE_KEY = 'xiaobai-mobile-chat-threads'
+const ACTIVE_CHAT_THREAD_STORAGE_KEY = 'xiaobai-mobile-active-chat-thread'
 const DEFAULT_API_CONFIG = {
   endpoint: 'https://www.xiaobaiai.cn/api/mobile-chat',
   chatEndpoint: 'https://www.xiaobaiai.cn/api/mobile-chat',
@@ -19,6 +21,7 @@ const DEFAULT_API_CONFIG = {
 const savedAuthSession = loadSavedAuthSession()
 const savedApiConfig = loadSavedApiConfig(savedAuthSession)
 const savedChatBackground = loadSavedChatBackground()
+const savedChatHistory = loadSavedChatHistory(savedAuthSession)
 
 const state = {
   version: '0.1.14',
@@ -35,6 +38,9 @@ const state = {
   authBusy: false,
   authError: '',
   chatBackground: savedChatBackground,
+  chatHistoryAccountKey: savedChatHistory.accountKey,
+  chatThreads: savedChatHistory.threads,
+  activeThreadIds: savedChatHistory.activeThreadIds,
   connectionHealth: {
     checking: false,
     checkedAt: '',
@@ -43,7 +49,8 @@ const state = {
     devices: savedApiConfig.saved ? 'idle' : 'offline',
     message: savedApiConfig.saved ? '已保存连接，等待体检。' : '还没有保存 API 连接。',
   },
-  messages: [],
+  messages: getThreadMessages(savedChatHistory.threads.chat, savedChatHistory.activeThreadIds.chat),
+  tianshuMessages: getThreadMessages(savedChatHistory.threads.tianshu, savedChatHistory.activeThreadIds.tianshu),
   tasks: [
     { id: 'sample-install-check', title: '安装说明检查', status: '执行中', progress: 68, result: '等待电脑端同步真实结果。' },
     { id: 'sample-short-video', title: '短视频选题整理', status: '待确认', progress: 35, result: '' },
@@ -63,6 +70,7 @@ window.addEventListener('orientationchange', () => setTimeout(applyViewportInset
 function render() {
   disposeActiveEarth()
   applyViewportInsets()
+  ensureChatHistoryScope()
   ensureWebsiteAccountConnection({ quiet: true, skipHealth: true })
   const shellMode = state.page === 'settings' ? 'settings' : state.workspace
   const backgroundMode = state.chatBackground.mode || 'glass'
@@ -204,6 +212,11 @@ function renderConversation() {
   return `<div class="message-stream">${state.messages.map(renderMessage).join('')}</div>`
 }
 
+function renderTianshuConversation() {
+  if (!state.tianshuMessages.length) return ''
+  return `<div class="tianshu-message-dock">${state.tianshuMessages.slice(-4).map(renderMessage).join('')}</div>`
+}
+
 function renderWelcome() {
   return `
     <section class="welcome">
@@ -228,6 +241,7 @@ function renderDesktopBrainSurface() {
   return `
     <section class="cognitive-surface desktop-brain-surface" aria-label="天枢电脑端界面">
       <button class="desktop-brain-menu" type="button" data-action="sidebar" aria-label="打开菜单">${menuIcon()}</button>
+      ${renderTianshuConversation()}
       <iframe class="desktop-brain-frame" src="./desktop-brain.html" title="小白天枢电脑端界面"></iframe>
     </section>
   `
@@ -786,7 +800,7 @@ function bindEvents() {
 
   document.querySelectorAll('[data-action="new-chat"]').forEach((button) => {
     button.addEventListener('click', () => {
-      state.messages = []
+      createChatThread(state.workspace)
       state.page = 'chat'
       state.sidebarOpen = false
       render()
@@ -861,11 +875,11 @@ function bindEvents() {
       if (!file) return
       const kind = input.dataset.attachmentInput
       const actionLabel = kind === 'camera' ? '拍照' : kind === 'photo' ? '照片' : '文件'
-      state.messages.push({
+      appendMessage({
         role: 'user',
         text: `已选择${actionLabel}：${file.name}`,
         time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
-      })
+      }, { mode: 'chat' })
       state.summonOpen = false
       input.value = ''
       render()
@@ -939,12 +953,12 @@ function bindEvents() {
 function submitPrompt(rawText) {
   const text = rawText.trim()
   if (!text) return
-  state.messages.push({ role: 'user', text, time: currentTime() })
-  state.messages.push({
+  appendMessage({ role: 'user', text, time: currentTime() }, { mode: 'chat' })
+  appendMessage({
     role: 'assistant',
     text: state.connected ? '收到，已同步到天枢中心。' : '收到，已先保存为草稿。',
     time: currentTime(),
-  })
+  }, { mode: 'chat' })
   state.tasks.unshift({
     title: text,
     status: state.connected ? '已发送' : '草稿',
@@ -956,8 +970,9 @@ function submitPrompt(rawText) {
 async function submitPromptV2(rawText) {
   const text = rawText.trim()
   if (!text) return
-  state.messages.push({ role: 'user', text, time: currentTime() })
-  const taskEntry = state.workspace === 'tianshu'
+  const mode = state.workspace === 'tianshu' ? 'tianshu' : 'chat'
+  appendMessage({ role: 'user', text, time: currentTime() }, { mode })
+  const taskEntry = mode === 'tianshu'
     ? createLocalTask(text, state.connected ? '正在下发' : '草稿', state.connected ? 8 : 0)
     : null
   const assistantMessage = {
@@ -965,13 +980,13 @@ async function submitPromptV2(rawText) {
     text: state.connected ? (state.workspace === 'tianshu' ? '正在下发到电脑端天枢，等待任务回执。' : '正在调用已保存 API 回答。') : '还没有保存 API，我先把这条内容留在本机。',
     time: currentTime(),
   }
-  state.messages.push(assistantMessage)
+  appendMessage(assistantMessage, { mode })
   render()
 
   if (!state.connected) return
 
   try {
-    const result = state.workspace === 'tianshu'
+    const result = mode === 'tianshu'
       ? await sendDesktopTask(text, taskEntry)
       : await askKnowledgeApi(text)
     assistantMessage.text = result || assistantMessage.text
@@ -983,11 +998,12 @@ async function submitPromptV2(rawText) {
         error: error?.message || '任务下发失败',
       })
     }
-    assistantMessage.text = state.workspace === 'tianshu'
+    assistantMessage.text = mode === 'tianshu'
       ? `电脑端任务 API 暂时没有接收：${error?.message || '请检查设置里的远程连接。'}`
       : `普通问答 API 暂时没有返回：${error?.message || '请检查设置里的 API 地址或令牌。'}`
   }
   assistantMessage.time = currentTime()
+  saveChatHistory()
   render()
 }
 
@@ -1246,11 +1262,12 @@ function updateTaskFromRemote(remoteTask) {
   if (!existing) state.tasks.unshift(next)
   if (['completed', 'failed', 'aborted'].includes(String(remoteTask.status || '')) && !next.notified) {
     next.notified = true
-    state.messages.push({
+    appendMessage({
       role: 'assistant',
       text: next.error || next.result || `${next.title}：${next.status}`,
       time: currentTime(),
-    })
+      remoteKey: `task:${remoteId}`,
+    }, { mode: 'tianshu' })
   }
 }
 
@@ -1258,14 +1275,14 @@ function upsertAssistantRemoteMessage(message) {
   const text = String(message.content || '').trim()
   if (!text) return
   const key = `${message.task_id || ''}:${text}`
-  if (state.messages.some((item) => item.remoteKey === key)) return
-  state.messages.push({
+  if (state.tianshuMessages.some((item) => item.remoteKey === key)) return
+  appendMessage({
     role: message.role === 'system' ? 'assistant' : 'assistant',
     text,
     time: currentTime(),
     remoteKey: key,
-  })
-  render()
+  }, { mode: 'tianshu' })
+  if (state.workspace === 'tianshu') render()
 }
 
 function remoteStatusLabel(status) {
@@ -1324,6 +1341,150 @@ function openCard(card) {
   state.activeCard = ['news', 'weather', 'task', 'file'].includes(card) ? card : 'news'
   state.summonOpen = false
   render()
+}
+
+function currentAccountKey(authSession = state.auth) {
+  const user = authSession?.user || {}
+  const identity = user.id || user.email || authSession?.token?.slice(0, 16) || 'guest'
+  return String(identity).trim().toLowerCase() || 'guest'
+}
+
+function normalizeChatMode(mode) {
+  return mode === 'tianshu' ? 'tianshu' : 'chat'
+}
+
+function createEmptyThread(mode) {
+  return {
+    id: `${normalizeChatMode(mode)}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    title: mode === 'tianshu' ? '天枢对话' : '普通对话',
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    messages: [],
+  }
+}
+
+function getThreadMessages(threads, activeThreadId) {
+  const thread = Array.isArray(threads) ? threads.find((item) => item.id === activeThreadId) : null
+  return Array.isArray(thread?.messages) ? thread.messages : []
+}
+
+function loadSavedChatHistory(authSession = state?.auth) {
+  const accountKey = currentAccountKey(authSession)
+  const fallback = {
+    accountKey,
+    threads: { chat: [createEmptyThread('chat')], tianshu: [createEmptyThread('tianshu')] },
+    activeThreadIds: { chat: '', tianshu: '' },
+  }
+  fallback.activeThreadIds.chat = fallback.threads.chat[0].id
+  fallback.activeThreadIds.tianshu = fallback.threads.tianshu[0].id
+
+  try {
+    const raw = localStorage.getItem(CHAT_THREADS_STORAGE_KEY)
+    const activeRaw = localStorage.getItem(ACTIVE_CHAT_THREAD_STORAGE_KEY)
+    const parsed = raw ? JSON.parse(raw) : {}
+    const activeParsed = activeRaw ? JSON.parse(activeRaw) : {}
+    const scoped = parsed?.[accountKey] || {}
+    const activeScoped = activeParsed?.[accountKey] || {}
+    const chat = normalizeThreads(scoped.chat, 'chat')
+    const tianshu = normalizeThreads(scoped.tianshu, 'tianshu')
+    const activeThreadIds = {
+      chat: chat.some((thread) => thread.id === activeScoped.chat) ? activeScoped.chat : chat[0].id,
+      tianshu: tianshu.some((thread) => thread.id === activeScoped.tianshu) ? activeScoped.tianshu : tianshu[0].id,
+    }
+    return { accountKey, threads: { chat, tianshu }, activeThreadIds }
+  } catch {
+    return fallback
+  }
+}
+
+function normalizeThreads(value, mode) {
+  const threads = Array.isArray(value)
+    ? value.map((thread) => ({
+        id: typeof thread?.id === 'string' && thread.id ? thread.id : `${mode}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        title: typeof thread?.title === 'string' && thread.title ? thread.title : (mode === 'tianshu' ? '天枢对话' : '普通对话'),
+        createdAt: Number(thread?.createdAt || Date.now()),
+        updatedAt: Number(thread?.updatedAt || Date.now()),
+        messages: Array.isArray(thread?.messages)
+          ? thread.messages.filter((message) => message && typeof message.text === 'string').slice(-80)
+          : [],
+      }))
+    : []
+  return threads.length ? threads.slice(0, 20) : [createEmptyThread(mode)]
+}
+
+function ensureChatHistoryScope() {
+  const accountKey = currentAccountKey()
+  if (state.chatHistoryAccountKey === accountKey) return
+  const next = loadSavedChatHistory(state.auth)
+  state.chatHistoryAccountKey = next.accountKey
+  state.chatThreads = next.threads
+  state.activeThreadIds = next.activeThreadIds
+  state.messages = getThreadMessages(next.threads.chat, next.activeThreadIds.chat)
+  state.tianshuMessages = getThreadMessages(next.threads.tianshu, next.activeThreadIds.tianshu)
+}
+
+function activeThread(mode = state.workspace) {
+  const normalized = normalizeChatMode(mode)
+  const threads = state.chatThreads[normalized]
+  let thread = threads.find((item) => item.id === state.activeThreadIds[normalized])
+  if (!thread) {
+    thread = createEmptyThread(normalized)
+    threads.unshift(thread)
+    state.activeThreadIds[normalized] = thread.id
+  }
+  return thread
+}
+
+function syncVisibleMessages(mode = state.workspace) {
+  const normalized = normalizeChatMode(mode)
+  if (normalized === 'chat') state.messages = activeThread('chat').messages
+  else state.tianshuMessages = activeThread('tianshu').messages
+}
+
+function appendMessage(message, { mode = state.workspace, persist = true } = {}) {
+  const normalized = normalizeChatMode(mode)
+  ensureChatHistoryScope()
+  const thread = activeThread(normalized)
+  message.role = message.role === 'user' ? 'user' : 'assistant'
+  message.text = String(message.text || '')
+  message.time = message.time || currentTime()
+  message.remoteKey = message.remoteKey || ''
+  thread.messages.push(message)
+  thread.messages = thread.messages.slice(-80)
+  thread.updatedAt = Date.now()
+  if (thread.title === '普通对话' || thread.title === '天枢对话') {
+    const firstUser = thread.messages.find((item) => item.role === 'user' && item.text)
+    if (firstUser) thread.title = firstUser.text.slice(0, 18)
+  }
+  syncVisibleMessages(normalized)
+  if (persist) saveChatHistory()
+  return thread.messages[thread.messages.length - 1]
+}
+
+function createChatThread(mode = state.workspace) {
+  const normalized = normalizeChatMode(mode)
+  const thread = createEmptyThread(normalized)
+  state.chatThreads[normalized].unshift(thread)
+  state.chatThreads[normalized] = state.chatThreads[normalized].slice(0, 20)
+  state.activeThreadIds[normalized] = thread.id
+  syncVisibleMessages(normalized)
+  saveChatHistory()
+  return thread
+}
+
+function saveChatHistory() {
+  ensureChatHistoryScope()
+  try {
+    const raw = localStorage.getItem(CHAT_THREADS_STORAGE_KEY)
+    const parsed = raw ? JSON.parse(raw) : {}
+    parsed[state.chatHistoryAccountKey] = state.chatThreads
+    localStorage.setItem(CHAT_THREADS_STORAGE_KEY, JSON.stringify(parsed))
+
+    const activeRaw = localStorage.getItem(ACTIVE_CHAT_THREAD_STORAGE_KEY)
+    const activeParsed = activeRaw ? JSON.parse(activeRaw) : {}
+    activeParsed[state.chatHistoryAccountKey] = state.activeThreadIds
+    localStorage.setItem(ACTIVE_CHAT_THREAD_STORAGE_KEY, JSON.stringify(activeParsed))
+  } catch {}
 }
 
 function defaultApiConfig() {

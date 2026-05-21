@@ -169,6 +169,7 @@ export function initChat({
   }
 
   async function fetchChatHistory() {
+    if (REMOTE_MODE) return [];
     try {
       const res = await fetch(`${apiBase}/conversations?limit=${maxHistory}`);
       if (!res.ok) return [];
