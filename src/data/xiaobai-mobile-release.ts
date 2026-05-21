@@ -11,7 +11,6 @@ const apkFile = files.find((file) => /^Xiaobai-Tianshu(?:-Native)?-\d+\.\d+\.\d+
 const webPackageName = releaseManifest.webPackageName
 const webPackageSize = releaseManifest.webPackageSize
 const webPackageSha256 = releaseManifest.webPackageSha256
-const webVersion = releaseManifest.webVersion || releaseManifest.version
 const downloadName = apkFile?.name || webPackageName
 const downloadSize = apkFile?.size || webPackageSize
 const downloadSha256 = apkFile?.sha256 || webPackageSha256
@@ -29,8 +28,9 @@ const formatBytes = (value: number) => {
 
 export const xiaobaiMobileRelease = {
   name: releaseManifest.name,
-  version: webVersion,
-  downloadVersion: webVersion,
+  version: releaseManifest.version,
+  downloadVersion: releaseManifest.version,
+  webVersion: releaseManifest.webVersion || releaseManifest.version,
   platform: releaseManifest.platform,
   platformLabel: "Android / 鸿蒙 APK",
   compatibilityLabel: "适用于安卓手机、鸿蒙手机、折叠屏和平板；iPhone 使用网页版",
