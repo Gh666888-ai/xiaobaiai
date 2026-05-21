@@ -4,13 +4,15 @@ let activeEarth = null
 let remoteSyncTimer = null
 let remoteEventSource = null
 const API_STORAGE_KEY = 'xiaobai-tianshu-api-config'
+const AUTH_STORAGE_KEY = 'xiaobai-tianshu-auth-session'
 const CHAT_BACKGROUND_STORAGE_KEY = 'xiaobai-mobile-chat-background'
-const savedApiConfig = loadSavedApiConfig()
+const savedAuthSession = loadSavedAuthSession()
+const savedApiConfig = loadSavedApiConfig(savedAuthSession)
 const savedChatBackground = loadSavedChatBackground()
 
 const state = {
   version: '0.1.14',
-  apkUrl: '../downloads/xiaobai-mobile/Xiaobai-Tianshu-0.1.13.apk',
+  apkUrl: '../downloads/xiaobai-mobile/Xiaobai-Tianshu-0.1.14.apk',
   page: 'chat',
   workspace: 'chat',
   sidebarOpen: false,
@@ -18,6 +20,10 @@ const state = {
   activeCard: null,
   connected: savedApiConfig.saved,
   api: savedApiConfig,
+  auth: savedAuthSession,
+  authMode: 'login',
+  authBusy: false,
+  authError: '',
   chatBackground: savedChatBackground,
   connectionHealth: {
     checking: false,
@@ -117,6 +123,14 @@ function renderTopbar() {
 }
 
 function renderChatPage() {
+  if (!state.auth?.token) {
+    return `
+      <section class="conversation" aria-label="登录小白AI账号">
+        ${renderAuthGate()}
+      </section>
+    `
+  }
+
   if (state.workspace === 'tianshu') {
     return `
       <section class="conversation" aria-label="天枢电脑端界面">
@@ -132,6 +146,40 @@ function renderChatPage() {
       </div>
     </section>
     ${renderComposer()}
+  `
+}
+
+function renderAuthGate() {
+  return `
+    <section class="auth-gate">
+      <div class="agent-graph auth-graph" aria-hidden="true">
+        <span class="graph-ring ring-a"></span>
+        <span class="graph-ring ring-b"></span>
+        <span class="graph-line line-a"></span>
+        <span class="graph-line line-b"></span>
+        <span class="graph-line line-c"></span>
+        <span class="graph-node node-a"></span>
+        <span class="graph-node node-b"></span>
+        <span class="graph-node node-c"></span>
+        <span class="graph-node node-d"></span>
+        <span class="graph-node node-e"></span>
+        <img class="graph-logo xiaobai-agent-logo" src="./icons/xiaobai-ai-agent.png" alt="" />
+      </div>
+      <form class="account-login-form auth-gate-form" data-auth-form>
+        <label>
+          <span>小白AI网站账号</span>
+          <input name="email" type="email" placeholder="邮箱账号" autocomplete="email" />
+        </label>
+        <label>
+          <span>密码</span>
+          <input name="password" type="password" placeholder="网站账号密码" autocomplete="current-password" />
+        </label>
+        <div class="api-actions">
+          <button type="submit">${state.authBusy ? '登录中' : '登录并同步电脑端 API'}</button>
+        </div>
+        <small>${state.authError ? escapeHtml(state.authError) : '登录后会自动保存账号令牌，并读取同账号电脑端小白同步的 API、设备和任务。'}</small>
+      </form>
+    </section>
   `
 }
 
@@ -531,12 +579,24 @@ function renderBackgroundSection() {
 }
 
 function renderConnectionSection() {
+  const loggedIn = Boolean(state.auth?.token)
+  const accountLabel = state.auth?.user?.email || state.auth?.user?.name || ''
   return `
     <section class="setting-section">
       <div class="section-title">
         <h2>天枢中心</h2>
-        <span class="status-chip ${state.connected ? 'online' : ''}">${state.connected ? '已连接' : '未连接'}</span>
+        <span class="status-chip ${state.connected ? 'online' : ''}">${loggedIn ? '网站账号已登录' : '未登录'}</span>
       </div>
+      ${loggedIn ? `
+        <div class="account-session-card">
+          <div>
+            <span>小白AI 网站账号</span>
+            <strong>${escapeHtml(accountLabel || '已登录')}</strong>
+            <small>${state.connected ? '已自动保存账号令牌，正在使用同账号电脑端 API。' : '账号已保存，等待连接体检。'}</small>
+          </div>
+          <button type="button" data-action="logout-account">退出</button>
+        </div>
+      ` : renderLoginForm()}
       <form class="api-connect-form" data-api-form>
         <label>
           <span>普通对话 API</span>
@@ -551,14 +611,14 @@ function renderConnectionSection() {
           <input name="workspaceId" value="${escapeHtml(state.api.workspaceId)}" placeholder="tianshu-main" autocomplete="off" />
         </label>
         <label>
-          <span>访问令牌</span>
-          <input name="token" value="${escapeHtml(state.api.token)}" placeholder="连接后自动保存在本机" autocomplete="off" />
+          <span>网站账号令牌</span>
+          <input name="token" value="${escapeHtml(state.api.token)}" placeholder="登录网站账号后自动保存" autocomplete="off" readonly />
         </label>
         <div class="api-actions">
           <button type="submit">${state.connected ? '更新连接' : '连接并保存'}</button>
           <button type="button" data-action="clear-api">清除</button>
         </div>
-        ${state.api.saved ? `<small>已保存 · ${escapeHtml(state.api.savedAt || '本机')}</small>` : '<small>连接成功后会自动保存 API 配置</small>'}
+        ${state.api.saved ? `<small>已保存 · ${escapeHtml(state.api.savedAt || '本机')}</small>` : '<small>先登录小白AI网站账号，手机会自动读取同账号电脑端 API。</small>'}
       </form>
       ${renderConnectionHealth()}
       <div class="device-list">
@@ -574,6 +634,25 @@ function renderConnectionSection() {
         `).join('')}
       </div>
     </section>
+  `
+}
+
+function renderLoginForm() {
+  return `
+    <form class="account-login-form" data-auth-form>
+      <label>
+        <span>网站账号邮箱</span>
+        <input name="email" type="email" placeholder="输入小白AI网站账号" autocomplete="email" />
+      </label>
+      <label>
+        <span>密码</span>
+        <input name="password" type="password" placeholder="输入网站账号密码" autocomplete="current-password" />
+      </label>
+      <div class="api-actions">
+        <button type="submit">${state.authBusy ? '登录中' : '登录并同步电脑端 API'}</button>
+      </div>
+      <small>${state.authError ? escapeHtml(state.authError) : '登录后会保存网站 access token，并自动体检普通问答、远程中继和电脑在线状态。'}</small>
+    </form>
   `
 }
 
@@ -669,6 +748,11 @@ function renderAboutSection() {
 }
 
 function bindEvents() {
+  if (state.auth?.token && !state.connected) {
+    saveApiConnection('', state.auth.token, '', '', { authSession: state.auth, quiet: true })
+  }
+  refreshAuthSessionIfNeeded().catch(() => {})
+
   document.querySelectorAll('[data-action="sidebar"]').forEach((button) => {
     button.addEventListener('click', () => {
       state.sidebarOpen = true
@@ -781,8 +865,22 @@ function bindEvents() {
     const endpoint = form.elements.endpoint.value.trim()
     const desktopEndpoint = form.elements.desktopEndpoint.value.trim()
     const workspaceId = form.elements.workspaceId.value.trim()
-    const token = form.elements.token.value.trim()
+    const token = state.auth?.token || form.elements.token.value.trim()
     saveApiConnection(endpoint, token, desktopEndpoint, workspaceId)
+  })
+
+  document.querySelector('[data-auth-form]')?.addEventListener('submit', (event) => {
+    event.preventDefault()
+    const form = event.currentTarget
+    loginWithWebsiteAccount(form.elements.email.value.trim(), form.elements.password.value).catch((error) => {
+      state.authBusy = false
+      state.authError = error?.message || '登录失败，请稍后再试。'
+      render()
+    })
+  })
+
+  document.querySelector('[data-action="logout-account"]')?.addEventListener('click', () => {
+    clearAuthSession()
   })
 
   document.querySelector('[data-action="clear-api"]')?.addEventListener('click', () => {
@@ -876,6 +974,7 @@ async function askKnowledgeApi(message) {
       mode: 'knowledge-chat',
       source: 'mobile',
       workspaceId: state.api.workspaceId,
+      modelConfig: { useDesktopModel: true },
     }),
   })
   const data = await readApiJson(response)
@@ -1212,33 +1311,36 @@ function defaultApiConfig() {
   }
 }
 
-function loadSavedApiConfig() {
+function loadSavedApiConfig(authSession = null) {
   const fallback = defaultApiConfig()
+  const authToken = authSession?.token || ''
   try {
     const raw = localStorage.getItem(API_STORAGE_KEY)
-    if (!raw) return fallback
+    if (!raw) return authToken ? { ...fallback, token: authToken, saved: true, savedAt: authSession.savedAt || currentTime() } : fallback
     const parsed = JSON.parse(raw)
     const endpoint = typeof parsed.chatEndpoint === 'string' && parsed.chatEndpoint ? parsed.chatEndpoint : (typeof parsed.endpoint === 'string' && parsed.endpoint ? parsed.endpoint : fallback.endpoint)
     return {
       endpoint,
       chatEndpoint: endpoint,
       desktopEndpoint: typeof parsed.desktopEndpoint === 'string' && parsed.desktopEndpoint ? parsed.desktopEndpoint : fallback.desktopEndpoint,
-      token: typeof parsed.token === 'string' ? parsed.token : '',
+      token: authToken || (typeof parsed.token === 'string' ? parsed.token : ''),
       saved: true,
       savedAt: typeof parsed.savedAt === 'string' ? parsed.savedAt : '',
       workspaceId: typeof parsed.workspaceId === 'string' && parsed.workspaceId ? parsed.workspaceId : fallback.workspaceId,
     }
   } catch {
-    return fallback
+    return authToken ? { ...fallback, token: authToken, saved: true, savedAt: authSession.savedAt || currentTime() } : fallback
   }
 }
 
-function saveApiConnection(endpoint, token, desktopEndpoint, workspaceId) {
+function saveApiConnection(endpoint, token, desktopEndpoint, workspaceId, options = {}) {
+  const authSession = options.authSession || state.auth
+  const sessionToken = token || authSession?.token || ''
   const next = {
     endpoint: endpoint || defaultApiConfig().endpoint,
     chatEndpoint: endpoint || defaultApiConfig().chatEndpoint,
     desktopEndpoint: desktopEndpoint || defaultApiConfig().desktopEndpoint,
-    token,
+    token: sessionToken,
     saved: true,
     savedAt: currentTime(),
     workspaceId: workspaceId || defaultApiConfig().workspaceId,
@@ -1249,17 +1351,17 @@ function saveApiConnection(endpoint, token, desktopEndpoint, workspaceId) {
     // Local storage can fail in strict privacy modes; keep the session usable.
   }
   state.api = next
-  state.connected = true
+  state.connected = Boolean(sessionToken)
   state.connectionHealth = {
     checking: false,
     checkedAt: '',
     chat: 'idle',
     remote: 'idle',
     devices: 'idle',
-    message: '已保存连接，正在准备体检。',
+    message: sessionToken ? '已保存网站账号，正在读取同账号电脑端 API。' : '请先登录网站账号。',
   }
   stopRemoteSync()
-  render()
+  if (!options.quiet) render()
   runConnectionHealthCheck().catch((error) => {
     updateConnectionHealth({ chat: 'error', remote: 'warn', devices: 'warn', message: error?.message || '连接体检失败。' })
     render()
@@ -1283,6 +1385,97 @@ function clearApiConnection() {
   state.devices = [{ name: '天枢终端 01', meta: '未连接', online: false }]
   stopRemoteSync()
   render()
+}
+
+function loadSavedAuthSession() {
+  try {
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY)
+    if (!raw) return defaultAuthSession()
+    const parsed = JSON.parse(raw)
+    return {
+      token: typeof parsed.token === 'string' ? parsed.token : '',
+      refreshToken: typeof parsed.refreshToken === 'string' ? parsed.refreshToken : '',
+      expiresAt: Number(parsed.expiresAt || 0),
+      savedAt: typeof parsed.savedAt === 'string' ? parsed.savedAt : '',
+      user: parsed.user && typeof parsed.user === 'object' ? {
+        id: String(parsed.user.id || ''),
+        email: String(parsed.user.email || ''),
+        name: String(parsed.user.name || ''),
+      } : null,
+    }
+  } catch {
+    return defaultAuthSession()
+  }
+}
+
+function defaultAuthSession() {
+  return {
+    token: '',
+    refreshToken: '',
+    expiresAt: 0,
+    savedAt: '',
+    user: null,
+  }
+}
+
+function saveAuthSession(data) {
+  const session = data.session || {}
+  const next = {
+    token: session.access_token || data.token || '',
+    refreshToken: session.refresh_token || data.refreshToken || '',
+    expiresAt: Number(session.expires_at || data.expiresAt || 0),
+    savedAt: currentTime(),
+    user: data.user || null,
+  }
+  if (!next.token) throw new Error('登录成功但没有拿到访问令牌。')
+  try {
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(next))
+  } catch {}
+  state.auth = next
+  state.authError = ''
+  saveApiConnection('', next.token, '', '', { authSession: next })
+}
+
+function clearAuthSession() {
+  try {
+    localStorage.removeItem(AUTH_STORAGE_KEY)
+  } catch {}
+  state.auth = defaultAuthSession()
+  state.authError = ''
+  clearApiConnection()
+}
+
+async function loginWithWebsiteAccount(email, password) {
+  if (!email || !password) throw new Error('请输入小白AI网站账号和密码。')
+  state.authBusy = true
+  state.authError = ''
+  render()
+  const response = await fetch('https://www.xiaobaiai.cn/api/auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mode: 'login', email, password }),
+  })
+  const data = await readApiJson(response)
+  state.authBusy = false
+  saveAuthSession(data)
+}
+
+async function refreshAuthSessionIfNeeded() {
+  if (!state.auth?.refreshToken || state.authBusy) return
+  const expiresAtMs = Number(state.auth.expiresAt || 0) * 1000
+  if (!expiresAtMs || expiresAtMs - Date.now() > 10 * 60 * 1000) return
+  state.authBusy = true
+  try {
+    const response = await fetch('https://www.xiaobaiai.cn/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'refresh', refresh_token: state.auth.refreshToken }),
+    })
+    const data = await readApiJson(response)
+    saveAuthSession(data)
+  } finally {
+    state.authBusy = false
+  }
 }
 
 function defaultChatBackground() {
