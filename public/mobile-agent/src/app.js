@@ -24,8 +24,8 @@ const savedChatBackground = loadSavedChatBackground()
 const savedChatHistory = loadSavedChatHistory(savedAuthSession)
 
 const state = {
-  version: '0.1.14',
-  apkUrl: '../downloads/xiaobai-mobile/Xiaobai-Tianshu-0.1.14.apk',
+  version: '0.2.0',
+  apkUrl: '../downloads/xiaobai-mobile/Xiaobai-Tianshu-Native-0.2.0.apk',
   page: 'chat',
   workspace: 'chat',
   sidebarOpen: false,
