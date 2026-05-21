@@ -10,8 +10,14 @@
   "minSdk": 23,
   "targetSdk": 35,
   "privacyPolicyUrl": "https://www.xiaobaiai.cn/privacy",
-  "builtAt": "2026-05-20T00:06:45.230Z",
-  "files": [],
+  "builtAt": "2026-05-21T16:23:26.000Z",
+  "files": [
+    {
+      "name": "Xiaobai-Tianshu-0.1.14.apk",
+      "size": 37515,
+      "sha256": "c30de0ff5229c26ae589d0fae249e1dea8bf370591130b61b65be6db5e986be8"
+    }
+  ],
   "webVersion": "0.1.14",
   "webPackageName": "Xiaobai-Tianshu-Mobile-Web-0.1.14.zip",
   "webPackageSize": 6442553,

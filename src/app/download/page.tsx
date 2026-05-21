@@ -71,7 +71,7 @@ export default function DownloadPage() {
                 <Download size={19} />
                 <span style={{ display: "grid", gap: 2, lineHeight: 1.1 }}>
                   <span>下载手机版 {mobileDownloadVersion}</span>
-                  <span style={{ fontSize: 11, fontWeight: 850, opacity: 0.78 }}>天枢中心更新包</span>
+                  <span style={{ fontSize: 11, fontWeight: 850, opacity: 0.78 }}>安卓 / 鸿蒙 APK</span>
                 </span>
               </a>
               <Link href="/agent-install/xiaobai-nexus" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 50, borderRadius: 12, border: "1px solid #bfd4df", color: "#256d85", background: "#fff", padding: "0 18px", textDecoration: "none", fontSize: 15, fontWeight: 900 }}>
@@ -124,7 +124,7 @@ export default function DownloadPage() {
           <p style={{ margin: "0 0 10px", color: "#256d85", fontSize: 13, fontWeight: 950 }}>手机端 App</p>
           <h2 style={{ margin: "0 0 12px", color: "#102131", fontSize: "clamp(26px, 4vw, 40px)", lineHeight: 1.15, fontWeight: 950, letterSpacing: 0 }}>离开电脑，也能指挥家里的小白 Agent</h2>
           <p style={{ margin: "0 0 18px", maxWidth: 900, color: "#506577", fontSize: 16, lineHeight: 1.85, fontWeight: 650 }}>
-            下载最新手机版更新包，手机上直接登录小白网站会员账号，就能连接同账号登录的电脑端小白。iPhone、安卓、鸿蒙、折叠屏和平板都可以先用网页版随身控制台。你在外面发任务，电脑端小白负责执行、调用本机 Agent、同步任务进度和结果。
+            下载安卓 / 鸿蒙可直接安装的手机版 APK，手机上直接登录小白网站会员账号，就能连接同账号登录的电脑端小白。iPhone 可以先用网页版随身控制台并添加到主屏幕。你在外面发任务，电脑端小白负责执行、调用本机 Agent、同步任务进度和结果。
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 16, alignItems: "stretch" }}>
             <div style={{ border: "1px solid #e0edf3", borderRadius: 12, background: "#f8fbfd", padding: 16 }}>
@@ -133,7 +133,7 @@ export default function DownloadPage() {
                   <Download size={18} />
                   <span style={{ display: "grid", gap: 2, lineHeight: 1.1 }}>
                     <span>下载手机版 {mobileDownloadVersion}</span>
-                    <span style={{ fontSize: 11, fontWeight: 850, opacity: 0.78 }}>天枢中心更新包</span>
+                    <span style={{ fontSize: 11, fontWeight: 850, opacity: 0.78 }}>安卓 / 鸿蒙 APK</span>
                   </span>
                 </a>
                 <a href={mobileWebAppUrl} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 48, borderRadius: 12, border: "1px solid #bfd4df", color: "#256d85", background: "#fff", padding: "0 16px", textDecoration: "none", fontSize: 14, fontWeight: 900 }}>

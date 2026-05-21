@@ -12,9 +12,9 @@ const webPackageName = releaseManifest.webPackageName
 const webPackageSize = releaseManifest.webPackageSize
 const webPackageSha256 = releaseManifest.webPackageSha256
 const webVersion = releaseManifest.webVersion || releaseManifest.version
-const downloadName = webPackageName || apkFile?.name
-const downloadSize = webPackageName ? webPackageSize : apkFile?.size
-const downloadSha256 = webPackageName ? webPackageSha256 : apkFile?.sha256
+const downloadName = apkFile?.name || webPackageName
+const downloadSize = apkFile?.size || webPackageSize
+const downloadSha256 = apkFile?.sha256 || webPackageSha256
 
 if (!downloadName) {
   throw new Error("Xiaobai Tianshu mobile package is missing from release-manifest.json")
@@ -32,9 +32,9 @@ export const xiaobaiMobileRelease = {
   version: webVersion,
   downloadVersion: webVersion,
   platform: releaseManifest.platform,
-  platformLabel: "手机端 Web 包 / Android、鸿蒙、iOS 可用",
-  compatibilityLabel: "适用于安卓手机、鸿蒙手机、iPhone、折叠屏和平板",
-  iosWebLabel: "手机可直接打开网页版，也可下载更新包部署到手机端入口",
+  platformLabel: "Android / 鸿蒙 APK",
+  compatibilityLabel: "适用于安卓手机、鸿蒙手机、折叠屏和平板；iPhone 使用网页版",
+  iosWebLabel: "安卓 / 鸿蒙可直接安装 APK；iPhone 可打开网页版或添加到主屏幕",
   packageName: releaseManifest.packageName,
   apkName: apkFile?.name || "",
   apkUrl: apkFile ? `/downloads/xiaobai-mobile/${apkFile.name}` : "",
