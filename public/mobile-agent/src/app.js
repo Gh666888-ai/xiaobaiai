@@ -1,6 +1,8 @@
 import { MobileHotspotEarth } from './mobile-hotspot-earth.js'
 
 let activeEarth = null
+let remoteSyncTimer = null
+let remoteEventSource = null
 const API_STORAGE_KEY = 'xiaobai-tianshu-api-config'
 const CHAT_BACKGROUND_STORAGE_KEY = 'xiaobai-mobile-chat-background'
 const savedApiConfig = loadSavedApiConfig()
@@ -17,13 +19,21 @@ const state = {
   connected: savedApiConfig.saved,
   api: savedApiConfig,
   chatBackground: savedChatBackground,
+  connectionHealth: {
+    checking: false,
+    checkedAt: '',
+    chat: savedApiConfig.saved ? 'idle' : 'offline',
+    remote: savedApiConfig.saved ? 'idle' : 'offline',
+    devices: savedApiConfig.saved ? 'idle' : 'offline',
+    message: savedApiConfig.saved ? '已保存连接，等待体检。' : '还没有保存 API 连接。',
+  },
   messages: [],
   tasks: [
-    { title: '安装说明检查', status: '执行中', progress: 68 },
-    { title: '短视频选题整理', status: '待确认', progress: 35 },
+    { id: 'sample-install-check', title: '安装说明检查', status: '执行中', progress: 68, result: '等待电脑端同步真实结果。' },
+    { id: 'sample-short-video', title: '短视频选题整理', status: '待确认', progress: 35, result: '' },
   ],
   devices: [
-    { name: '天枢终端 01', meta: '天枢中心在线', online: true },
+    { name: '天枢终端 01', meta: savedApiConfig.saved ? '等待远程体检' : '未连接', online: false },
     { name: '备用终端', meta: '离线', online: false },
   ],
   skills: ['写作整理', '代码检查', '网页操作', '文件发送'],
@@ -44,6 +54,7 @@ function render() {
   `
   bindEvents()
   mountActiveCard()
+  reconcileRemoteSync()
 }
 
 function renderShellStyle() {
@@ -392,16 +403,14 @@ function renderTaskCard() {
         <strong>任务卡片</strong>
       </div>
       <div class="task-module-list">
-        <article>
-          <span>执行中</span>
-          <strong>安装说明检查</strong>
-          <div class="progress"><i style="width:68%"></i></div>
-        </article>
-        <article>
-          <span>待确认</span>
-          <strong>短视频选题整理</strong>
-          <button type="button">查看确认项</button>
-        </article>
+        ${state.tasks.slice(0, 3).map((task) => `
+          <article class="${task.error ? 'task-error' : ''}">
+            <span>${escapeHtml(task.status || '等待中')}</span>
+            <strong>${escapeHtml(task.title || '远程任务')}</strong>
+            <div class="progress"><i style="width:${clampProgress(task.progress)}%"></i></div>
+            ${task.result || task.error ? `<small>${escapeHtml(task.error || task.result)}</small>` : ''}
+          </article>
+        `).join('')}
       </div>
     </section>
   `
@@ -551,6 +560,7 @@ function renderConnectionSection() {
         </div>
         ${state.api.saved ? `<small>已保存 · ${escapeHtml(state.api.savedAt || '本机')}</small>` : '<small>连接成功后会自动保存 API 配置</small>'}
       </form>
+      ${renderConnectionHealth()}
       <div class="device-list">
         ${state.devices.map((device) => `
           <article class="device-row">
@@ -567,6 +577,33 @@ function renderConnectionSection() {
   `
 }
 
+function renderConnectionHealth() {
+  const health = state.connectionHealth
+  return `
+    <div class="connection-health" aria-label="连接体检">
+      <div class="health-row">
+        ${renderHealthChip('问答', health.chat)}
+        ${renderHealthChip('远程', health.remote)}
+        ${renderHealthChip('电脑', health.devices)}
+      </div>
+      <small>${escapeHtml(health.message || '等待连接体检。')}${health.checkedAt ? ` · ${escapeHtml(health.checkedAt)}` : ''}</small>
+    </div>
+  `
+}
+
+function renderHealthChip(label, status) {
+  const normalized = ['ok', 'warn', 'error', 'checking', 'idle', 'offline'].includes(status) ? status : 'idle'
+  const text = {
+    ok: '正常',
+    warn: '待确认',
+    error: '异常',
+    checking: '检测中',
+    idle: '未检测',
+    offline: '未连接',
+  }[normalized]
+  return `<span class="health-chip ${normalized}"><i></i>${label}${text}</span>`
+}
+
 function renderTasksSection() {
   return `
     <section class="setting-section">
@@ -578,10 +615,11 @@ function renderTasksSection() {
         ${state.tasks.map((task) => `
           <article class="task-card">
             <div>
-              <span>${task.status}</span>
-              <h3>${task.title}</h3>
+              <span>${escapeHtml(task.status || '等待中')}</span>
+              <h3>${escapeHtml(task.title || '远程任务')}</h3>
             </div>
-            <div class="progress"><i style="width:${task.progress}%"></i></div>
+            <div class="progress"><i style="width:${clampProgress(task.progress)}%"></i></div>
+            ${task.result || task.error ? `<small>${escapeHtml(task.error || task.result)}</small>` : ''}
           </article>
         `).join('')}
       </div>
@@ -659,6 +697,9 @@ function bindEvents() {
       state.page = 'settings'
       state.sidebarOpen = false
       render()
+      if (state.connected && !state.connectionHealth.checkedAt && !state.connectionHealth.checking) {
+        runConnectionHealthCheck().catch(() => {})
+      }
     })
   })
 
@@ -791,32 +832,35 @@ async function submitPromptV2(rawText) {
   const text = rawText.trim()
   if (!text) return
   state.messages.push({ role: 'user', text, time: currentTime() })
+  const taskEntry = state.workspace === 'tianshu'
+    ? createLocalTask(text, state.connected ? '正在下发' : '草稿', state.connected ? 8 : 0)
+    : null
   const assistantMessage = {
     role: 'assistant',
-    text: state.connected ? (state.workspace === 'tianshu' ? '已发送到电脑端天枢，等待任务回执。' : '正在调用已保存 API 回答。') : '还没有保存 API，我先把这条内容留在本机。',
+    text: state.connected ? (state.workspace === 'tianshu' ? '正在下发到电脑端天枢，等待任务回执。' : '正在调用已保存 API 回答。') : '还没有保存 API，我先把这条内容留在本机。',
     time: currentTime(),
   }
   state.messages.push(assistantMessage)
-  if (state.workspace === 'tianshu') {
-    state.tasks.unshift({
-      title: text,
-      status: state.connected ? '已发送' : '草稿',
-      progress: state.connected ? 18 : 0,
-    })
-  }
   render()
 
   if (!state.connected) return
 
   try {
     const result = state.workspace === 'tianshu'
-      ? await sendDesktopTask(text)
+      ? await sendDesktopTask(text, taskEntry)
       : await askKnowledgeApi(text)
     assistantMessage.text = result || assistantMessage.text
-  } catch {
+  } catch (error) {
+    if (taskEntry) {
+      Object.assign(taskEntry, {
+        status: '下发失败',
+        progress: 100,
+        error: error?.message || '任务下发失败',
+      })
+    }
     assistantMessage.text = state.workspace === 'tianshu'
-      ? '电脑端任务 API 暂时没有返回，我已保留这条任务。'
-      : '普通问答 API 暂时没有返回，请检查设置里的 API 地址或令牌。'
+      ? `电脑端任务 API 暂时没有接收：${error?.message || '请检查设置里的远程连接。'}`
+      : `普通问答 API 暂时没有返回：${error?.message || '请检查设置里的 API 地址或令牌。'}`
   }
   assistantMessage.time = currentTime()
   render()
@@ -827,28 +871,52 @@ async function askKnowledgeApi(message) {
     method: 'POST',
     headers: apiHeaders(),
     body: JSON.stringify({
+      content: message,
       message,
       mode: 'knowledge-chat',
       source: 'mobile',
       workspaceId: state.api.workspaceId,
     }),
   })
-  return extractApiText(await response.json())
+  const data = await readApiJson(response)
+  return extractApiText(data) || '模型已响应，但没有返回文本内容。'
 }
 
-async function sendDesktopTask(task) {
+async function sendDesktopTask(task, taskEntry = null) {
   const response = await fetch(state.api.desktopEndpoint, {
     method: 'POST',
     headers: apiHeaders(),
     body: JSON.stringify({
+      content: task,
       task,
+      channel: 'MOBILE_APP',
       mode: 'tianshu-task',
       source: 'mobile',
       workspaceId: state.api.workspaceId,
     }),
   })
-  const data = await response.json()
-  return extractApiText(data) || '电脑端天枢已接收任务。'
+  const data = await readApiJson(response)
+  const remoteTask = data.task || data
+  const remoteId = remoteTask?.id || data.taskId || data.id || ''
+  if (taskEntry) {
+    Object.assign(taskEntry, {
+      remoteId,
+      status: remoteId ? '等待电脑接收' : '已下发',
+      progress: remoteId ? 18 : 12,
+      result: remoteId ? `任务编号 ${remoteId}` : '',
+      error: '',
+    })
+  }
+  pollRemoteTasks({ quiet: true }).catch(() => {})
+  return extractApiText(data) || (remoteId ? `电脑端天枢已接收任务，编号 ${remoteId}。` : '电脑端天枢已接收任务。')
+}
+
+async function readApiJson(response) {
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    throw new Error(extractApiError(data) || `HTTP ${response.status}`)
+  }
+  return data
 }
 
 function apiHeaders() {
@@ -857,9 +925,273 @@ function apiHeaders() {
   return headers
 }
 
+function extractApiError(data) {
+  if (!data || typeof data !== 'object') return ''
+  return data.error || data.message || data.detail || data.reason || ''
+}
+
 function extractApiText(data) {
   if (!data || typeof data !== 'object') return ''
   return data.answer || data.reply || data.message || data.text || data.result || ''
+}
+
+function createLocalTask(title, status, progress) {
+  const task = {
+    id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    remoteId: '',
+    title,
+    status,
+    progress,
+    result: '',
+    error: '',
+  }
+  state.tasks.unshift(task)
+  return task
+}
+
+function reconcileRemoteSync() {
+  if (!state.connected) {
+    stopRemoteSync()
+    return
+  }
+  if (!remoteSyncTimer) {
+    remoteSyncTimer = setInterval(() => {
+      pollRemoteTasks({ quiet: true }).catch(() => {})
+    }, 8000)
+  }
+  if (!remoteEventSource && state.api.token && typeof EventSource !== 'undefined') {
+    const eventsUrl = apiUrlWithToken(remoteEventsEndpoint())
+    try {
+      remoteEventSource = new EventSource(eventsUrl)
+      remoteEventSource.addEventListener('task_updated', (event) => {
+        const payload = parseEventData(event)
+        ;(payload?.tasks || []).forEach(updateTaskFromRemote)
+        render()
+      })
+      remoteEventSource.addEventListener('response', (event) => {
+        const payload = parseEventData(event)
+        if (payload?.content) upsertAssistantRemoteMessage(payload)
+      })
+      remoteEventSource.addEventListener('remote_error', () => {
+        updateConnectionHealth({ remote: 'warn', message: '远程事件流暂时不可用，已切换为轮询。' })
+      })
+      remoteEventSource.onerror = () => {
+        stopRemoteEventSource()
+      }
+    } catch {
+      stopRemoteEventSource()
+    }
+  }
+}
+
+function stopRemoteSync() {
+  if (remoteSyncTimer) {
+    clearInterval(remoteSyncTimer)
+    remoteSyncTimer = null
+  }
+  stopRemoteEventSource()
+}
+
+function stopRemoteEventSource() {
+  if (!remoteEventSource) return
+  try {
+    remoteEventSource.close()
+  } catch {}
+  remoteEventSource = null
+}
+
+function parseEventData(event) {
+  try {
+    return JSON.parse(event.data || '{}')?.data || JSON.parse(event.data || '{}')
+  } catch {
+    return null
+  }
+}
+
+async function runConnectionHealthCheck({ quiet = false } = {}) {
+  if (!state.connected) return
+  state.connectionHealth = {
+    ...state.connectionHealth,
+    checking: true,
+    chat: 'checking',
+    remote: 'checking',
+    devices: 'checking',
+    message: '正在检查问答、远程中继和电脑在线状态。',
+  }
+  if (!quiet) render()
+
+  const next = {
+    checking: false,
+    checkedAt: currentTime(),
+    chat: 'warn',
+    remote: 'warn',
+    devices: 'warn',
+    message: '',
+  }
+
+  try {
+    const chat = await fetch(state.api.chatEndpoint || state.api.endpoint, {
+      method: 'POST',
+      headers: apiHeaders(),
+      body: JSON.stringify({ content: '连接体检', source: 'mobile-healthcheck', workspaceId: state.api.workspaceId }),
+    })
+    next.chat = chat.ok ? 'ok' : 'error'
+  } catch {
+    next.chat = 'error'
+  }
+
+  try {
+    const remote = await fetch(apiUrlWithToken(remoteHealthEndpoint()), { headers: apiHeaders() })
+    const data = await remote.json().catch(() => ({}))
+    next.remote = remote.ok && data?.ok !== false ? 'ok' : 'error'
+  } catch {
+    next.remote = 'error'
+  }
+
+  try {
+    const data = await fetchRemoteJson(remoteDevicesEndpoint())
+    const devices = Array.isArray(data.devices) ? data.devices : []
+    state.devices = devices.length
+      ? devices.map((device, index) => ({
+          name: device.device_name || device.deviceName || `天枢终端 ${index + 1}`,
+          meta: device.online ? '天枢中心在线' : '离线',
+          online: !!device.online,
+        }))
+      : [{ name: '天枢终端 01', meta: '未发现在线电脑', online: false }]
+    next.devices = state.devices.some((device) => device.online) ? 'ok' : 'warn'
+  } catch {
+    state.devices = [{ name: '天枢终端 01', meta: '设备读取失败', online: false }]
+    next.devices = 'error'
+  }
+
+  next.message = summarizeHealth(next)
+  state.connectionHealth = next
+  if (!quiet) render()
+}
+
+function summarizeHealth(health) {
+  if (health.chat === 'ok' && health.remote === 'ok' && health.devices === 'ok') return '问答、远程中继和电脑在线状态正常。'
+  if (health.chat === 'error') return '普通问答 API 暂不可用，请检查 Base URL、Key 或模型名。'
+  if (health.remote === 'error') return '远程中继暂不可用，请检查登录令牌或 Supabase 远程表。'
+  if (health.devices !== 'ok') return '远程中继可用，但暂未发现在线电脑端小白。'
+  return '连接已保存，部分能力仍需确认。'
+}
+
+function updateConnectionHealth(patch) {
+  state.connectionHealth = {
+    ...state.connectionHealth,
+    ...patch,
+    checkedAt: patch.checkedAt || currentTime(),
+  }
+}
+
+async function pollRemoteTasks({ quiet = false } = {}) {
+  if (!state.connected) return
+  const data = await fetchRemoteJson(remoteTasksEndpoint())
+  ;(data.tasks || []).forEach(updateTaskFromRemote)
+  if (!quiet) render()
+}
+
+async function fetchRemoteJson(url) {
+  const response = await fetch(apiUrlWithToken(url), { headers: apiHeaders() })
+  return readApiJson(response)
+}
+
+function updateTaskFromRemote(remoteTask) {
+  if (!remoteTask?.id) return
+  const remoteId = String(remoteTask.id)
+  const existing = state.tasks.find((task) => task.remoteId === remoteId)
+    || state.tasks.find((task) => task.title === remoteTask.content)
+  const next = existing || {
+    id: `remote-${remoteId}`,
+    remoteId,
+    title: remoteTask.content || '远程任务',
+    status: '等待中',
+    progress: 0,
+    result: '',
+    error: '',
+  }
+  next.remoteId = remoteId
+  next.title = remoteTask.content || next.title
+  next.status = remoteStatusLabel(remoteTask.status)
+  next.progress = remoteStatusProgress(remoteTask.status)
+  next.result = remoteTask.result || next.result || ''
+  next.error = remoteTask.error || ''
+  if (!existing) state.tasks.unshift(next)
+  if (['completed', 'failed', 'aborted'].includes(String(remoteTask.status || '')) && !next.notified) {
+    next.notified = true
+    state.messages.push({
+      role: 'assistant',
+      text: next.error || next.result || `${next.title}：${next.status}`,
+      time: currentTime(),
+    })
+  }
+}
+
+function upsertAssistantRemoteMessage(message) {
+  const text = String(message.content || '').trim()
+  if (!text) return
+  const key = `${message.task_id || ''}:${text}`
+  if (state.messages.some((item) => item.remoteKey === key)) return
+  state.messages.push({
+    role: message.role === 'system' ? 'assistant' : 'assistant',
+    text,
+    time: currentTime(),
+    remoteKey: key,
+  })
+  render()
+}
+
+function remoteStatusLabel(status) {
+  const normalized = String(status || '').toLowerCase()
+  if (normalized === 'pending') return '等待电脑接收'
+  if (normalized === 'running') return '执行中'
+  if (normalized === 'completed') return '已完成'
+  if (normalized === 'failed') return '失败'
+  if (normalized === 'aborted') return '已取消'
+  return '等待中'
+}
+
+function remoteStatusProgress(status) {
+  const normalized = String(status || '').toLowerCase()
+  if (normalized === 'pending') return 18
+  if (normalized === 'running') return 62
+  if (normalized === 'completed') return 100
+  if (normalized === 'failed' || normalized === 'aborted') return 100
+  return 10
+}
+
+function clampProgress(value) {
+  const progress = Number(value)
+  if (!Number.isFinite(progress)) return 0
+  return Math.max(0, Math.min(100, progress))
+}
+
+function remoteBaseEndpoint() {
+  const endpoint = state.api.desktopEndpoint || defaultApiConfig().desktopEndpoint
+  return endpoint.replace(/\/tasks\/?$/i, '').replace(/\/+$/, '')
+}
+
+function remoteTasksEndpoint() {
+  return `${remoteBaseEndpoint()}/tasks`
+}
+
+function remoteHealthEndpoint() {
+  return `${remoteBaseEndpoint()}/health`
+}
+
+function remoteDevicesEndpoint() {
+  return `${remoteBaseEndpoint()}/devices`
+}
+
+function remoteEventsEndpoint() {
+  return `${remoteBaseEndpoint()}/events`
+}
+
+function apiUrlWithToken(url) {
+  if (!state.api.token) return url
+  const separator = url.includes('?') ? '&' : '?'
+  return `${url}${separator}token=${encodeURIComponent(state.api.token)}`
 }
 
 function openCard(card) {
@@ -918,7 +1250,20 @@ function saveApiConnection(endpoint, token, desktopEndpoint, workspaceId) {
   }
   state.api = next
   state.connected = true
+  state.connectionHealth = {
+    checking: false,
+    checkedAt: '',
+    chat: 'idle',
+    remote: 'idle',
+    devices: 'idle',
+    message: '已保存连接，正在准备体检。',
+  }
+  stopRemoteSync()
   render()
+  runConnectionHealthCheck().catch((error) => {
+    updateConnectionHealth({ chat: 'error', remote: 'warn', devices: 'warn', message: error?.message || '连接体检失败。' })
+    render()
+  })
 }
 
 function clearApiConnection() {
@@ -927,6 +1272,16 @@ function clearApiConnection() {
   } catch {}
   state.api = defaultApiConfig()
   state.connected = false
+  state.connectionHealth = {
+    checking: false,
+    checkedAt: '',
+    chat: 'offline',
+    remote: 'offline',
+    devices: 'offline',
+    message: '还没有保存 API 连接。',
+  }
+  state.devices = [{ name: '天枢终端 01', meta: '未连接', online: false }]
+  stopRemoteSync()
   render()
 }
 

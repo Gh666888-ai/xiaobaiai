@@ -1902,6 +1902,66 @@ svg {
   font-size: 11px;
 }
 
+.connection-health {
+  display: grid;
+  gap: 7px;
+  border: 1px solid rgba(132, 202, 224, 0.12);
+  border-radius: 13px;
+  padding: 9px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.health-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.health-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 28px;
+  border: 1px solid rgba(146, 232, 255, 0.12);
+  border-radius: 999px;
+  color: var(--muted);
+  background: rgba(2, 6, 10, 0.42);
+  font-size: 11px;
+  font-weight: 820;
+  white-space: nowrap;
+}
+
+.health-chip i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.9;
+}
+
+.health-chip.ok {
+  color: var(--accent);
+  border-color: rgba(117, 248, 208, 0.34);
+}
+
+.health-chip.warn,
+.health-chip.checking {
+  color: #ffd27a;
+  border-color: rgba(255, 210, 122, 0.28);
+}
+
+.health-chip.error {
+  color: var(--danger);
+  border-color: rgba(255, 111, 125, 0.28);
+}
+
+.connection-health small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
 .section-title {
   display: flex;
   align-items: center;
@@ -2005,6 +2065,23 @@ svg {
   margin: 3px 0 0;
   font-size: 13px;
   line-height: 1.45;
+}
+
+.task-card small,
+.task-module-list small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.task-card:has(small),
+.task-module-list article:has(small) {
+  border-color: rgba(117, 248, 208, 0.18);
+}
+
+.task-module-list article.task-error {
+  border-color: rgba(255, 111, 125, 0.2);
 }
 
 .progress,
