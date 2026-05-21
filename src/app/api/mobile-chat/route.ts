@@ -18,9 +18,12 @@ const providerHostAllowList = [
   "api.deepseek.com",
   "api.moonshot.cn",
   "api.minimax.io",
+  "api.minimax.chat",
   "api.openai.com",
   "openrouter.ai",
   "dashscope.aliyuncs.com",
+  "open.bigmodel.cn",
+  "api.siliconflow.cn",
 ]
 
 const defaultBaseUrl = (process.env.MOBILE_CHAT_DEFAULT_BASE_URL || process.env.AI_CHAT_BASE_URL || process.env.OPENAI_BASE_URL || "https://api.deepseek.com").replace(/\/+$/, "")
@@ -35,6 +38,7 @@ function jsonError(error: string, status = 400) {
 function normalizeBaseUrl(value: unknown) {
   const raw = String(value || "").trim().replace(/\/+$/, "")
   if (!raw) return ""
+  if (/\/(v1|v4|compatible-mode\/v1)$/i.test(raw)) return raw
   return raw.endsWith("/v1") ? raw : `${raw}/v1`
 }
 
@@ -63,7 +67,7 @@ export async function POST(req: NextRequest) {
   const providerLabel = safeString(modelConfig?.providerLabel || desktopConfig?.providerLabel || "DeepSeek 默认", 80)
 
   if (!content) return jsonError("缺少聊天内容。")
-  if (!baseUrl || !apiKey || !model) return jsonError("小白默认 DeepSeek 问答入口还没有配置服务端 API Key；你也可以在手机端填写自己的 Base URL、API Key 和模型名。", 503)
+  if (!baseUrl || !apiKey || !model) return jsonError("普通问答还没有可用模型 API。请先打开电脑端小白并登录同一个网站账号，确认模型 API 已配置并保持电脑端在线；电脑端会把普通问答模型同步给手机。", 503)
   if (!isAllowedBaseUrl(baseUrl)) return jsonError("当前 Base URL 暂未开放代理调用。请使用 DeepSeek、Kimi、MiniMax、OpenAI、OpenRouter 或通义千问的官方 HTTPS API 地址。")
 
   const messages: ChatMessage[] = [

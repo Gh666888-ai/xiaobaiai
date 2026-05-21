@@ -1,7 +1,7 @@
 {
   "name": "小白天枢",
-  "version": "0.2.0",
-  "versionCode": 200,
+  "version": "0.2.1",
+  "versionCode": 201,
   "platform": "android-harmonyos",
   "packageName": "cn.xiaobaiai.tianshu.nativeapp",
   "signing": "debug",
@@ -10,12 +10,12 @@
   "minSdk": 23,
   "targetSdk": 35,
   "privacyPolicyUrl": "https://www.xiaobaiai.cn/privacy",
-  "builtAt": "2026-05-21T19:03:04.000Z",
+  "builtAt": "2026-05-21T19:50:00.000Z",
   "files": [
     {
-      "name": "Xiaobai-Tianshu-Native-0.2.0.apk",
+      "name": "Xiaobai-Tianshu-Native-0.2.1.apk",
       "size": 53895,
-      "sha256": "a5895319e9eed8a5bdabbbe6708201202cf875098fe5b6b6426100043d7ae8ef"
+      "sha256": "059dc95732237519acc2d1bff251b6d972d63b772216ab5d30473c53b82e0dda"
     }
   ],
   "native": true,
@@ -23,7 +23,7 @@
   "oldPackageName": "cn.xiaobaiai.agent.mobile",
   "oldVersion": "0.1.14",
   "installMode": "fresh-install-or-side-by-side",
-  "migrationNote": "0.2.0 使用真正原生 Android 页面。由于旧 WebView 版签名证书无法在本机恢复，新原生版使用新包名，避免同包名不同签名导致覆盖安装失败。",
+  "migrationNote": "0.2.1 使用真正原生 Android 普通对话页面，并修复天枢中心切换闪白、WebView 复用崩溃和普通问答模型地址兼容问题。由于旧 WebView 版签名证书无法在本机恢复，新原生版使用新包名，避免同包名不同签名导致覆盖安装失败。",
   "certificateSha256": "dc821dbe7ef3f11d04bb1d8c3249e8fcda754cc8c80d233b4b89ca4a12779b03",
   "oldCertificateSha256": "36f507b8fe853c0ed02629c95cfb14738fe0390332bad8cd02907dfcf0f975a2",
   "webVersion": "0.1.14",

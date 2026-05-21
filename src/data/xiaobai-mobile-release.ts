@@ -35,7 +35,7 @@ export const xiaobaiMobileRelease = {
   platformLabel: "Android / 鸿蒙 APK",
   compatibilityLabel: "适用于安卓手机、鸿蒙手机、折叠屏和平板；iPhone 使用网页版",
   iosWebLabel: releaseManifest.native
-    ? "安卓 / 鸿蒙安装 0.2.0 原生 APK；旧 WebView 版可并存，避免签名冲突"
+    ? `安卓 / 鸿蒙安装 ${releaseManifest.version} 原生 APK；旧 WebView 版可并存，避免签名冲突`
     : "安卓 / 鸿蒙可直接安装 APK；iPhone 可打开网页版或添加到主屏幕",
   packageName: releaseManifest.packageName,
   oldPackageName: releaseManifest.oldPackageName || "",
