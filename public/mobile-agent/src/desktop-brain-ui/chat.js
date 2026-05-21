@@ -1,5 +1,7 @@
 ﻿import { createMarkdownBody } from "./markdown.js";
 
+import { REMOTE_MODE, apiHeaders, apiUrl } from "./api-client.js";
+
 export function initChat({
   apiBase,
   maxHistory,
@@ -253,11 +255,13 @@ export function initChat({
 
     try {
       const backendText = (typeof override === "string") ? override : text;
-      const payload = { content: backendText, from_id: "ID:000001" };
+      const payload = REMOTE_MODE
+        ? { content: backendText, task: backendText, channel: "MOBILE_APP", mode: "tianshu-task", source: "mobile-desktop-brain" }
+        : { content: backendText, from_id: "ID:000001" };
       if (channel) payload.channel = channel;
-      const resp = await fetch(`${apiBase}/message`, {
+      const resp = await fetch(REMOTE_MODE ? apiUrl("/tasks") : `${apiBase}/message`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: apiHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify(payload),
       });
       if (!resp.ok) {

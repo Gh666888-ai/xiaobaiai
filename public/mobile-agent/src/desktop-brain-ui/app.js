@@ -1,5 +1,5 @@
 ﻿import { renderBrainUiApp } from "./app-shell.js";
-import { API } from "./api-client.js";
+import { API, REMOTE_MODE, apiHeaders, apiUrl, eventUrl } from "./api-client.js";
 import { bootstrapACUI } from "./acui/bootstrap.js";
 import { initChat } from "./chat.js";
 import { initPanelCollapse } from "./panel-collapse.js";
@@ -1268,7 +1268,7 @@ function bumpTokens(text) {
 
 function connectSSE() {
   setConnectionState("connecting", true);
-  const es = new EventSource(`${API}/events`);
+  const es = new EventSource(REMOTE_MODE ? eventUrl("/events") : `${API}/events`);
 
   es.onopen = () => setConnectionState("已连接", true);
 

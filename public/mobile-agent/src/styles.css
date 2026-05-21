@@ -3,6 +3,7 @@
   font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
   background: #02070d;
   color: #eefbff;
+  --mobile-status-top: 0px;
   --bg: #02070d;
   --surface: rgba(9, 18, 29, 0.68);
   --surface-strong: rgba(12, 26, 40, 0.82);
@@ -23,12 +24,18 @@
 
 body {
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
   overflow: hidden;
   background:
     radial-gradient(circle at 52% -10%, rgba(75, 185, 255, 0.16), transparent 24rem),
     radial-gradient(circle at 10% 90%, rgba(115, 248, 208, 0.1), transparent 22rem),
     linear-gradient(180deg, #02070d 0%, #07111c 54%, #02060b 100%);
+}
+
+#app {
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 button,
@@ -104,7 +111,7 @@ svg {
   grid-template-columns: 40px 1fr 40px;
   align-items: center;
   gap: 8px;
-  padding: max(10px, env(safe-area-inset-top)) 12px 9px;
+  padding: calc(max(10px, env(safe-area-inset-top)) + var(--mobile-status-top)) 12px 9px;
   border-bottom: 1px solid rgba(146, 232, 255, 0.1);
   background: rgba(3, 9, 15, 0.72);
   backdrop-filter: blur(22px);
@@ -422,6 +429,7 @@ svg {
   border-radius: 0;
   background: #02030a;
   box-shadow: none;
+  padding-top: var(--mobile-status-top);
 }
 
 .mode-tianshu.chat-shell::before,
@@ -435,8 +443,8 @@ svg {
 
 .mode-tianshu .conversation {
   z-index: 1;
-  height: 100vh;
-  height: 100dvh;
+  height: calc(100vh - var(--mobile-status-top));
+  height: calc(100dvh - var(--mobile-status-top));
   padding: 0;
   overflow: hidden;
 }
@@ -444,10 +452,8 @@ svg {
 .mode-tianshu .cognitive-surface {
   display: block;
   width: 100%;
-  height: 100vh;
-  height: 100dvh;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100%;
+  min-height: 100%;
 }
 
 .desktop-brain-surface {
@@ -459,10 +465,8 @@ svg {
 
 .mode-tianshu .desktop-brain-surface {
   width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100%;
+  min-height: 100%;
 }
 
 .desktop-brain-frame {
@@ -1595,7 +1599,7 @@ svg {
     rgba(4, 12, 20, 0.9);
   background-size: 28px 28px, 28px 28px, auto;
   box-shadow: var(--shadow);
-  padding: max(14px, env(safe-area-inset-top)) 14px max(16px, env(safe-area-inset-bottom));
+  padding: calc(max(14px, env(safe-area-inset-top)) + var(--mobile-status-top)) 14px max(16px, env(safe-area-inset-bottom));
   backdrop-filter: blur(28px);
 }
 
@@ -2967,6 +2971,7 @@ svg {
   background: #02030a;
   box-shadow: none;
   overflow: hidden;
+  padding-top: var(--mobile-status-top);
 }
 
 .mode-tianshu.chat-shell::before,
@@ -2981,8 +2986,8 @@ svg {
   position: relative;
   z-index: 1;
   width: 100%;
-  height: 100vh;
-  height: 100dvh;
+  height: calc(100vh - var(--mobile-status-top));
+  height: calc(100dvh - var(--mobile-status-top));
   padding: 0 !important;
   overflow: hidden;
 }

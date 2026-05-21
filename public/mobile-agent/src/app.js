@@ -6,6 +6,16 @@ let remoteEventSource = null
 const API_STORAGE_KEY = 'xiaobai-tianshu-api-config'
 const AUTH_STORAGE_KEY = 'xiaobai-tianshu-auth-session'
 const CHAT_BACKGROUND_STORAGE_KEY = 'xiaobai-mobile-chat-background'
+const DEFAULT_API_CONFIG = {
+  endpoint: 'https://www.xiaobaiai.cn/api/mobile-chat',
+  chatEndpoint: 'https://www.xiaobaiai.cn/api/mobile-chat',
+  desktopEndpoint: 'https://www.xiaobaiai.cn/api/agent-remote/tasks',
+  token: '',
+  saved: false,
+  savedAt: '',
+  workspaceId: 'tianshu-main',
+  source: 'xiaobai-website',
+}
 const savedAuthSession = loadSavedAuthSession()
 const savedApiConfig = loadSavedApiConfig(savedAuthSession)
 const savedChatBackground = loadSavedChatBackground()
@@ -46,8 +56,14 @@ const state = {
   memories: ['项目边界', '发布规则', '常用偏好'],
 }
 
+applyViewportInsets()
+window.visualViewport?.addEventListener('resize', applyViewportInsets)
+window.addEventListener('orientationchange', () => setTimeout(applyViewportInsets, 160))
+
 function render() {
   disposeActiveEarth()
+  applyViewportInsets()
+  ensureWebsiteAccountConnection({ quiet: true, skipHealth: true })
   const shellMode = state.page === 'settings' ? 'settings' : state.workspace
   const backgroundMode = state.chatBackground.mode || 'glass'
   document.querySelector('#app').innerHTML = `
@@ -422,6 +438,11 @@ function disposeActiveEarth() {
   activeEarth = null
 }
 
+function setSidebarOpen(open) {
+  state.sidebarOpen = Boolean(open)
+  document.querySelector('.app-sidebar')?.classList.toggle('open', state.sidebarOpen)
+}
+
 function renderWeatherCard() {
   return `
     <section class="summoned-card weather-card">
@@ -748,22 +769,18 @@ function renderAboutSection() {
 }
 
 function bindEvents() {
-  if (state.auth?.token && !state.connected) {
-    saveApiConnection('', state.auth.token, '', '', { authSession: state.auth, quiet: true })
-  }
+  ensureWebsiteAccountConnection({ quiet: true })
   refreshAuthSessionIfNeeded().catch(() => {})
 
   document.querySelectorAll('[data-action="sidebar"]').forEach((button) => {
     button.addEventListener('click', () => {
-      state.sidebarOpen = true
-      render()
+      setSidebarOpen(true)
     })
   })
 
   document.querySelectorAll('[data-action="close-sidebar"]').forEach((button) => {
     button.addEventListener('click', () => {
-      state.sidebarOpen = false
-      render()
+      setSidebarOpen(false)
     })
   })
 
@@ -794,18 +811,28 @@ function bindEvents() {
 
   document.querySelectorAll('[data-action="enter-tianshu"]').forEach((button) => {
     button.addEventListener('click', () => {
+      const alreadyThere = state.workspace === 'tianshu' && state.page === 'chat'
       state.workspace = 'tianshu'
       state.page = 'chat'
       state.sidebarOpen = false
+      if (alreadyThere) {
+        setSidebarOpen(false)
+        return
+      }
       render()
     })
   })
 
   document.querySelectorAll('[data-action="open-chat"]').forEach((button) => {
     button.addEventListener('click', () => {
+      const alreadyThere = state.workspace === 'chat' && state.page === 'chat'
       state.workspace = 'chat'
       state.page = 'chat'
       state.sidebarOpen = false
+      if (alreadyThere) {
+        setSidebarOpen(false)
+        return
+      }
       render()
     })
   })
@@ -965,7 +992,7 @@ async function submitPromptV2(rawText) {
 }
 
 async function askKnowledgeApi(message) {
-  const response = await fetch(state.api.chatEndpoint || state.api.endpoint, {
+  const response = await fetch(defaultApiConfig().chatEndpoint, {
     method: 'POST',
     headers: apiHeaders(),
     body: JSON.stringify({
@@ -982,7 +1009,7 @@ async function askKnowledgeApi(message) {
 }
 
 async function sendDesktopTask(task, taskEntry = null) {
-  const response = await fetch(state.api.desktopEndpoint, {
+  const response = await fetch(defaultApiConfig().desktopEndpoint, {
     method: 'POST',
     headers: apiHeaders(),
     body: JSON.stringify({
@@ -1300,15 +1327,7 @@ function openCard(card) {
 }
 
 function defaultApiConfig() {
-  return {
-    endpoint: 'https://www.xiaobaiai.cn/api/mobile-chat',
-    chatEndpoint: 'https://www.xiaobaiai.cn/api/mobile-chat',
-    desktopEndpoint: 'https://www.xiaobaiai.cn/api/agent-remote/tasks',
-    token: '',
-    saved: false,
-    savedAt: '',
-    workspaceId: 'tianshu-main',
-  }
+  return { ...DEFAULT_API_CONFIG }
 }
 
 function loadSavedApiConfig(authSession = null) {
@@ -1318,15 +1337,25 @@ function loadSavedApiConfig(authSession = null) {
     const raw = localStorage.getItem(API_STORAGE_KEY)
     if (!raw) return authToken ? { ...fallback, token: authToken, saved: true, savedAt: authSession.savedAt || currentTime() } : fallback
     const parsed = JSON.parse(raw)
+    if (authToken) {
+      return {
+        ...fallback,
+        token: authToken,
+        saved: true,
+        savedAt: authSession.savedAt || (typeof parsed.savedAt === 'string' ? parsed.savedAt : ''),
+        workspaceId: typeof parsed.workspaceId === 'string' && parsed.workspaceId ? parsed.workspaceId : fallback.workspaceId,
+      }
+    }
     const endpoint = typeof parsed.chatEndpoint === 'string' && parsed.chatEndpoint ? parsed.chatEndpoint : (typeof parsed.endpoint === 'string' && parsed.endpoint ? parsed.endpoint : fallback.endpoint)
     return {
       endpoint,
       chatEndpoint: endpoint,
       desktopEndpoint: typeof parsed.desktopEndpoint === 'string' && parsed.desktopEndpoint ? parsed.desktopEndpoint : fallback.desktopEndpoint,
-      token: authToken || (typeof parsed.token === 'string' ? parsed.token : ''),
+      token: typeof parsed.token === 'string' ? parsed.token : '',
       saved: true,
       savedAt: typeof parsed.savedAt === 'string' ? parsed.savedAt : '',
       workspaceId: typeof parsed.workspaceId === 'string' && parsed.workspaceId ? parsed.workspaceId : fallback.workspaceId,
+      source: typeof parsed.source === 'string' ? parsed.source : 'custom',
     }
   } catch {
     return authToken ? { ...fallback, token: authToken, saved: true, savedAt: authSession.savedAt || currentTime() } : fallback
@@ -1336,14 +1365,17 @@ function loadSavedApiConfig(authSession = null) {
 function saveApiConnection(endpoint, token, desktopEndpoint, workspaceId, options = {}) {
   const authSession = options.authSession || state.auth
   const sessionToken = token || authSession?.token || ''
+  const websiteSession = Boolean(authSession?.token)
+  const defaults = defaultApiConfig()
   const next = {
-    endpoint: endpoint || defaultApiConfig().endpoint,
-    chatEndpoint: endpoint || defaultApiConfig().chatEndpoint,
-    desktopEndpoint: desktopEndpoint || defaultApiConfig().desktopEndpoint,
+    endpoint: websiteSession ? defaults.endpoint : (endpoint || defaults.endpoint),
+    chatEndpoint: websiteSession ? defaults.chatEndpoint : (endpoint || defaults.chatEndpoint),
+    desktopEndpoint: websiteSession ? defaults.desktopEndpoint : (desktopEndpoint || defaults.desktopEndpoint),
     token: sessionToken,
     saved: true,
     savedAt: currentTime(),
-    workspaceId: workspaceId || defaultApiConfig().workspaceId,
+    workspaceId: workspaceId || defaults.workspaceId,
+    source: websiteSession ? 'xiaobai-website' : 'custom',
   }
   try {
     localStorage.setItem(API_STORAGE_KEY, JSON.stringify(next))
@@ -1362,10 +1394,12 @@ function saveApiConnection(endpoint, token, desktopEndpoint, workspaceId, option
   }
   stopRemoteSync()
   if (!options.quiet) render()
-  runConnectionHealthCheck().catch((error) => {
-    updateConnectionHealth({ chat: 'error', remote: 'warn', devices: 'warn', message: error?.message || '连接体检失败。' })
-    render()
-  })
+  if (!options.skipHealth) {
+    runConnectionHealthCheck().catch((error) => {
+      updateConnectionHealth({ chat: 'error', remote: 'warn', devices: 'warn', message: error?.message || '连接体检失败。' })
+      render()
+    })
+  }
 }
 
 function clearApiConnection() {
@@ -1385,6 +1419,31 @@ function clearApiConnection() {
   state.devices = [{ name: '天枢终端 01', meta: '未连接', online: false }]
   stopRemoteSync()
   render()
+}
+
+function ensureWebsiteAccountConnection(options = {}) {
+  if (!state.auth?.token) return false
+  const defaults = defaultApiConfig()
+  const expected = {
+    ...defaults,
+    token: state.auth.token,
+    saved: true,
+    savedAt: state.api.savedAt || state.auth.savedAt || currentTime(),
+    workspaceId: state.api.workspaceId || defaults.workspaceId,
+  }
+  const needsMigration = !state.connected
+    || state.api.token !== state.auth.token
+    || state.api.chatEndpoint !== defaults.chatEndpoint
+    || state.api.endpoint !== defaults.endpoint
+    || state.api.desktopEndpoint !== defaults.desktopEndpoint
+    || state.api.source !== defaults.source
+  if (!needsMigration) return false
+  saveApiConnection(expected.endpoint, expected.token, expected.desktopEndpoint, expected.workspaceId, {
+    authSession: state.auth,
+    quiet: options.quiet !== false,
+    skipHealth: options.skipHealth === true,
+  })
+  return true
 }
 
 function loadSavedAuthSession() {
@@ -1443,6 +1502,19 @@ function clearAuthSession() {
   state.auth = defaultAuthSession()
   state.authError = ''
   clearApiConnection()
+}
+
+function applyViewportInsets() {
+  const root = document.documentElement
+  const visualTop = window.visualViewport?.offsetTop || 0
+  const userAgent = navigator.userAgent || ''
+  const androidWebView = /\bwv\b|Version\/[\d.]+.*Chrome\/[\d.]+.*Mobile Safari/i.test(userAgent)
+  const standalone = window.matchMedia?.('(display-mode: standalone)')?.matches
+    || window.navigator.standalone
+    || document.referrer.startsWith('android-app://')
+    || androidWebView
+  const statusTop = standalone ? Math.max(visualTop, 32) : visualTop
+  root.style.setProperty('--mobile-status-top', `${Math.round(statusTop)}px`)
 }
 
 async function loginWithWebsiteAccount(email, password) {
