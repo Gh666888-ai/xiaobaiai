@@ -1,17 +1,27 @@
 {
   "name": "xiaobai-mobile-app",
-  "builtAt": "2026-05-20T00:07:05.460Z",
+  "version": "0.1.14",
+  "channel": "web-pwa",
+  "builtAt": "2026-05-21T13:24:19.412Z",
   "files": [
     "index.html",
+    "desktop-brain.html",
     "manifest.webmanifest",
-    "sw.js",
     "icons/icon.svg",
-    "icons/icon-48.png",
-    "icons/icon-96.png",
-    "icons/icon-192.png",
-    "icons/icon-512.png",
+    "icons/xiaobai-ai-agent.png",
     "src/app.js",
+    "src/mobile-hotspot-earth.js",
     "src/styles.css",
-    "src/tianshu-shared-spec.json"
+    "vendor/three/three.module.js",
+    "assets/earth/earth_atmos_2048.jpg",
+    "assets/earth/earth_normal_2048.jpg",
+    "assets/earth/earth_specular_2048.jpg",
+    "assets/earth/earth_clouds_2048.png",
+    "assets/desktop-brain/desktop-galaxy-background.jpg"
+  ],
+  "directories": [
+    "src/desktop-brain-ui",
+    "src/ui/brain-ui",
+    "vendor/d3"
   ]
 }

@@ -17,5 +17,12 @@
       "size": 70285,
       "sha256": "988b9325a6b3b38ecea5a6fdeefc25da7ee44b3f178c49d1f8a2d06ce8468c1f"
     }
-  ]
+  ],
+  "webVersion": "0.1.14",
+  "webPackageName": "Xiaobai-Tianshu-Mobile-Web-0.1.14.zip",
+  "webPackageSize": 6437168,
+  "webPackageSha256": "3db6b4e4f82e37d9bb5c71d50ce3d14f6e544da4dd0ad6dcea3c6576441ffc52",
+  "webAppUrl": "/mobile-agent/index.html",
+  "desktopBrainCopied": true,
+  "webBuiltAt": "2026-05-21T13:24:40.7003421Z"
 }

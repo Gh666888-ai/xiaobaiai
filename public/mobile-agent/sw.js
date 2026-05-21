@@ -1,13 +1,29 @@
-const CACHE_NAME = 'xiaobai-mobile-app-v7-login-chat-nexus'
+const CACHE_NAME = 'xiaobai-mobile-app-v8-tianshu-desktop-brain'
 const scopePath = new URL(self.registration.scope).pathname.replace(/\/$/, '')
 const assetPath = (path) => `${scopePath}${path}`
 const CORE_ASSETS = [
   assetPath('/'),
   assetPath('/index.html'),
+  assetPath('/desktop-brain.html'),
   assetPath('/manifest.webmanifest'),
   assetPath('/icons/icon.svg'),
   assetPath('/icons/icon-192.png'),
   assetPath('/icons/icon-512.png'),
+  assetPath('/src/app.js'),
+  assetPath('/src/styles.css'),
+  assetPath('/src/mobile-hotspot-earth.js'),
+  assetPath('/src/desktop-brain-ui/app.js'),
+  assetPath('/src/desktop-brain-ui/app-shell.js'),
+  assetPath('/src/desktop-brain-ui/styles.css'),
+  assetPath('/src/desktop-brain-ui/api-client.js'),
+  assetPath('/src/ui/brain-ui/acui/animations.css'),
+  assetPath('/vendor/d3/d3.min.js'),
+  assetPath('/vendor/three/three.module.js'),
+  assetPath('/assets/earth/earth_atmos_2048.jpg'),
+  assetPath('/assets/earth/earth_normal_2048.jpg'),
+  assetPath('/assets/earth/earth_specular_2048.jpg'),
+  assetPath('/assets/earth/earth_clouds_2048.png'),
+  assetPath('/assets/desktop-brain/desktop-galaxy-background.jpg'),
 ]
 
 self.addEventListener('install', (event) => {
