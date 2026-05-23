@@ -124,7 +124,7 @@ export default function DownloadPage() {
           <p style={{ margin: "0 0 10px", color: "#256d85", fontSize: 13, fontWeight: 950 }}>手机端 App</p>
           <h2 style={{ margin: "0 0 12px", color: "#102131", fontSize: "clamp(26px, 4vw, 40px)", lineHeight: 1.15, fontWeight: 950, letterSpacing: 0 }}>离开电脑，也能指挥家里的小白 Agent</h2>
           <p style={{ margin: "0 0 18px", maxWidth: 900, color: "#506577", fontSize: 16, lineHeight: 1.85, fontWeight: 650 }}>
-            下载安卓 / 鸿蒙可直接安装的原生手机版 APK，手机上直接登录小白网站会员账号，就能连接同账号登录的电脑端小白。iPhone 可以先用网页版随身控制台并添加到主屏幕。你在外面发任务，电脑端小白负责执行、调用本机 Agent、同步任务进度和结果。
+            下载安卓 / 鸿蒙可直接安装的手机版 APK，打开就是 image2 新设计的统一移动界面：登录、普通对话、菜单、设置、附件和天枢中心都在同一套黑色科技 UI 里。手机上直接登录小白网站会员账号，就能连接同账号登录的电脑端小白。iPhone 可以先用网页版随身控制台并添加到主屏幕。
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: 16, alignItems: "stretch" }}>
             <div style={{ border: "1px solid #e0edf3", borderRadius: 12, background: "#f8fbfd", padding: 16 }}>
@@ -149,7 +149,7 @@ export default function DownloadPage() {
                 {[
                   ["账号直连", "不用填电脑 IP，不用复制本机 Token，登录网站会员账号即可绑定同账号电脑端。"],
                   ["远程发任务", "手机发出的任务进入网站云端中继，电脑端小白在线时自动拉取执行。"],
-                  ["原生会话", "普通对话使用手机原生页面和账号隔离历史，天枢中心再连接电脑端任务。"],
+                  ["统一界面", "所有页面使用 image2 新设计移动 UI；普通对话问知识，进入天枢后连接电脑端任务。"],
                 ].map(([title, body]) => (
                   <div key={title} style={{ border: "1px solid #e0edf3", borderRadius: 12, background: "#fff", padding: 13 }}>
                     <b style={{ display: "block", marginBottom: 6, color: "#102131", fontSize: 14 }}>{title}</b>
@@ -165,7 +165,7 @@ export default function DownloadPage() {
                 <div><b style={{ color: "#17202a" }}>系统：</b>{mobilePlatformLabel}</div>
                 <div><b style={{ color: "#17202a" }}>文件：</b>{mobileDownloadName}</div>
                 <div><b style={{ color: "#17202a" }}>包名：</b>{mobilePackageName}</div>
-                <div><b style={{ color: "#17202a" }}>安装：</b>原生新版使用新包名，可直接安装，避免旧版签名冲突。</div>
+                <div><b style={{ color: "#17202a" }}>安装：</b>新版使用新包名和 image2 全界面套壳，可直接安装，避免旧版签名冲突。</div>
                 <div><b style={{ color: "#17202a" }}>大小：</b>{mobileDownloadSize}</div>
                 <div style={{ wordBreak: "break-all" }}><b style={{ color: "#17202a" }}>SHA256：</b>{mobileDownloadSha256}</div>
               </div>

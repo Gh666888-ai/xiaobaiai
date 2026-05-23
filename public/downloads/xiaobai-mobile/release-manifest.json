@@ -1,7 +1,7 @@
 {
   "name": "小白天枢",
-  "version": "0.2.2",
-  "versionCode": 202,
+  "version": "0.2.3",
+  "versionCode": 203,
   "platform": "android-harmonyos",
   "packageName": "cn.xiaobaiai.tianshu.nativeapp",
   "signing": "debug",
@@ -10,20 +10,21 @@
   "minSdk": 23,
   "targetSdk": 35,
   "privacyPolicyUrl": "https://www.xiaobaiai.cn/privacy",
-  "builtAt": "2026-05-21T20:21:07.000Z",
+  "builtAt": "2026-05-23T18:50:17.000Z",
   "files": [
     {
-      "name": "Xiaobai-Tianshu-Native-0.2.2.apk",
-      "size": 53895,
-      "sha256": "23d18cc29d937ed193168d1510c69edff4f52bc5b9a352b01acfa325f20543b0"
+      "name": "Xiaobai-Tianshu-Native-0.2.3.apk",
+      "size": 41607,
+      "sha256": "6de272954974cb3e09d298f77ab27d57359089b8f23c3c8090255b8c057b19c4"
     }
   ],
   "native": true,
-  "nativeUi": true,
+  "nativeUi": false,
+  "webShell": true,
   "oldPackageName": "cn.xiaobaiai.agent.mobile",
   "oldVersion": "0.1.14",
   "installMode": "fresh-install-or-side-by-side",
-  "migrationNote": "0.2.2 使用真正原生 Android 普通对话页面，修复天枢中心 token 注入时序、未登录返回路径、切换闪白、WebView 复用崩溃和普通问答模型地址兼容问题。由于旧 WebView 版签名证书无法在本机恢复，新原生版使用新包名，避免同包名不同签名导致覆盖安装失败。",
+  "migrationNote": "0.2.3 改为 image2 新设计全界面 WebView 壳：登录、普通对话、菜单、设置、附件、天枢中心统一加载 /mobile-agent 的深色科技 UI，保留网站账号登录、自动保存 API、普通问答和天枢远程任务能力。",
   "certificateSha256": "dc821dbe7ef3f11d04bb1d8c3249e8fcda754cc8c80d233b4b89ca4a12779b03",
   "oldCertificateSha256": "36f507b8fe853c0ed02629c95cfb14738fe0390332bad8cd02907dfcf0f975a2",
   "webVersion": "0.2.1",
