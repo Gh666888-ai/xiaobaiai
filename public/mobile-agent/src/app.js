@@ -27,10 +27,9 @@ const savedApiConfig = loadSavedApiConfig(savedAuthSession)
 const savedChatBackground = loadSavedChatBackground()
 const savedChatHistory = loadSavedChatHistory(savedAuthSession)
 const state = {
-version: '0.2.0',
+version: '0.2.1',
 apkUrl: '../downloads/xiaobai-mobile/Xiaobai-Tianshu-Native-0.2.2.apk',
-page: 'chat',
-workspace: 'chat',
+tab: 'chat',
 sidebarOpen: false,
 summonOpen: false,
 activeCard: null,
@@ -75,20 +74,37 @@ installOfflineDetection()
 track('app_start', { online: state.online, connected: state.connected })
 window.visualViewport?.addEventListener('resize', applyViewportInsets)
 window.addEventListener('orientationchange', () => setTimeout(applyViewportInsets, 160))
+installSwipeGestures()
+let swipeStartX = 0
+function installSwipeGestures() {
+const shell = document.querySelector('#app')
+if (!shell) return
+shell.addEventListener('touchstart', (event) => {
+swipeStartX = event.touches?.[0]?.clientX || 0
+}, { passive: true })
+shell.addEventListener('touchend', (event) => {
+const endX = event.changedTouches?.[0]?.clientX || 0
+const dx = endX - swipeStartX
+if (state.sidebarOpen && dx < -60) { setSidebarOpen(false); haptic(6) }
+if (state.activeCard && Math.abs(dx) > 40 && Math.abs(dx) > Math.abs((event.changedTouches?.[0]?.clientY || 0) - (swipeStartX))) {
+state.activeCard = null; haptic(6); render()
+}
+})
+}
 function render() {
 disposeActiveEarth()
 applyViewportInsets()
 ensureChatHistoryScope()
 ensureWebsiteAccountConnection({ quiet: true, skipHealth: true })
-const shellMode = state.page === 'settings' ? 'settings' : state.workspace
+const shellMode = state.tab === 'settings' ? 'settings' : state.tab
 const backgroundMode = state.chatBackground.mode || 'glass'
 document.querySelector('#app').innerHTML = `
 ${renderOfflineBanner()}
 ${renderErrorBanner()}
 ${renderConfirmDialog()}
 <main class="chat-shell mode-${shellMode} bg-${backgroundMode}" aria-label="天枢中心"${renderShellStyle()}>
-${renderTopbarV2()}
-${state.page === 'settings' ? renderSettingsPage() : renderChatPage()}
+${renderTopbar()}
+${state.tab === 'settings' ? renderSettingsPage() : renderChatPage()}
 ${renderSidebar()}
 ${state.activeCard ? renderFloatingCard() : ''}
 </main>
@@ -178,57 +194,43 @@ ${isFatal ? '<button type="button" class="error-reload" onclick="location.reload
 `
 }
 function renderShellStyle() {
-if (state.workspace === 'tianshu' && state.page !== 'settings') return ''
+if (state.tab === 'tianshu' && state.tab !== 'settings') return ''
 const mode = state.chatBackground.mode
 if (mode !== 'custom' || !state.chatBackground.customImage) return ''
 return ` style="--chat-bg-image: url(&quot;${escapeHtml(state.chatBackground.customImage)}&quot;)"`
 }
-function renderTopbarV2() {
-if (state.page === 'settings') {
-return `
-<header class="chat-topbar">
-<button class="round-button" type="button" data-action="back-chat" aria-label="返回对话">${backIcon()}</button>
-<div class="title-lockup">
-<strong>设置</strong>
-<span><i class="${state.connected ? 'ok' : ''}"></i>电脑 API 与天枢同步</span>
-</div>
-<span class="topbar-spacer" aria-hidden="true"></span>
-</header>
-`
-}
-return `
-<header class="chat-topbar">
-<button class="round-button" type="button" data-action="sidebar" aria-label="打开菜单">${menuIcon()}</button>
-<div class="title-lockup">
-<strong>普通对话</strong>
-<span><i class="${state.connected ? 'ok' : ''}"></i>${state.connected ? 'API 问答 · 已保存' : 'API 问答 · 待连接'}</span>
-</div>
-<span class="topbar-spacer" aria-hidden="true"></span>
-</header>
-`
-}
 function renderTopbar() {
-if (state.page === 'settings') {
+const titles = { chat: '对话', tianshu: '天枢', settings: '设置' }
+const subtitles = {
+chat: state.connected ? 'API 已连接' : '待连接',
+tianshu: state.connected ? '远程控制台' : '未连接',
+settings: '连接与偏好',
+}
+const inSettings = state.tab === 'settings'
 return `
 <header class="chat-topbar">
-<button class="round-button" type="button" data-action="back-chat" aria-label="返回对话">${backIcon()}</button>
+<button class="round-button" type="button" data-action="${inSettings ? 'back-chat' : 'sidebar'}" aria-label="${inSettings ? '返回对话' : '菜单'}">${inSettings ? backIcon() : menuIcon()}</button>
 <div class="title-lockup">
-<strong>设置</strong>
-<span><i class="${state.connected ? 'ok' : ''}"></i>天枢中心</span>
+<strong>${titles[state.tab] || '天枢'}</strong>
+<span><i class="${state.connected ? 'ok' : ''}"></i>${subtitles[state.tab] || ''}</span>
 </div>
 <span class="topbar-spacer" aria-hidden="true"></span>
 </header>
 `
 }
+function renderComposer() {
+if (state.tab === 'settings') return ''
 return `
-<header class="chat-topbar">
-<button class="round-button" type="button" data-action="sidebar" aria-label="打开侧边栏">${menuIcon()}</button>
-<div class="title-lockup">
-<strong>天枢中心</strong>
-<span><i class="${state.connected ? 'ok' : ''}"></i>${state.connected ? '随身控制台 · 已连接' : '随身控制台 · 未连接'}</span>
-</div>
-<span class="topbar-spacer" aria-hidden="true"></span>
-</header>
+${state.summonOpen ? renderSummonPanel() : ''}
+<form class="chat-composer" data-composer>
+<button class="summon-button" type="button" data-action="toggle-summon" aria-label="附件">${plusIcon()}</button>
+<input name="prompt" placeholder="向小白提问知识..." autocomplete="off" enterkeyhint="send" />
+<input class="attachment-input" data-attachment-input="file" type="file" />
+<input class="attachment-input" data-attachment-input="photo" type="file" accept="image/*" />
+<input class="attachment-input" data-attachment-input="camera" type="file" accept="image/*" capture="environment" />
+<button class="voice-button" type="button" data-action="start-voice" aria-label="语音输入">${micIcon()}</button>
+<button class="send-button" type="submit" aria-label="发送">${sendIcon()}</button>
+</form>
 `
 }
 function renderChatPage() {
@@ -239,7 +241,7 @@ ${renderAuthGate()}
 </section>
 `
 }
-if (state.workspace === 'tianshu') {
+if (state.tab === 'tianshu') {
 return `
 <section class="conversation" aria-label="天枢电脑端界面">
 ${renderDesktopBrainSurface()}
@@ -320,14 +322,39 @@ return `
 `
 }
 function renderDesktopBrainSurface() {
+const activeDevices = state.devices.filter((d) => d.online)
 return `
-<section class="cognitive-surface desktop-brain-surface" aria-label="天枢电脑端界面">
-<button class="desktop-brain-menu" type="button" data-action="sidebar" aria-label="打开菜单">${menuIcon()}</button>
-${renderTianshuConversation()}
-<iframe class="desktop-brain-frame" src="./desktop-brain.html" title="小白天枢电脑端界面"></iframe>
+<section class="conversation" aria-label="天枢控制台">
+<div class="tianshu-dashboard">
+<div class="tianshu-status-card">
+<div class="tianshu-status-row">
+<span class="tianshu-status-dot ${activeDevices.length ? 'online' : ''}"></span>
+<div>
+<strong>${activeDevices.length ? `天枢终端在线 · ${activeDevices[0].name}` : '等待电脑端连接'}</strong>
+<small>${activeDevices.length ? '可发送任务到电脑端 AI' : '请在电脑端小白中开启远程同步'}</small>
+</div>
+</div>
+<div class="tianshu-mini-stats">
+<span>任务 ${state.tasks.length}</span>
+<span>设备 ${activeDevices.length}/${state.devices.length}</span>
+</div>
+</div>
+${state.tianshuMessages.length ? `
+<div class="tianshu-conversation">
+${state.tianshuMessages.slice(-6).map(renderMessage).join('')}
+</div>
+` : `
+<div class="tianshu-empty">
+<p>在下方输入框发送任务到电脑端 AI</p>
+<span>例如：检查安装说明、整理短视频选题、分析项目文件</span>
+</div>
+`}
+${renderComposer()}
+</div>
 </section>
 `
 }
+function renderTianshuConversation() { return '' }
 function renderCognitiveSurface() {
 return `
 <section class="cognitive-surface" aria-label="天枢认知控制台">
@@ -536,6 +563,12 @@ function setSidebarOpen(open) {
 state.sidebarOpen = Boolean(open)
 document.querySelector('.app-sidebar')?.classList.toggle('open', state.sidebarOpen)
 }
+function navigateTo(dest) {
+if (dest === 'settings') { state.tab = 'settings'; state.sidebarOpen = false; render(); return }
+state.tab = dest === 'tianshu' ? 'tianshu' : 'chat'
+state.sidebarOpen = false; state.summonOpen = false
+render()
+}
 function renderWeatherCard() {
 return `
 <section class="summoned-card weather-card">
@@ -596,14 +629,34 @@ function renderComposer() {
 return `
 ${state.summonOpen ? renderSummonPanel() : ''}
 <form class="chat-composer" data-composer>
-<button class="summon-button" type="button" data-action="toggle-summon" aria-label="发送文件或照片">${plusIcon()}</button>
+<button class="summon-button" type="button" data-action="toggle-summon" aria-label="附件">${plusIcon()}</button>
 <input name="prompt" placeholder="向小白提问知识..." autocomplete="off" enterkeyhint="send" />
 <input class="attachment-input" data-attachment-input="file" type="file" />
 <input class="attachment-input" data-attachment-input="photo" type="file" accept="image/*" />
 <input class="attachment-input" data-attachment-input="camera" type="file" accept="image/*" capture="environment" />
+<button class="voice-button" type="button" data-action="start-voice" aria-label="语音输入">${micIcon()}</button>
 <button class="send-button" type="submit" aria-label="发送">${sendIcon()}</button>
 </form>
 `
+}
+function micIcon() {
+return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4M8 22h8"/></svg>'
+}
+function startVoiceInput() {
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+if (!SR) { announceToScreenReader('浏览器不支持语音'); return }
+haptic(10)
+const rec = new SR()
+rec.lang = 'zh-CN'
+rec.interimResults = false
+rec.onresult = (e) => {
+const t = e.results?.[0]?.[0]?.transcript?.trim()
+if (!t) return
+const inp = document.querySelector('[data-composer] [name="prompt"]')
+if (inp) { inp.value = t; inp.focus(); haptic(8) }
+}
+rec.onerror = () => announceToScreenReader('语音识别失败')
+rec.start()
 }
 function renderSummonPanel() {
 return `
@@ -615,33 +668,34 @@ return `
 `
 }
 function renderSidebar() {
-const chatActive = state.workspace === 'chat'
-const tianshuActive = state.workspace === 'tianshu'
+const modes = [
+{ key: 'chat', icon: chatIcon(), label: '对话' },
+{ key: 'tianshu', icon: tianshuIcon(), label: '天枢' },
+]
 return `
 <aside class="app-sidebar ${state.sidebarOpen ? 'open' : ''}" aria-label="侧边栏">
 <button class="sidebar-scrim" type="button" data-action="close-sidebar" aria-label="关闭"></button>
 <div class="sidebar-panel">
 <header class="sidebar-head">
-<div>
 <strong>小白 Agent</strong>
-<span>天枢中心 · 随身控制台</span>
-</div>
 <button class="icon-button" type="button" data-action="close-sidebar" aria-label="关闭">${closeIcon()}</button>
 </header>
+<nav class="sidebar-modes" aria-label="切换模式">
+${modes.map((m) => `
+<button type="button" class="sidebar-mode-btn ${state.tab === m.key ? 'active' : ''}" data-action="${m.key === 'chat' ? 'open-chat' : 'enter-tianshu'}">
+${m.icon}<span>${m.label}</span>
+</button>
+`).join('')}
+</nav>
 <button class="new-chat-action" type="button" data-action="new-chat">${plusIcon()}<span>新对话</span></button>
 <section class="sidebar-body">
 <div class="conversation-list">
-<section class="history-group" aria-label="普通对话历史">
-<div class="history-title">普通对话</div>
-<button type="button" class="conversation-row ${chatActive ? 'active' : ''}" data-action="open-chat">${chatIcon()}<span>知识问答</span></button>
-<button type="button" class="conversation-row" data-action="open-chat">${fileIcon()}<span>图片与文件咨询</span></button>
-</section>
-<section class="history-group" aria-label="天枢对话历史">
-<div class="history-title">天枢对话</div>
-<button type="button" class="conversation-row ${tianshuActive ? 'active' : ''}" data-action="enter-tianshu">${tianshuIcon()}<span>随身控制台</span></button>
-<button type="button" class="conversation-row" data-action="enter-tianshu">${boxIcon()}<span>安装说明检查</span></button>
-<button type="button" class="conversation-row" data-action="enter-tianshu">${sparkIcon()}<span>短视频选题整理</span></button>
-</section>
+<div class="history-title">对话历史</div>
+${(state.chatThreads[state.tab] || []).slice(0, 8).map((thread) => `
+<button type="button" class="conversation-row" data-action="open-chat">
+${chatIcon()}<span>${escapeHtml(thread.title || '对话')}</span>
+</button>
+`).join('')}
 </div>
 </section>
 <button class="sidebar-settings" type="button" data-action="open-settings">${settingsIcon()}<span>设置</span></button>
@@ -859,33 +913,19 @@ if (!target) return
 const action = target.dataset.action
 const card = target.dataset.card
 const attachKind = target.dataset.attachment
+if (target.dataset.tab) { navigateTo(target.dataset.tab); return }
 if (action === 'sidebar') { setSidebarOpen(true); return }
 if (action === 'close-sidebar') { setSidebarOpen(false); return }
 if (action === 'new-chat') {
-createChatThread(state.workspace)
-state.page = 'chat'; state.sidebarOpen = false; render(); return
+createChatThread(state.tab)
+state.tab = 'chat'; state.sidebarOpen = false; render(); return
 }
-if (action === 'open-settings') {
-state.page = 'settings'; state.sidebarOpen = false; render()
-if (state.connected && !state.connectionHealth.checkedAt && !state.connectionHealth.checking) {
-runConnectionHealthCheck().catch(() => {})
-}
-return
-}
-if (action === 'back-chat') { state.page = 'chat'; render(); return }
-if (action === 'enter-tianshu') {
-const alreadyThere = state.workspace === 'tianshu' && state.page === 'chat'
-state.workspace = 'tianshu'; state.page = 'chat'; state.sidebarOpen = false
-if (alreadyThere) { setSidebarOpen(false); return }
-render(); return
-}
-if (action === 'open-chat') {
-const alreadyThere = state.workspace === 'chat' && state.page === 'chat'
-state.workspace = 'chat'; state.page = 'chat'; state.sidebarOpen = false
-if (alreadyThere) { setSidebarOpen(false); return }
-render(); return
-}
+if (action === 'open-settings') { navigateTo('settings'); return }
+if (action === 'back-chat') { navigateTo('chat'); return }
+if (action === 'enter-tianshu') { navigateTo('tianshu'); return }
+if (action === 'open-chat') { navigateTo('chat'); return }
 if (action === 'toggle-summon') { state.summonOpen = !state.summonOpen; render(); return }
+if (action === 'start-voice') { startVoiceInput(); return }
 if (action === 'close-card') { state.activeCard = null; render(); return }
 if (action === 'logout-account') { confirmThen('退出登录后需要重新输入账号密码。确定退出？', clearAuthSession); return }
 if (action === 'clear-api') { confirmThen('清除后需重新登录网站账号并保存连接。确定清除？', clearApiConnection); return }
@@ -965,7 +1005,8 @@ render()
 async function submitPromptV2(rawText) {
 const text = rawText.trim()
 if (!text) return
-const mode = state.workspace === 'tianshu' ? 'tianshu' : 'chat'
+const mode = state.tab === 'tianshu' ? 'tianshu' : 'chat'
+haptic(12)
 track('message_send', { mode, connected: state.connected })
 appendMessage({ role: 'user', text, time: currentTime() }, { mode })
 const taskEntry = mode === 'tianshu'
@@ -973,7 +1014,7 @@ const taskEntry = mode === 'tianshu'
 : null
 const assistantMessage = {
 role: 'assistant',
-text: state.connected ? (state.workspace === 'tianshu' ? '正在下发到电脑端天枢，等待任务回执。' : '正在调用已保存 API 回答。') : '还没有保存 API，我先把这条内容留在本机。',
+text: state.connected ? (state.tab === 'tianshu' ? '正在下发到电脑端天枢，等待任务回执。' : '正在调用已保存 API 回答。') : '还没有保存 API，我先把这条内容留在本机。',
 time: currentTime(),
 typing: state.connected,
 }
@@ -999,6 +1040,7 @@ assistantMessage.text = mode === 'tianshu'
 ? `电脑端任务 API 暂时没有接收：${error?.message || '请检查设置里的远程连接。'}`
 : `普通问答 API 暂时没有返回：${error?.message || '请检查设置里的 API 地址或令牌。'}`
 assistantMessage.typing = false
+haptic([30, 50, 30])
 track('message_error', { mode, error: error?.message || 'unknown' })
 announceToScreenReader('消息发送失败')
 }
@@ -1288,7 +1330,7 @@ text,
 time: currentTime(),
 remoteKey: key,
 }, { mode: 'tianshu' })
-if (state.workspace === 'tianshu') render()
+if (state.tab === 'tianshu') render()
 }
 function remoteStatusLabel(status) {
 const normalized = String(status || '').toLowerCase()
@@ -1410,7 +1452,7 @@ state.activeThreadIds = next.activeThreadIds
 state.messages = getThreadMessages(next.threads.chat, next.activeThreadIds.chat)
 state.tianshuMessages = getThreadMessages(next.threads.tianshu, next.activeThreadIds.tianshu)
 }
-function activeThread(mode = state.workspace) {
+function activeThread(mode = state.tab) {
 const normalized = normalizeChatMode(mode)
 const threads = state.chatThreads[normalized]
 let thread = threads.find((item) => item.id === state.activeThreadIds[normalized])
@@ -1421,12 +1463,12 @@ state.activeThreadIds[normalized] = thread.id
 }
 return thread
 }
-function syncVisibleMessages(mode = state.workspace) {
+function syncVisibleMessages(mode = state.tab) {
 const normalized = normalizeChatMode(mode)
 if (normalized === 'chat') state.messages = activeThread('chat').messages
 else state.tianshuMessages = activeThread('tianshu').messages
 }
-function appendMessage(message, { mode = state.workspace, persist = true } = {}) {
+function appendMessage(message, { mode = state.tab, persist = true } = {}) {
 const normalized = normalizeChatMode(mode)
 ensureChatHistoryScope()
 const thread = activeThread(normalized)
@@ -1445,7 +1487,7 @@ syncVisibleMessages(normalized)
 if (persist) saveChatHistory()
 return thread.messages[thread.messages.length - 1]
 }
-function createChatThread(mode = state.workspace) {
+function createChatThread(mode = state.tab) {
 const normalized = normalizeChatMode(mode)
 const thread = createEmptyThread(normalized)
 state.chatThreads[normalized].unshift(thread)
@@ -1772,6 +1814,9 @@ return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 3-8.4 18-3.1-7.
 }
 function boxIcon() {
 return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></svg>'
+}
+function haptic(ms = 10) {
+try { navigator.vibrate?.(ms) } catch {}
 }
 function track(event, props = {}) {
 try {
