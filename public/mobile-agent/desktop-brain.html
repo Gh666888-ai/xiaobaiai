@@ -1,6 +1,6 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>小白天枢 · Cognitive Surface</title><link rel="stylesheet" href="./src/desktop-brain-ui/styles.css?v=0.1.15-mphlvnzm"><script src="./vendor/d3/d3.min.js?v=0.1.15-mphlvnzm"></script></head><body><script type="module">
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>小白天枢 · Cognitive Surface</title><link rel="stylesheet" href="./src/desktop-brain-ui/styles.css?v=0.2.0-mphmajog"><script src="./vendor/d3/d3.min.js?v=0.2.0-mphmajog"></script></head><body><script type="module">
 async function loadDesktopGalaxyBackground() {
-  const imageUrl = new URL("./assets/desktop-brain/desktop-galaxy-background.jpg?v=0.1.15-mphlvnzm", location.href).href;
+  const imageUrl = new URL("./assets/desktop-brain/desktop-galaxy-background.jpg?v=0.2.0-mphmajog", location.href).href;
   const response = await fetch(imageUrl, { cache: "force-cache" });
   if (!response.ok) throw new Error(`Background load failed: ${response.status}`);
   const blob = await response.blob();
@@ -21,9 +21,9 @@ try {
   localStorage.setItem("xiaobai-background-mode", "custom");
   localStorage.setItem(
     "xiaobai-custom-background",
-    new URL("./assets/desktop-brain/desktop-galaxy-background.jpg?v=0.1.15-mphlvnzm", location.href).href,
+    new URL("./assets/desktop-brain/desktop-galaxy-background.jpg?v=0.2.0-mphmajog", location.href).href,
   );
 }
 
-await import("./src/desktop-brain-ui/app.js?v=0.1.15-mphlvnzm");
+await import("./src/desktop-brain-ui/app.js?v=0.2.0-mphmajog");
 </script></body></html>

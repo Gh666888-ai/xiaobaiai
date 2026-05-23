@@ -1,4 +1,4 @@
-const CACHE_NAME = 'xiaobai-tianshu-mobile-v0.1.15'
+const CACHE_NAME = 'xiaobai-tianshu-mobile-v0.2.0'
 const PRECACHE = [
 './',
 './index.html',
