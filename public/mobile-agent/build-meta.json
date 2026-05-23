@@ -1,27 +1,10 @@
 {
   "name": "xiaobai-mobile-app",
-  "version": "0.1.14",
+  "version": "0.1.15",
+  "buildId": "0.1.15-mphlvnzm",
   "channel": "web-pwa",
-  "builtAt": "2026-05-21T18:25:28.257Z",
-  "files": [
-    "index.html",
-    "desktop-brain.html",
-    "manifest.webmanifest",
-    "icons/icon.svg",
-    "icons/xiaobai-ai-agent.png",
-    "src/app.js",
-    "src/mobile-hotspot-earth.js",
-    "src/styles.css",
-    "vendor/three/three.module.js",
-    "assets/earth/earth_atmos_2048.jpg",
-    "assets/earth/earth_normal_2048.jpg",
-    "assets/earth/earth_specular_2048.jpg",
-    "assets/earth/earth_clouds_2048.png",
-    "assets/desktop-brain/desktop-galaxy-background.jpg"
-  ],
-  "directories": [
-    "src/desktop-brain-ui",
-    "src/ui/brain-ui",
-    "vendor/d3"
-  ]
+  "builtAt": "2026-05-23T00:24:02.953Z",
+  "totalBefore": 1429182,
+  "totalAfter": 1215285,
+  "reduction": "15.0%"
 }

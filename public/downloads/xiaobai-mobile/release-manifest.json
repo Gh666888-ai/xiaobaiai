@@ -26,11 +26,11 @@
   "migrationNote": "0.2.2 使用真正原生 Android 普通对话页面，修复天枢中心 token 注入时序、未登录返回路径、切换闪白、WebView 复用崩溃和普通问答模型地址兼容问题。由于旧 WebView 版签名证书无法在本机恢复，新原生版使用新包名，避免同包名不同签名导致覆盖安装失败。",
   "certificateSha256": "dc821dbe7ef3f11d04bb1d8c3249e8fcda754cc8c80d233b4b89ca4a12779b03",
   "oldCertificateSha256": "36f507b8fe853c0ed02629c95cfb14738fe0390332bad8cd02907dfcf0f975a2",
-  "webVersion": "0.1.14",
-  "webPackageName": "Xiaobai-Tianshu-Mobile-Web-0.1.14.zip",
-  "webPackageSize": 6445035,
-  "webPackageSha256": "0523004fcba48d65ba3777237f86915831206769130757a7266a3c6fed693001",
+  "webVersion": "0.1.15",
+  "webPackageName": "Xiaobai-Tianshu-Mobile-Web-0.1.15.zip",
+  "webPackageSize": 6241141,
+  "webPackageSha256": "4dcebed370ff486817330d1a8fb150f29c6d50dff9bdc787e61bc449716b0ac4",
   "webAppUrl": "/mobile-agent/index.html",
   "desktopBrainCopied": true,
-  "webBuiltAt": "2026-05-21T18:25:28.257Z"
+  "webBuiltAt": "2026-05-23T00:24:02.953Z"
 }

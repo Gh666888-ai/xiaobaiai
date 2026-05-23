@@ -1,59 +1,54 @@
-const CACHE_NAME = 'xiaobai-mobile-app-v8-tianshu-desktop-brain'
-const scopePath = new URL(self.registration.scope).pathname.replace(/\/$/, '')
-const assetPath = (path) => `${scopePath}${path}`
-const CORE_ASSETS = [
-  assetPath('/'),
-  assetPath('/index.html'),
-  assetPath('/desktop-brain.html'),
-  assetPath('/manifest.webmanifest'),
-  assetPath('/icons/icon.svg'),
-  assetPath('/icons/icon-192.png'),
-  assetPath('/icons/icon-512.png'),
-  assetPath('/src/app.js'),
-  assetPath('/src/styles.css'),
-  assetPath('/src/mobile-hotspot-earth.js'),
-  assetPath('/src/desktop-brain-ui/app.js'),
-  assetPath('/src/desktop-brain-ui/app-shell.js'),
-  assetPath('/src/desktop-brain-ui/styles.css'),
-  assetPath('/src/desktop-brain-ui/api-client.js'),
-  assetPath('/src/ui/brain-ui/acui/animations.css'),
-  assetPath('/vendor/d3/d3.min.js'),
-  assetPath('/vendor/three/three.module.js'),
-  assetPath('/assets/earth/earth_atmos_2048.jpg'),
-  assetPath('/assets/earth/earth_normal_2048.jpg'),
-  assetPath('/assets/earth/earth_specular_2048.jpg'),
-  assetPath('/assets/earth/earth_clouds_2048.png'),
-  assetPath('/assets/desktop-brain/desktop-galaxy-background.jpg'),
+const CACHE_NAME = 'xiaobai-tianshu-mobile-v0.1.15'
+const PRECACHE = [
+'./',
+'./index.html',
+'./desktop-brain.html',
+'./manifest.webmanifest',
+'./icons/icon.svg',
+'./icons/xiaobai-ai-agent.png',
+'./src/app.js',
+'./src/styles.css',
+'./src/mobile-hotspot-earth.js',
+'./vendor/three/three.module.js',
+'./vendor/d3/d3.min.js',
+'./assets/earth/earth_atmos_2048.jpg',
+'./assets/earth/earth_normal_2048.jpg',
+'./assets/earth/earth_specular_2048.jpg',
+'./assets/earth/earth_clouds_2048.png',
+'./assets/desktop-brain/desktop-galaxy-background.jpg',
 ]
-
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS)))
-  self.skipWaiting()
+event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE)).catch(() => undefined))
+self.skipWaiting()
 })
-
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))),
-  )
-  self.clients.claim()
+event.waitUntil(
+caches.keys()
+.then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
+.then(() => self.clients.claim())
+)
 })
-
 self.addEventListener('fetch', (event) => {
-  const request = event.request
-  if (request.method !== 'GET') return
-  const url = new URL(request.url)
-  if (url.origin !== location.origin) return
-
-  if (url.pathname.startsWith(`${scopePath}/src/`) || url.pathname.endsWith('.js') || url.pathname.endsWith('.css')) {
-    event.respondWith(fetch(request).catch(() => caches.match(request)))
-    return
-  }
-
-  event.respondWith(
-    fetch(request).then((response) => {
-      const copy = response.clone()
-      caches.open(CACHE_NAME).then((cache) => cache.put(request, copy))
-      return response
-    }).catch(() => caches.match(request)),
-  )
+const request = event.request
+if (request.method !== 'GET') return
+const url = new URL(request.url)
+if (url.origin !== location.origin) return
+if (url.pathname.includes('/api/')) {
+event.respondWith(fetch(request).catch(() => caches.match(request)))
+return
+}
+event.respondWith(
+caches.match(request).then((cached) => {
+const refresh = fetch(request)
+.then((response) => {
+if (response.ok) {
+const copy = response.clone()
+caches.open(CACHE_NAME).then((cache) => cache.put(request, copy))
+}
+return response
+})
+.catch(() => cached)
+return cached || refresh
+})
+)
 })
