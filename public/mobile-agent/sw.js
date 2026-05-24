@@ -1,4 +1,4 @@
-const CACHE_NAME = 'xiaobai-tianshu-mobile-v0.2.1'
+const CACHE_NAME = 'xiaobai-tianshu-mobile-v0.2.2'
 const PRECACHE = [
 './',
 './index.html',
@@ -16,6 +16,25 @@ const PRECACHE = [
 './assets/earth/earth_specular_2048.jpg',
 './assets/earth/earth_clouds_2048.png',
 './assets/desktop-brain/desktop-galaxy-background.jpg',
+'./assets/image2/backgrounds/chat-orbit-bg.png',
+'./assets/image2/backgrounds/tianshu-earth-bg.png',
+'./assets/image2/xiaobai-mascot.png',
+'./assets/image2/icons/back.png',
+'./assets/image2/icons/camera.png',
+'./assets/image2/icons/chat.png',
+'./assets/image2/icons/close.png',
+'./assets/image2/icons/file.png',
+'./assets/image2/icons/menu.png',
+'./assets/image2/icons/mic.png',
+'./assets/image2/icons/news.png',
+'./assets/image2/icons/photo.png',
+'./assets/image2/icons/plus.png',
+'./assets/image2/icons/send.png',
+'./assets/image2/icons/settings.png',
+'./assets/image2/icons/spark.png',
+'./assets/image2/icons/task.png',
+'./assets/image2/icons/tianshu.png',
+'./assets/image2/icons/weather.png',
 ]
 self.addEventListener('install', (event) => {
 event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE)).catch(() => undefined))

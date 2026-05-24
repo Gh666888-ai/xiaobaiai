@@ -27,11 +27,11 @@
   "migrationNote": "0.2.3 改为 image2 新设计全界面 WebView 壳：登录、普通对话、菜单、设置、附件、天枢中心统一加载 /mobile-agent 的深色科技 UI，保留网站账号登录、自动保存 API、普通问答和天枢远程任务能力。",
   "certificateSha256": "dc821dbe7ef3f11d04bb1d8c3249e8fcda754cc8c80d233b4b89ca4a12779b03",
   "oldCertificateSha256": "36f507b8fe853c0ed02629c95cfb14738fe0390332bad8cd02907dfcf0f975a2",
-  "webVersion": "0.2.1",
-  "webPackageName": "Xiaobai-Tianshu-Mobile-Web-0.2.1.zip",
-  "webPackageSize": 6241609,
-  "webPackageSha256": "8a58a6d695f5736b65179dac844d2767ff2fe5a8af491f98761877c51b098846",
+  "webVersion": "0.2.2",
+  "webPackageName": "Xiaobai-Tianshu-Mobile-Web-0.2.2.zip",
+  "webPackageSize": 10543562,
+  "webPackageSha256": "a736fc7d55ca66e4e8b895640b15b503767974520c87dc36b742ad7425c012d0",
   "webAppUrl": "/mobile-agent/index.html",
   "desktopBrainCopied": true,
-  "webBuiltAt": "2026-05-23T03:32:19.307Z"
+  "webBuiltAt": "2026-05-24T00:34:56.492Z"
 }

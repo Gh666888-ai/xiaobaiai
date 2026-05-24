@@ -27,8 +27,8 @@ const savedApiConfig = loadSavedApiConfig(savedAuthSession)
 const savedChatBackground = loadSavedChatBackground()
 const savedChatHistory = loadSavedChatHistory(savedAuthSession)
 const state = {
-version: '0.2.1',
-apkUrl: '../downloads/xiaobai-mobile/Xiaobai-Tianshu-Native-0.2.2.apk',
+version: '0.2.2',
+apkUrl: '../downloads/xiaobai-mobile/Xiaobai-Tianshu-Native-0.2.3.apk',
 tab: 'chat',
 sidebarOpen: false,
 summonOpen: false,
@@ -210,25 +210,33 @@ const inSettings = state.tab === 'settings'
 return `
 <header class="chat-topbar">
 <button class="round-button" type="button" data-action="${inSettings ? 'back-chat' : 'sidebar'}" aria-label="${inSettings ? '返回对话' : '菜单'}">${inSettings ? backIcon() : menuIcon()}</button>
+${inSettings ? `
 <div class="title-lockup">
 <strong>${titles[state.tab] || '天枢'}</strong>
 <span><i class="${state.connected ? 'ok' : ''}"></i>${subtitles[state.tab] || ''}</span>
 </div>
+` : `
+<nav class="topbar-tab-switch" aria-label="切换模式">
+<button type="button" class="tab-btn ${state.tab === 'chat' ? 'active' : ''}" data-action="open-chat">普通对话</button>
+<button type="button" class="tab-btn ${state.tab === 'tianshu' ? 'active' : ''}" data-action="enter-tianshu">天枢中心</button>
+</nav>
+`}
 <span class="topbar-spacer" aria-hidden="true"></span>
+${!inSettings ? `<button class="icon-btn topbar-icon-btn" type="button" data-action="open-settings" aria-label="设置">${settingsIcon()}</button>` : ''}
 </header>
 `
 }
 function renderComposer() {
 if (state.tab === 'settings') return ''
+const placeholders = { chat: '向 小白 发送消息...', tianshu: '向 小白 发送指令...' }
 return `
 ${state.summonOpen ? renderSummonPanel() : ''}
 <form class="chat-composer" data-composer>
-<button class="summon-button" type="button" data-action="toggle-summon" aria-label="附件">${plusIcon()}</button>
-<input name="prompt" placeholder="向小白提问知识..." autocomplete="off" enterkeyhint="send" />
+<button class="summon-button" type="button" data-action="toggle-summon" aria-label="添加附件">${plusIcon()}</button>
+<input name="prompt" placeholder="${placeholders[state.tab] || placeholders.chat}" autocomplete="off" enterkeyhint="send" />
 <input class="attachment-input" data-attachment-input="file" type="file" />
 <input class="attachment-input" data-attachment-input="photo" type="file" accept="image/*" />
 <input class="attachment-input" data-attachment-input="camera" type="file" accept="image/*" capture="environment" />
-<button class="voice-button" type="button" data-action="start-voice" aria-label="语音输入">${micIcon()}</button>
 <button class="send-button" type="submit" aria-label="发送">${sendIcon()}</button>
 </form>
 `
@@ -260,6 +268,10 @@ ${renderComposer()}
 function renderAuthGate() {
 return `
 <section class="auth-gate">
+<div class="auth-header">
+<h1 class="auth-app-title">小白 Agent</h1>
+<p class="auth-app-subtitle">天枢中心 · 随身控制台</p>
+</div>
 <div class="agent-graph auth-graph" aria-hidden="true">
 <span class="graph-ring ring-a"></span>
 <span class="graph-ring ring-b"></span>
@@ -271,21 +283,21 @@ return `
 <span class="graph-node node-c"></span>
 <span class="graph-node node-d"></span>
 <span class="graph-node node-e"></span>
-<img class="graph-logo xiaobai-agent-logo" src="./icons/xiaobai-ai-agent.png" alt="" />
+<img class="graph-logo xiaobai-agent-logo" src="./assets/image2/xiaobai-mascot.png" alt="" />
 </div>
 <form class="account-login-form auth-gate-form" data-auth-form>
-<label>
-<span>小白AI网站账号</span>
-<input name="email" type="email" placeholder="邮箱账号" autocomplete="email" />
+<label class="auth-label">
+<span class="auth-label-text">网站账号</span>
+<input class="auth-input" name="email" type="email" placeholder="账号/邮箱" autocomplete="email" />
 </label>
-<label>
-<span>密码</span>
-<input name="password" type="password" placeholder="网站账号密码" autocomplete="current-password" />
+<label class="auth-label">
+<span class="auth-label-text">密码</span>
+<input class="auth-input" name="password" type="password" placeholder="网站账号密码" autocomplete="current-password" />
 </label>
 <div class="api-actions">
-<button type="submit">${state.authBusy ? '登录中' : '登录并同步电脑端 API'}</button>
+<button type="submit" class="auth-submit-btn">${state.authBusy ? '登录中' : '登录并同步电脑端 API'}</button>
 </div>
-<small>${state.authError ? escapeHtml(state.authError) : '登录后会自动保存账号令牌，并读取同账号电脑端小白同步的 API、设备和任务。'}</small>
+<p class="auth-footer-hint">${state.authError ? escapeHtml(state.authError) : '设备和任务将与电脑端保持同步'}</p>
 </form>
 </section>
 `
@@ -312,11 +324,7 @@ return `
 <span class="graph-node node-c"></span>
 <span class="graph-node node-d"></span>
 <span class="graph-node node-e"></span>
-<img class="graph-logo xiaobai-agent-logo" src="./icons/xiaobai-ai-agent.png" alt="" />
-</div>
-<div class="welcome-hint">
-<p>向小白提问知识，或切换到<strong>天枢模式</strong>远程指挥电脑上的 AI 干活</p>
-<span>${state.connected ? 'API 已连接' : '登录网站账号后解锁完整功能'}</span>
+<img class="graph-logo xiaobai-agent-logo" src="./assets/image2/xiaobai-mascot.png" alt="" />
 </div>
 </section>
 `
@@ -354,7 +362,6 @@ ${renderComposer()}
 </section>
 `
 }
-function renderTianshuConversation() { return '' }
 function renderCognitiveSurface() {
 return `
 <section class="cognitive-surface" aria-label="天枢认知控制台">
@@ -625,23 +632,6 @@ ${fileIcon()}
 </section>
 `
 }
-function renderComposer() {
-return `
-${state.summonOpen ? renderSummonPanel() : ''}
-<form class="chat-composer" data-composer>
-<button class="summon-button" type="button" data-action="toggle-summon" aria-label="附件">${plusIcon()}</button>
-<input name="prompt" placeholder="向小白提问知识..." autocomplete="off" enterkeyhint="send" />
-<input class="attachment-input" data-attachment-input="file" type="file" />
-<input class="attachment-input" data-attachment-input="photo" type="file" accept="image/*" />
-<input class="attachment-input" data-attachment-input="camera" type="file" accept="image/*" capture="environment" />
-<button class="voice-button" type="button" data-action="start-voice" aria-label="语音输入">${micIcon()}</button>
-<button class="send-button" type="submit" aria-label="发送">${sendIcon()}</button>
-</form>
-`
-}
-function micIcon() {
-return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4M8 22h8"/></svg>'
-}
 function startVoiceInput() {
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition
 if (!SR) { announceToScreenReader('浏览器不支持语音'); return }
@@ -661,9 +651,12 @@ rec.start()
 function renderSummonPanel() {
 return `
 <section class="summon-panel attachment-panel" aria-label="发送附件">
-<button type="button" data-attachment="file">${fileIcon()}<span>发送文件</span></button>
-<button type="button" data-attachment="photo">${imageIcon()}<span>发送照片</span></button>
+<button type="button" data-attachment="file">${fileIcon()}<span>文件</span></button>
+<button type="button" data-attachment="photo">${imageIcon()}<span>照片</span></button>
 <button type="button" data-attachment="camera">${cameraIcon()}<span>拍照</span></button>
+<button type="button" data-action="toggle-summon" data-card="task">${taskIcon()}<span>任务</span></button>
+<button type="button" data-action="toggle-summon" data-card="weather">${weatherIcon()}<span>天气</span></button>
+<button type="button" data-action="toggle-summon" data-card="news">${hotIcon()}<span>热点</span></button>
 </section>
 `
 }
@@ -672,30 +665,42 @@ const modes = [
 { key: 'chat', icon: chatIcon(), label: '对话' },
 { key: 'tianshu', icon: tianshuIcon(), label: '天枢' },
 ]
+const chatThreads = state.chatThreads['chat'] || []
+const tianshuThreads = state.chatThreads['tianshu'] || []
 return `
 <aside class="app-sidebar ${state.sidebarOpen ? 'open' : ''}" aria-label="侧边栏">
 <button class="sidebar-scrim" type="button" data-action="close-sidebar" aria-label="关闭"></button>
 <div class="sidebar-panel">
-<header class="sidebar-head">
+<div class="sidebar-user-card">
+<div class="sidebar-avatar">
+<img src="./assets/image2/xiaobai-mascot.png" alt="" />
+</div>
+<div class="sidebar-user-info">
 <strong>小白 Agent</strong>
-<button class="icon-button" type="button" data-action="close-sidebar" aria-label="关闭">${closeIcon()}</button>
-</header>
-<nav class="sidebar-modes" aria-label="切换模式">
-${modes.map((m) => `
-<button type="button" class="sidebar-mode-btn ${state.tab === m.key ? 'active' : ''}" data-action="${m.key === 'chat' ? 'open-chat' : 'enter-tianshu'}">
-${m.icon}<span>${m.label}</span>
-</button>
-`).join('')}
-</nav>
+<span>xb****@xiaobai.ai</span>
+</div>
+<span class="sidebar-connected-dot ${state.connected ? 'online' : ''}">${state.connected ? '已连接' : '未连接'}</span>
+<button class="sidebar-close-btn" type="button" data-action="close-sidebar" aria-label="关闭">${closeIcon()}</button>
+</div>
 <button class="new-chat-action" type="button" data-action="new-chat">${plusIcon()}<span>新对话</span></button>
 <section class="sidebar-body">
 <div class="conversation-list">
-<div class="history-title">对话历史</div>
-${(state.chatThreads[state.tab] || []).slice(0, 8).map((thread) => `
+<div class="history-group">
+<div class="history-group-title">普通对话</div>
+${chatThreads.slice(0, 4).map((thread) => `
 <button type="button" class="conversation-row" data-action="open-chat">
 ${chatIcon()}<span>${escapeHtml(thread.title || '对话')}</span>
 </button>
 `).join('')}
+</div>
+<div class="history-group">
+<div class="history-group-title">天枢对话</div>
+${tianshuThreads.slice(0, 4).map((thread) => `
+<button type="button" class="conversation-row tianshu-row" data-action="enter-tianshu">
+${tianshuIcon()}<span>${escapeHtml(thread.title || '天枢任务')}</span>
+</button>
+`).join('')}
+</div>
 </div>
 </section>
 <button class="sidebar-settings" type="button" data-action="open-settings">${settingsIcon()}<span>设置</span></button>
@@ -706,16 +711,34 @@ ${chatIcon()}<span>${escapeHtml(thread.title || '对话')}</span>
 function renderSettingsPage() {
 return `
 <section class="settings-page" aria-label="设置">
-<div class="settings-hero">
-<strong>天枢中心</strong>
-<span>${state.connected ? '随身控制台已连接' : '未连接'}</span>
+<div class="settings-header">
+<button class="round-button" type="button" data-action="back-chat" aria-label="返回">${backIcon()}</button>
+<h1 class="settings-title">设置</h1>
+<span class="settings-spacer"></span>
 </div>
 <div class="settings-page-body">
+<div class="settings-account-card">
+<div class="account-info-row">
+<span class="account-label">网站账号</span>
+<span class="account-value">xb****@xiaobai.ai</span>
+</div>
+<div class="account-info-row">
+<span class="account-label">API 自动同步</span>
+<span class="account-status ${state.auth?.token ? 'on' : ''}">${state.auth?.token ? '已开启' : '未开启'}</span>
+</div>
+<div class="account-info-row">
+<span class="account-label">电脑端连接</span>
+<span class="account-status ${state.connected ? 'on' : ''}">${state.connected ? '已连接' : '未连接'}</span>
+</div>
+${state.connected ? `
+<div class="account-device-row">
+<span class="device-icon">${tianshuIcon()}</span>
+<span class="device-name">小白的 MacBook Pro</span>
+</div>
+` : ''}
+</div>
 ${renderBackgroundSection()}
-${renderConnectionSection()}
 ${renderTasksSection()}
-${renderSkillsSection()}
-${renderMemorySection()}
 ${renderAboutSection()}
 </div>
 </section>
@@ -1771,49 +1794,58 @@ return value
 .replaceAll("'", '&#039;')
 }
 function menuIcon() {
-return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>'
+return assetIcon('menu')
 }
 function chatIcon() {
-return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H9l-5 4v-4H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"/><path d="M8 10h8M8 14h5"/></svg>'
+return assetIcon('chat')
 }
 function tianshuIcon() {
-return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18"/><path d="M12 3 5 7v10l7 4 7-4V7l-7-4Z"/><path d="M7.5 9.5 12 12l4.5-2.5M7.5 14.5 12 12l4.5 2.5"/></svg>'
+return assetIcon('tianshu')
 }
 function backIcon() {
-return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>'
+return assetIcon('back')
 }
 function plusIcon() {
-return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>'
+return assetIcon('plus')
 }
 function settingsIcon() {
-return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.04.04a2.1 2.1 0 0 1-2.97 2.97l-.04-.04a1.8 1.8 0 0 0-1.98-.36 1.8 1.8 0 0 0-1.1 1.66V21.3a2.1 2.1 0 0 1-4.2 0v-.06a1.8 1.8 0 0 0-1.1-1.66 1.8 1.8 0 0 0-1.98.36l-.04.04a2.1 2.1 0 0 1-2.97-2.97l.04-.04A1.8 1.8 0 0 0 3.8 15a1.8 1.8 0 0 0-1.66-1.1H2.1a2.1 2.1 0 0 1 0-4.2h.06A1.8 1.8 0 0 0 3.8 8a1.8 1.8 0 0 0-.36-1.98l-.04-.04A2.1 2.1 0 1 1 6.37 3l.04.04a1.8 1.8 0 0 0 1.98.36 1.8 1.8 0 0 0 1.1-1.66V1.7a2.1 2.1 0 0 1 4.2 0v.06a1.8 1.8 0 0 0 1.1 1.66 1.8 1.8 0 0 0 1.98-.36l.04-.04a2.1 2.1 0 1 1 2.97 2.97l-.04.04A1.8 1.8 0 0 0 19.4 8a1.8 1.8 0 0 0 1.66 1.1h.06a2.1 2.1 0 0 1 0 4.2h-.06A1.8 1.8 0 0 0 19.4 15Z"/></svg>'
+return assetIcon('settings')
 }
 function sparkIcon() {
-return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 9.8 9.6 3 12l6.8 2.4L12 21l2.2-6.6L21 12l-6.8-2.4L12 3Z"/></svg>'
+return assetIcon('spark')
 }
 function closeIcon() {
-return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>'
+return assetIcon('close')
 }
-function newspaperIcon() {
-return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H19a2 2 0 0 0 2-2V6H6.5A2.5 2.5 0 0 0 4 8.5v11Z"/><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6H21"/><path d="M8 11h8M8 15h6"/></svg>'
+function hotIcon() {
+return assetIcon('news')
 }
-function cloudIcon() {
-return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 19H8a5 5 0 1 1 1.1-9.88A6 6 0 0 1 21 11.5 3.75 3.75 0 0 1 17.5 19Z"/></svg>'
+function taskIcon() {
+return assetIcon('task')
+}
+function weatherIcon() {
+return assetIcon('weather')
 }
 function fileIcon() {
-return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>'
+return assetIcon('file')
 }
 function imageIcon() {
-return '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m7 15 3-3 3 3 2-2 3 3"/><circle cx="8.5" cy="9.5" r="1.5"/></svg>'
+return assetIcon('photo')
 }
 function cameraIcon() {
-return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8a2 2 0 0 1 2-2h2l1.5-2h5L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><circle cx="12" cy="13" r="3.5"/></svg>'
+return assetIcon('camera')
 }
 function sendIcon() {
-return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 3-8.4 18-3.1-7.7L3 10.2 21 3Z"/><path d="m9.5 13.3 4.7-4.7"/></svg>'
+return assetIcon('send')
 }
 function boxIcon() {
-return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></svg>'
+return assetIcon('task')
+}
+function micIcon() {
+return assetIcon('mic')
+}
+function assetIcon(name) {
+return `<img class="asset-icon asset-icon-${name}" src="./assets/image2/icons/${name}.png" alt="" aria-hidden="true" loading="eager" decoding="async" />`
 }
 function haptic(ms = 10) {
 try { navigator.vibrate?.(ms) } catch {}
