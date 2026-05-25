@@ -1,6 +1,6 @@
 const THREE_LOCAL = '../vendor/three/three.module.js'
-const THREE_CDN = 'https:
-const THREE_CDN_FALLBACK = 'https:
+const THREE_CDN = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js'
+const THREE_CDN_FALLBACK = 'https://unpkg.com/three@0.160.0/build/three.module.js'
 const TEX = {
 earth: '../assets/earth/earth_atmos_2048.jpg',
 normal: '../assets/earth/earth_normal_2048.jpg',

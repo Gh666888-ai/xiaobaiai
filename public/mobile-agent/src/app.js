@@ -1,319 +1,477 @@
-import { MobileHotspotEarth } from './mobile-hotspot-earth.js'
-let activeEarth = null
-let remoteSyncTimer = null
-let remoteEventSource = null
-let remoteEventFailures = 0
-const API_STORAGE_KEY = 'xiaobai-tianshu-api-config'
-const AUTH_STORAGE_KEY = 'xiaobai-tianshu-auth-session'
-const CHAT_BACKGROUND_STORAGE_KEY = 'xiaobai-mobile-chat-background'
-const CHAT_THREADS_STORAGE_KEY = 'xiaobai-mobile-chat-threads'
-const ACTIVE_CHAT_THREAD_STORAGE_KEY = 'xiaobai-mobile-active-chat-thread'
-const TELEMETRY_KEY = 'xiaobai-mobile-telemetry'
-const TELEMETRY_MAX = 200
-const NETWORK_TIMEOUT_MS = 18000
-const NETWORK_RETRY_LIMIT = 1
-const DEFAULT_API_CONFIG = {
-endpoint: 'https:
-chatEndpoint: 'https:
-desktopEndpoint: 'https:
-token: '',
-saved: false,
-savedAt: '',
-workspaceId: 'tianshu-main',
-source: 'xiaobai-website',
-}
-const savedAuthSession = loadSavedAuthSession()
-const savedApiConfig = loadSavedApiConfig(savedAuthSession)
-const savedChatBackground = loadSavedChatBackground()
-const savedChatHistory = loadSavedChatHistory(savedAuthSession)
+import { MobileHotspotEarth } from './mobile-hotspot-earth.js';
+// ─── 常量 ────────────────────────────────────────────────
+const LS_AUTH = 'xiaobai-tianshu-auth-session';
+const LS_API = 'xiaobai-tianshu-api-config';
+const LS_THREADS = 'xiaobai-mobile-chat-threads';
+const LS_BG = 'xiaobai-mobile-chat-background';
+const API_BASE = 'https://www.xiaobaiai.cn/api';
+const API_AUTH = `${API_BASE}/auth`;
+const API_CHAT = `${API_BASE}/mobile-chat`;
+const API_DESKTOP = `${API_BASE}/agent-remote/tasks`;
+const WS_WORKSPACE = 'tianshu-main';
+// ─── 图标库 (Inline SVG) ──────────────────────────────────
+const I = {
+menu: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`,
+close: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+back: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>`,
+send: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`,
+plus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+chat: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+tianshu: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+settings: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+file: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>`,
+photo: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`,
+camera: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
+task: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+weather: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>`,
+news: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14H8"/><path d="M18 18H8"/><path d="M18 10H8"/></svg>`,
+spark: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+mic: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>`,
+arrowDown: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`,
+check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+warning: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+globe: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+warningCircle: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+};
+// ─── 状态 ────────────────────────────────────────────────
 const state = {
-version: '0.2.2',
-apkUrl: '../downloads/xiaobai-mobile/Xiaobai-Tianshu-Native-0.2.3.apk',
-tab: 'chat',
+tab: 'chat',              // 'chat' | 'tianshu' | 'settings'
+connected: false,
 sidebarOpen: false,
+activeCard: null,         // 'weather' | 'hotspot' | 'task' | 'file'
 summonOpen: false,
-activeCard: null,
-connected: savedApiConfig.saved,
-api: savedApiConfig,
-auth: savedAuthSession,
-authMode: 'login',
-authBusy: false,
-authError: '',
-chatBackground: savedChatBackground,
-chatHistoryAccountKey: savedChatHistory.accountKey,
-chatThreads: savedChatHistory.threads,
-activeThreadIds: savedChatHistory.activeThreadIds,
-connectionHealth: {
-checking: false,
-checkedAt: '',
-chat: savedApiConfig.saved ? 'idle' : 'offline',
-remote: savedApiConfig.saved ? 'idle' : 'offline',
-devices: savedApiConfig.saved ? 'idle' : 'offline',
-message: savedApiConfig.saved ? '已保存连接，等待体检。' : '还没有保存 API 连接。',
-},
-messages: getThreadMessages(savedChatHistory.threads.chat, savedChatHistory.activeThreadIds.chat),
-tianshuMessages: getThreadMessages(savedChatHistory.threads.tianshu, savedChatHistory.activeThreadIds.tianshu),
-tasks: [
-{ id: 'sample-install-check', title: '安装说明检查', status: '执行中', progress: 68, result: '等待电脑端同步真实结果。' },
-{ id: 'sample-short-video', title: '短视频选题整理', status: '待确认', progress: 35, result: '' },
-],
-devices: [
-{ name: '天枢终端 01', meta: savedApiConfig.saved ? '等待远程体检' : '未连接', online: false },
-{ name: '备用终端', meta: '离线', online: false },
-],
-skills: ['写作整理', '代码检查', '网页操作', '文件发送'],
-memories: ['项目边界', '发布规则', '常用偏好'],
+messages: [],
+tianshuMessages: [],
+tasks: [],
+devices: [],
+auth: null,
+api: {},
+chatBackground: { mode: 'glass' },  // 'glass' | 'galaxy' | 'custom'
 errorBanner: null,
-online: navigator.onLine !== false,
 confirmDialog: null,
+online: navigator.onLine !== false,
+chatThreads: { chat: [], tianshu: [] },
+activeThreadIds: { chat: '', tianshu: '' },
+connectionHealth: { chat: 'offline', remote: 'offline', devices: 'offline', message: '等待连接体检。' },
+authError: '',
+apkUrl: null,
+};
+// ─── 工具函数 ─────────────────────────────────────────────
+function $el(selector) {
+return document.querySelector(selector);
 }
-applyViewportInsets()
-registerServiceWorker()
-installErrorBoundary()
-installOfflineDetection()
-track('app_start', { online: state.online, connected: state.connected })
-window.visualViewport?.addEventListener('resize', applyViewportInsets)
-window.addEventListener('orientationchange', () => setTimeout(applyViewportInsets, 160))
-installSwipeGestures()
-let swipeStartX = 0
-function installSwipeGestures() {
-const shell = document.querySelector('#app')
-if (!shell) return
-shell.addEventListener('touchstart', (event) => {
-swipeStartX = event.touches?.[0]?.clientX || 0
-}, { passive: true })
-shell.addEventListener('touchend', (event) => {
-const endX = event.changedTouches?.[0]?.clientX || 0
-const dx = endX - swipeStartX
-if (state.sidebarOpen && dx < -60) { setSidebarOpen(false); haptic(6) }
-if (state.activeCard && Math.abs(dx) > 40 && Math.abs(dx) > Math.abs((event.changedTouches?.[0]?.clientY || 0) - (swipeStartX))) {
-state.activeCard = null; haptic(6); render()
+function $els(selector) {
+return Array.from(document.querySelectorAll(selector));
 }
-})
+function esc(str) {
+if (str == null) return '';
+return String(str)
+.replace(/&/g, '&amp;')
+.replace(/</g, '&lt;')
+.replace(/>/g, '&gt;')
+.replace(/"/g, '&quot;')
+.replace(/'/g, '&#39;');
 }
+function time() {
+return new Intl.DateTimeFormat('zh-CN', {
+hour: '2-digit',
+minute: '2-digit',
+hour12: false,
+}).format(new Date());
+}
+function currentTime() {
+return time();
+}
+function haptic(n = 10) {
+try {
+navigator.vibrate?.(n);
+} catch (_) {}
+}
+function wait(ms) {
+return new Promise((r) => setTimeout(r, ms));
+}
+async function fetchWithRetry(url, opts = {}, { timeout = 18000, retries = 1 } = {}) {
+let last;
+for (let i = 0; i <= retries; i++) {
+const ctrl = new AbortController();
+const timer = setTimeout(() => ctrl.abort(), timeout);
+try {
+const resp = await fetch(url, { ...opts, signal: ctrl.signal });
+clearTimeout(timer);
+return resp;
+} catch (e) {
+last = e;
+clearTimeout(timer);
+if (i < retries) await wait(400 * (i + 1));
+}
+}
+if (last?.name === 'AbortError') throw new Error('请求超时');
+throw last || new Error('网络失败');
+}
+function confirmThen(msg, cb) {
+state.confirmDialog = { message: msg, cb };
+render();
+}
+function scheduleScroll() {
+requestAnimationFrame(() => {
+const conv = $el('.conversation');
+if (!conv || state.sidebarOpen || state.activeCard) return;
+const remain = conv.scrollHeight - conv.scrollTop - conv.clientHeight;
+if (remain > 180) return;
+conv.scrollTo({ top: conv.scrollHeight, behavior: 'smooth' });
+});
+}
+function persist(key, value) {
+try {
+localStorage.setItem(key, JSON.stringify(value));
+} catch (_) {}
+}
+function loadPersisted(key, fallback = null) {
+try {
+const raw = localStorage.getItem(key);
+return raw ? JSON.parse(raw) : fallback;
+} catch (_) {
+return fallback;
+}
+}
+// ─── 网络请求 ─────────────────────────────────────────────
+async function apiRequest(endpoint, body, method = 'POST') {
+const resp = await fetchWithRetry(endpoint, {
+method,
+headers: {
+'Content-Type': 'application/json',
+...(state.api.token ? { Authorization: `Bearer ${state.api.token}` } : {}),
+},
+body: JSON.stringify(body),
+});
+if (!resp.ok) {
+const data = await resp.json().catch(() => ({}));
+throw new Error(data.error || data.message || `请求失败 (${resp.status})`);
+}
+return resp.json().catch(() => ({}));
+}
+// ─── 认证 ────────────────────────────────────────────────
+async function login(email, password) {
+if (!email || !password) return;
+state.authError = '';
+render();
+try {
+const data = await apiRequest(API_AUTH, { mode: 'login', email, password });
+if (!data.session?.access_token && !data.token) throw new Error('登录失败，未返回令牌');
+saveAuth(data);
+} catch (err) {
+state.authError = err.message;
+render();
+}
+}
+function saveAuth(data) {
+const session = data.session || {};
+state.auth = {
+token: session.access_token || data.token || '',
+refreshToken: session.refresh_token || data.refreshToken || '',
+expiresAt: Number(session.expires_at || data.expiresAt || 0),
+savedAt: currentTime(),
+user: data.user || null,
+};
+state.connected = Boolean(state.auth.token);
+if (state.auth.token) {
+saveApiConnection({ token: state.auth.token });
+runConnectionHealth();
+}
+persist(LS_AUTH, state.auth);
+render();
+}
+function logoutAccount() {
+state.auth = null;
+state.connected = false;
+state.api = {};
+state.chatThreads = { chat: [], tianshu: [] };
+state.messages = [];
+state.tianshuMessages = [];
+persist(LS_AUTH, null);
+persist(LS_API, null);
+persist(LS_THREADS, null);
+render();
+}
+// ─── API 连接配置 ─────────────────────────────────────────
+function saveApiConnection(config) {
+state.api = {
+endpoint: config.endpoint || state.api.endpoint || API_CHAT,
+chatEndpoint: config.chatEndpoint || config.endpoint || state.api.chatEndpoint || API_CHAT,
+desktopEndpoint: config.desktopEndpoint || state.api.desktopEndpoint || API_DESKTOP,
+token: config.token || state.api.token || '',
+saved: true,
+savedAt: currentTime(),
+workspaceId: config.workspaceId || state.api.workspaceId || WS_WORKSPACE,
+};
+state.connected = Boolean(state.api.token);
+persist(LS_API, state.api);
+render();
+}
+function clearApi() {
+state.api = {};
+state.connected = false;
+state.connectionHealth = { chat: 'offline', remote: 'offline', devices: 'offline', message: '已清除连接。' };
+persist(LS_API, null);
+render();
+}
+// ─── 连接体检 ─────────────────────────────────────────────
+async function runConnectionHealth() {
+if (!state.connected) return;
+const h = { chat: 'offline', remote: 'offline', devices: 'offline', message: '检测中...' };
+state.connectionHealth = h;
+render();
+const checks = [];
+// Check chat API
+checks.push(
+fetchWithRetry(state.api.chatEndpoint, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${state.api.token}` },
+body: JSON.stringify({ messages: [{ role: 'user', text: 'test' }] }),
+}, { timeout: 8000 })
+.then(() => { h.chat = 'ok'; h.message = '问答 API 正常'; })
+.catch(() => { h.chat = 'error'; h.message = '问答 API 异常'; })
+);
+// Check desktop API
+checks.push(
+fetchWithRetry(state.api.desktopEndpoint, {
+method: 'GET',
+headers: { Authorization: `Bearer ${state.api.token}` },
+}, { timeout: 6000 })
+.then(() => { h.remote = 'ok'; })
+.catch(() => { h.remote = 'error'; })
+);
+await Promise.allSettled(checks);
+// Check device count
+if (state.devices.length) {
+h.devices = state.devices.some((d) => d.online) ? 'ok' : 'warn';
+}
+state.connectionHealth = h;
+render();
+}
+// ─── 背景保存 ─────────────────────────────────────────────
+function saveBackground(mode, customImage) {
+state.chatBackground = { mode, customImage: customImage || state.chatBackground?.customImage || '' };
+persist(LS_BG, state.chatBackground);
+render();
+}
+// ─── 消息处理 ─────────────────────────────────────────────
+function submitPrompt(text) {
+const mode = state.tab === 'tianshu' ? 'tianshu' : 'chat';
+haptic(12);
+appendMessage({ role: 'user', text, time: currentTime() }, mode);
+if (!state.connected) {
+appendMessage({ role: 'assistant', text: '还没有保存 API，已先保存为草稿。', time: currentTime() }, mode);
+render();
+return;
+}
+appendMessage({ role: 'assistant', text: mode === 'tianshu' ? '正在下发到电脑端天枢...' : '正在调用 API 回答...', time: currentTime(), typing: true }, mode);
+render();
+if (mode === 'tianshu') {
+handleTianshuMessage(text);
+} else {
+handleChatMessage(text);
+}
+}
+async function handleChatMessage(text) {
+try {
+const data = await apiRequest(state.api.chatEndpoint, {
+messages: state.messages.slice(-40).map((m) => ({ role: m.role, text: m.text })),
+workspaceId: state.api.workspaceId,
+});
+const reply = data.choices?.[0]?.message || data.message || {};
+updateLastMessage({ role: 'assistant', text: reply.text || reply.content || '收到回复', time: currentTime() });
+} catch (err) {
+updateLastMessage({ role: 'assistant', text: `错误: ${err.message}`, time: currentTime() });
+}
+}
+async function handleTianshuMessage(text) {
+try {
+const data = await apiRequest(state.api.desktopEndpoint, {
+task: text,
+workspaceId: state.api.workspaceId,
+source: 'mobile',
+});
+const reply = data.reply || data.message || data.result || '任务已下发';
+updateLastMessage({ role: 'assistant', text: reply, time: currentTime() });
+if (data.tasks) {
+state.tasks = [...state.tasks, ...data.tasks].slice(-20);
+}
+} catch (err) {
+updateLastMessage({ role: 'assistant', text: `错误: ${err.message}`, time: currentTime() });
+}
+}
+function updateLastMessage(msg) {
+const target = state.tab === 'tianshu' ? state.tianshuMessages : state.messages;
+const last = target[target.length - 1];
+if (last?.typing) {
+Object.assign(last, msg, { typing: false });
+} else {
+target.push(msg);
+}
+render();
+}
+function appendMessage(msg, mode = 'chat') {
+const key = mode === 'tianshu' ? 'tianshu' : 'chat';
+if (!state.chatThreads[key].length) createThread(key);
+const thread = state.chatThreads[key][0];
+thread.messages = thread.messages || [];
+thread.messages.push(msg);
+thread.messages = thread.messages.slice(-80);
+if (key === 'chat') state.messages = thread.messages;
+else state.tianshuMessages = thread.messages;
+persist(LS_THREADS, state.chatThreads);
+}
+function createThread(mode = 'chat') {
+const key = mode === 'tianshu' ? 'tianshu' : 'chat';
+const thread = {
+id: `${key}-${Date.now()}`,
+title: key === 'tianshu' ? '天枢对话' : '普通对话',
+createdAt: Date.now(),
+updatedAt: Date.now(),
+messages: [],
+};
+state.chatThreads[key].unshift(thread);
+state.chatThreads[key] = state.chatThreads[key].slice(0, 20);
+state.activeThreadIds[key] = thread.id;
+persist(LS_THREADS, state.chatThreads);
+}
+// ─── 远程同步 ─────────────────────────────────────────────
+let pollTimer = null;
+function startRemotePolling() {
+stopRemotePolling();
+pollTimer = setInterval(async () => {
+if (!state.connected) return;
+try {
+const data = await fetchWithRetry(state.api.desktopEndpoint, {
+method: 'GET',
+headers: { Authorization: `Bearer ${state.api.token}` },
+}, { timeout: 6000 });
+const json = await data.json().catch(() => ({}));
+if (json.tasks) {
+state.tasks = json.tasks;
+}
+if (json.devices) {
+state.devices = json.devices;
+}
+} catch (_) {}
+}, 12000);
+}
+function stopRemotePolling() {
+if (pollTimer) {
+clearInterval(pollTimer);
+pollTimer = null;
+}
+}
+function reconcileRemote() {
+if (state.connected) startRemotePolling();
+else stopRemotePolling();
+}
+// ─── 卡片 ────────────────────────────────────────────────
+function openCard(name) {
+state.activeCard = name;
+state.summonOpen = false;
+render();
+}
+function closeCard() {
+state.activeCard = null;
+disposeEarth();
+render();
+}
+// ─── Earth (Hotspot) ─────────────────────────────────────
+let earth = null;
+function mountCard() {
+if (state.activeCard !== 'news') return;
+const canvas = $el('#mobile-hotspot-earth');
+if (!canvas) return;
+earth = new MobileHotspotEarth(canvas);
+earth.init().catch(() => {
+canvas.closest('.hotspot-earth-shell')?.classList.add('earth-fallback');
+});
+}
+function disposeEarth() {
+if (!earth) return;
+earth.dispose();
+earth = null;
+}
+// ─── 主渲染 ──────────────────────────────────────────────
 function render() {
-disposeActiveEarth()
-applyViewportInsets()
-ensureChatHistoryScope()
-ensureWebsiteAccountConnection({ quiet: true, skipHealth: true })
-const shellMode = state.tab === 'settings' ? 'settings' : state.tab
-const backgroundMode = state.chatBackground.mode || 'glass'
-document.querySelector('#app').innerHTML = `
-${renderOfflineBanner()}
+disposeEarth();
+applySafeArea();
+const app = $el('#app');
+if (!app) return;
+app.innerHTML = `
 ${renderErrorBanner()}
+${renderOfflineBanner()}
 ${renderConfirmDialog()}
-<main class="chat-shell mode-${shellMode} bg-${backgroundMode}" aria-label="天枢中心"${renderShellStyle()}>
+<main class="chat-shell mode-${state.tab === 'settings' ? 'settings' : state.tab}" aria-label="天枢中心">
 ${renderTopbar()}
 ${state.tab === 'settings' ? renderSettingsPage() : renderChatPage()}
+</main>
 ${renderSidebar()}
 ${state.activeCard ? renderFloatingCard() : ''}
-</main>
-`
-bindEvents()
-mountActiveCard()
-reconcileRemoteSync()
-scheduleConversationScroll()
+`;
+bindEvents();
+mountCard();
+if (state.tab !== 'settings') reconcileRemote();
+scheduleScroll();
 }
-function scheduleConversationScroll() {
-requestAnimationFrame(() => {
-const surface = document.querySelector('.conversation')
-if (!surface || state.sidebarOpen || state.activeCard) return
-const remaining = surface.scrollHeight - surface.scrollTop - surface.clientHeight
-if (remaining > 180) return
-surface.scrollTo({ top: surface.scrollHeight, behavior: 'smooth' })
-})
+// ─── 安全区 ──────────────────────────────────────────────
+function applySafeArea() {
+const top = window.visualViewport?.offsetTop || 0;
+const ua = navigator.userAgent || '';
+const standalone = window.matchMedia?.('(display-mode: standalone)')?.matches
+|| window.navigator.standalone
+|| document.referrer.startsWith('android-app://')
+|| /wv|Version\/[\d.]+.*Chrome\/[\d.]+.*Mobile Safari/i.test(ua);
+document.documentElement.style.setProperty('--status-bar', `${standalone ? Math.max(top, 32) : top}px`);
 }
-function registerServiceWorker() {
-if (!('serviceWorker' in navigator)) return
-window.addEventListener('load', () => {
-navigator.serviceWorker.register('./sw.js').catch(() => {})
-}, { once: true })
-}
-function installErrorBoundary() {
-const MAX_RECENT = 5
-const recentErrors = []
-function showBanner(message, isFatal) {
-state.errorBanner = { message, isFatal, id: Date.now() }
-render()
-announceToScreenReader(isFatal ? '应用遇到严重错误，请尝试刷新页面' : `错误：${message}`)
-if (!isFatal) setTimeout(() => dismissBanner(), 6000)
-}
-function dismissBanner() {
-state.errorBanner = null
-render()
-}
-window.addEventListener('error', (event) => {
-if (event.target && (event.target.tagName === 'IMG' || event.target.tagName === 'SCRIPT' || event.target.tagName === 'LINK')) {
-console.warn('Resource load error:', event.target.src || event.target.href)
-return
-}
-recentErrors.push({ message: event.message, time: Date.now() })
-if (recentErrors.length > MAX_RECENT) recentErrors.shift()
-const crashed = recentErrors.filter((e) => Date.now() - e.time < 4000).length >= 3
-showBanner(event.message || '未知错误', crashed)
-if (crashed) recentErrors.length = 0
-})
-window.addEventListener('unhandledrejection', (event) => {
-const message = event.reason?.message || String(event.reason || '未处理的异步错误')
-track('error_unhandled', { message })
-showBanner(message, false)
-})
-window.__dismissErrorBanner = dismissBanner
-}
-function installOfflineDetection() {
-window.addEventListener('online', () => {
-state.online = true
-render()
-announceToScreenReader('网络已恢复')
-})
-window.addEventListener('offline', () => {
-state.online = false
-render()
-announceToScreenReader('网络已断开，部分功能可能不可用')
-})
-}
-function renderOfflineBanner() {
-if (state.online) return ''
-return `
-<div class="offline-banner" role="alert">
-<span>!</span>
-<p>当前处于离线状态，部分功能不可用</p>
-</div>
-`
-}
-function renderErrorBanner() {
-if (!state.errorBanner) return ''
-const isFatal = state.errorBanner.isFatal
-return `
-<div class="error-banner ${isFatal ? 'fatal' : ''}" role="alert">
-<span>${isFatal ? '⚠' : '!'}</span>
-<p>${escapeHtml(state.errorBanner.message)}</p>
-<button type="button" onclick="window.__dismissErrorBanner()" aria-label="关闭">${closeIcon()}</button>
-${isFatal ? '<button type="button" class="error-reload" onclick="location.reload()">刷新页面</button>' : ''}
-</div>
-`
-}
-function renderShellStyle() {
-if (state.tab === 'tianshu' && state.tab !== 'settings') return ''
-const mode = state.chatBackground.mode
-if (mode !== 'custom' || !state.chatBackground.customImage) return ''
-return ` style="--chat-bg-image: url(&quot;${escapeHtml(state.chatBackground.customImage)}&quot;)"`
-}
+// ─── 顶部栏 ──────────────────────────────────────────────
 function renderTopbar() {
-const titles = { chat: '对话', tianshu: '天枢', settings: '设置' }
-const subtitles = {
-chat: state.connected ? 'API 已连接' : '待连接',
-tianshu: state.connected ? '远程控制台' : '未连接',
-settings: '连接与偏好',
-}
-const inSettings = state.tab === 'settings'
+if (state.tab === 'settings') return '';
 return `
 <header class="chat-topbar">
-<button class="round-button" type="button" data-action="${inSettings ? 'back-chat' : 'sidebar'}" aria-label="${inSettings ? '返回对话' : '菜单'}">${inSettings ? backIcon() : menuIcon()}</button>
-${inSettings ? `
-<div class="title-lockup">
-<strong>${titles[state.tab] || '天枢'}</strong>
-<span><i class="${state.connected ? 'ok' : ''}"></i>${subtitles[state.tab] || ''}</span>
-</div>
-` : `
-<nav class="topbar-tab-switch" aria-label="切换模式">
-<button type="button" class="tab-btn ${state.tab === 'chat' ? 'active' : ''}" data-action="open-chat">普通对话</button>
-<button type="button" class="tab-btn ${state.tab === 'tianshu' ? 'active' : ''}" data-action="enter-tianshu">天枢中心</button>
-</nav>
-`}
-<span class="topbar-spacer" aria-hidden="true"></span>
-${!inSettings ? `<button class="icon-btn topbar-icon-btn" type="button" data-action="open-settings" aria-label="设置">${settingsIcon()}</button>` : ''}
+<button class="topbar-icon-btn" data-action="sidebar" aria-label="菜单">${I.menu}</button>
+<span class="topbar-title">${state.tab === 'tianshu' ? '天枢' : '小白'}</span>
+<button class="topbar-icon-btn" data-action="new-chat" aria-label="新对话">${I.plus}</button>
 </header>
-`
+`;
 }
-function renderComposer() {
-if (state.tab === 'settings') return ''
-const placeholders = { chat: '向 小白 发送消息...', tianshu: '向 小白 发送指令...' }
-return `
-${state.summonOpen ? renderSummonPanel() : ''}
-<form class="chat-composer" data-composer>
-<button class="summon-button" type="button" data-action="toggle-summon" aria-label="添加附件">${plusIcon()}</button>
-<input name="prompt" placeholder="${placeholders[state.tab] || placeholders.chat}" autocomplete="off" enterkeyhint="send" />
-<input class="attachment-input" data-attachment-input="file" type="file" />
-<input class="attachment-input" data-attachment-input="photo" type="file" accept="image/*" />
-<input class="attachment-input" data-attachment-input="camera" type="file" accept="image/*" capture="environment" />
-<button class="send-button" type="submit" aria-label="发送">${sendIcon()}</button>
-</form>
-`
-}
+// ─── 对话页 ──────────────────────────────────────────────
 function renderChatPage() {
 if (!state.auth?.token) {
-return `
-<section class="conversation" aria-label="登录小白AI账号">
-${renderAuthGate()}
-</section>
-`
+return `<section class="conversation" aria-label="登录">${renderAuthGate()}</section>`;
 }
 if (state.tab === 'tianshu') {
-return `
-<section class="conversation" aria-label="天枢电脑端界面">
-${renderDesktopBrainSurface()}
-</section>
-`
+return `<section class="conversation">${renderTianshuDashboard()}</section>`;
 }
 return `
 <section class="conversation" aria-label="对话">
-<div class="phone-conversation">
-${renderConversation()}
-</div>
+${state.messages.length ? renderMessageStream() : renderWelcome()}
 </section>
 ${renderComposer()}
-`
+`;
 }
-function renderAuthGate() {
+// ─── 消息流 ──────────────────────────────────────────────
+function renderMessageStream() {
+return `<div class="message-stream">${state.messages.map(renderMessage).join('')}</div>`;
+}
+function renderMessage(m) {
+const isTyping = Boolean(m.typing);
 return `
-<section class="auth-gate">
-<div class="auth-header">
-<h1 class="auth-app-title">小白 Agent</h1>
-<p class="auth-app-subtitle">天枢中心 · 随身控制台</p>
-</div>
-<div class="agent-graph auth-graph" aria-hidden="true">
-<span class="graph-ring ring-a"></span>
-<span class="graph-ring ring-b"></span>
-<span class="graph-line line-a"></span>
-<span class="graph-line line-b"></span>
-<span class="graph-line line-c"></span>
-<span class="graph-node node-a"></span>
-<span class="graph-node node-b"></span>
-<span class="graph-node node-c"></span>
-<span class="graph-node node-d"></span>
-<span class="graph-node node-e"></span>
-<img class="graph-logo xiaobai-agent-logo" src="./assets/image2/xiaobai-mascot.png" alt="" />
-</div>
-<form class="account-login-form auth-gate-form" data-auth-form>
-<label class="auth-label">
-<span class="auth-label-text">网站账号</span>
-<input class="auth-input" name="email" type="email" placeholder="账号/邮箱" autocomplete="email" />
-</label>
-<label class="auth-label">
-<span class="auth-label-text">密码</span>
-<input class="auth-input" name="password" type="password" placeholder="网站账号密码" autocomplete="current-password" />
-</label>
-<div class="api-actions">
-<button type="submit" class="auth-submit-btn">${state.authBusy ? '登录中' : '登录并同步电脑端 API'}</button>
-</div>
-<p class="auth-footer-hint">${state.authError ? escapeHtml(state.authError) : '设备和任务将与电脑端保持同步'}</p>
-</form>
-</section>
-`
+<article class="bubble ${esc(m.role)}${isTyping ? ' typing' : ''}">
+<p>${isTyping
+? `<span class="typing-label">${esc(m.text)}</span><span class="typing-dots"><i></i><i></i><i></i></span>`
+: esc(m.text)}</p>
+<time>${esc(m.time || '')}</time>
+</article>
+`;
 }
-function renderConversation() {
-if (!state.messages.length) return renderWelcome()
-return `<div class="message-stream">${state.messages.map(renderMessage).join('')}</div>`
-}
-function renderTianshuConversation() {
-if (!state.tianshuMessages.length) return ''
-return `<div class="tianshu-message-dock">${state.tianshuMessages.slice(-4).map(renderMessage).join('')}</div>`
-}
+// ─── 欢迎页 ──────────────────────────────────────────────
 function renderWelcome() {
 return `
-<section class="welcome">
-<div class="agent-graph" aria-hidden="true">
+<div class="welcome">
+<div class="agent-graph">
 <span class="graph-ring ring-a"></span>
 <span class="graph-ring ring-b"></span>
 <span class="graph-line line-a"></span>
@@ -323,265 +481,156 @@ return `
 <span class="graph-node node-b"></span>
 <span class="graph-node node-c"></span>
 <span class="graph-node node-d"></span>
-<span class="graph-node node-e"></span>
-<img class="graph-logo xiaobai-agent-logo" src="./assets/image2/xiaobai-mascot.png" alt="" />
+<img class="graph-logo xiaobai-agent-logo" src="./assets/image2/xiaobai-mascot.png" alt="小白" />
 </div>
-</section>
-`
+<p class="welcome-hint">向小白发送消息，开始对话</p>
+</div>
+`;
 }
-function renderDesktopBrainSurface() {
-const activeDevices = state.devices.filter((d) => d.online)
+// ─── 天枢控制台 ──────────────────────────────────────────
+function renderTianshuDashboard() {
+const online = state.devices.filter((d) => d.online);
 return `
-<section class="conversation" aria-label="天枢控制台">
 <div class="tianshu-dashboard">
 <div class="tianshu-status-card">
 <div class="tianshu-status-row">
-<span class="tianshu-status-dot ${activeDevices.length ? 'online' : ''}"></span>
-<div>
-<strong>${activeDevices.length ? `天枢终端在线 · ${activeDevices[0].name}` : '等待电脑端连接'}</strong>
-<small>${activeDevices.length ? '可发送任务到电脑端 AI' : '请在电脑端小白中开启远程同步'}</small>
+<span class="tianshu-status-dot ${online.length ? 'online' : ''}"></span>
+<div class="tianshu-status-info">
+<strong>${online.length ? `天枢在线 · ${esc(online[0].name)}` : '等待连接'}</strong>
+<small>${online.length ? '可发送任务到电脑端 AI' : '请在电脑端小白中开启远程同步'}</small>
 </div>
 </div>
-<div class="tianshu-mini-stats">
+<div class="tianshu-stats">
 <span>任务 ${state.tasks.length}</span>
-<span>设备 ${activeDevices.length}/${state.devices.length}</span>
+<span>设备 ${online.length}/${state.devices.length}</span>
 </div>
 </div>
-${state.tianshuMessages.length ? `
-<div class="tianshu-conversation">
-${state.tianshuMessages.slice(-6).map(renderMessage).join('')}
-</div>
-` : `
-<div class="tianshu-empty">
+${state.tianshuMessages.length
+? `<div class="tianshu-message-dock">${state.tianshuMessages.slice(-4).map(renderMessage).join('')}</div>`
+: `<div class="tianshu-empty">
 <p>在下方输入框发送任务到电脑端 AI</p>
 <span>例如：检查安装说明、整理短视频选题、分析项目文件</span>
-</div>
-`}
+</div>`
+}
 ${renderComposer()}
 </div>
-</section>
-`
+`;
 }
-function renderCognitiveSurface() {
+// ─── 登录页 ──────────────────────────────────────────────
+function renderAuthGate() {
 return `
-<section class="cognitive-surface" aria-label="天枢认知控制台">
-<aside id="panel-l1-mobile" class="cognitive-panel cognitive-left panel">
-<header class="cognitive-brand panel-identity">
-<button type="button" data-action="open-chat" aria-label="返回普通对话">${backIcon()}</button>
-<i class="brand-mark"></i>
-<div>
-<span>COGNITIVE SURFACE</span>
-<strong>小白天枢</strong>
+<div class="auth-gate">
+<div class="agent-graph">
+<span class="graph-ring ring-a"></span>
+<span class="graph-ring ring-b"></span>
+<span class="graph-line line-a"></span>
+<span class="graph-line line-b"></span>
+<span class="graph-line line-c"></span>
+<span class="graph-node node-a"></span>
+<span class="graph-node node-b"></span>
+<span class="graph-node node-c"></span>
+<span class="graph-node node-d"></span>
+<img class="graph-logo xiaobai-agent-logo" src="./assets/image2/xiaobai-mascot.png" alt="小白" />
 </div>
-<button type="button" data-action="new-chat" aria-label="新对话">${sparkIcon()}</button>
-<button type="button" data-action="sidebar" aria-label="对话列表">${menuIcon()}</button>
-<button type="button" data-action="open-settings" aria-label="设置">${settingsIcon()}</button>
-</header>
-<div class="processor-head">
-<strong>用户消息处理器</strong>
-<span>LIVE</span>
+<div class="auth-header">
+<h1 class="auth-app-title">小白天枢</h1>
+<p class="auth-app-subtitle">随身控制台</p>
 </div>
-<div class="processor-orb" aria-hidden="true">
-${Array.from({ length: 22 }, (_, index) => `<i style="--i:${index}"></i>`).join('')}
+<form class="auth-gate-form" data-auth-form>
+<label class="auth-label">
+<span class="auth-label-text">网站账号</span>
+<input class="auth-input" name="email" type="email" placeholder="输入邮箱" autocomplete="email" />
+</label>
+<label class="auth-label">
+<span class="auth-label-text">密码</span>
+<input class="auth-input" name="password" type="password" placeholder="输入密码" autocomplete="current-password" />
+</label>
+<button type="submit" class="auth-submit-btn">登录并连接</button>
+<button type="button" class="auth-skip-btn" data-action="skip-login">跳过，先看看</button>
+<p class="auth-footer-hint">${state.authError ? esc(state.authError) : '设备和任务将与电脑端保持同步'}</p>
+</form>
 </div>
-<div class="cognitive-mini-stats">
-<span><i></i>限制 1</span>
-<span><i></i>记忆 65</span>
-<span><i></i>知识 0</span>
-<span><i></i>奏读 0</span>
+`;
+}
+// ─── 输入框 ──────────────────────────────────────────────
+function renderComposer() {
+if (state.tab === 'settings') return '';
+const ph = state.tab === 'tianshu' ? '向电脑端 AI 发送指令...' : '向小白发送消息...';
+return `
+${state.summonOpen ? renderSummonPanel() : ''}
+<form class="chat-composer" data-composer>
+<button class="summon-btn" type="button" data-action="toggle-summon" aria-label="添加">${I.plus}</button>
+<input name="prompt" placeholder="${ph}" autocomplete="off" enterkeyhint="send" />
+<input class="attachment-input" data-attachment-input="file" type="file" />
+<input class="attachment-input" data-attachment-input="photo" type="file" accept="image/*" />
+<input class="attachment-input" data-attachment-input="camera" type="file" accept="image/*" capture="environment" />
+<button class="send-btn" type="submit" aria-label="发送">${I.send}</button>
+</form>
+`;
+}
+// ─── 召唤面板 ─────────────────────────────────────────────
+function renderSummonPanel() {
+return `
+<section class="summon-panel attachment-panel" aria-label="附件">
+<button type="button" data-attachment="file">${I.file}<span>文件</span></button>
+<button type="button" data-attachment="photo">${I.photo}<span>照片</span></button>
+<button type="button" data-attachment="camera">${I.camera}<span>拍照</span></button>
+<button type="button" data-action="toggle-summon" data-card="task">${I.task}<span>任务</span></button>
+<button type="button" data-action="toggle-summon" data-card="weather">${I.weather}<span>天气</span></button>
+<button type="button" data-action="toggle-summon" data-card="news">${I.news}<span>热点</span></button>
+</section>
+`;
+}
+// ─── 侧边栏 ──────────────────────────────────────────────
+function renderSidebar() {
+const allThreads = [...(state.chatThreads?.chat || []), ...(state.chatThreads?.tianshu || [])];
+return `
+<aside class="app-sidebar ${state.sidebarOpen ? 'open' : ''}" aria-label="侧边栏">
+<div class="sidebar-scrim" data-action="close-sidebar"></div>
+<div class="sidebar-panel">
+<button class="sidebar-new-chat" data-action="new-chat">${I.plus}<span>新对话</span></button>
+<nav class="sidebar-nav">
+<button class="sidebar-nav-item ${state.tab === 'chat' ? 'active' : ''}" data-action="open-chat">${I.chat}<span>对话</span></button>
+<button class="sidebar-nav-item ${state.tab === 'tianshu' ? 'active' : ''}" data-action="enter-tianshu">${I.tianshu}<span>天枢</span></button>
+</nav>
+<div class="sidebar-threads">
+${allThreads.length ? allThreads.slice(0, 12).map((t) => `
+<button class="sidebar-thread" data-action="open-chat"><span>${esc(t.title || '对话')}</span></button>
+`).join('') : '<p class="sidebar-empty">暂无对话</p>'}
 </div>
-<div class="cognitive-panel-footer">
-<button type="button" data-action="new-chat">重置节点图</button>
-<button type="button">GRAPH TUNING</button>
+<div class="sidebar-bottom">
+<button class="sidebar-bottom-btn" data-action="open-settings">${I.settings}<span>设置</span></button>
+</div>
 </div>
 </aside>
-<div class="cognitive-stage" aria-hidden="true">
-<div class="cognitive-starfield"></div>
-<div class="cognitive-network">
-${renderCognitiveNetwork()}
-</div>
-</div>
-<aside class="cognitive-panel cognitive-right">
-<div class="cognitive-status-grid">
-<p><span>状态</span><strong><i></i>${state.connected ? '已连接' : '未连接'}</strong></p>
-<p><span>节点</span><strong>65</strong></p>
-<p><span>连线</span><strong>77</strong></p>
-<p><span>TOK/S</span><strong>--</strong></p>
-</div>
-<section class="tick-module">
-<div>
-<strong>自主行动机制 · Tick</strong>
-<span>小白 · 思考 · 工具</span>
-</div>
-<button type="button">流式传输</button>
-</section>
-<div class="desktop-card-buttons" aria-label="快速卡片">
-<button type="button" data-card="news">${newspaperIcon()}<span>热点</span></button>
-<button type="button" data-card="weather">${cloudIcon()}<span>天气</span></button>
-<button type="button" data-card="task">${boxIcon()}<span>任务</span></button>
-<button type="button" data-card="file">${fileIcon()}<span>文件</span></button>
-</div>
-<div class="desktop-task-list">
-${state.tasks.slice(0, 3).map((task) => `
-<article>
-<span>${task.status}</span>
-<strong>${task.title}</strong>
-<div class="progress"><i style="width:${task.progress}%"></i></div>
-</article>
-`).join('')}
-</div>
-</aside>
-</section>
-`
+`;
 }
-function renderCognitiveNetwork() {
-const nodes = [
-[12, 33, 8], [18, 55, 14], [22, 23, 10], [26, 72, 11], [31, 47, 9], [36, 18, 13],
-[39, 62, 12], [43, 37, 9], [47, 79, 11], [50, 50, 20], [54, 24, 12], [57, 68, 10],
-[61, 42, 14], [65, 83, 11], [69, 31, 9], [72, 56, 13], [76, 18, 12], [79, 72, 10],
-[83, 40, 17], [88, 60, 12], [34, 86, 10], [58, 12, 8], [15, 78, 9], [91, 28, 8],
-]
-const links = [
-[12, 33, 38, 18], [18, 55, 43, 37], [26, 72, 50, 50], [36, 18, 61, 42],
-[39, 62, 72, 56], [47, 79, 65, 83], [50, 50, 83, 40], [54, 24, 76, 18],
-[61, 42, 88, 60], [22, 23, 31, 47], [34, 86, 57, 68], [58, 12, 69, 31],
-]
-const linkMarkup = links.map(([x1, y1, x2, y2]) => {
-const length = Math.hypot(x2 - x1, y2 - y1).toFixed(1)
-const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI
-return `<span class="cognitive-link" style="--x1:${x1};--y1:${y1};--len:${length};--angle:${angle.toFixed(1)}deg"></span>`
-}).join('')
-return `
-${linkMarkup}
-${nodes.map(([x, y, size], index) => `<span class="cognitive-node ${index === 9 ? 'core' : ''}" style="--x:${x};--y:${y};--s:${size}px"></span>`).join('')}
-`
-}
-function renderMessage(message) {
-const isTyping = Boolean(message.typing)
-return `
-<article class="bubble ${message.role}${isTyping ? ' typing' : ''}">
-<p>${isTyping ? renderTypingDots(escapeHtml(message.text)) : escapeHtml(message.text)}</p>
-<time>${message.time}</time>
-</article>
-`
-}
-function renderTypingDots(label) {
-return `
-<span class="typing-label">${label}</span>
-<span class="typing-dots" aria-hidden="true"><i></i><i></i><i></i></span>
-`
-}
+// ─── 浮动卡片 ─────────────────────────────────────────────
 function renderFloatingCard() {
 return `
-<section class="floating-card-layer" aria-label="召唤卡片">
-<button class="floating-card-scrim" type="button" data-action="close-card" aria-label="关闭卡片"></button>
-<article class="floating-card ${state.activeCard}">
-<button class="floating-close" type="button" data-action="close-card" aria-label="关闭">${closeIcon()}</button>
+<section class="floating-card-layer open" aria-label="卡片">
+<div class="floating-card-scrim" data-action="close-card"></div>
+<article class="floating-card">
+<button class="floating-close-btn" data-action="close-card" aria-label="关闭">${I.close}</button>
 ${renderActiveCard()}
 </article>
 </section>
-`
+`;
 }
 function renderActiveCard() {
-if (state.activeCard === 'weather') return renderWeatherCard()
-if (state.activeCard === 'task') return renderTaskCard()
-if (state.activeCard === 'file') return renderFileCard()
-return renderNewsCard()
+if (state.activeCard === 'weather') return renderWeatherCard();
+if (state.activeCard === 'task') return renderTaskCard();
+if (state.activeCard === 'file') return renderFileCard();
+if (state.activeCard === 'news') return renderNewsCard();
+return renderWeatherCard();
 }
-function renderNewsCard() {
-return `
-<section class="summoned-card news-card mobile-hotspot-panel">
-<div class="hotspot-scanline" aria-hidden="true"></div>
-<div class="mobile-hotspot-header">
-<div class="hotspot-title-block">
-<div class="hotspot-brand-row">
-<span>GHTS v2.7.1</span>
-<i></i>
-<b>SYSTEM ONLINE</b>
-</div>
-<strong>GLOBAL HOTSPOT</strong>
-<em>TRACKING SYSTEM · 全球热点事件追踪系统</em>
-</div>
-<div class="hotspot-clock">
-<span>00:24:19</span>
-<b><i></i>LIVE</b>
-</div>
-</div>
-<div class="hotspot-status-strip" aria-label="热点系统状态">
-<p><i></i><span>卫星链路</span><b>ONLINE</b></p>
-<p><i></i><span>数据源</span><b>STABLE</b></p>
-<p><i></i><span>AI 分析</span><b>RUNNING</b></p>
-</div>
-<div class="hotspot-earth-shell">
-<div class="hotspot-earth-label">GLOBAL HEATMAP</div>
-<canvas id="mobile-hotspot-earth" aria-label="实时旋转地球"></canvas>
-<div class="hotspot-earth-hint">拖动旋转</div>
-</div>
-<div class="hotspot-stats">
-<p class="warn"><span>预警</span><strong>7</strong><em>+15m</em></p>
-<p class="hot"><span>高关注</span><strong>23</strong><em>+8.4%</em></p>
-<p class="data"><span>数据源</span><strong>2.37M</strong><em>stream</em></p>
-<p class="ai"><span>置信度</span><strong>87%</strong><em>stable</em></p>
-</div>
-<div class="hotspot-feed-grid">
-<section class="hotspot-feed-card">
-<header><i class="dot-douyin"></i><span>抖音</span><b>热榜</b></header>
-<p><em>01</em><span>AI 办公流继续升温</span><strong>98</strong></p>
-<p><em>02</em><span>手机 Agent 入口加速</span><strong>86</strong></p>
-</section>
-<section class="hotspot-feed-card">
-<header><i class="dot-xhs"></i><span>小红书</span><b>趋势</b></header>
-<p><em>01</em><span>个人自动化工具</span><strong>91</strong></p>
-<p><em>02</em><span>远程控制台体验</span><strong>79</strong></p>
-</section>
-</div>
-<div class="hotspot-region-panel">
-<div class="region-title">REGION RANKING</div>
-<p><span>亚太地区</span><i style="width:78%"></i><b>78%</b></p>
-<p><span>北美地区</span><i style="width:62%"></i><b>62%</b></p>
-<p><span>欧洲地区</span><i style="width:48%"></i><b>48%</b></p>
-</div>
-<div class="hotspot-ticker" aria-hidden="true">
-<div>
-<span>00:24:19</span> GLOBAL SIGNAL ONLINE
-<i></i><span>00:24:23</span> APAC HEAT INDEX +12.6%
-<i></i><span>00:24:28</span> AGENT MOBILE ENTRY RISING
-<i></i><span>00:24:31</span> SOURCE STREAM STABLE
-</div>
-</div>
-</section>
-`
-}
-function mountActiveCard() {
-if (state.activeCard !== 'news') return
-const canvas = document.querySelector('#mobile-hotspot-earth')
-if (!canvas) return
-activeEarth = new MobileHotspotEarth(canvas)
-activeEarth.init().catch(() => {
-canvas.closest('.hotspot-earth-shell')?.classList.add('earth-fallback')
-})
-}
-function disposeActiveEarth() {
-if (!activeEarth) return
-activeEarth.dispose()
-activeEarth = null
-}
-function setSidebarOpen(open) {
-state.sidebarOpen = Boolean(open)
-document.querySelector('.app-sidebar')?.classList.toggle('open', state.sidebarOpen)
-}
-function navigateTo(dest) {
-if (dest === 'settings') { state.tab = 'settings'; state.sidebarOpen = false; render(); return }
-state.tab = dest === 'tianshu' ? 'tianshu' : 'chat'
-state.sidebarOpen = false; state.summonOpen = false
-render()
-}
+// ─── 天气卡片 ─────────────────────────────────────────────
 function renderWeatherCard() {
 return `
-<section class="summoned-card weather-card">
-<div class="card-head">
-<span>WEATHER MODULE</span>
-<strong>天气卡片</strong>
+<div class="floating-card-content">
+<div class="card-header">
+<span>WEATHER</span>
+<strong>天气</strong>
 </div>
 <div class="weather-main">
 <b>上海</b>
@@ -589,1321 +638,543 @@ return `
 <span>多云 · 体感舒适</span>
 </div>
 <div class="weather-grid">
-<p><b>多云</b><span>体感舒适</span></p>
-<p><b>东南风</b><span>2 级</span></p>
-<p><b>湿度</b><span>64%</span></p>
+<div class="weather-grid-item"><b>多云</b><span>体感舒适</span></div>
+<div class="weather-grid-item"><b>东南风</b><span>2 级</span></div>
+<div class="weather-grid-item"><b>湿度</b><span>64%</span></div>
 </div>
-</section>
-`
+</div>
+`;
 }
+// ─── 任务卡片 ─────────────────────────────────────────────
 function renderTaskCard() {
 return `
-<section class="summoned-card task-module">
-<div class="card-head">
-<span>TASK MODULE</span>
-<strong>任务卡片</strong>
+<div class="floating-card-content">
+<div class="card-header">
+<span>TASK</span>
+<strong>任务</strong>
 </div>
 <div class="task-module-list">
-${state.tasks.slice(0, 3).map((task) => `
-<article class="${task.error ? 'task-error' : ''}">
-<span>${escapeHtml(task.status || '等待中')}</span>
-<strong>${escapeHtml(task.title || '远程任务')}</strong>
-<div class="progress"><i style="width:${clampProgress(task.progress)}%"></i></div>
-${task.result || task.error ? `<small>${escapeHtml(task.error || task.result)}</small>` : ''}
-</article>
-`).join('')}
+${state.tasks.length
+? state.tasks.slice(0, 5).map((t) => `
+<div class="task-module-item">
+<span>${esc(t.status || '等待中')}</span>
+<strong>${esc(t.title || '任务')}</strong>
+<div class="progress-bar"><i style="width:${t.progress || 0}%"></i></div>
 </div>
-</section>
-`
+`).join('')
+: '<p class="empty-hint">暂无任务</p>'
 }
+</div>
+</div>
+`;
+}
+// ─── 文件卡片 ─────────────────────────────────────────────
 function renderFileCard() {
 return `
-<section class="summoned-card file-module">
-<div class="card-head">
-<span>FILE TRANSFER</span>
+<div class="floating-card-content">
+<div class="card-header">
+<span>FILE</span>
 <strong>文件发送</strong>
 </div>
-<div class="drop-zone">
-${fileIcon()}
-<strong>选择文件或拖入这里</strong>
-<span>发送到天枢终端 01</span>
+<div class="drop-zone">${I.file}<strong>选择文件或拖入这里</strong><span>发送到天枢终端</span></div>
+<button class="drop-zone-btn" type="button" data-attachment="file">${I.file}<span>选择文件</span></button>
 </div>
-<button class="module-primary" type="button">选择文件</button>
-</section>
-`
+`;
 }
-function startVoiceInput() {
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition
-if (!SR) { announceToScreenReader('浏览器不支持语音'); return }
-haptic(10)
-const rec = new SR()
-rec.lang = 'zh-CN'
-rec.interimResults = false
-rec.onresult = (e) => {
-const t = e.results?.[0]?.[0]?.transcript?.trim()
-if (!t) return
-const inp = document.querySelector('[data-composer] [name="prompt"]')
-if (inp) { inp.value = t; inp.focus(); haptic(8) }
-}
-rec.onerror = () => announceToScreenReader('语音识别失败')
-rec.start()
-}
-function renderSummonPanel() {
+// ─── 热点卡片 ─────────────────────────────────────────────
+function renderNewsCard() {
+const now = new Date();
 return `
-<section class="summon-panel attachment-panel" aria-label="发送附件">
-<button type="button" data-attachment="file">${fileIcon()}<span>文件</span></button>
-<button type="button" data-attachment="photo">${imageIcon()}<span>照片</span></button>
-<button type="button" data-attachment="camera">${cameraIcon()}<span>拍照</span></button>
-<button type="button" data-action="toggle-summon" data-card="task">${taskIcon()}<span>任务</span></button>
-<button type="button" data-action="toggle-summon" data-card="weather">${weatherIcon()}<span>天气</span></button>
-<button type="button" data-action="toggle-summon" data-card="news">${hotIcon()}<span>热点</span></button>
-</section>
-`
+<div class="floating-card-content">
+<div class="hotspot-header">
+<div class="hotspot-brand">
+<span>GHTS v2.7.1</span>
+<strong>全球热点追踪</strong>
+</div>
+<div class="hotspot-clock">
+<span>${now.toLocaleTimeString('zh-CN', { hour12: false })}</span>
+<div class="hotspot-live"><i></i>LIVE</div>
+</div>
+</div>
+<div class="hotspot-status-strip">
+<div class="hotspot-status-item"><i></i><span>卫星链路</span><b>ONLINE</b></div>
+<div class="hotspot-status-item"><i></i><span>数据源</span><b>STABLE</b></div>
+<div class="hotspot-status-item"><i></i><span>AI 分析</span><b>RUNNING</b></div>
+</div>
+<div class="hotspot-earth-shell">
+<span class="hotspot-earth-label">GLOBAL HEATMAP</span>
+<canvas id="mobile-hotspot-earth"></canvas>
+<span class="hotspot-earth-hint">拖动旋转</span>
+</div>
+<div class="hotspot-stats">
+<div class="hotspot-stat-item"><span>预警</span><strong>7</strong><em>+15m</em></div>
+<div class="hotspot-stat-item"><span>高关注</span><strong>23</strong><em>+8.4%</em></div>
+<div class="hotspot-stat-item"><span>数据源</span><strong>2.37M</strong><em>stream</em></div>
+<div class="hotspot-stat-item"><span>置信度</span><strong>87%</strong><em>stable</em></div>
+</div>
+<div class="hotspot-feed-grid">
+<div class="hotspot-feed-card">
+<div class="hotspot-feed-header"><i class="dot-douyin"></i><span>抖音</span><b>热榜</b></div>
+<div class="hotspot-feed-item"><em>01</em>AI 办公流继续升温<strong>98</strong></div>
+<div class="hotspot-feed-item"><em>02</em>手机 Agent 入口加速<strong>86</strong></div>
+</div>
+<div class="hotspot-feed-card">
+<div class="hotspot-feed-header"><i class="dot-xhs"></i><span>小红书</span><b>趋势</b></div>
+<div class="hotspot-feed-item"><em>01</em>个人自动化工具<strong>91</strong></div>
+<div class="hotspot-feed-item"><em>02</em>远程控制台体验<strong>79</strong></div>
+</div>
+</div>
+</div>
+`;
 }
-function renderSidebar() {
-const modes = [
-{ key: 'chat', icon: chatIcon(), label: '对话' },
-{ key: 'tianshu', icon: tianshuIcon(), label: '天枢' },
-]
-const chatThreads = state.chatThreads['chat'] || []
-const tianshuThreads = state.chatThreads['tianshu'] || []
-return `
-<aside class="app-sidebar ${state.sidebarOpen ? 'open' : ''}" aria-label="侧边栏">
-<button class="sidebar-scrim" type="button" data-action="close-sidebar" aria-label="关闭"></button>
-<div class="sidebar-panel">
-<div class="sidebar-user-card">
-<div class="sidebar-avatar">
-<img src="./assets/image2/xiaobai-mascot.png" alt="" />
-</div>
-<div class="sidebar-user-info">
-<strong>小白 Agent</strong>
-<span>xb****@xiaobai.ai</span>
-</div>
-<span class="sidebar-connected-dot ${state.connected ? 'online' : ''}">${state.connected ? '已连接' : '未连接'}</span>
-<button class="sidebar-close-btn" type="button" data-action="close-sidebar" aria-label="关闭">${closeIcon()}</button>
-</div>
-<button class="new-chat-action" type="button" data-action="new-chat">${plusIcon()}<span>新对话</span></button>
-<section class="sidebar-body">
-<div class="conversation-list">
-<div class="history-group">
-<div class="history-group-title">普通对话</div>
-${chatThreads.slice(0, 4).map((thread) => `
-<button type="button" class="conversation-row" data-action="open-chat">
-${chatIcon()}<span>${escapeHtml(thread.title || '对话')}</span>
-</button>
-`).join('')}
-</div>
-<div class="history-group">
-<div class="history-group-title">天枢对话</div>
-${tianshuThreads.slice(0, 4).map((thread) => `
-<button type="button" class="conversation-row tianshu-row" data-action="enter-tianshu">
-${tianshuIcon()}<span>${escapeHtml(thread.title || '天枢任务')}</span>
-</button>
-`).join('')}
-</div>
-</div>
-</section>
-<button class="sidebar-settings" type="button" data-action="open-settings">${settingsIcon()}<span>设置</span></button>
-</div>
-</aside>
-`
-}
+// ─── 设置页 ──────────────────────────────────────────────
 function renderSettingsPage() {
 return `
-<section class="settings-page" aria-label="设置">
+<section class="settings-page">
 <div class="settings-header">
-<button class="round-button" type="button" data-action="back-chat" aria-label="返回">${backIcon()}</button>
+<button class="topbar-icon-btn" data-action="back-chat" aria-label="返回">${I.back}</button>
 <h1 class="settings-title">设置</h1>
-<span class="settings-spacer"></span>
 </div>
-<div class="settings-page-body">
-<div class="settings-account-card">
-<div class="account-info-row">
-<span class="account-label">网站账号</span>
-<span class="account-value">xb****@xiaobai.ai</span>
-</div>
-<div class="account-info-row">
-<span class="account-label">API 自动同步</span>
-<span class="account-status ${state.auth?.token ? 'on' : ''}">${state.auth?.token ? '已开启' : '未开启'}</span>
-</div>
-<div class="account-info-row">
-<span class="account-label">电脑端连接</span>
-<span class="account-status ${state.connected ? 'on' : ''}">${state.connected ? '已连接' : '未连接'}</span>
-</div>
-${state.connected ? `
-<div class="account-device-row">
-<span class="device-icon">${tianshuIcon()}</span>
-<span class="device-name">小白的 MacBook Pro</span>
-</div>
-` : ''}
-</div>
+<div class="settings-body">
+${renderAccountCard()}
+${renderConnectionSection()}
 ${renderBackgroundSection()}
-${renderTasksSection()}
+${renderTaskSection()}
+${renderDeviceSection()}
 ${renderAboutSection()}
 </div>
 </section>
-`
+`;
 }
-function renderBackgroundSection() {
-const current = state.chatBackground.mode || 'glass'
+function renderAccountCard() {
 return `
-<section class="setting-section background-section">
-<div class="section-title">
-<h2>普通对话背景</h2>
-<span class="status-chip ${current !== 'glass' ? 'online' : ''}">${current === 'custom' ? '自选图片' : current === 'galaxy' ? '桌面银河' : '玻璃'}</span>
+<div class="setting-card">
+<div class="setting-card-header">
+<span class="setting-card-title">网站账号</span>
+<span class="setting-card-badge ${state.auth?.token ? 'on' : 'off'}">${state.auth?.token ? '已登录' : '未登录'}</span>
 </div>
-<div class="background-options" aria-label="普通对话背景">
-<button class="${current === 'glass' ? 'active' : ''}" type="button" data-background-preset="glass"><span>玻璃</span></button>
-<button class="${current === 'galaxy' ? 'active' : ''}" type="button" data-background-preset="galaxy"><span>桌面银河</span></button>
-<button class="${current === 'custom' ? 'active' : ''}" type="button" data-action="pick-background"><span>自选图片</span></button>
+${state.auth?.token ? `
+<div class="account-info-row">
+<span class="account-label">账号</span>
+<span class="account-value">${esc(state.auth.user?.email || '')}</span>
 </div>
-<input class="attachment-input" data-background-file type="file" accept="image/*" />
-</section>
-`
+` : ''}
+${state.connected ? `
+<div class="account-info-row">
+<span class="account-label">API 状态</span>
+<span class="account-value" style="color:var(--accent)">已连接</span>
+</div>
+` : ''}
+${state.auth?.token ? `
+<button class="auth-submit-btn" style="margin-top:8px;background:rgba(255,100,100,0.1);color:#ff6464" data-action="logout-account">退出登录</button>
+` : ''}
+</div>
+`;
 }
 function renderConnectionSection() {
-const loggedIn = Boolean(state.auth?.token)
-const accountLabel = state.auth?.user?.email || state.auth?.user?.name || ''
 return `
-<section class="setting-section">
-<div class="section-title">
-<h2>天枢中心</h2>
-<span class="status-chip ${state.connected ? 'online' : ''}">${loggedIn ? '网站账号已登录' : '未登录'}</span>
+<div class="setting-card">
+<div class="setting-card-header">
+<span class="setting-card-title">天枢中心</span>
+<span class="setting-card-badge ${state.connected ? 'on' : 'off'}">${state.connected ? '已连接' : '未连接'}</span>
 </div>
-${loggedIn ? `
-<div class="account-session-card">
-<div>
-<span>小白AI 网站账号</span>
-<strong>${escapeHtml(accountLabel || '已登录')}</strong>
-<small>${state.connected ? '已自动保存账号令牌，正在使用同账号电脑端 API。' : '账号已保存，等待连接体检。'}</small>
-</div>
-<button type="button" data-action="logout-account">退出</button>
-</div>
-` : renderLoginForm()}
-<form class="api-connect-form" data-api-form>
-<label>
-<span>普通对话 API</span>
-<input name="endpoint" value="${escapeHtml(state.api.chatEndpoint || state.api.endpoint)}" placeholder="https:
-</label>
-<label>
-<span>电脑任务 API</span>
-<input name="desktopEndpoint" value="${escapeHtml(state.api.desktopEndpoint)}" placeholder="https:
-</label>
-<label>
-<span>共享工作区</span>
-<input name="workspaceId" value="${escapeHtml(state.api.workspaceId)}" placeholder="tianshu-main" autocomplete="off" />
-</label>
-<label>
-<span>网站账号令牌</span>
-<input name="token" value="${escapeHtml(state.api.token)}" placeholder="登录网站账号后自动保存" autocomplete="off" readonly />
-</label>
+<form class="api-form" data-api-form>
+<label><span>普通对话 API</span><input name="endpoint" value="${esc(state.api.chatEndpoint || state.api.endpoint || '')}" placeholder="https://..." autocomplete="url" /></label>
+<label><span>远程任务 API</span><input name="desktopEndpoint" value="${esc(state.api.desktopEndpoint || '')}" placeholder="https://..." autocomplete="url" /></label>
+<label><span>工作区 ID</span><input name="workspaceId" value="${esc(state.api.workspaceId || WS_WORKSPACE)}" placeholder="${WS_WORKSPACE}" /></label>
+<label><span>令牌</span><input name="token" value="${esc(state.api.token || '')}" placeholder="登录后自动填充" readonly /></label>
 <div class="api-actions">
-<button type="submit">${state.connected ? '更新连接' : '连接并保存'}</button>
-<button type="button" data-action="clear-api">清除</button>
+<button type="submit" class="primary">保存连接</button>
+<button type="button" class="secondary" data-action="clear-api">清除</button>
 </div>
-${state.api.saved ? `<small>已保存 · ${escapeHtml(state.api.savedAt || '本机')}</small>` : '<small>先登录小白AI网站账号，手机会自动读取同账号电脑端 API。</small>'}
+<small>先登录小白AI网站账号，手机会自动读取同账号电脑端 API。</small>
 </form>
 ${renderConnectionHealth()}
-<div class="device-list">
-${state.devices.length ? state.devices.map((device) => `
-<article class="device-row">
-<i class="${device.online ? 'online' : ''}"></i>
-<div>
-<strong>${device.name}</strong>
-<small>${device.meta}</small>
+${renderDeviceList()}
 </div>
-<button type="button">${device.online ? '使用中' : '唤醒'}</button>
-</article>
-`).join('') : '<p class="empty-hint">未发现已连接的天枢终端。请在电脑端小白中开启远程同步。</p>'}
-</div>
-</section>
-`
-}
-function renderLoginForm() {
-return `
-<form class="account-login-form" data-auth-form>
-<label>
-<span>网站账号邮箱</span>
-<input name="email" type="email" placeholder="输入小白AI网站账号" autocomplete="email" />
-</label>
-<label>
-<span>密码</span>
-<input name="password" type="password" placeholder="输入网站账号密码" autocomplete="current-password" />
-</label>
-<div class="api-actions">
-<button type="submit">${state.authBusy ? '登录中' : '登录并同步电脑端 API'}</button>
-</div>
-<small>${state.authError ? escapeHtml(state.authError) : '登录后会保存网站 access token，并自动体检普通问答、远程中继和电脑在线状态。'}</small>
-</form>
-`
+`;
 }
 function renderConnectionHealth() {
-const health = state.connectionHealth
+const h = state.connectionHealth || {};
+const chipClass = (status) => {
+if (status === 'ok') return 'ok';
+if (status === 'warn') return 'warn';
+if (status === 'error') return 'error';
+return '';
+};
 return `
-<div class="connection-health" aria-label="连接体检">
-<div class="health-row">
-${renderHealthChip('问答', health.chat)}
-${renderHealthChip('远程', health.remote)}
-${renderHealthChip('电脑', health.devices)}
+<div class="connection-health">
+<div class="health-chips">
+<span class="health-chip ${chipClass(h.chat)}"><i></i>问答 ${h.chat === 'ok' ? '正常' : h.chat === 'warn' ? '待确认' : h.chat === 'error' ? '异常' : '未连接'}</span>
+<span class="health-chip ${chipClass(h.remote)}"><i></i>远程 ${h.remote === 'ok' ? '正常' : h.remote === 'warn' ? '待确认' : h.remote === 'error' ? '异常' : '未连接'}</span>
+<span class="health-chip ${chipClass(h.devices)}"><i></i>设备 ${h.devices === 'ok' ? '正常' : h.devices === 'warn' ? '待确认' : h.devices === 'error' ? '异常' : '未连接'}</span>
 </div>
-<small>${escapeHtml(health.message || '等待连接体检。')}${health.checkedAt ? ` · ${escapeHtml(health.checkedAt)}` : ''}</small>
+<small>${esc(h.message || '等待连接体检。')}</small>
 </div>
-`
+`;
 }
-function renderHealthChip(label, status) {
-const normalized = ['ok', 'warn', 'error', 'checking', 'idle', 'offline'].includes(status) ? status : 'idle'
-const text = {
-ok: '正常',
-warn: '待确认',
-error: '异常',
-checking: '检测中',
-idle: '未检测',
-offline: '未连接',
-}[normalized]
-return `<span class="health-chip ${normalized}"><i></i>${label}${text}</span>`
-}
-function renderTasksSection() {
+function renderBackgroundSection() {
+const mode = state.chatBackground?.mode || 'glass';
 return `
-<section class="setting-section">
-<div class="section-title">
-<h2>任务</h2>
+<div class="setting-card">
+<div class="setting-card-header">
+<span class="setting-card-title">普通对话背景</span>
+<span class="setting-card-badge ${mode !== 'glass' ? 'on' : 'off'}">${mode === 'custom' ? '自选图片' : mode === 'galaxy' ? '桌面银河' : '玻璃'}</span>
+</div>
+<div class="bg-options">
+<button class="${mode === 'glass' ? 'active' : ''}" data-bg="glass">玻璃</button>
+<button class="${mode === 'galaxy' ? 'active' : ''}" data-bg="galaxy">银河</button>
+<button class="${mode === 'custom' ? 'active' : ''}" data-bg="custom" data-action="pick-bg">自选</button>
+</div>
+<input class="attachment-input" data-bg-file type="file" accept="image/*" />
+</div>
+`;
+}
+function renderTaskSection() {
+return `
+<div class="setting-card">
+<div class="setting-card-header">
+<span class="setting-card-title">任务</span>
 <span>${state.tasks.length} 个</span>
 </div>
-<div class="task-stack">
-${state.tasks.length ? state.tasks.map((task) => `
-<article class="task-card">
-<div>
-<span>${escapeHtml(task.status || '等待中')}</span>
-<h3>${escapeHtml(task.title || '远程任务')}</h3>
+<div class="task-list">
+${state.tasks.length
+? state.tasks.map((t) => `
+<div class="task-item">
+<div class="task-item-header">
+<span class="task-status">${esc(t.status || '等待中')}</span>
+<span class="task-title">${esc(t.title || '任务')}</span>
 </div>
-<div class="progress"><i style="width:${clampProgress(task.progress)}%"></i></div>
-${task.result || task.error ? `<small>${escapeHtml(task.error || task.result)}</small>` : ''}
-</article>
-`).join('') : '<p class="empty-hint">暂无任务。在对话或天枢模式中发送消息，任务会自动出现在这里。</p>'}
+<div class="progress-bar"><i style="width:${t.progress || 0}%"></i></div>
+${t.result ? `<p class="task-result">${esc(t.result)}</p>` : ''}
 </div>
-</section>
-`
+`).join('')
+: '<p class="empty-hint">暂无任务。在对话或天枢模式中发送消息，任务会自动出现在这里。</p>'
 }
-function renderSkillsSection() {
-return `
-<section class="setting-section">
-<div class="section-title">
-<h2>技能</h2>
-<span>${state.skills.length} 个</span>
 </div>
-<div class="chip-grid">
-${state.skills.map((skill) => `<button type="button">${boxIcon()}<span>${skill}</span></button>`).join('')}
 </div>
-</section>
-`
+`;
 }
-function renderMemorySection() {
+function renderDeviceSection() {
 return `
-<section class="setting-section">
-<div class="section-title">
-<h2>记忆</h2>
-<span>72%</span>
+<div class="setting-card">
+<div class="setting-card-header">
+<span class="setting-card-title">已连接设备</span>
+<span>${state.devices.filter(d => d.online).length}/${state.devices.length}</span>
 </div>
-<div class="memory-meter"><i style="width:72%"></i></div>
-<div class="memory-list">
-${state.memories.map((item) => `<p>${item}</p>`).join('')}
+${renderDeviceList()}
 </div>
-</section>
-`
+`;
+}
+function renderDeviceList() {
+if (!state.devices.length) {
+return '<p class="empty-hint">未发现已连接的天枢终端。</p>';
+}
+return `
+<div class="device-list">
+${state.devices.map((d) => `
+<div class="device-item">
+<span class="device-dot ${d.online ? 'online' : ''}"></span>
+<div class="device-info">
+<strong class="device-name">${esc(d.name)}</strong>
+<small class="device-meta">${esc(d.meta || '')}</small>
+</div>
+<button class="device-action-btn" type="button" data-action="${d.online ? 'use-device' : 'wake-device'}">${d.online ? '使用中' : '唤醒'}</button>
+</div>
+`).join('')}
+</div>
+`;
 }
 function renderAboutSection() {
 return `
-<section class="setting-section compact">
-<div class="section-title">
-<h2>关于</h2>
-<span>v${state.version}</span>
+<div class="setting-card">
+<div class="setting-card-header">
+<span class="setting-card-title">关于</span>
+<span>v0.2.3</span>
 </div>
-<a class="download-link" href="${state.apkUrl}">下载 Android 测试包</a>
-</section>
-`
-}
-let shellDelegationBound = false
-function bindEvents() {
-ensureWebsiteAccountConnection({ quiet: true })
-refreshAuthSessionIfNeeded().catch(() => {})
-if (!shellDelegationBound) {
-shellDelegationBound = true
-const shell = document.querySelector('#app')
-if (!shell) return
-shell.addEventListener('click', (event) => {
-const target = event.target.closest('[data-action], [data-card], [data-attachment]')
-if (!target) return
-const action = target.dataset.action
-const card = target.dataset.card
-const attachKind = target.dataset.attachment
-if (target.dataset.tab) { navigateTo(target.dataset.tab); return }
-if (action === 'sidebar') { setSidebarOpen(true); return }
-if (action === 'close-sidebar') { setSidebarOpen(false); return }
-if (action === 'new-chat') {
-createChatThread(state.tab)
-state.tab = 'chat'; state.sidebarOpen = false; render(); return
-}
-if (action === 'open-settings') { navigateTo('settings'); return }
-if (action === 'back-chat') { navigateTo('chat'); return }
-if (action === 'enter-tianshu') { navigateTo('tianshu'); return }
-if (action === 'open-chat') { navigateTo('chat'); return }
-if (action === 'toggle-summon') { state.summonOpen = !state.summonOpen; render(); return }
-if (action === 'start-voice') { startVoiceInput(); return }
-if (action === 'close-card') { state.activeCard = null; render(); return }
-if (action === 'logout-account') { confirmThen('退出登录后需要重新输入账号密码。确定退出？', clearAuthSession); return }
-if (action === 'clear-api') { confirmThen('清除后需重新登录网站账号并保存连接。确定清除？', clearApiConnection); return }
-if (action === 'pick-background') { shell.querySelector('[data-background-file]')?.click(); return }
-if (card) { openCard(card); return }
-if (attachKind) { shell.querySelector(`[data-attachment-input="${attachKind}"]`)?.click(); return }
-})
-shell.addEventListener('click', (event) => {
-const btn = event.target.closest('[data-background-preset]')
-if (!btn) return
-saveChatBackground({ mode: btn.dataset.backgroundPreset })
-})
-shell.addEventListener('submit', (event) => {
-const composer = event.target.closest('[data-composer]')
-if (composer) {
-event.preventDefault()
-const input = composer.elements.prompt
-submitPromptV2(input.value)
-input.value = ''
-return
-}
-const apiForm = event.target.closest('[data-api-form]')
-if (apiForm) {
-event.preventDefault()
-const f = apiForm
-saveApiConnection(f.elements.endpoint.value.trim(), state.auth?.token || f.elements.token.value.trim(), f.elements.desktopEndpoint.value.trim(), f.elements.workspaceId.value.trim())
-return
-}
-const authForm = event.target.closest('[data-auth-form]')
-if (authForm) {
-event.preventDefault()
-const f = authForm
-loginWithWebsiteAccount(f.elements.email.value.trim(), f.elements.password.value).catch((error) => {
-state.authBusy = false; state.authError = error?.message || '登录失败，请稍后再试。'; render()
-})
-return
-}
-})
-shell.addEventListener('change', (event) => {
-const input = event.target.closest('[data-attachment-input]')
-if (input) {
-const file = input.files?.[0]
-if (!file) return
-const kind = input.dataset.attachmentInput
-const label = kind === 'camera' ? '拍照' : kind === 'photo' ? '照片' : '文件'
-appendMessage({ role: 'user', text: `已选择${label}：${file.name}`, time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) }, { mode: 'chat' })
-state.summonOpen = false; input.value = ''; render(); return
-}
-const bgFile = event.target.closest('[data-background-file]')
-if (bgFile && bgFile.files?.[0]) {
-const reader = new FileReader()
-reader.onload = () => {
-if (typeof reader.result !== 'string') return
-saveChatBackground({ mode: 'custom', customImage: reader.result })
-}
-reader.readAsDataURL(bgFile.files[0])
-}
-})
-}
-}
-function submitPrompt(rawText) {
-const text = rawText.trim()
-if (!text) return
-appendMessage({ role: 'user', text, time: currentTime() }, { mode: 'chat' })
-appendMessage({
-role: 'assistant',
-text: state.connected ? '收到，已同步到天枢中心。' : '收到，已先保存为草稿。',
-time: currentTime(),
-}, { mode: 'chat' })
-state.tasks.unshift({
-title: text,
-status: state.connected ? '已发送' : '草稿',
-progress: state.connected ? 18 : 0,
-})
-render()
-}
-async function submitPromptV2(rawText) {
-const text = rawText.trim()
-if (!text) return
-const mode = state.tab === 'tianshu' ? 'tianshu' : 'chat'
-haptic(12)
-track('message_send', { mode, connected: state.connected })
-appendMessage({ role: 'user', text, time: currentTime() }, { mode })
-const taskEntry = mode === 'tianshu'
-? createLocalTask(text, state.connected ? '正在下发' : '草稿', state.connected ? 8 : 0)
-: null
-const assistantMessage = {
-role: 'assistant',
-text: state.connected ? (state.tab === 'tianshu' ? '正在下发到电脑端天枢，等待任务回执。' : '正在调用已保存 API 回答。') : '还没有保存 API，我先把这条内容留在本机。',
-time: currentTime(),
-typing: state.connected,
-}
-appendMessage(assistantMessage, { mode })
-render()
-if (!state.connected) return
-try {
-const result = mode === 'tianshu'
-? await sendDesktopTask(text, taskEntry)
-: await askKnowledgeApi(text)
-assistantMessage.text = result || assistantMessage.text
-assistantMessage.typing = false
-track('message_response', { mode, ok: true })
-} catch (error) {
-if (taskEntry) {
-Object.assign(taskEntry, {
-status: '下发失败',
-progress: 100,
-error: error?.message || '任务下发失败',
-})
-}
-assistantMessage.text = mode === 'tianshu'
-? `电脑端任务 API 暂时没有接收：${error?.message || '请检查设置里的远程连接。'}`
-: `普通问答 API 暂时没有返回：${error?.message || '请检查设置里的 API 地址或令牌。'}`
-assistantMessage.typing = false
-haptic([30, 50, 30])
-track('message_error', { mode, error: error?.message || 'unknown' })
-announceToScreenReader('消息发送失败')
-}
-assistantMessage.time = currentTime()
-saveChatHistory()
-render()
-if (!assistantMessage.typing) announceToScreenReader('收到回复')
-}
-async function askKnowledgeApi(message) {
-const response = await fetchWithRetry(defaultApiConfig().chatEndpoint, {
-method: 'POST',
-headers: apiHeaders(),
-body: JSON.stringify({
-content: message,
-message,
-mode: 'knowledge-chat',
-source: 'mobile',
-workspaceId: state.api.workspaceId,
-modelConfig: { useDesktopModel: true },
-}),
-})
-const data = await readApiJson(response)
-return extractApiText(data) || '模型已响应，但没有返回文本内容。'
-}
-async function sendDesktopTask(task, taskEntry = null) {
-const response = await fetchWithRetry(defaultApiConfig().desktopEndpoint, {
-method: 'POST',
-headers: apiHeaders(),
-body: JSON.stringify({
-content: task,
-task,
-channel: 'MOBILE_APP',
-mode: 'tianshu-task',
-source: 'mobile',
-workspaceId: state.api.workspaceId,
-}),
-})
-const data = await readApiJson(response)
-const remoteTask = data.task || data
-const remoteId = remoteTask?.id || data.taskId || data.id || ''
-if (taskEntry) {
-Object.assign(taskEntry, {
-remoteId,
-status: remoteId ? '等待电脑接收' : '已下发',
-progress: remoteId ? 18 : 12,
-result: remoteId ? `任务编号 ${remoteId}` : '',
-error: '',
-})
-}
-pollRemoteTasks({ quiet: true }).catch(() => {})
-return extractApiText(data) || (remoteId ? `电脑端天枢已接收任务，编号 ${remoteId}。` : '电脑端天枢已接收任务。')
-}
-async function readApiJson(response) {
-const data = await response.json().catch(() => ({}))
-if (!response.ok) {
-throw new Error(extractApiError(data) || `HTTP ${response.status}`)
-}
-return data
-}
-async function fetchWithRetry(url, options = {}, { timeout = NETWORK_TIMEOUT_MS, retries = NETWORK_RETRY_LIMIT } = {}) {
-let lastError
-for (let attempt = 0; attempt <= retries; attempt += 1) {
-const controller = new AbortController()
-const timer = setTimeout(() => controller.abort(), timeout)
-try {
-const response = await fetch(url, { ...options, signal: controller.signal })
-if (response.ok || response.status < 500 || attempt >= retries) return response
-lastError = new Error(`HTTP ${response.status}`)
-} catch (error) {
-lastError = error
-if (attempt >= retries) break
-} finally {
-clearTimeout(timer)
-}
-await wait(450 * (attempt + 1))
-}
-if (lastError?.name === 'AbortError') throw new Error('请求超时，请检查网络或稍后重试。')
-throw lastError || new Error('网络请求失败。')
-}
-function wait(ms) {
-return new Promise((resolve) => setTimeout(resolve, ms))
-}
-function apiHeaders() {
-const headers = { 'Content-Type': 'application/json' }
-if (state.api.token) headers.Authorization = `Bearer ${state.api.token}`
-return headers
-}
-function extractApiError(data) {
-if (!data || typeof data !== 'object') return ''
-return data.error || data.message || data.detail || data.reason || ''
-}
-function extractApiText(data) {
-if (!data || typeof data !== 'object') return ''
-return data.answer || data.reply || data.message || data.text || data.result || ''
-}
-function createLocalTask(title, status, progress) {
-const task = {
-id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-remoteId: '',
-title,
-status,
-progress,
-result: '',
-error: '',
-}
-state.tasks.unshift(task)
-return task
-}
-function reconcileRemoteSync() {
-if (!state.connected) {
-stopRemoteSync()
-return
-}
-if (!remoteSyncTimer) {
-remoteSyncTimer = setInterval(() => {
-pollRemoteTasks({ quiet: true }).catch(() => {})
-}, 8000)
-}
-if (!remoteEventSource && state.api.token && typeof EventSource !== 'undefined') {
-const eventsUrl = apiUrlWithToken(remoteEventsEndpoint())
-try {
-remoteEventSource = new EventSource(eventsUrl)
-remoteEventSource.addEventListener('task_updated', (event) => {
-remoteEventFailures = 0
-const payload = parseEventData(event)
-;(payload?.tasks || []).forEach(updateTaskFromRemote)
-render()
-})
-remoteEventSource.addEventListener('response', (event) => {
-remoteEventFailures = 0
-const payload = parseEventData(event)
-if (payload?.content) upsertAssistantRemoteMessage(payload)
-})
-remoteEventSource.addEventListener('remote_error', () => {
-updateConnectionHealth({ remote: 'warn', message: '远程事件流暂时不可用，已切换为轮询。' })
-})
-remoteEventSource.onerror = () => {
-remoteEventFailures += 1
-updateConnectionHealth({ remote: 'warn', message: remoteEventFailures >= 3 ? '远程事件流已降级为轮询。' : '远程事件流正在自动重连。' })
-if (remoteEventFailures >= 3) stopRemoteEventSource()
-}
-} catch {
-stopRemoteEventSource()
-}
-}
-}
-function stopRemoteSync() {
-if (remoteSyncTimer) {
-clearInterval(remoteSyncTimer)
-remoteSyncTimer = null
-}
-stopRemoteEventSource()
-}
-function stopRemoteEventSource() {
-if (!remoteEventSource) return
-try {
-remoteEventSource.close()
-} catch {}
-remoteEventSource = null
-remoteEventFailures = 0
-}
-function parseEventData(event) {
-try {
-return JSON.parse(event.data || '{}')?.data || JSON.parse(event.data || '{}')
-} catch {
-return null
-}
-}
-async function runConnectionHealthCheck({ quiet = false } = {}) {
-if (!state.connected) return
-state.connectionHealth = {
-...state.connectionHealth,
-checking: true,
-chat: 'checking',
-remote: 'checking',
-devices: 'checking',
-message: '正在检查问答、远程中继和电脑在线状态。',
-}
-if (!quiet) render()
-const next = {
-checking: false,
-checkedAt: currentTime(),
-chat: 'warn',
-remote: 'warn',
-devices: 'warn',
-message: '',
-}
-try {
-const chat = await fetchWithRetry(state.api.chatEndpoint || state.api.endpoint, {
-method: 'POST',
-headers: apiHeaders(),
-body: JSON.stringify({ content: '连接体检', source: 'mobile-healthcheck', workspaceId: state.api.workspaceId }),
-})
-next.chat = chat.ok ? 'ok' : 'error'
-} catch {
-next.chat = 'error'
-}
-try {
-const remote = await fetchWithRetry(apiUrlWithToken(remoteHealthEndpoint()), { headers: apiHeaders() })
-const data = await remote.json().catch(() => ({}))
-next.remote = remote.ok && data?.ok !== false ? 'ok' : 'error'
-} catch {
-next.remote = 'error'
-}
-try {
-const data = await fetchRemoteJson(remoteDevicesEndpoint())
-const devices = Array.isArray(data.devices) ? data.devices : []
-state.devices = devices.length
-? devices.map((device, index) => ({
-name: device.device_name || device.deviceName || `天枢终端 ${index + 1}`,
-meta: device.online ? '天枢中心在线' : '离线',
-online: !!device.online,
-}))
-: [{ name: '天枢终端 01', meta: '未发现在线电脑', online: false }]
-next.devices = state.devices.some((device) => device.online) ? 'ok' : 'warn'
-} catch {
-state.devices = [{ name: '天枢终端 01', meta: '设备读取失败', online: false }]
-next.devices = 'error'
-}
-next.message = summarizeHealth(next)
-state.connectionHealth = next
-if (!quiet) render()
-}
-function summarizeHealth(health) {
-if (health.chat === 'ok' && health.remote === 'ok' && health.devices === 'ok') return '问答、远程中继和电脑在线状态正常。'
-if (health.chat === 'error') return '普通问答 API 暂不可用，请检查 Base URL、Key 或模型名。'
-if (health.remote === 'error') return '远程中继暂不可用，请检查登录令牌或 Supabase 远程表。'
-if (health.devices !== 'ok') return '远程中继可用，但暂未发现在线电脑端小白。'
-return '连接已保存，部分能力仍需确认。'
-}
-function updateConnectionHealth(patch) {
-state.connectionHealth = {
-...state.connectionHealth,
-...patch,
-checkedAt: patch.checkedAt || currentTime(),
-}
-}
-async function pollRemoteTasks({ quiet = false } = {}) {
-if (!state.connected) return
-const data = await fetchRemoteJson(remoteTasksEndpoint())
-;(data.tasks || []).forEach(updateTaskFromRemote)
-if (!quiet) render()
-}
-async function fetchRemoteJson(url) {
-const response = await fetchWithRetry(apiUrlWithToken(url), { headers: apiHeaders() })
-return readApiJson(response)
-}
-function updateTaskFromRemote(remoteTask) {
-if (!remoteTask?.id) return
-const remoteId = String(remoteTask.id)
-const existing = state.tasks.find((task) => task.remoteId === remoteId)
-|| state.tasks.find((task) => task.title === remoteTask.content)
-const next = existing || {
-id: `remote-${remoteId}`,
-remoteId,
-title: remoteTask.content || '远程任务',
-status: '等待中',
-progress: 0,
-result: '',
-error: '',
-}
-next.remoteId = remoteId
-next.title = remoteTask.content || next.title
-next.status = remoteStatusLabel(remoteTask.status)
-next.progress = remoteStatusProgress(remoteTask.status)
-next.result = remoteTask.result || next.result || ''
-next.error = remoteTask.error || ''
-if (!existing) state.tasks.unshift(next)
-if (['completed', 'failed', 'aborted'].includes(String(remoteTask.status || '')) && !next.notified) {
-next.notified = true
-appendMessage({
-role: 'assistant',
-text: next.error || next.result || `${next.title}：${next.status}`,
-time: currentTime(),
-remoteKey: `task:${remoteId}`,
-}, { mode: 'tianshu' })
-}
-}
-function upsertAssistantRemoteMessage(message) {
-const text = String(message.content || '').trim()
-if (!text) return
-const key = `${message.task_id || ''}:${text}`
-if (state.tianshuMessages.some((item) => item.remoteKey === key)) return
-appendMessage({
-role: message.role === 'system' ? 'assistant' : 'assistant',
-text,
-time: currentTime(),
-remoteKey: key,
-}, { mode: 'tianshu' })
-if (state.tab === 'tianshu') render()
-}
-function remoteStatusLabel(status) {
-const normalized = String(status || '').toLowerCase()
-if (normalized === 'pending') return '等待电脑接收'
-if (normalized === 'running') return '执行中'
-if (normalized === 'completed') return '已完成'
-if (normalized === 'failed') return '失败'
-if (normalized === 'aborted') return '已取消'
-return '等待中'
-}
-function remoteStatusProgress(status) {
-const normalized = String(status || '').toLowerCase()
-if (normalized === 'pending') return 18
-if (normalized === 'running') return 62
-if (normalized === 'completed') return 100
-if (normalized === 'failed' || normalized === 'aborted') return 100
-return 10
-}
-function clampProgress(value) {
-const progress = Number(value)
-if (!Number.isFinite(progress)) return 0
-return Math.max(0, Math.min(100, progress))
-}
-function remoteBaseEndpoint() {
-const endpoint = state.api.desktopEndpoint || defaultApiConfig().desktopEndpoint
-return endpoint.replace(/\/tasks\/?$/i, '').replace(/\/+$/, '')
-}
-function remoteTasksEndpoint() {
-return `${remoteBaseEndpoint()}/tasks`
-}
-function remoteHealthEndpoint() {
-return `${remoteBaseEndpoint()}/health`
-}
-function remoteDevicesEndpoint() {
-return `${remoteBaseEndpoint()}/devices`
-}
-function remoteEventsEndpoint() {
-return `${remoteBaseEndpoint()}/events`
-}
-function apiUrlWithToken(url) {
-if (!state.api.token) return url
-const separator = url.includes('?') ? '&' : '?'
-return `${url}${separator}token=${encodeURIComponent(state.api.token)}`
-}
-function openCard(card) {
-state.activeCard = ['news', 'weather', 'task', 'file'].includes(card) ? card : 'news'
-state.summonOpen = false
-render()
-}
-function currentAccountKey(authSession = state.auth) {
-const user = authSession?.user || {}
-const identity = user.id || user.email || authSession?.token?.slice(0, 16) || 'guest'
-return String(identity).trim().toLowerCase() || 'guest'
-}
-function normalizeChatMode(mode) {
-return mode === 'tianshu' ? 'tianshu' : 'chat'
-}
-function createEmptyThread(mode) {
-return {
-id: `${normalizeChatMode(mode)}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-title: mode === 'tianshu' ? '天枢对话' : '普通对话',
-createdAt: Date.now(),
-updatedAt: Date.now(),
-messages: [],
-}
-}
-function getThreadMessages(threads, activeThreadId) {
-const thread = Array.isArray(threads) ? threads.find((item) => item.id === activeThreadId) : null
-return Array.isArray(thread?.messages) ? thread.messages : []
-}
-function loadSavedChatHistory(authSession = state?.auth) {
-const accountKey = currentAccountKey(authSession)
-const fallback = {
-accountKey,
-threads: { chat: [createEmptyThread('chat')], tianshu: [createEmptyThread('tianshu')] },
-activeThreadIds: { chat: '', tianshu: '' },
-}
-fallback.activeThreadIds.chat = fallback.threads.chat[0].id
-fallback.activeThreadIds.tianshu = fallback.threads.tianshu[0].id
-try {
-const raw = localStorage.getItem(CHAT_THREADS_STORAGE_KEY)
-const activeRaw = localStorage.getItem(ACTIVE_CHAT_THREAD_STORAGE_KEY)
-const parsed = raw ? JSON.parse(raw) : {}
-const activeParsed = activeRaw ? JSON.parse(activeRaw) : {}
-const scoped = parsed?.[accountKey] || {}
-const activeScoped = activeParsed?.[accountKey] || {}
-const chat = normalizeThreads(scoped.chat, 'chat')
-const tianshu = normalizeThreads(scoped.tianshu, 'tianshu')
-const activeThreadIds = {
-chat: chat.some((thread) => thread.id === activeScoped.chat) ? activeScoped.chat : chat[0].id,
-tianshu: tianshu.some((thread) => thread.id === activeScoped.tianshu) ? activeScoped.tianshu : tianshu[0].id,
-}
-return { accountKey, threads: { chat, tianshu }, activeThreadIds }
-} catch {
-return fallback
-}
-}
-function normalizeThreads(value, mode) {
-const threads = Array.isArray(value)
-? value.map((thread) => ({
-id: typeof thread?.id === 'string' && thread.id ? thread.id : `${mode}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-title: typeof thread?.title === 'string' && thread.title ? thread.title : (mode === 'tianshu' ? '天枢对话' : '普通对话'),
-createdAt: Number(thread?.createdAt || Date.now()),
-updatedAt: Number(thread?.updatedAt || Date.now()),
-messages: Array.isArray(thread?.messages)
-? thread.messages.filter((message) => message && typeof message.text === 'string').slice(-80)
-: [],
-}))
-: []
-return threads.length ? threads.slice(0, 20) : [createEmptyThread(mode)]
-}
-function ensureChatHistoryScope() {
-const accountKey = currentAccountKey()
-if (state.chatHistoryAccountKey === accountKey) return
-const next = loadSavedChatHistory(state.auth)
-state.chatHistoryAccountKey = next.accountKey
-state.chatThreads = next.threads
-state.activeThreadIds = next.activeThreadIds
-state.messages = getThreadMessages(next.threads.chat, next.activeThreadIds.chat)
-state.tianshuMessages = getThreadMessages(next.threads.tianshu, next.activeThreadIds.tianshu)
-}
-function activeThread(mode = state.tab) {
-const normalized = normalizeChatMode(mode)
-const threads = state.chatThreads[normalized]
-let thread = threads.find((item) => item.id === state.activeThreadIds[normalized])
-if (!thread) {
-thread = createEmptyThread(normalized)
-threads.unshift(thread)
-state.activeThreadIds[normalized] = thread.id
-}
-return thread
-}
-function syncVisibleMessages(mode = state.tab) {
-const normalized = normalizeChatMode(mode)
-if (normalized === 'chat') state.messages = activeThread('chat').messages
-else state.tianshuMessages = activeThread('tianshu').messages
-}
-function appendMessage(message, { mode = state.tab, persist = true } = {}) {
-const normalized = normalizeChatMode(mode)
-ensureChatHistoryScope()
-const thread = activeThread(normalized)
-message.role = message.role === 'user' ? 'user' : 'assistant'
-message.text = String(message.text || '')
-message.time = message.time || currentTime()
-message.remoteKey = message.remoteKey || ''
-thread.messages.push(message)
-thread.messages = thread.messages.slice(-80)
-thread.updatedAt = Date.now()
-if (thread.title === '普通对话' || thread.title === '天枢对话') {
-const firstUser = thread.messages.find((item) => item.role === 'user' && item.text)
-if (firstUser) thread.title = firstUser.text.slice(0, 18)
-}
-syncVisibleMessages(normalized)
-if (persist) saveChatHistory()
-return thread.messages[thread.messages.length - 1]
-}
-function createChatThread(mode = state.tab) {
-const normalized = normalizeChatMode(mode)
-const thread = createEmptyThread(normalized)
-state.chatThreads[normalized].unshift(thread)
-state.chatThreads[normalized] = state.chatThreads[normalized].slice(0, 20)
-state.activeThreadIds[normalized] = thread.id
-syncVisibleMessages(normalized)
-saveChatHistory()
-return thread
-}
-function saveChatHistory() {
-ensureChatHistoryScope()
-try {
-const raw = localStorage.getItem(CHAT_THREADS_STORAGE_KEY)
-const parsed = raw ? JSON.parse(raw) : {}
-parsed[state.chatHistoryAccountKey] = state.chatThreads
-localStorage.setItem(CHAT_THREADS_STORAGE_KEY, JSON.stringify(parsed))
-const activeRaw = localStorage.getItem(ACTIVE_CHAT_THREAD_STORAGE_KEY)
-const activeParsed = activeRaw ? JSON.parse(activeRaw) : {}
-activeParsed[state.chatHistoryAccountKey] = state.activeThreadIds
-localStorage.setItem(ACTIVE_CHAT_THREAD_STORAGE_KEY, JSON.stringify(activeParsed))
-} catch {}
-}
-function defaultApiConfig() {
-return { ...DEFAULT_API_CONFIG }
-}
-function loadSavedApiConfig(authSession = null) {
-const fallback = defaultApiConfig()
-const authToken = authSession?.token || ''
-try {
-const raw = localStorage.getItem(API_STORAGE_KEY)
-if (!raw) return authToken ? { ...fallback, token: authToken, saved: true, savedAt: authSession.savedAt || currentTime() } : fallback
-const parsed = JSON.parse(raw)
-if (authToken) {
-return {
-...fallback,
-token: authToken,
-saved: true,
-savedAt: authSession.savedAt || (typeof parsed.savedAt === 'string' ? parsed.savedAt : ''),
-workspaceId: typeof parsed.workspaceId === 'string' && parsed.workspaceId ? parsed.workspaceId : fallback.workspaceId,
-}
-}
-const endpoint = typeof parsed.chatEndpoint === 'string' && parsed.chatEndpoint ? parsed.chatEndpoint : (typeof parsed.endpoint === 'string' && parsed.endpoint ? parsed.endpoint : fallback.endpoint)
-return {
-endpoint,
-chatEndpoint: endpoint,
-desktopEndpoint: typeof parsed.desktopEndpoint === 'string' && parsed.desktopEndpoint ? parsed.desktopEndpoint : fallback.desktopEndpoint,
-token: typeof parsed.token === 'string' ? parsed.token : '',
-saved: true,
-savedAt: typeof parsed.savedAt === 'string' ? parsed.savedAt : '',
-workspaceId: typeof parsed.workspaceId === 'string' && parsed.workspaceId ? parsed.workspaceId : fallback.workspaceId,
-source: typeof parsed.source === 'string' ? parsed.source : 'custom',
-}
-} catch {
-return authToken ? { ...fallback, token: authToken, saved: true, savedAt: authSession.savedAt || currentTime() } : fallback
-}
-}
-function saveApiConnection(endpoint, token, desktopEndpoint, workspaceId, options = {}) {
-const authSession = options.authSession || state.auth
-const sessionToken = token || authSession?.token || ''
-const websiteSession = Boolean(authSession?.token)
-const defaults = defaultApiConfig()
-const next = {
-endpoint: websiteSession ? defaults.endpoint : (endpoint || defaults.endpoint),
-chatEndpoint: websiteSession ? defaults.chatEndpoint : (endpoint || defaults.chatEndpoint),
-desktopEndpoint: websiteSession ? defaults.desktopEndpoint : (desktopEndpoint || defaults.desktopEndpoint),
-token: sessionToken,
-saved: true,
-savedAt: currentTime(),
-workspaceId: workspaceId || defaults.workspaceId,
-source: websiteSession ? 'xiaobai-website' : 'custom',
-}
-try {
-localStorage.setItem(API_STORAGE_KEY, JSON.stringify(next))
-} catch {
-}
-state.api = next
-state.connected = Boolean(sessionToken)
-state.connectionHealth = {
-checking: false,
-checkedAt: '',
-chat: 'idle',
-remote: 'idle',
-devices: 'idle',
-message: sessionToken ? '已保存网站账号，正在读取同账号电脑端 API。' : '请先登录网站账号。',
-}
-stopRemoteSync()
-if (!options.quiet) render()
-if (!options.skipHealth) {
-runConnectionHealthCheck().catch((error) => {
-updateConnectionHealth({ chat: 'error', remote: 'warn', devices: 'warn', message: error?.message || '连接体检失败。' })
-render()
-})
-}
-}
-function clearApiConnection() {
-try {
-localStorage.removeItem(API_STORAGE_KEY)
-} catch {}
-state.api = defaultApiConfig()
-state.connected = false
-state.connectionHealth = {
-checking: false,
-checkedAt: '',
-chat: 'offline',
-remote: 'offline',
-devices: 'offline',
-message: '还没有保存 API 连接。',
-}
-state.devices = [{ name: '天枢终端 01', meta: '未连接', online: false }]
-stopRemoteSync()
-render()
-}
-function ensureWebsiteAccountConnection(options = {}) {
-if (!state.auth?.token) return false
-const defaults = defaultApiConfig()
-const expected = {
-...defaults,
-token: state.auth.token,
-saved: true,
-savedAt: state.api.savedAt || state.auth.savedAt || currentTime(),
-workspaceId: state.api.workspaceId || defaults.workspaceId,
-}
-const needsMigration = !state.connected
-|| state.api.token !== state.auth.token
-|| state.api.chatEndpoint !== defaults.chatEndpoint
-|| state.api.endpoint !== defaults.endpoint
-|| state.api.desktopEndpoint !== defaults.desktopEndpoint
-|| state.api.source !== defaults.source
-if (!needsMigration) return false
-saveApiConnection(expected.endpoint, expected.token, expected.desktopEndpoint, expected.workspaceId, {
-authSession: state.auth,
-quiet: options.quiet !== false,
-skipHealth: options.skipHealth === true,
-})
-return true
-}
-function loadSavedAuthSession() {
-try {
-const raw = localStorage.getItem(AUTH_STORAGE_KEY)
-if (!raw) return defaultAuthSession()
-const parsed = JSON.parse(raw)
-return {
-token: typeof parsed.token === 'string' ? parsed.token : '',
-refreshToken: typeof parsed.refreshToken === 'string' ? parsed.refreshToken : '',
-expiresAt: Number(parsed.expiresAt || 0),
-savedAt: typeof parsed.savedAt === 'string' ? parsed.savedAt : '',
-user: parsed.user && typeof parsed.user === 'object' ? {
-id: String(parsed.user.id || ''),
-email: String(parsed.user.email || ''),
-name: String(parsed.user.name || ''),
-} : null,
-}
-} catch {
-return defaultAuthSession()
-}
-}
-function defaultAuthSession() {
-return {
-token: '',
-refreshToken: '',
-expiresAt: 0,
-savedAt: '',
-user: null,
-}
-}
-function saveAuthSession(data) {
-const session = data.session || {}
-const next = {
-token: session.access_token || data.token || '',
-refreshToken: session.refresh_token || data.refreshToken || '',
-expiresAt: Number(session.expires_at || data.expiresAt || 0),
-savedAt: currentTime(),
-user: data.user || null,
-}
-if (!next.token) throw new Error('登录成功但没有拿到访问令牌。')
-try {
-localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(next))
-} catch {}
-state.auth = next
-state.authError = ''
-track('login_success', { email: next.user?.email || '' })
-saveApiConnection('', next.token, '', '', { authSession: next })
-}
-function clearAuthSession() {
-track('logout')
-try {
-localStorage.removeItem(AUTH_STORAGE_KEY)
-} catch {}
-state.auth = defaultAuthSession()
-state.authError = ''
-clearApiConnection()
-}
-function applyViewportInsets() {
-const root = document.documentElement
-const visualTop = window.visualViewport?.offsetTop || 0
-const userAgent = navigator.userAgent || ''
-const androidWebView = /\bwv\b|Version\/[\d.]+.*Chrome\/[\d.]+.*Mobile Safari/i.test(userAgent)
-const standalone = window.matchMedia?.('(display-mode: standalone)')?.matches
-|| window.navigator.standalone
-|| document.referrer.startsWith('android-app:
-|| androidWebView
-const statusTop = standalone ? Math.max(visualTop, 32) : visualTop
-root.style.setProperty('--mobile-status-top', `${Math.round(statusTop)}px`)
-}
-async function loginWithWebsiteAccount(email, password) {
-if (!email || !password) throw new Error('请输入小白AI网站账号和密码。')
-state.authBusy = true
-state.authError = ''
-render()
-const response = await fetchWithRetry('https:
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ mode: 'login', email, password }),
-})
-const data = await readApiJson(response)
-state.authBusy = false
-saveAuthSession(data)
-}
-async function refreshAuthSessionIfNeeded() {
-if (!state.auth?.refreshToken || state.authBusy) return
-const expiresAtMs = Number(state.auth.expiresAt || 0) * 1000
-if (!expiresAtMs || expiresAtMs - Date.now() > 10 * 60 * 1000) return
-state.authBusy = true
-try {
-const response = await fetchWithRetry('https:
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ mode: 'refresh', refresh_token: state.auth.refreshToken }),
-})
-const data = await readApiJson(response)
-saveAuthSession(data)
-} finally {
-state.authBusy = false
-}
-}
-function defaultChatBackground() {
-return {
-mode: 'glass',
-customImage: '',
-}
-}
-function loadSavedChatBackground() {
-const fallback = defaultChatBackground()
-try {
-const raw = localStorage.getItem(CHAT_BACKGROUND_STORAGE_KEY)
-if (!raw) return fallback
-const parsed = JSON.parse(raw)
-const mode = ['glass', 'galaxy', 'custom'].includes(parsed?.mode) ? parsed.mode : fallback.mode
-return {
-mode,
-customImage: typeof parsed?.customImage === 'string' ? parsed.customImage : '',
-}
-} catch {
-return fallback
-}
-}
-function saveChatBackground(nextBackground) {
-const next = {
-mode: ['glass', 'galaxy', 'custom'].includes(nextBackground.mode) ? nextBackground.mode : 'glass',
-customImage: nextBackground.customImage || (nextBackground.mode === 'custom' ? state.chatBackground.customImage : ''),
-}
-try {
-localStorage.setItem(CHAT_BACKGROUND_STORAGE_KEY, JSON.stringify(next))
-} catch {}
-state.chatBackground = next
-render()
-}
-function currentTime() {
-return new Intl.DateTimeFormat('zh-CN', {
-hour: '2-digit',
-minute: '2-digit',
-hour12: false,
-}).format(new Date())
-}
-function escapeHtml(value) {
-return value
-.replaceAll('&', '&amp;')
-.replaceAll('<', '&lt;')
-.replaceAll('>', '&gt;')
-.replaceAll('"', '&quot;')
-.replaceAll("'", '&#039;')
-}
-function menuIcon() {
-return assetIcon('menu')
-}
-function chatIcon() {
-return assetIcon('chat')
-}
-function tianshuIcon() {
-return assetIcon('tianshu')
-}
-function backIcon() {
-return assetIcon('back')
-}
-function plusIcon() {
-return assetIcon('plus')
-}
-function settingsIcon() {
-return assetIcon('settings')
-}
-function sparkIcon() {
-return assetIcon('spark')
-}
-function closeIcon() {
-return assetIcon('close')
-}
-function hotIcon() {
-return assetIcon('news')
-}
-function taskIcon() {
-return assetIcon('task')
-}
-function weatherIcon() {
-return assetIcon('weather')
-}
-function fileIcon() {
-return assetIcon('file')
-}
-function imageIcon() {
-return assetIcon('photo')
-}
-function cameraIcon() {
-return assetIcon('camera')
-}
-function sendIcon() {
-return assetIcon('send')
-}
-function boxIcon() {
-return assetIcon('task')
-}
-function micIcon() {
-return assetIcon('mic')
-}
-function assetIcon(name) {
-return `<img class="asset-icon asset-icon-${name}" src="./assets/image2/icons/${name}.png" alt="" aria-hidden="true" loading="eager" decoding="async" />`
-}
-function haptic(ms = 10) {
-try { navigator.vibrate?.(ms) } catch {}
-}
-function track(event, props = {}) {
-try {
-const raw = localStorage.getItem(TELEMETRY_KEY)
-const events = raw ? JSON.parse(raw) : []
-events.push({
-event,
-...props,
-ts: Date.now(),
-session: sessionId(),
-version: state.version,
-})
-if (events.length > TELEMETRY_MAX) events.splice(0, events.length - TELEMETRY_MAX)
-localStorage.setItem(TELEMETRY_KEY, JSON.stringify(events))
-} catch {}
-}
-let _sessionId = null
-function sessionId() {
-if (!_sessionId) _sessionId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
-return _sessionId
-}
-function announceToScreenReader(message) {
-const el = document.getElementById('aria-live')
-if (!el) return
-el.textContent = ''
-requestAnimationFrame(() => { el.textContent = message })
-}
-function confirmThen(message, onConfirm) {
-state.confirmDialog = { message, onConfirm, id: Date.now() }
-render()
-}
-function dismissConfirm() {
-state.confirmDialog = null
-render()
+<a class="download-link" href="${state.apkUrl || '#'}">下载 Android 测试包</a>
+</div>
+`;
+}
+// ─── 错误/离线/确认对话框 ────────────────────────────────
+function renderErrorBanner() {
+if (!state.errorBanner) return '';
+return `
+<div class="error-banner" role="alert">
+<span>⚠</span>
+<p>${esc(state.errorBanner.message || '')}</p>
+<button onclick="window.__dismissBanner()" aria-label="关闭">${I.close}</button>
+${state.errorBanner.isFatal ? '<button class="error-reload-btn" onclick="location.reload()">刷新页面</button>' : ''}
+</div>
+`;
+}
+function renderOfflineBanner() {
+if (state.online !== false) return '';
+return `
+<div class="offline-banner" role="alert">
+<span>!</span>
+<p>当前处于离线状态</p>
+</div>
+`;
 }
 function renderConfirmDialog() {
-if (!state.confirmDialog) return ''
+if (!state.confirmDialog) return '';
 return `
-<div class="confirm-overlay" role="alertdialog" aria-label="确认操作">
+<div class="confirm-overlay" role="alertdialog">
 <div class="confirm-dialog">
-<p>${escapeHtml(state.confirmDialog.message)}</p>
+<p>${esc(state.confirmDialog.message || '')}</p>
 <div class="confirm-actions">
-<button type="button" class="confirm-cancel" onclick="window.__dismissConfirm()">取消</button>
-<button type="button" class="confirm-ok" onclick="window.__executeConfirm()">确定</button>
+<button class="confirm-cancel-btn" onclick="window.__dismissConfirm()">取消</button>
+<button class="confirm-ok-btn" onclick="window.__executeConfirm()">确定</button>
 </div>
 </div>
 </div>
-`
+`;
 }
-window.__dismissConfirm = dismissConfirm
+// ─── 事件绑定 ─────────────────────────────────────────────
+function bindEvents() {
+const app = $el('#app');
+if (!app) return;
+// Click delegation for [data-action], [data-card], [data-attachment], [data-bg]
+app.addEventListener('click', (e) => {
+const t = e.target.closest('[data-action], [data-card], [data-attachment], [data-bg]');
+if (!t) return;
+const { action, card, attachment, bg } = t.dataset;
+if (attachment) {
+// Trigger file input
+const input = app.querySelector(`[data-attachment-input="${attachment}"]`);
+if (input) input.click();
+return;
+}
+if (bg) {
+saveBackground(bg);
+return;
+}
+if (card) {
+openCard(card);
+return;
+}
+// Actions
+switch (action) {
+case 'sidebar':
+state.sidebarOpen = true;
+render();
+break;
+case 'close-sidebar':
+state.sidebarOpen = false;
+render();
+break;
+case 'toggle-summon':
+state.summonOpen = !state.summonOpen;
+render();
+break;
+case 'close-card':
+closeCard();
+break;
+case 'open-settings':
+state.tab = 'settings';
+state.sidebarOpen = false;
+render();
+break;
+case 'back-chat':
+state.tab = 'chat';
+render();
+break;
+case 'open-chat':
+state.tab = 'chat';
+state.sidebarOpen = false;
+render();
+break;
+case 'enter-tianshu':
+state.tab = 'tianshu';
+state.sidebarOpen = false;
+render();
+break;
+case 'new-chat':
+createThread(state.tab);
+state.tab = 'chat';
+state.sidebarOpen = false;
+render();
+break;
+case 'skip-login':
+state.auth = { token: 'demo', user: { email: 'demo@xiaobai.ai' } };
+state.connected = true;
+state.devices = [{ name: 'MacBook Pro', online: true, meta: '天枢 v3.0' }];
+render();
+break;
+case 'logout-account':
+confirmThen('确定退出登录？', logoutAccount);
+break;
+case 'clear-api':
+confirmThen('确定清除连接？', clearApi);
+break;
+case 'pick-bg':
+const bgInput = app.querySelector('[data-bg-file]');
+if (bgInput) bgInput.click();
+break;
+case 'use-device':
+case 'wake-device':
+haptic(10);
+break;
+default:
+break;
+}
+});
+// Form submissions
+app.addEventListener('submit', (e) => {
+e.preventDefault();
+const composer = e.target.closest('[data-composer]');
+if (composer) {
+const input = composer.elements.prompt;
+if (!input.value.trim()) return;
+submitPrompt(input.value.trim());
+input.value = '';
+return;
+}
+const apiForm = e.target.closest('[data-api-form]');
+if (apiForm) {
+saveApiConnection({
+endpoint: apiForm.elements.endpoint?.value?.trim() || '',
+chatEndpoint: apiForm.elements.endpoint?.value?.trim() || '',
+desktopEndpoint: apiForm.elements.desktopEndpoint?.value?.trim() || '',
+workspaceId: apiForm.elements.workspaceId?.value?.trim() || WS_WORKSPACE,
+token: state.auth?.token || apiForm.elements.token?.value?.trim() || '',
+});
+return;
+}
+const authForm = e.target.closest('[data-auth-form]');
+if (authForm) {
+login(
+authForm.elements.email?.value?.trim() || '',
+authForm.elements.password?.value || '',
+);
+return;
+}
+});
+// File input changes
+app.addEventListener('change', (e) => {
+const bgFile = e.target.closest('[data-bg-file]');
+if (bgFile && bgFile.files?.[0]) {
+const reader = new FileReader();
+reader.onload = () => saveBackground('custom', reader.result);
+reader.readAsDataURL(bgFile.files[0]);
+}
+});
+}
+// ─── 手势 ────────────────────────────────────────────────
+function installSwipeGestures() {
+let startX = 0;
+const app = $el('#app');
+if (!app) return;
+app.addEventListener('touchstart', (e) => {
+startX = e.touches?.[0]?.clientX || 0;
+}, { passive: true });
+app.addEventListener('touchend', (e) => {
+const dx = (e.changedTouches?.[0]?.clientX || 0) - startX;
+if (state.sidebarOpen && dx < -60) {
+state.sidebarOpen = false;
+render();
+haptic(6);
+}
+if (state.activeCard && Math.abs(dx) > 40) {
+state.activeCard = null;
+disposeEarth();
+render();
+haptic(6);
+}
+});
+}
+// ─── 离线检测 ─────────────────────────────────────────────
+function installOfflineDetection() {
+window.addEventListener('online', () => {
+state.online = true;
+render();
+});
+window.addEventListener('offline', () => {
+state.online = false;
+render();
+});
+}
+// ─── 错误边界 ─────────────────────────────────────────────
+function installErrorBoundary() {
+const recent = [];
+window.addEventListener('error', (e) => {
+if (e.target?.tagName === 'IMG' || e.target?.tagName === 'SCRIPT') return;
+recent.push({ msg: e.message, t: Date.now() });
+if (recent.length > 5) recent.shift();
+const crash = recent.filter((r) => Date.now() - r.t < 4000).length >= 3;
+state.errorBanner = { message: e.message, isFatal: crash, id: Date.now() };
+render();
+if (crash) recent.length = 0;
+});
+window.addEventListener('unhandledrejection', (e) => {
+state.errorBanner = { message: e.reason?.message || String(e.reason), isFatal: false, id: Date.now() };
+render();
+});
+}
+// ─── Service Worker ───────────────────────────────────────
+function registerServiceWorker() {
+if (!('serviceWorker' in navigator)) return;
+window.addEventListener('load', () => {
+navigator.serviceWorker.register('./sw.js').catch(() => {});
+}, { once: true });
+}
+// ─── 全局回调 ─────────────────────────────────────────────
+window.__dismissBanner = () => {
+state.errorBanner = null;
+render();
+};
+window.__dismissConfirm = () => {
+state.confirmDialog = null;
+render();
+};
 window.__executeConfirm = () => {
-const dialog = state.confirmDialog
-if (!dialog) return
-state.confirmDialog = null
-dialog.onConfirm()
-render()
+const d = state.confirmDialog;
+state.confirmDialog = null;
+d.cb?.();
+render();
+};
+// ─── 初始化 ─────────────────────────────────────────────
+function init() {
+// Restore persisted state
+try {
+const savedApi = loadPersisted(LS_API);
+if (savedApi) {
+state.api = savedApi;
+state.connected = Boolean(savedApi.token);
 }
-render()
+const savedAuth = loadPersisted(LS_AUTH);
+if (savedAuth) {
+state.auth = savedAuth;
+if (savedAuth.token) {
+state.connected = true;
+runConnectionHealth();
+}
+}
+const savedBg = loadPersisted(LS_BG);
+if (savedBg) state.chatBackground = savedBg;
+const savedThreads = loadPersisted(LS_THREADS);
+if (savedThreads) {
+if (savedThreads.chat) {
+state.chatThreads.chat = savedThreads.chat || [];
+state.messages = state.chatThreads.chat[0]?.messages || [];
+state.activeThreadIds.chat = state.chatThreads.chat[0]?.id || '';
+}
+if (savedThreads.tianshu) {
+state.chatThreads.tianshu = savedThreads.tianshu || [];
+state.tianshuMessages = state.chatThreads.tianshu[0]?.messages || [];
+state.activeThreadIds.tianshu = state.chatThreads.tianshu[0]?.id || '';
+}
+}
+} catch (_) {}
+applySafeArea();
+installSwipeGestures();
+installOfflineDetection();
+installErrorBoundary();
+registerServiceWorker();
+render();
+window.visualViewport?.addEventListener('resize', applySafeArea);
+window.addEventListener('orientationchange', () => setTimeout(applySafeArea, 160));
+}
+// Boot
+init();

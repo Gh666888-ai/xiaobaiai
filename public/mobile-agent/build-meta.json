@@ -1,10 +1,10 @@
 {
   "name": "xiaobai-mobile-app",
-  "version": "0.2.2",
-  "buildId": "0.2.2-mpj1piw6",
+  "version": "0.2.3",
+  "buildId": "0.2.3-mplqus7i",
   "channel": "web-pwa",
-  "builtAt": "2026-05-24T00:34:56.492Z",
-  "totalBefore": 1437773,
-  "totalAfter": 1222019,
-  "reduction": "15.0%"
+  "builtAt": "2026-05-25T21:54:24.590Z",
+  "totalBefore": 1365903,
+  "totalAfter": 1243585,
+  "reduction": "9.0%"
 }
