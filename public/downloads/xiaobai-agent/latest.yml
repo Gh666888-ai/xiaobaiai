@@ -1,8 +1,8 @@
-version: 2.1.168
+version: 2.1.169
 files:
-  - url: Xiaobai-Setup-2.1.168.exe
-    sha512: qYMVEaUceO46UZR8ZpI96/HBUVGKIiVcVcDutL2dSElEnQF1RsJ77uxjliBOmlzS0AfBMq1CLIqv67/EnefOog==
-    size: 92600270
-path: Xiaobai-Setup-2.1.168.exe
-sha512: qYMVEaUceO46UZR8ZpI96/HBUVGKIiVcVcDutL2dSElEnQF1RsJ77uxjliBOmlzS0AfBMq1CLIqv67/EnefOog==
-releaseDate: '2026-05-26T19:27:10.677Z'
+  - url: Xiaobai-Setup-2.1.169.exe
+    sha512: BQ+ta6gLNLgVaH35SCheBTiRMTpBxGhND5HbkNzq69yf2X8vYPHPsLDa6S6KsQxp/v8TANnMTi9KGmLxp7QDKQ==
+    size: 92603230
+path: Xiaobai-Setup-2.1.169.exe
+sha512: BQ+ta6gLNLgVaH35SCheBTiRMTpBxGhND5HbkNzq69yf2X8vYPHPsLDa6S6KsQxp/v8TANnMTi9KGmLxp7QDKQ==
+releaseDate: '2026-05-26T22:16:13.008Z'
