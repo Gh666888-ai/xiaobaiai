@@ -4,6 +4,7 @@ import Script from "next/script"
 import { AuthProvider } from "@/lib/AuthContext"
 import { FloatingChat } from "@/components/FloatingChat"
 import { OnlineXpTracker } from "@/components/OnlineXpTracker"
+import { VisualPolish } from "@/components/VisualPolish"
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.xiaobaiai.cn"),
@@ -144,6 +145,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={{ background: "#000", color: "#f0f0f0", fontFamily: "'Noto Sans SC', sans-serif" }}>
         <AuthProvider>
           <OnlineXpTracker />
+          <VisualPolish />
           {children}
           <FloatingChat />
         </AuthProvider>
